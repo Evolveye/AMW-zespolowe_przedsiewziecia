@@ -1,5 +1,12 @@
-# Przestrzeń backendu
+<!-- MarkDown Syntax: https://guides.github.com/features/mastering-markdown/ -->
 
+
+# Przestrzeń backendu
 Jedyną osobą która tutaj pracuje jest Adam Szreiber
 
-**Plik ten możesz nadpisać**
+# Technologie:
+* ASP.NET Core
+    1. API.
+    2. WebSocket.
+    3. Hosting static files.
+* GraphQL
