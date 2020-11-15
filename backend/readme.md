@@ -22,7 +22,3 @@ Jedyną osobą która tutaj pracuje jest Adam Szreiber
 * simply websocket chat, with rooms.
 * upload && download files -> directly into '/public'
 
-
-
-=======
->>>>>>> f3c598d088787e8ba495ee4eb94ee52c57a744b7
