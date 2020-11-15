@@ -10,7 +10,6 @@ Jedyną osobą która tutaj pracuje jest Adam Szreiber
     * WebSocket.
     * Hosting static files.
 * GraphQL
-<<<<<<< HEAD
 
 ### Done:
 * index.html as '/' path
