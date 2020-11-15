@@ -10,6 +10,7 @@ Jedyną osobą która tutaj pracuje jest Adam Szreiber
     * WebSocket.
     * Hosting static files.
 * GraphQL
+<<<<<<< HEAD
 
 ### Done:
 * index.html as '/' path
@@ -23,3 +24,5 @@ Jedyną osobą która tutaj pracuje jest Adam Szreiber
 
 
 
+=======
+>>>>>>> f3c598d088787e8ba495ee4eb94ee52c57a744b7
