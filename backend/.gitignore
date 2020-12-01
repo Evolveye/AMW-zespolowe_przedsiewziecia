@@ -1,3 +1,6 @@
+*/wwwroot
+!*/wwwroot/index.html
+
 *.swp
 *.*~
 project.lock.json
