@@ -15,7 +15,10 @@ const Header = ({ siteTitle }) => (
             <li> <Link to="/">Start</Link> </li>
             {isLoggedIn()?( 
             [
-            <li> <Link to="/" >Wyloguj</Link> </li>, 
+            <li> <Link to="/" onClick={event => {
+              event.preventDefault()
+              logout(() => navigate(`/app/login2`))
+            }}>Wyloguj</Link> </li>, 
             ]
 
             ):[
