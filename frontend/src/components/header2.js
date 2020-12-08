@@ -12,17 +12,18 @@ const Header = ({ siteTitle }) => (
         </Link>
         <ul className="navigate">
 
-            <li> <Link to="/">Start</Link> </li>
+            <li> <Link to="/">Start</Link> </li> 
             {isLoggedIn()?( 
             [
+              <li><Link to="/app/profile">Profil</Link></li>,
             <li> <Link to="/" onClick={event => {
               event.preventDefault()
-              logout(() => navigate(`/app/login2`))
+              logout(() => navigate(`/app/login`))
             }}>Wyloguj</Link> </li>, 
             ]
 
             ):[
-            <li> <Link to="/app/login2">Logowanie</Link> </li>,
+            <li> <Link to="/app/login">Logowanie</Link> </li>,
             <li> <Link to="#rejestracja">Rejestracja</Link> </li>
             ]
           }
