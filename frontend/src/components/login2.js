@@ -21,8 +21,9 @@ class Login extends React.Component {
     }
     return (
       <>
+      <div className="logowanie-div">
         <h1>Log in</h1>
-        <form
+        <form className="box"
           method="post"
           onSubmit={event => {
             this.handleSubmit(event)
@@ -43,6 +44,7 @@ class Login extends React.Component {
           </label>
           <input type="submit" value="Log In" />
         </form>
+        </div>
       </>
     )
   }
