@@ -6,6 +6,8 @@ import LoginForm from "../components/login"
 import RegisterForm from "../components/register"
 import SEO from "../components/seo"
 
+
+
 const IndexPage = () => (
   <Layout>
     <SEO title="Home" />
@@ -15,10 +17,7 @@ const IndexPage = () => (
              <p className="wstep-div-text-p">Tu będzie jakiś ładny slogan</p>
            </div>
         </div>
-        <div className="logowanie-div" id="logowanie">
-           <LoginForm />
-
-        </div>
+        
         <div className="rejestracja-div"  id="rejestracja">
          <RegisterForm />
         </div>

@@ -1,7 +1,7 @@
-import { Link } from "gatsby"
+import { Link, navigate } from "gatsby"
 import PropTypes from "prop-types"
 import React from "react"
-
+import { getUser, isLoggedIn, logout } from "../services/auth"
 const Header = ({ siteTitle }) => (
   <header>
     <Link
@@ -11,9 +11,18 @@ const Header = ({ siteTitle }) => (
           SASS
         </Link>
         <ul className="navigate">
-            <li> <Link to="#wstep">Start</Link> </li>
-            <li> <Link to="#logowanie">Logowanie</Link> </li>
+
+            <li> <Link to="/">Start</Link> </li>
+            {isLoggedIn()?( 
+            [
+            <li> <Link to="/" >Wyloguj</Link> </li>, 
+            ]
+
+            ):[
+            <li> <Link to="/app/login2">Logowanie</Link> </li>,
             <li> <Link to="#rejestracja">Rejestracja</Link> </li>
+            ]
+          }
         </ul>
   </header>
   
