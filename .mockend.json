@@ -1,12 +1,12 @@
 {
-  "token": "abcdef#12345",
-  "users": [
-    {
-      "avatar": "https://www.maxpixel.net/static/photo/640/Portrait-Face-Person-Avatar-Glasses-Man-Head-156584.png",
-      "login": "admin",
-      "email": "admin@admin.admin",
-      "name": "Adam",
-      "surname": "Potężny"
-    }
-  ]
+  "Token": {
+    "token": "string"
+  },
+  "User": {
+    "avatarSrc": "string",
+    "login": "string",
+    "email": "string",
+    "name": "string",
+    "surname": "string"
+  }
 }
