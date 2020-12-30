@@ -1,10 +1,21 @@
-import Module from "./module.js"
+import Module from "./module.js";
+// ZDEFINIOWAC USERA ORAZ  OPIS JEGO POL
 
 /** @typedef {import('express').Express} Express */
 /** @typedef {import('express').Request} Request */
 /** @typedef {import('express').Response} Response */
 /** @typedef {import('express').NextFunction} NextFunction */
 
+/** @typedef {import('../src/dbManager').default} DatabaseManager */
+
+/**
+ * @typedef {object} User
+ * @property {string} login
+ * @property {string} name
+ * @property {string} surname
+ * @property {string} email
+ * @property {string} password
+ */
 
 const userManager = [];
 
@@ -12,41 +23,54 @@ const userManager = [];
 // zalogowani -> ?
 const userLoggedin = [];
 
+export default class UserModule extends Module {
+  static EXPIRE_TIME_IN_MINUTES = 1;
+  static ERRORS = {
 
-export default class User extends Module {
-  static EXPIRE_TIME_IN_MINUTES = 1
-  #login = ``
-  #password = ``
+  }
 
-  #tokens = [
-    { token:`qwertyuio`, lastActivity:12345 }
-  ]
+  #tokens = [{ token: `qwertyuio`, lastActivity: 12345, user: {} }];
 
-  constructor(login, password) {
-    super()
+  /**
+   * @param {DatabaseManager} dbManager
+   */
+  constructor(dbManager) {
+    super(dbManager);
 
-    this.#login = login;
-    this.#password = password;
+    this.dbManager.createCollection(`users`, [
+      `login`,
+      `name`,
+      `surname`,
+      "password",
+      "email",
+    ]);
 
-    setInterval( () => {
-      this.#tokens = this.#tokens.filter( ({ lastActivity }) =>
-        lastActivity < Date.now() - 1000 * 60 * User.EXPIRE_TIME_IN_MINUTES
-      )
-    }, 1000 * 60 * 1 )
+    setInterval(() => {
+      this.#tokens = this.#tokens.filter(
+        ({ lastActivity }) =>
+          lastActivity <
+          Date.now() - 1000 * 60 * UserModule.EXPIRE_TIME_IN_MINUTES
+      );
+    }, 1000 * 60 * 1);
   }
 
   /**
    * @param {Express} app
    */
   configure(app) {
-    // path should be user/
-    app.post('register',this.registerMiddleware)
-    app.post('login',this.loginMiddleware)
-    app.get('createaccount',this.createAccountMiddleware)
-    app.get('/api/me',this.whoamiMiddleware)
+    // TODO: Refresh'ing token time.
 
+    app.post("/register", this.registerMiddleware);
+    app.post("/login", this.loginMiddleware); //
+
+    app.get("/api/me", this.whoAmIMiddleware);
+    // app.post('/api/authenticate',this.apiAuthneticateMiddleware)
     // registered
     // activatedAccount
+  }
+
+  apiAuthneticateMiddleware(req, res, next) {
+    res.send("token: xyz");
   }
 
   /**
@@ -54,58 +78,82 @@ export default class User extends Module {
    * @param {Response} res
    * @param {NextFunction} next
    */
-  whoamiMiddleware(req,res,next){
-    const authentication = req.header( "Authentication" )
-    const token = authentication.match( /Bearer (.*)/ )[ 1 ]
+  whoAmIMiddleware = (req, res, next) => {
+    const authentication = req.header("Authentication");
+    const token = authentication.match(/Bearer (.*)/)[1];
+    const tokenData = this.#tokens.find((tokenData) => tokenData.token == token);
 
-    console.log( token )
-  }
+    if (tokenData) {
+      const { user } = tokenData
 
-  createAccountMiddleware(req,res,next){
+      delete user.password
 
-  }
+      res.send(JSON.stringify( { user } ));
+    }
+    else {}
+  };
 
-
-  loginMiddleware(req,res,next){
+  /**
+   * @param {Request} req
+   * @param {Response} res
+   * @param {NextFunction} next
+   */
+  loginMiddleware = (req, res, next) => {
     // W celu zalogowania się na stronie musi podać login i hasło.
     const user = {
       login: req.body.login,
       password: req.body.password,
     };
+    console.log( { user } )
+    const userobj = this.dbManager.findObject(
+      `users`,
+       /**@param {User} param0 */
+      ({ login, password }) => login == user.login && password == user.password
+    );
 
-    const userobj = new User(user.login, user.password);
+    console.log( { userobj } )
+    if (userobj) {
+      // TODO: ??? SEND TOKEN, associate token to user, and save in db??
+      const token = Math.random().toString();
 
-    var userFind = userManager.find((arg, idx, arr) => {
-      //TODO
+      this.#tokens.push({
+        lastActivity: Date.now(),
+        user: userobj,
+        token,
+      });
 
-    });
-
-    if (userFind === null) {
-
+      res.send(JSON.stringify({ token }));
+    } else {
+      res.status(400).send("Cannot find user with our credentials");
     }
-  }
+  };
 
+  /**
+   * @param {Request} req
+   * @param {Response} res
+   * @param {NextFunction} next
+   */
+  registerMiddleware = (req, res, next) => {
+    console.log(`REQUEST REGISTER`, req.body);
+    // rejestracji konta należy podać imię, nazwisko, email, hasło i powtórnie hasło.
 
+    if (req.body.password1 != req.body.password2)
+      res.status(400).send("Passwords doesn't match.");
 
-
-  registerMiddleware(req,res,next)
-  {// imię, nazwisko, email, hasło i powtórnie hasło.
     const user = {
+      login: Math.random().toString(),
       name: req.body.name,
-      surname:req.body.surname,
-      email:req.body.email,
-      password1: req.body.password1,
-      password2: req.body.password2,
+      surname: req.body.surname,
+      email: req.body.email,
+      password: req.body.password1, // length validation?
     };
 
-    if(user.password1 != req.password2)
-        res.status(400).send("Password doesn't match.");
+    this.dbManager.insertObject(`users`, user);
 
-     this.userManager.push(user);
-  }
-
+    res.status(201).send(user);
+  };
 
   display() {
-    console.log(this.#login + " " + this.#password);
+    // console.log(this.#login + " " + this.#password);
   }
 }

@@ -1,6 +1,8 @@
 //#region imports
 import express from "express";
 import * as sio from "socket.io";
+import bodyParser from 'body-parser';
+import dbManagaer from "./src/dbManager.js";
 //#endregion
 
 //#region  settings
@@ -16,7 +18,7 @@ const PORT = 3000;
 
 // ENDPOINTS
 // api/authenticate --> RES "token : xyz"
-// register 
+// register
 // registered
 // activatedAccount
 // /app/profile
@@ -26,14 +28,16 @@ const PORT = 3000;
 
 
 const app = express();
+app.use(express.json());
 
+// app.use(bodyParser);
 app.use("/public", express.static("./public"));
 
 const modules = Promise.all([
   import("./modules/user.js"),
   import("./modules/api.js")])
   .then((modules) => modules.map((mod) => mod.default))
-  .then((classes) => classes.map((Class) => new Class()))
+  .then((classes) => classes.map((Class) => new Class( dbManagaer )))
   .then((modules) =>
     modules.forEach((mod) => {
       mod.configure(app);
@@ -42,7 +46,6 @@ const modules = Promise.all([
 
 app.listen(PORT, () => {
   console.log(`Server up: localhost:${PORT}`);
-  console.log(__DIRNAME);
 });
 
 
@@ -50,3 +53,6 @@ app.get("/", (req, res) => {
   var path = __DIRNAME  +'/public/index.html';
   res.sendFile(path);
 });
+
+
+//log i token.
