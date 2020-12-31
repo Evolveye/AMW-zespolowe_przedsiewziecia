@@ -1,4 +1,8 @@
-import Module from "./module.js";
+import Module from "../baseModule.js";
+import * as CONSTS from "./consts.js";
+import emailsManager from "./mails.js";
+// import EmailManager from "../../src/emailManager.js";
+import { json } from "body-parser";
 // ZDEFINIOWAC USERA ORAZ  OPIS JEGO POL
 
 /** @typedef {import('express').Express} Express */
@@ -17,19 +21,8 @@ import Module from "./module.js";
  * @property {string} password
  */
 
-const userManager = [];
-
-// zarejestrowani -> DB
-// zalogowani -> ?
-const userLoggedin = [];
-
 export default class UserModule extends Module {
-  static EXPIRE_TIME_IN_MINUTES = 1;
-  static ERRORS = {
-
-  }
-
-  #tokens = [{ token: `qwertyuio`, lastActivity: 12345, user: {} }];
+  #tokens = [];
 
   /**
    * @param {DatabaseManager} dbManager
@@ -46,12 +39,15 @@ export default class UserModule extends Module {
     ]);
 
     setInterval(() => {
+      console.log("Token DELETE MACHANISM");
+      console.log(this.#tokens)
       this.#tokens = this.#tokens.filter(
         ({ lastActivity }) =>
-          lastActivity <
-          Date.now() - 1000 * 60 * UserModule.EXPIRE_TIME_IN_MINUTES
+          lastActivity < Date.now() - CONSTS.TOKEN_EXPIRE_TIME_IN_MINUTES * CONSTS.ONE_MINUTE
       );
-    }, 1000 * 60 * 1);
+
+      console.log(this.#tokens);
+    }, CONSTS.REFRESHING_INTERVAL_TIME_IN_MINUTES);
   }
 
   /**
@@ -62,15 +58,29 @@ export default class UserModule extends Module {
 
     app.post("/register", this.registerMiddleware);
     app.post("/login", this.loginMiddleware); //
-
     app.get("/api/me", this.whoAmIMiddleware);
-    // app.post('/api/authenticate',this.apiAuthneticateMiddleware)
-    // registered
-    // activatedAccount
+    app.get("/activate/:id", this.acctivateAccountMiddleware);
   }
 
-  apiAuthneticateMiddleware(req, res, next) {
-    res.send("token: xyz");
+  /**
+   * @param {Request} req
+   * @param {Response} res
+   * @param {NextFunction} next
+   */
+  acctivateAccountMiddleware(req, res, next) {
+    const accLogin = req.params.id;
+
+    if(emailsManager.CanAcctivateAccount(accLogin))
+    {
+      console.log("ACCTIVATE: ", req.path);
+      res.status(200)
+        .send(`<h1> ACCOUNT ${req.params.id} ACTIVATED PROPERLY. </h1>`);
+    }
+    else
+    {
+      res.status(200)
+      .send(`<h1> ACCOUNT ${req.params.id} CAN NOT BE ACTIVATED, TIME EXPIRE </h1>`);
+    }
   }
 
   /**
@@ -79,18 +89,23 @@ export default class UserModule extends Module {
    * @param {NextFunction} next
    */
   whoAmIMiddleware = (req, res, next) => {
+    // TODO: Handle bad  request
     const authentication = req.header("Authentication");
+    console.log("REQUEST WhoIAm HEADER", { authentication });
     const token = authentication.match(/Bearer (.*)/)[1];
-    const tokenData = this.#tokens.find((tokenData) => tokenData.token == token);
+    const tokenData = this.#tokens.find(
+      (tokenData) => tokenData.token == token
+    );
 
     if (tokenData) {
-      const { user } = tokenData
+      const { user } = tokenData;
+      console.log("REQUEST WhoIAm", { user });
+      delete user.password;
 
-      delete user.password
-
-      res.send(JSON.stringify( { user } ));
+      res.send(JSON.stringify({ user }));
+    } else {
+      res.status(401).send(CONSTS.ERRORS.CANNOT_IDENTYFY_USER);
     }
-    else {}
   };
 
   /**
@@ -104,27 +119,27 @@ export default class UserModule extends Module {
       login: req.body.login,
       password: req.body.password,
     };
-    console.log( { user } )
-    const userobj = this.dbManager.findObject(
+    console.log(`REQUEST LOG-IN CREDENTIALS`, { user });
+
+    const userObj = this.dbManager.findObject(
       `users`,
-       /**@param {User} param0 */
+      /**@param {User} param0 */
       ({ login, password }) => login == user.login && password == user.password
     );
+    console.log(`REQUEST LOG-IN USER`, { userobj: userObj });
 
-    console.log( { userobj } )
-    if (userobj) {
-      // TODO: ??? SEND TOKEN, associate token to user, and save in db??
+    if (userObj) {
       const token = Math.random().toString();
 
       this.#tokens.push({
         lastActivity: Date.now(),
-        user: userobj,
+        user: userObj,
         token,
       });
 
       res.send(JSON.stringify({ token }));
     } else {
-      res.status(400).send("Cannot find user with our credentials");
+      res.status(401).send(CONSTS.ERRORS.NOT_EXIST);
     }
   };
 
@@ -138,7 +153,9 @@ export default class UserModule extends Module {
     // rejestracji konta należy podać imię, nazwisko, email, hasło i powtórnie hasło.
 
     if (req.body.password1 != req.body.password2)
-      res.status(400).send("Passwords doesn't match.");
+      res.status(400).send(CONSTS.ERRORS.PASSWORDS_NOT_SAME);
+
+    //TODO: NAME/SURNAME ALREADY EXIST.
 
     const user = {
       login: Math.random().toString(),
@@ -149,11 +166,10 @@ export default class UserModule extends Module {
     };
 
     this.dbManager.insertObject(`users`, user);
+    emailsManager.sendAcctivationEmail(user.name, user.email, user.login);
 
     res.status(201).send(user);
   };
 
-  display() {
-    // console.log(this.#login + " " + this.#password);
-  }
+  toString = () => "UserModule"
 }

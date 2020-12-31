@@ -1,0 +1,34 @@
+@host= http://localhost:3000
+
+// Ctrl Alt R -> RUN COMMAND SHORTCUT
+// Request have Metod in firt line ,
+// next comming up headers,
+// one line of free spacee
+// then put a body for request.
+
+ GET  {{host}}
+#################################################################
+
+POST {{host}}/register
+Content-Type: application/json
+
+{
+    "name":"Adam",
+    "surname":"Matejko",
+    "email":"wenah79114@cocyo.com",
+    "password1":"secret",
+    "password2":"secret"
+}
+#################################################################
+
+POST {{host}}/login
+Content-Type: application/json
+
+{
+    "login":"0.28648642645340217",
+    "password":"secret"
+}
+######################################################
+
+GET {{host}}/api/me
+Authentication: Bearer 0.21866829688295497

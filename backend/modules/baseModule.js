@@ -15,4 +15,7 @@ export default class Module {
   configure(app, dbManager) {
     throw new Error( `You have to override me!` )
   }
+  toString() {
+    throw new Error( `You have to override me!` )
+  }
 }
