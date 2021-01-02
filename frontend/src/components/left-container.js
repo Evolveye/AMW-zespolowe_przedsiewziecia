@@ -27,9 +27,7 @@ const LeftContainer = () => (
           <Link to="/app/profile">Mój profil</Link>
           <Link to="/settings">Ustawienia</Link>
           <Link to="/app/myGrades">Moje oceny</Link>
-          <Link
-            to="/"
-            onClick={event => {
+          <Link to="/" onClick={event => {
               event.preventDefault()
               logout(() => navigate(`/`))
             }}
