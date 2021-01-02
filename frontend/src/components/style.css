@@ -221,8 +221,9 @@ nav a:last-child{
 }
 
 .login-box-submit input[type=submit]{
-    font-size: 24px;
+    font-size: 19px;
     padding: 4px 15px;
+    margin-left: 10px;
 }
 
 .register-box-submit input{
