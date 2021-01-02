@@ -1,28 +1,21 @@
 import React from "react"
-import { Link } from "gatsby"
 
-import Layout from "../components/layout"
-import LoginForm from "../components/login"
-import RegisterForm from "../components/register"
 import SEO from "../components/seo"
 
+import LeftContainer from "../components/left-container"
+import RightContainerMain from "../components/rightComponents/main"
 
+import "../components/style.css"
 
-const IndexPage = () => (
-  <Layout>
-    <SEO title="Home" />
-    <div className="wrapper">
-        <div className="wstep-div" id="wstep">
-           <div className="wstep-div-text">
-             <p className="wstep-div-text-p">Tu będzie jakiś ładny slogan</p>
-           </div>
-        </div>
-        
-        <div className="rejestracja-div"  id="rejestracja">
-         <RegisterForm />
-        </div>
+const IndexPage = () => ( 
+  <div className="container"> 
+      <SEO title="Home" />
+      
+        <LeftContainer /> 
+        <div className="hr-vertical"></div> 
+        <RightContainerMain />
     </div>
-  </Layout>
-) 
+
+)
 
 export default IndexPage
