@@ -1,16 +1,15 @@
+
+
 import Module from "../baseModule.js";
-import * as CONSTS from "./consts.js";
+import * as CONSTS from "../../src/constants/serverConstants.js";
 import emailsManager from "./mails.js";
-// import EmailManager from "../../src/emailManager.js";
-import { json } from "body-parser";
-// ZDEFINIOWAC USERA ORAZ  OPIS JEGO POL
 
 /** @typedef {import('express').Express} Express */
 /** @typedef {import('express').Request} Request */
 /** @typedef {import('express').Response} Response */
 /** @typedef {import('express').NextFunction} NextFunction */
 
-/** @typedef {import('../src/dbManager').default} DatabaseManager */
+/** @typedef {import('../../src/dbManager').default} DatabaseManager */
 
 /**
  * @typedef {object} User
@@ -19,6 +18,7 @@ import { json } from "body-parser";
  * @property {string} surname
  * @property {string} email
  * @property {string} password
+ * @property {bool} activated
  */
 
 export default class UserModule extends Module {
@@ -36,19 +36,17 @@ export default class UserModule extends Module {
       `surname`,
       "password",
       "email",
+      "activated",
     ]);
 
     setInterval(() => {
-      console.log("Token DELETE MACHANISM");
-      console.log(this.#tokens)
-      this.#tokens = this.#tokens.filter(
-        ({ lastActivity }) =>
-          lastActivity < Date.now() - CONSTS.TOKEN_EXPIRE_TIME_IN_MINUTES * CONSTS.ONE_MINUTE
-      );
-
-      console.log(this.#tokens);
+      //console.log("DELETE EXPIRED TOKEN MECHANISM.");
+      this.#tokens = this.#tokens.filter(this.FilterExpireTokens);
     }, CONSTS.REFRESHING_INTERVAL_TIME_IN_MINUTES);
   }
+
+  FilterExpireTokens = (obj) =>
+    Date.now() - obj.lastActivity < CONSTS.TOKEN_EXPIRE_TIME_IN_MINUTES;
 
   /**
    * @param {Express} app
@@ -60,30 +58,65 @@ export default class UserModule extends Module {
     app.post("/login", this.loginMiddleware); //
     app.get("/api/me", this.whoAmIMiddleware);
     app.get("/activate/:id", this.acctivateAccountMiddleware);
+    app.get("/users", this.getAllUsers);
+    //TODO: logout.
+    //TODO: Tworzenie kont z pominięciem wysyłania maila aktywacyjnego 
   }
 
   /**
+   * Accepted path /users
+   *
    * @param {Request} req
    * @param {Response} res
    * @param {NextFunction} next
    */
-  acctivateAccountMiddleware(req, res, next) {
+  getAllUsers = (req, res, next) => {
+    res.status(200).json(this.dbManager.getCollection(`users`))
+  }
+
+  /**
+   * Accepted path /acctivate/:id
+   *
+   * @param {Request} req
+   * @param {Response} res
+   * @param {NextFunction} next
+   */
+  acctivateAccountMiddleware = (req, res, next) => {
     const accLogin = req.params.id;
 
-    if(emailsManager.CanAcctivateAccount(accLogin))
-    {
-      console.log("ACCTIVATE: ", req.path);
+    if (emailsManager.isEmailActive(accLogin)) {
+      /** @type {User} */
+      const targetUser = this.dbManager.findObject(
+        `users`,
+        /**@param {User} obj */
+        (obj) => obj.login == accLogin
+      );
+
+      if (!targetUser.activated) {
+        //  not activated
+        targetUser.activated = true;
+        console.log("ACCTIVATE: ", req.path);
+        res.status(200)
+          .send(`<h1> ACCOUNT ${req.params.id} ACTIVATED PROPERLY. </h1>`);
+      } // already activated
+      else {
+        console.log("Account already activated: ", req.path);
+        res.status(200)
+          .send(
+            `<h2 style="color=red"> ACCOUNT ${req.params.id} HAS BEEN ALREADY ACTIVATED. </h2>`
+          );
+      }
+    } else {
       res.status(200)
-        .send(`<h1> ACCOUNT ${req.params.id} ACTIVATED PROPERLY. </h1>`);
-    }
-    else
-    {
-      res.status(200)
-      .send(`<h1> ACCOUNT ${req.params.id} CAN NOT BE ACTIVATED, TIME EXPIRE </h1>`);
+        .send(
+          `<h2 style="color=red"> ACCOUNT ${req.params.id} CAN NOT BE ACTIVATED,</h2> <br/> Email time has expired.`
+        );
     }
   }
 
   /**
+   * Accepted path /api/me
+   *
    * @param {Request} req
    * @param {Response} res
    * @param {NextFunction} next
@@ -109,6 +142,8 @@ export default class UserModule extends Module {
   };
 
   /**
+   * Accepted path /login
+   *
    * @param {Request} req
    * @param {Response} res
    * @param {NextFunction} next
@@ -144,6 +179,7 @@ export default class UserModule extends Module {
   };
 
   /**
+   * path /register
    * @param {Request} req
    * @param {Response} res
    * @param {NextFunction} next
@@ -163,6 +199,7 @@ export default class UserModule extends Module {
       surname: req.body.surname,
       email: req.body.email,
       password: req.body.password1, // length validation?
+      activated: false,
     };
 
     this.dbManager.insertObject(`users`, user);
@@ -171,5 +208,5 @@ export default class UserModule extends Module {
     res.status(201).send(user);
   };
 
-  toString = () => "UserModule"
+  toString = () => "UserModule";
 }

@@ -6,29 +6,34 @@
 // one line of free spacee
 // then put a body for request.
 
- GET  {{host}}
+ GET  {{host}}/users
 #################################################################
 
 POST {{host}}/register
 Content-Type: application/json
 
 {
-    "name":"Adam",
-    "surname":"Matejko",
-    "email":"wenah79114@cocyo.com",
+    "name":"Olek",
+    "surname":"Brzechwa",
+    "email":"wefele2381@aomrock.com",
     "password1":"secret",
     "password2":"secret"
 }
 #################################################################
-
+@login = 0.05415598394022547
 POST {{host}}/login
 Content-Type: application/json
 
 {
-    "login":"0.28648642645340217",
+    "login": {{login}},
     "password":"secret"
 }
 ######################################################
-
+@token = 0.9200369120427441
 GET {{host}}/api/me
-Authentication: Bearer 0.21866829688295497
+Authentication: Bearer {{token}}
+
+###################################################
+
+GET {{host}}/activate/{{login}}
+

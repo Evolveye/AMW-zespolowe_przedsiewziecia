@@ -2,8 +2,9 @@
 import express from "express";
 import * as sio from "socket.io";
 import bodyParser from 'body-parser';
-import dbManagaer from "./src/dbManager.js";
-import CONSTANTS from "./constants/serverConstants.js"
+import dbManager from "./src/dbManager.js";
+import CONSTANTS from "./src/constants/serverConstants.js"
+
 
 //#endregion
 
@@ -21,17 +22,17 @@ console.log(`SERVER ROOT DIR: `, CONSTANTS['APP_ROOT_DIR']);
 // /app/myGrades
 // /app/platformSettings
 
+/**@typeof {Express} */
 const app = express();
+
 app.use(express.json());
-
-
 app.use("/public", express.static("./public"));
 
 const modules = Promise.all([
   import("./modules/user/index.js")
   ])
   .then((modules) => modules.map((mod) => mod.default))
-  .then((classes) => classes.map((Class) => new Class( dbManagaer )))
+  .then((classes) => classes.map((Class) => new Class( dbManager )))
   .then((modules) =>
     modules.forEach((mod) => {
       mod.configure(app);

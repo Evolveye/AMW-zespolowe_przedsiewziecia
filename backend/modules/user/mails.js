@@ -1,5 +1,5 @@
 import nodemail from "nodemailer";
-//import Mail from "nodemailer/lib/mailer";
+
 import {
   ACTIVATE_ADDR,
   EMAIL,
@@ -7,7 +7,7 @@ import {
 } from "./consts.js";
 
 class EmailManager {
-  #EmailCollection = [];
+  #emailCollection = [];
 
   #transporter = nodemail.createTransport({
     host: EMAIL.GMAIL_SERVICE_HOST,
@@ -21,27 +21,44 @@ class EmailManager {
 
   constructor() {
     setInterval(() => {
-    
-      this.#EmailCollection = this.#EmailCollection.filter(({ SEND_DATE }) => {
-        SEND_DATE > Date.now() - EMAIL.EMAIL_EXPIRE_TIME;
-      });
+      //console.log("DELETE EXPIRED EMAIL MECHANISM.");
+      this.#emailCollection = this.#emailCollection.filter(this.filterExpireEmails);
     }, REFRESHING_INTERVAL_TIME_IN_MINUTES);
   }
 
-  CanAcctivateAccount(login) {
-    let collObj = this.#EmailCollection.find(
+  /**
+   * 
+   * @param {Object} obj type of emailCollObj.
+   */
+  filterExpireEmails = (obj) => ( Date.now() - obj.SEND_DATE ) < EMAIL.EMAIL_EXPIRE_TIME; // nie minelo .
+
+  /**
+   * Checks that an account can be activated.
+   * 
+   * @param {number} login 
+   * @returns {boolean} 
+   */
+  isEmailActive(login) {
+    //TODO: refactor return user OBJ or false.
+
+    const collObj = this.#emailCollection.find(
       (obj, idx) => obj.USER_ID == login
     );
 
-    if (collObj && collObj.SEND_DATE > Date.now() - EMAIL.EMAIL_EXPIRE_TIME) {
-      let idx = this.#EmailCollection.indexOf(collObj);
-      this.#EmailCollection.splice(idx, 1);
-
+    if (collObj) {
+      const idx = this.#emailCollection.indexOf(collObj);
+      this.#emailCollection.splice(idx, 1); // delete email obj in collection.
       return true;
     }
     return false;
   }
 
+  /**
+   * 
+   * @param {string} name User name.
+   * @param {string} email User personal e-mail.
+   * @param {number} userID User login.
+   */
   sendAcctivationEmail(name, email, userID) {
     const mailOptions = {
       from: EMAIL.GMAIL_USER_NAME,
@@ -62,7 +79,7 @@ class EmailManager {
           USER_ID: userID,
           USER_NAME: name,
         };
-        this.#EmailCollection.push(emailCollObj);
+        this.#emailCollection.push(emailCollObj);
         console.log(`Email succesfully. USER Login ${userID}`);
       }
     });
