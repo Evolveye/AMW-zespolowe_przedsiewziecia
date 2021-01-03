@@ -1,8 +1,7 @@
-
-
 import Module from "../baseModule.js";
 import * as CONSTS from "../../src/constants/serverConstants.js";
 import emailsManager from "./mails.js";
+
 
 /** @typedef {import('express').Express} Express */
 /** @typedef {import('express').Request} Request */
@@ -52,15 +51,25 @@ export default class UserModule extends Module {
    * @param {Express} app
    */
   configure(app) {
-    // TODO: Refresh'ing token time.
+    //TODO: Refresh'ing token time.
+    //TODO: logout.
+    //TODO: Tworzenie kont z pominięciem wysyłania maila aktywacyjnego 
 
     app.post("/register", this.registerMiddleware);
     app.post("/login", this.loginMiddleware); //
     app.get("/api/me", this.whoAmIMiddleware);
     app.get("/activate/:id", this.acctivateAccountMiddleware);
-    app.get("/users", this.getAllUsers);
-    //TODO: logout.
-    //TODO: Tworzenie kont z pominięciem wysyłania maila aktywacyjnego 
+    app.get("/users", this.getAllUsers); // 
+
+  }
+
+
+  /**
+   * 
+   * @param {import("socket.io").Socket} socket 
+   */
+  socketConfigurator = (socket) => { 
+    console.log(socket.id);
   }
 
   /**

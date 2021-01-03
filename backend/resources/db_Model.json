@@ -1,0 +1,43 @@
+{
+	owner: {User}
+	created: Date
+	assogmed
+}
+
+// role 
+{
+	roleName:string,
+	canInvateUser:boolean,
+	canDeleteUser:boolean,
+	canMute:boolean,
+	seeNotes:boolean, // ussless
+	editNotes:boolean,
+	setNotes:boolean,
+}	
+
+// user
+{
+	login:string,
+	password:IDK,  //  >>>>>>>>>>>>>>
+	activated:boolean,
+	name:string,
+	surname:string,
+	email:string,
+	created:number,
+}
+
+// meeting
+{
+	participants:list<{user}>,// user, group
+	chat:{chat},
+	when:number,
+}
+
+
+// platform
+{
+	owner:{user},
+	created:number,
+	assignedGroup:{group},
+	administrator:
+}

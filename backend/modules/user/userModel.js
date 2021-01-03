@@ -6,6 +6,8 @@
  * @property {string} email
  * @property {string} password
  * @property {boolean} activated
+ * // send email
+ * // check privilages
  */
 
 export default {

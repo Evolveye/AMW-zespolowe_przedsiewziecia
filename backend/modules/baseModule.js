@@ -18,4 +18,13 @@ export default class Module {
   toString() {
     throw new Error( `You have to override me!` )
   }
+
+  /**
+   * 
+   * @param {import("socket.io").Socket} socket 
+   */
+  socketConfigurator(socket){
+    throw new Error( `You have to override me!` )
+  }
+
 }

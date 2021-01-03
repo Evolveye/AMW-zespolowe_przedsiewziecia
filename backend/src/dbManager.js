@@ -1,4 +1,5 @@
 import DB_ERROR from './constants/dbErrors.js'
+import mongoDb from 'mongodb'
 
 /**
  * @typedef {object[]} DataBase
@@ -9,6 +10,23 @@ import DB_ERROR from './constants/dbErrors.js'
 const DB = [];
 
 class DatabaseManager {
+  /**
+   * @type {mongoDb.Db}
+   */
+  #db = null;
+
+  constructor() {
+    mongoDb.connect("mongodb://127.0.0.1:27017", {}, (error, mgClient) => {
+      if (error)
+        console.error(error)
+
+       this.#db = mgClient.db(`SassPE`);
+      // console.log(this.#db.collection(`users`).find().toArray().then(console.log));
+      // this.#db.collection(`users`).insertOne({ name: "Adam", login: "Secret123" });
+      // console.log(this.#db.collection(`users`).find().toArray().then(console.log));
+
+    });
+  }
 
   /**
    * 
@@ -44,12 +62,11 @@ class DatabaseManager {
    * @param {string} collectionName Name of collection.
    * @returns {boolean|Error} 
    */
-  collectionExist(collectionName)
-  {
+  collectionExist(collectionName) {
     if (DB[collectionName] != null)
-       return true;
+      return true;
     else
-        throw new Error(DB_ERROR.COLLECTION_NOT_EXIST)
+      throw new Error(DB_ERROR.COLLECTION_NOT_EXIST)
   }
 
   /**
