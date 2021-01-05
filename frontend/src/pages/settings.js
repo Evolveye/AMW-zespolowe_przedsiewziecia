@@ -9,7 +9,7 @@ import "../components/style.css"
 
 const SettingsPage = () => ( 
   <div className="container"> 
-      <SEO title="Home" />
+      <SEO title="Ustawienia" />
       
         <LeftContainer /> 
         <div className="hr-vertical"></div> 
