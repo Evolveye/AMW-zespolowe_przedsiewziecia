@@ -9,7 +9,7 @@ import "../components/style.css"
 
 const RegisterPage = () => ( 
   <div className="container"> 
-      <SEO title="Home" />
+      <SEO title="Rejestracja" />
       
         <LeftContainer /> 
         <div className="hr-vertical"></div> 
