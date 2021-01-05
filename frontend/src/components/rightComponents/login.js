@@ -21,7 +21,7 @@ class RightContainerLogin extends React.Component {
   handleSubmit = async event => {
     event.preventDefault()
 
-    if (await handleLogin(this.state)) navigate(`/app/profile`)
+    if (await handleLogin(this.state)) navigate(`/users/me`)
   }
 
   componentDidMount() {
@@ -29,7 +29,7 @@ class RightContainerLogin extends React.Component {
   }
 
   render() {
-    if (this.state.rerender && isLoggedIn()) navigate(`/app/profile`)
+    if (this.state.rerender && isLoggedIn()) navigate(`/users/me`)
 
     return <>
       <div className="right-container">
@@ -69,7 +69,7 @@ class RightContainerLogin extends React.Component {
 
                 <div className="login-box-submit">
                   <div className="center-text-div">
-                    <Link to="">Zapomniałem hasła</Link>
+                    <Link to="/password/remind">Zapomniałem hasła</Link>
                   </div>
                   <input type="submit" value="Zaloguj się" />
                 </div>
