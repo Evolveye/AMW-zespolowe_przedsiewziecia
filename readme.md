@@ -16,6 +16,10 @@ root/
 
 
 
+Do poniższych endpointów APi
+należy utworzyć także zdarzenia WS o nazwach pasujacych do szablonu
+`WS :: api.<metoda>.<...reszta adresu HTTP z zamienionymi "/" na ".">`
+
 Logowanie
 ```json
 POST :: /api/login
@@ -36,6 +40,7 @@ POST :: /api/register
   "haslo2": "string",
 }
 ```
+
 Przypomnij hasło
 ```json
 POST :: /api/password/remind
