@@ -9,7 +9,7 @@ import "../components/style.css"
 
 const IndexPage = () => ( 
   <div className="container"> 
-      <SEO title="Home" />
+      <SEO title="Strona główna" />
       
         <LeftContainer /> 
         <div className="hr-vertical"></div> 
