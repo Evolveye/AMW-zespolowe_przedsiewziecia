@@ -125,6 +125,10 @@ nav a:last-child{
 
 
 /*--------------- login - register - form ------------------------*/
+form .under-space{
+    margin-top: 50px;
+}
+
 
 .login-form{
     border: 3px solid black;
@@ -135,7 +139,7 @@ nav a:last-child{
     
     display: flex;
     flex-direction: column;
-    padding-bottom: 20px;
+    
 }
 
 
@@ -184,12 +188,18 @@ nav a:last-child{
     overflow: auto;
 }
 
+.login-box form{ 
+    display: flex;
+    flex-direction: column;
+    padding-top: 10px;
+}
+
 .textbox{
     width: 100%;
     overflow: hidden;
     font-size: 30px;
     padding: 8px 0;
-    margin: 28px 0;
+    margin: 8px 0;
     border-bottom: 1px solid #707070;
 }
 
@@ -228,10 +238,10 @@ nav a:last-child{
 }
 
 .register-box-submit input{
-    float: right;
-    margin-bottom: 20px;
+    float: right; 
     font-size: 14px;
     padding: 4px 15px;
+    margin-top: 10px;
 }
 
 

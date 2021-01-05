@@ -24,24 +24,22 @@ const RightContainerRegister = () => (
               <input type="text" name="username" placeholder="Imię" />
             </div>
 
-            <div className="textbox">
-            <FontAwesomeIcon icon={faUser} size="2px" />
-              <input type="text" name="username" placeholder="Nazwisko" />
+            <div className="textbox"> 
+              <input type="text" name="surname" placeholder="Nazwisko" />
             </div>
 
-            <div className="textbox">
+            <div className="textbox under-space">
             <FontAwesomeIcon icon={faEnvelope} size="2px" />
-              <input type="text" name="username" placeholder="E-mail" />
+              <input type="text" name="email" placeholder="E-mail" />
             </div>
 
-            <div className="textbox">
+            <div className="textbox under-space">
             <FontAwesomeIcon icon={faLock} size="2px" />
-              <input type="password" name="username" placeholder="Hasło" />
+              <input type="password" name="password" placeholder="Hasło" />
             </div>
 
-            <div className="textbox">
-            <FontAwesomeIcon icon={faLock} size="2px" />
-              <input type="password" name="password" placeholder="Powtórz hasło" />
+            <div className="textbox"> 
+              <input type="password" name="password2" placeholder="Powtórz hasło" />
             </div>
 
             <div className="register-box-submit"> 
