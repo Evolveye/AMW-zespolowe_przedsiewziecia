@@ -20,8 +20,8 @@ exports.onCreatePage = ({ page, actions }) => {
     page.matchPath = `/*`;
     createPage(page);
   }
-  if (page.path.match(/^\/app/)) {
-    page.matchPath = "/app/*"
+  if (page.path.match(/^\/users/)) {
+    page.matchPath = "/users/*"
     // Update the page.
     createPage(page)
   }
