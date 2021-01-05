@@ -4,9 +4,9 @@ import { isLoggedIn } from "../services/auth"
 
 
 const PrivateRoute = ({ component: Component, location, ...rest }) => {
-  if (!isLoggedIn() && location.pathname !== `/api/authenticate`) {
+  if (!isLoggedIn() && location.pathname !== `/login/`) {
     if (typeof window !== 'undefined'){
-        navigate("/api/authenticate/")
+        navigate("/login/")
         return null
     }
     

@@ -8,7 +8,7 @@ const LeftContainer = () => (
     {!isLoggedIn() ? (
       <>
         <nav>
-          <Link to="/api/authenticate">Zaloguj się</Link>
+          <Link to="/login/">Zaloguj się</Link>
           <Link to="/register/">Zarejestruj się</Link>
         </nav>
         <div className="copyright">Copyright © 2020</div>
@@ -16,7 +16,7 @@ const LeftContainer = () => (
     ) : (
       <>
         <div className="avatar-container">
-          <Link to="/app/profile">
+          <Link to="/users/me">
             <img
               src="https://upload.wikimedia.org/wikipedia/commons/5/55/Marcin_Najman_2014.jpg"
               alt={"avatar"}
@@ -24,9 +24,9 @@ const LeftContainer = () => (
           </Link>
         </div>
         <nav>
-          <Link to="/app/profile">Mój profil</Link>
+          <Link to="/users/me">Mój profil</Link>
           <Link to="/settings">Ustawienia</Link>
-          <Link to="/app/myGrades">Moje oceny</Link>
+          <Link to="/users/grades">Moje oceny</Link>
           <Link to="/" onClick={event => {
               event.preventDefault()
               logout(() => navigate(`/`))
@@ -69,10 +69,12 @@ const LeftContainer = () => (
 
           <div className="platform-item-container">
             <div className="platform-item-add">
-              <img
-                src="https://www.freepnglogos.com/uploads/plus-icon/plus-icon-plus-math-icon-download-icons-9.png"
-                alt=""
-              />
+              <Link to="/addPlatform">
+                <img
+                  src="https://www.freepnglogos.com/uploads/plus-icon/plus-icon-plus-math-icon-download-icons-9.png"
+                  alt=""
+                />
+              </Link>
             </div>
           </div>
         </div>
