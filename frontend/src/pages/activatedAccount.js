@@ -9,7 +9,7 @@ import "../components/style.css"
 
 const ActivatedAccountPage = () => ( 
   <div className="container"> 
-      <SEO title="Home" />
+      <SEO title="Aktywowano konto" />
       
         <LeftContainer /> 
         <div className="hr-vertical"></div> 
