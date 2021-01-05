@@ -9,7 +9,7 @@ import "../components/style.css"
 
 const CheckMailPage = () => ( 
   <div className="container"> 
-      <SEO title="Home" />
+      <SEO title="Sprawdź maila" />
       
         <LeftContainer /> 
         <div className="hr-vertical"></div> 
