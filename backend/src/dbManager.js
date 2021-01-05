@@ -1,13 +1,13 @@
-import DB_ERROR from './constants/dbErrors.js'
+import { DB_CONN_STRING, DB_NAME, ERRORS } from './constants/dbConsts.js'
 import mongoDb from 'mongodb'
 
-/**
- * @typedef {object[]} DataBase
- * @property {string[]} fields Columns
- * @property {object[]} collection An array of object descirbed by fields.
- */
-/** @type {DataBase} */
-const DB = [];
+// /**
+//  * @typedef {object[]} DataBase
+//  * @property {string[]} fields Columns
+//  * @property {object[]} collection An array of object descirbed by fields.
+//  */
+// /** @type {DataBase} */
+// const DB = [];
 
 class DatabaseManager {
   /**
@@ -15,15 +15,19 @@ class DatabaseManager {
    */
   #db = null;
 
+
+
   constructor() {
-    mongoDb.connect("mongodb://127.0.0.1:27017", {}, (error, mgClient) => {
+    this.useInMemory = true;
+
+    mongoDb.connect(DB_CONN_STRING, {}, (error, mgClient) => {
       if (error)
         console.error(error)
-
-       this.#db = mgClient.db(`SassPE`);
-      // console.log(this.#db.collection(`users`).find().toArray().then(console.log));
+      this.#db = mgClient.db(DB_NAME);
+      // console.log( this.collectionExist("some")) ;
+      //this.#db.collection(`users`).find().toArray().then(console.log);
       // this.#db.collection(`users`).insertOne({ name: "Adam", login: "Secret123" });
-      // console.log(this.#db.collection(`users`).find().toArray().then(console.log));
+      // this.#db.collection(`users`).find().toArray().then(console.log);
 
     });
   }
@@ -32,19 +36,25 @@ class DatabaseManager {
    * 
    * @param {string} name name of collection
    * @param {string[]} fields fields in collection (field = columns)
+   * @deprecated No longer needed after switch to MongoDB
    */
   createCollection(name, fields) {
-    DB[name] = { fields, collection: [] };
+
+    // DB[name] = { fields, collection: [] };
   }
 
   /**
    * 
-   * @param {string} name Name of collection
+   * @param {string} collectionName Name of collection
    * @returns {string[], object[]}
    */
-  getCollection(name) {
+  async getCollection(collectionName) {
     //TODO, Opis do funkcji.
-    return DB[name];
+    // if(this.collectionExist(name))
+    if(await this.collectionExist(collectionName))
+      return await this.#db.collection(collectionName).find().toArray()
+    //   return DB[name];
+
   }
 
   /**
@@ -53,16 +63,34 @@ class DatabaseManager {
  * @param {function} predicate 
  * @returns {object} 
  */
-  findObject(collectionName, predicate) {
-    return DB[collectionName].collection.find(predicate);
+  async findObject(collectionName, predicate) {
+    if (await this.collectionExist(collectionName)) {
+      const arrayData = await this.#db.collection(collectionName).find().toArray()
+     // console.log("Found --> ", arrayData.find(predicate));
+
+      return arrayData.find(predicate);
+    }
+    // return DB[collectionName].collection.find(predicate);
+
   }
+
+
+  async updateObject(collectionName, findPattern, newValues) {
+    if (await this.collectionExist(collectionName))
+      await this.#db.collection(collectionName).updateOne((findPattern), (newValues))
+  }
+
 
   /**
    * 
    * @param {string} collectionName Name of collection.
    * @returns {boolean|Error} 
    */
-  collectionExist(collectionName) {
+  async collectionExist(collectionName) {
+
+    const collectionArray = await this.#db.listCollections().toArray();
+    return await collectionArray.some((collection) => collection.name == collectionName && collection.type == 'collection');
+
     if (DB[collectionName] != null)
       return true;
     else
@@ -74,20 +102,24 @@ class DatabaseManager {
    * @param {string} collectionName Name of collection that item will be inserted
    * @param {object} obj An item to insert.
    */
-  insertObject(collectionName, obj) {
-    this.collectionExist(collectionName);
+  async insertObject(collectionName, obj) {
+    // if(this.collectionExist(collectionName))
+    if (await this.collectionExist(collectionName))
+      await this.#db.collection(collectionName).insertOne(obj);
 
-    const requiredFields = DB[collectionName].fields.slice(0);
+    // this.collectionExist(collectionName);
 
-    for (const prop in obj) {
-      if (!requiredFields.includes(prop)) throw new Error(DB_ERROR.FIELD_NOT_EXIST);
-      else requiredFields.splice(requiredFields.indexOf(prop), 1);
-    }
+    // const requiredFields = DB[collectionName].fields.slice(0);
 
-    //TODO: WHAT DOES LINE MEAN.
-    if (requiredFields.length) throw new Error(DB_ERROR.COLLECTION_FIELD_COUNT);
+    // for (const prop in obj) {
+    //   if (!requiredFields.includes(prop)) throw new Error(DB_ERROR.FIELD_NOT_EXIST);
+    //   else requiredFields.splice(requiredFields.indexOf(prop), 1);
+    // }
 
-    DB[collectionName].collection.push(obj);
+    // //TODO: WHAT DOES LINE MEAN.
+    // if (requiredFields.length) throw new Error(DB_ERROR.COLLECTION_FIELD_COUNT);
+
+    // DB[collectionName].collection.push(obj);
   }
 }
 

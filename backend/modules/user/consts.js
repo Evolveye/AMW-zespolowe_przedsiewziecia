@@ -1,6 +1,6 @@
 export const ONE_MINUTE = 1000 * 60
-export const TOKEN_EXPIRE_TIME_IN_MINUTES = ONE_MINUTE * 1
-export const REFRESHING_INTERVAL_TIME_IN_MINUTES = ONE_MINUTE * 0.5
+export const TOKEN_EXPIRE_TIME_IN_MINUTES = ONE_MINUTE * 60
+export const REFRESHING_INTERVAL_TIME_IN_MINUTES = ONE_MINUTE
 
 export const ERRORS = {
     NOT_EXIST: "Cannot find user with passed credentials.",
@@ -14,8 +14,7 @@ const email = "sass.project.amw@gmail.com"
 
 export const ACTIVATE_ADDR = "http://localhost:3000/activate"
 export const EMAIL = {
-    EMAIL_EXPIRE_TIME: ONE_MINUTE * 0.6,
-    //EMAIL_FILTER_TIME: ONE_MINUTE,
+    EMAIL_EXPIRE_TIME: ONE_MINUTE * 60,
     ACCTIVATE_ACCOUNT_SUBJECT: "Verify your SASS Portal account.",
     GMAIL_SERVICE_NAME: "gmail",
     GMAIL_SERVICE_HOST: "smtp.gmail.com",

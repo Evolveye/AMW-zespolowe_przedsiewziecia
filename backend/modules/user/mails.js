@@ -1,5 +1,7 @@
 import nodemail from "nodemailer";
 
+// TODO, potrzebuje sprawdzac w db, czy user juz zostal aktywowany.
+
 import {
   ACTIVATE_ADDR,
   EMAIL,
@@ -21,7 +23,7 @@ class EmailManager {
 
   constructor() {
     setInterval(() => {
-      //console.log("DELETE EXPIRED EMAIL MECHANISM.");
+      console.log("DELETE EXPIRED EMAIL MECHANISM.");
       this.#emailCollection = this.#emailCollection.filter(this.filterExpireEmails);
     }, REFRESHING_INTERVAL_TIME_IN_MINUTES);
   }

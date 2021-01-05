@@ -3,13 +3,12 @@ import express from "express";
 import { Server } from "socket.io";
 import bodyParser from 'body-parser';
 import dbManager from "./src/dbManager.js";
-import CONSTANTS from "./src/constants/serverConstants.js"
-import { createServer } from 'http'
+import {APP_ROOT_DIR,PORT} from "./src/constants/serverConsts.js"
 
 //#endregion
 
 //#region  settings
-console.log(`SERVER ROOT DIR: `, CONSTANTS['APP_ROOT_DIR']);
+console.log(`SERVER ROOT DIR: `, APP_ROOT_DIR);
 //#endregion
 
 // ENDPOINTS
@@ -30,9 +29,12 @@ const socketConfigs = [];
 
 
 
-
 app.use(express.json());
 app.use("/public", express.static("./public"));
+app.use((req, res, next) => { //Logging middleware.
+  console.log(`NEW REQUEST --> ${req.method} ${req.url}`,);
+  next();
+});
 
 const modules = Promise.all([
   import("./modules/user/index.js")
@@ -49,12 +51,17 @@ const modules = Promise.all([
 
 //TODO: correct .
 app.get("/", (req, res) => {
-  var path = CONSTANTS.APP_ROOT_DIR + '/public/index.html';
+  var path = APP_ROOT_DIR + '/public/index.html';
+  //console.log(dbManager.getCollection('users'));
   res.sendFile(path);
 });
 
-const server = app.listen(CONSTANTS.PORT, () => {
-  console.log(`SERVER INFO: Working localhost:${CONSTANTS.PORT}`);
+
+
+
+
+const server = app.listen(PORT, () => {
+  console.log(`SERVER INFO: Working localhost:${PORT}`);
 });
 
 
@@ -62,4 +69,7 @@ const wss = new Server(server);
 
 wss.on(`connection`, (socket) => {
   socketConfigs.forEach((fn) => fn(socket));
+  
 });
+
+
