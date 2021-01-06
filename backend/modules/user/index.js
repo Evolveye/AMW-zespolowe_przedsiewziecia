@@ -1,5 +1,6 @@
 import Module from "../baseModule.js";
 import * as CONSTS from "../../src/constants/serverConsts.js";
+import { stringifyObjValues } from "../../src/utils.js";
 import {
   REFRESHING_INTERVAL_TIME_IN_MINUTES,
   TOKEN_EXPIRE_TIME_IN_MINUTES,
@@ -273,22 +274,21 @@ export default class UserModule extends Module {
   loginMiddleware = async (req, res, next) => {
     // W celu zalogowania się na stronie musi podać login i hasło.
 
-    // W celu zalogowania się na stronie musi podać login i hasło.
+    const { login, password } = stringifyObjValues( req.body )
 
-    const { login, password } = req.body
+    if (!login || !password) {
+      console.error( `ERROR`, { login, password } )
 
-    if (!login || !password) return console.error(`ERROR`, { login, password })
+      return res.status(400)
+        .json( { error:ANSWERS.USER_NOT_EXIST} );
+    }
 
     this.logger(`REQUEST LOG-IN CREDENTIALS\n${JSON.stringify( { user:{login,password} } )}` );
 
     /**@type {User} userObj */
-    const userObj = await this.dbManager.findObject(`users`, { login: login.toString(), password });
+    const userObj = await this.dbManager.findObject(`users`, { login, password });
 
-    // /**@param {User} potentialUser */
-    // (potentialUser) => user.login == potentialUser.login && potentialUser.password == user.password
-
-    if (userObj)// jest w bazie
-    {
+    if (userObj) { // jest w bazie
       if (userObj.activated) { // aktywowany
         var token = Math.random().toString();
 
@@ -318,15 +318,17 @@ export default class UserModule extends Module {
     this.logger(`REQUEST REGISTER ${JSON.stringify( req.body )}`);
     // rejestracji konta należy podać imię, nazwisko, email, hasło i powtórnie hasło.
 
-    if (req.body.password1 != req.body.password2)
-      return res.status(400).send(ANSWERS.PASSWORDS_NOT_SAME);
+    const { name, surname, email, password1, password2 } = stringifyObjValues( req.body )
+
+    if (password1 != password2)
+      return res.status(400).send( ANSWERS.PASSWORDS_NOT_SAME );
 
     const user = {
       login: Math.random().toString(),
-      name: req.body.name,
-      surname: req.body.surname,
-      email: req.body.email,
-      password: req.body.password1,
+      name,
+      surname,
+      email,
+      password: password1,
       activated: false,
       avatar: `/media/image/avatarDefault.jpg`,
     };
@@ -345,6 +347,8 @@ export default class UserModule extends Module {
     await this.dbManager.insertObject(`users`, user);
 
     emailsManager.sendAcctivationEmail(user.name, user.email, user.login);
+
+    delete user.password
 
     res.json(user);
   };
