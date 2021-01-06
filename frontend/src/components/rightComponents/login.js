@@ -5,7 +5,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {faUser, faLock} from '@fortawesome/free-solid-svg-icons'
 /* autentykacja */
 import { navigate } from "gatsby"
-import { handleLogin, isLoggedIn } from "../../services/auth"
+import { isLoggedIn } from "../../services/auth"
+import { handleForm } from "../formsHandling.js"
+import {DEBUG, DEBUG_LOGIN_URL, BACKEND_LOGIN_URL} from "../../config.json"
+import { setToken } from "../../services/auth"
 
 class RightContainerLogin extends React.Component {
   state = {
@@ -21,7 +24,19 @@ class RightContainerLogin extends React.Component {
   handleSubmit = async event => {
     event.preventDefault()
 
-    if (await handleLogin(this.state)) navigate(`/users/me`)
+    handleForm(
+      DEBUG ? DEBUG_LOGIN_URL : BACKEND_LOGIN_URL,
+      `post`,
+      { "Content-Type": `application/json` },
+      this.state,
+      {
+        okCb( { token } ) {
+          //window.localStorage.setItem(STORAGE_TOKEN_NAME, token) 
+          setToken(token)
+          navigate(`/users/me`)
+        }
+      }
+    )
   }
 
   componentDidMount() {
