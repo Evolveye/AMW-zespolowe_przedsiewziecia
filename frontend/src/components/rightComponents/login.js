@@ -48,7 +48,7 @@ class RightContainerLogin extends React.Component {
             <div className="login-box-form">
               <form method="post" onSubmit={this.handleSubmit}>
                 <div className="textbox">
-                <FontAwesomeIcon icon={faUser} size="2px" />
+                <FontAwesomeIcon icon={faUser} size="1x" />
                   <input
                    type="text"
                    name="login"
@@ -58,7 +58,7 @@ class RightContainerLogin extends React.Component {
                 </div>
 
                 <div className="textbox">
-                <FontAwesomeIcon icon={faLock} size="2px" />
+                <FontAwesomeIcon icon={faLock} size="1x" />
                   <input
                     type="password"
                     name="password"
