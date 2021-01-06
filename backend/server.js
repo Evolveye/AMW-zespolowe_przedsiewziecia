@@ -1,60 +1,46 @@
-//#region imports
 import express from "express";
 import { Server } from "socket.io";
 import dbManager from "./src/dbManager.js";
-import {APP_ROOT_DIR,PORT} from "./src/constants/serverConsts.js"
-
-//#endregion
-
-//#region  settings
-console.log(`SERVER ROOT DIR: `, APP_ROOT_DIR);
-//#endregion
-
-
+import { APP_ROOT_DIR, PORT, LOGGERS } from "./src/constants/serverConsts.js"
+import { doRequestLogShouldBePrinted, logUnderControl } from "./src/utils.js"
 
 /**@typeof {Express} */
 const app = express();
+const modules = await Promise.all([
+  import("./modules/user/index.js")
+])
+  .then((modules) => modules.map((mod) => mod.default))
+  .then((classes) => {
+    const moduleLogger = modName =>
+      string => logUnderControl( LOGGERS.module, modName, string )
 
-/**@type {((socket:import("socket.io").Socket)=>void)[]} */
-const socketConfigs = [];
+    return classes.map((Class) =>
+      new Class(moduleLogger( Class.toString() ), dbManager))
+  })
+const server = app.listen(PORT, () => {
+  // logUnderControl( LOGGERS.serverInfo, `[fgYellow]SERVER ROOT DIR[] ${APP_ROOT_DIR}` )
+  logUnderControl( LOGGERS.server, `Working localhost:${PORT}` )
+});
+const wss = new Server(server);
+
 
 app.use(express.json());
-
 app.use((req, res, next) => { //Logging middleware.
-  console.log(`NEW REQUEST --> ${req.method} ${req.url}`,);
+  if (doRequestLogShouldBePrinted( req )) {
+    logUnderControl( LOGGERS.routes, req.method, req.url )
+  }
+
   next();
 });
 app.use("/", express.static("./public"));
 app.use("/media", express.static("./media"));
 
+modules.forEach( (mod) => {
+  logUnderControl( LOGGERS.server, `[fgYellow]LOADED MODULE[] ${mod.toString()}` )
 
-
-
-const modules = Promise.all([
-  import("./modules/user/index.js")
-])
-  .then((modules) => modules.map((mod) => mod.default))
-  .then((classes) => classes.map((Class) => new Class(dbManager))) // dla kazdego modulu
-  .then((modules) =>
-    modules.forEach((mod) => {
-      mod.configure(app);
-      socketConfigs.push(mod.socketConfigurator);
-      console.log(`LOADED MODULE: `, mod.toString())
-    })
-  );
-
-
-
-const server = app.listen(PORT, () => {
-  console.log(`SERVER INFO: Working localhost:${PORT}`);
-});
-
-
-const wss = new Server(server);
+  mod.configure(app);
+} )
 
 wss.on(`connection`, (socket) => {
-  socketConfigs.forEach((fn) => fn(socket));
-  
+  modules.forEach( mod => mod.socketConfigurator(socket) );
 });
-
-

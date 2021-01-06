@@ -20,7 +20,7 @@ class DatabaseManager {
 
 
   /**
-   * 
+   *
    * @param {string} collectionName Name of collection
    * @returns {object[]}
    */
@@ -30,14 +30,13 @@ class DatabaseManager {
   }
 
   /**
- * 
- * @param {string} collectionName 
- * @param {} findSchema unique {key:value} 
- * @returns {object} 
+ *
+ * @param {string} collectionName
+ * @param {} findSchema unique {key:value}
+ * @returns {object}
  */
   async findObject(collectionName, findSchema) {
     if (await this.collectionExist(collectionName)) {
-      console.log({"schema":findSchema} )
       return await this.#db.collection(collectionName).findOne(findSchema);
     }
   }
@@ -45,7 +44,7 @@ class DatabaseManager {
 /**
  * updates object, find by specyfied unique {key:value} object,
  * new values of document are passed in {key:value} object
- * 
+ *
  * @param {string} collectionName select the collection
  * @param {object} findPattern an object {key:value}, unique values that document in db can be identyfied.
  * @param {object} newValues an object {key:value}, updates keys by specyfied values
@@ -57,9 +56,9 @@ class DatabaseManager {
 
 
   /**
-   * 
+   *
    * @param {string} collectionName Name of collection.
-   * @returns {boolean} 
+   * @returns {boolean}
    */
   async collectionExist(collectionName) {
     const collectionArray = await this.#db.listCollections().toArray();
@@ -67,7 +66,7 @@ class DatabaseManager {
   }
 
   /**
-   * 
+   *
    * @param {string} collectionName Name of collection that item will be inserted
    * @param {object} obj An item to insert.
    */

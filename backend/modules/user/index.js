@@ -34,13 +34,14 @@ export default class UserModule extends Module {
   #tokens = [];
 
   /**
+   * @param {Logger} logger
    * @param {DatabaseManager} dbManager
    */
-  constructor(dbManager) {
-    super(dbManager);
+  constructor(logger, dbManager) {
+    super(logger, dbManager);
 
     setInterval(() => {
-      console.log("DELETE EXPIRED TOKEN MECHANISM.");
+      this.logger( "DELETE EXPIRED TOKEN MECHANISM." );
       this.#tokens = this.#tokens.filter(this.filterExpireTokens);
     }, REFRESHING_INTERVAL_TIME_IN_MINUTES);
   }
@@ -125,7 +126,7 @@ export default class UserModule extends Module {
       // find user....
 
     })
-    console.log(socket.id);
+    this.logger(socket.id);
   }
 
 
@@ -221,7 +222,7 @@ export default class UserModule extends Module {
           { login: targetUser.login, },
           { $set: { activated: true } }
         );
-        console.log(`ACTIVATE USER: ${targetUser.name} ${targetUser.surname}`);
+        this.logger(`ACTIVATE USER: ${targetUser.name} ${targetUser.surname}`);
 
         res.status(200).send(ANSWERS.ACCOUNT_ACTIVATION_SUCCESS);
       }
@@ -278,12 +279,11 @@ export default class UserModule extends Module {
 
     if (!login || !password) return console.error(`ERROR`, { login, password })
 
-    console.log(`REQUEST LOG-IN CREDENTIALS`, { user: { login, password } });
+    this.logger(`REQUEST LOG-IN CREDENTIALS\n${JSON.stringify( { user:{login,password} } )}` );
 
     /**@type {User} userObj */
     const userObj = await this.dbManager.findObject(`users`, { login: login.toString(), password });
 
-    console.log({ user: userObj });
     // /**@param {User} potentialUser */
     // (potentialUser) => user.login == potentialUser.login && potentialUser.password == user.password
 
@@ -315,7 +315,7 @@ export default class UserModule extends Module {
    * @param {NextFunction} next
    */
   registerMiddleware = async (req, res, next) => {
-    console.log(`REQUEST REGISTER`, req.body);
+    this.logger(`REQUEST REGISTER ${JSON.stringify( req.body )}`);
     // rejestracji konta należy podać imię, nazwisko, email, hasło i powtórnie hasło.
 
     if (req.body.password1 != req.body.password2)
@@ -350,8 +350,8 @@ export default class UserModule extends Module {
   };
 
   /**
-   * 
-   * @param {string} argument 
+   *
+   * @param {string} argument
    */
   nameValid = (argument, minLen = 2, maxLen = 32) => argument.length >= minLen && argument.length <= maxLen
 
@@ -359,8 +359,8 @@ export default class UserModule extends Module {
 
 
   /**
-   * 
-   * @param {string} password 
+   *
+   * @param {string} password
    * @returns {boolean} true if all condition are fullfilled.
    */
   passwordTest = (password) => {
@@ -388,8 +388,8 @@ export default class UserModule extends Module {
     const notBannedWord = options.bannedWords.every((word) => word != password)
 
     return minLen && maxLen && notBannedChars && specialChars && notBannedWord
-
   }
 
-  toString = () => "UserModule";
+  toString = () => this.constructor.toString()
+  static toString = () => "UserModule"
 }

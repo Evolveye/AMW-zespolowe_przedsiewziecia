@@ -2,9 +2,11 @@
 
 export default class Module {
   /**
+   * @param {(log:string) => void} logger
    * @param {DatabaseManager} dbManager
    */
-  constructor( dbManager ) {
+  constructor( logger, dbManager ) {
+    this.logger = logger
     this.dbManager = dbManager
   }
 
@@ -15,16 +17,17 @@ export default class Module {
   configure(app, dbManager) {
     throw new Error( `You have to override me!` )
   }
-  toString() {
-    throw new Error( `You have to override me!` )
-  }
 
-  /**
-   * 
-   * @param {import("socket.io").Socket} socket 
-   */
+  /** @param {import("socket.io").Socket} socket */
   socketConfigurator(socket){
     throw new Error( `You have to override me!` )
   }
 
+  toString() {
+    throw new Error( `You have to override me!` )
+  }
+
+  static toString() {
+    throw new Error( `You have to override me!` )
+  }
 }
