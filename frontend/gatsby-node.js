@@ -14,19 +14,9 @@
 
 // You can delete this file if you're not using it
 
-exports.onCreatePage = ({ page, actions }) => {
-  const { createPage } = actions;
-  if (page.path === `/`) {
-    page.matchPath = `/*`;
-    createPage(page);
-  }
-  if (page.path.match(/^\users/)) {
-    page.matchPath = "users/*"
-    // Update the page.
-    createPage(page)
-  }
- 
-};
+// exports.onCreatePage = ({ page, actions }) => {
+//   const { createPage } = actions;
+//};//
 
 exports.onCreateWebpackConfig = ({ stage, loaders, actions }) => {
   if (stage === "build-html") {

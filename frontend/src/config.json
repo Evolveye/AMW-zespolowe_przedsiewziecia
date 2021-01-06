@@ -12,5 +12,5 @@
 
     "DEBUG_LOGIN_URL": "https://mockend.com/evolveye/prymitywna-platforma-edukacyjna/tree/dev-frontend/tokens/1",
     "DEBUG_USER_ME_URL": "https://mockend.com/evolveye/prymitywna-platforma-edukacyjna/tree/dev-frontend/users/1",
-    "DEBUG": true
+    "DEBUG": false
   }
