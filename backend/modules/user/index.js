@@ -82,6 +82,10 @@ export default class UserModule extends Module {
       res.status(403).send(ANSWERS.PASSWORDS_NOT_SAME);
     }
 
+    if (!this.passwordTest(resetObj.password1))
+      return res.status(400).send("Password not passed polices.");
+
+
     const userEmail = emailsManager.isActiveResetEmail(resetObj.code);
     if (userEmail) {
       const userObj = this.dbManager.updateObject(
@@ -100,7 +104,7 @@ export default class UserModule extends Module {
   passwordRemindMiddleware = async (req, res, next) => {
 
     const accountEmail = req.body.email;
-    const user = await this.dbManager.findObject(`users`, {email:accountEmail})
+    const user = await this.dbManager.findObject(`users`, { email: accountEmail })
     if (user) {
       //TODO: Production Uncoment.
       emailsManager.sendResetPasswordEmail(accountEmail);
@@ -268,19 +272,18 @@ export default class UserModule extends Module {
   loginMiddleware = async (req, res, next) => {
     // W celu zalogowania się na stronie musi podać login i hasło.
 
-    const user = {
-      login: req.body.login.toString(),
-      password: req.body.password,
-    };
+    // W celu zalogowania się na stronie musi podać login i hasło.
 
-    console.log(`REQUEST LOG-IN CREDENTIALS`, { user });
+    const { login, password } = req.body
+
+    if (!login || !password) return console.error(`ERROR`, { login, password })
+
+    console.log(`REQUEST LOG-IN CREDENTIALS`, { user: { login, password } });
 
     /**@type {User} userObj */
-    const userObj = await this.dbManager.findObject(
-      `users`,
-      { login: user.login, password: user.password }
-    );
+    const userObj = await this.dbManager.findObject(`users`, { login: login.toString(), password });
 
+    console.log({ user: userObj });
     // /**@param {User} potentialUser */
     // (potentialUser) => user.login == potentialUser.login && potentialUser.password == user.password
 
@@ -316,19 +319,28 @@ export default class UserModule extends Module {
     // rejestracji konta należy podać imię, nazwisko, email, hasło i powtórnie hasło.
 
     if (req.body.password1 != req.body.password2)
-      res.status(400).send(ANSWERS.PASSWORDS_NOT_SAME);
-
-    //TODO: NAME/SURNAME ALREADY EXIST.
+      return res.status(400).send(ANSWERS.PASSWORDS_NOT_SAME);
 
     const user = {
       login: Math.random().toString(),
       name: req.body.name,
       surname: req.body.surname,
       email: req.body.email,
-      password: req.body.password1, // length validation?
+      password: req.body.password1,
       activated: false,
       avatar: `/media/image/avatarDefault.jpg`,
     };
+
+
+    if (!this.passwordTest(req.body.password1))
+      return res.status(400).send("Password not passed polices.");
+
+    if (!this.emailIsValid(user.email))
+      return res.status(400).send("Wrong email.");
+
+    if (!this.nameValid(user.name) && this.nameValid(user.surname))
+      return res.status(400).send("Provided name or surname not match length requirements (min=2 max=32)");
+
 
     await this.dbManager.insertObject(`users`, user);
 
@@ -336,6 +348,48 @@ export default class UserModule extends Module {
 
     res.json(user);
   };
+
+  /**
+   * 
+   * @param {string} argument 
+   */
+  nameValid = (argument, minLen = 2, maxLen = 32) => argument.length >= minLen && argument.length <= maxLen
+
+  emailIsValid = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+
+
+  /**
+   * 
+   * @param {string} password 
+   * @returns {boolean} true if all condition are fullfilled.
+   */
+  passwordTest = (password) => {
+    options = {
+      minLenght: 5,
+      maxLenght: 10,
+      bannedChars: `{}|":<>?`,
+      requireSpecialChar: true,
+      specialChars: `!@#$%^*&()_+`,
+      bannedWords: [``, `admin`, `ja`],
+    }
+
+    const arr = {
+      minLen: password.length >= options.minLenght,
+      maxLen: password.length <= options.maxLenght,
+      notBannedChars: !password.split('').some((char) => options.bannedChars.includes(char)),
+      specialChars: options.requireSpecialChar ? options.specialChars.split('').some(char => password.includes(char)) : true,
+      notBannedWord: options.bannedWords.every((word) => word != password)
+    }
+
+    const minLen = password.length >= options.minLenght
+    const maxLen = password.length <= options.maxLenght
+    const notBannedChars = !password.split('').some((char) => options.bannedChars.includes(char))
+    const specialChars = options.requireSpecialChar ? options.specialChars.split('').some(char => password.includes(char)) : true
+    const notBannedWord = options.bannedWords.every((word) => word != password)
+
+    return minLen && maxLen && notBannedChars && specialChars && notBannedWord
+
+  }
 
   toString = () => "UserModule";
 }

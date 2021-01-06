@@ -34,7 +34,7 @@ const modules = Promise.all([
   import("./modules/user/index.js")
 ])
   .then((modules) => modules.map((mod) => mod.default))
-  .then((classes) => classes.map((Class) => new Class(dbManager)))
+  .then((classes) => classes.map((Class) => new Class(dbManager))) // dla kazdego modulu
   .then((modules) =>
     modules.forEach((mod) => {
       mod.configure(app);
@@ -42,15 +42,6 @@ const modules = Promise.all([
       console.log(`LOADED MODULE: `, mod.toString())
     })
   );
-
-//TODO: correct .
-// app.get("/", (req, res) => {
-//   var path = APP_ROOT_DIR + '/public/index.html';
-//   //console.log(dbManager.getCollection('users'));
-//   res.sendFile(path);
-// });
-
-
 
 
 

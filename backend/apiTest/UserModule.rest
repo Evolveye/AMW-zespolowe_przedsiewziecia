@@ -31,7 +31,7 @@ Content-Type: application/json
 
 {
     "login": {{login}},
-    "password":"ptak"
+    "password":"123"
 }
 ###################### ME #####################################
 @token = 0.7394723770798901

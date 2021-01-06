@@ -37,6 +37,7 @@ class DatabaseManager {
  */
   async findObject(collectionName, findSchema) {
     if (await this.collectionExist(collectionName)) {
+      console.log({"schema":findSchema} )
       return await this.#db.collection(collectionName).findOne(findSchema);
     }
   }
