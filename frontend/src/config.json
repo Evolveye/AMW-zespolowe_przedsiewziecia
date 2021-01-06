@@ -10,7 +10,7 @@
     "BACKEND_PLATFORMS_GROUPS": "/api/platforms/id:number/groups",
     "BACKEND_PLATFORMS_USERS":"/api/platforms/id:number/users",
 
-
     "DEBUG_LOGIN_URL": "https://mockend.com/evolveye/prymitywna-platforma-edukacyjna/tree/dev-frontend/tokens/1",
-    "DEBUG_USER_ME_URL": "https://mockend.com/evolveye/prymitywna-platforma-edukacyjna/tree/dev-frontend/users/1"
+    "DEBUG_USER_ME_URL": "https://mockend.com/evolveye/prymitywna-platforma-edukacyjna/tree/dev-frontend/users/1",
+    "DEBUG": true
   }
