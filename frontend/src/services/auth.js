@@ -4,11 +4,13 @@ import {
   
     DEBUG_LOGIN_URL,
     DEBUG_USER_ME_URL,
+
+    DEBUG
   } from "../config.json"
   
   const STORAGE_TOKEN_NAME = "sessionToken"
   const STORAGE_USER = "gatsbyUser"
-  const DEBUG = true
+ 
   
   /**
    * @typedef {object} User
@@ -65,7 +67,7 @@ import {
         }
       } )
   
-    return f().then( data => data.json() )
+    return f ().then( data => data.json() )
       .then( ({ token }) => setToken( token ) )
       .then( () => true )
       .catch( console.error ) // TODO
