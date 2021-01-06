@@ -20,11 +20,12 @@ exports.onCreatePage = ({ page, actions }) => {
     page.matchPath = `/*`;
     createPage(page);
   }
-  if (page.path.match(/^\/users/)) {
-    page.matchPath = "/users/*"
+  if (page.path.match(/^\users/)) {
+    page.matchPath = "users/*"
     // Update the page.
     createPage(page)
   }
+ 
 };
 
 exports.onCreateWebpackConfig = ({ stage, loaders, actions }) => {
