@@ -19,3 +19,23 @@ export const isRequestPageRoute = req => !req.url.match( /\.[^\.]+$/ )
 /** @param {import("express").Request} req */
 export const doRequestLogShouldBePrinted = req =>
   LOG_ONLY_PAGES_ROUTE ? isRequestPageRoute( req ) : false
+
+
+
+export const assertLogger = new Logger( [
+  { align:`center`,  color:`white`,  value:`[ ` },
+  { align:`center`,  color:`white` },
+  { align:`center`,  color:`white`,  value:` ] ` },
+  { align:`right`,   color:`blue`,   length:25 },
+  { align:`center`,  color:`white`,  value:`:  ` },
+  { align:`right`,   color:`white`,  length:10 },
+  { align:`center`,  color:`yellow`, value:`  ===  ` },
+  { align:`left`,    color:`white` },
+] )
+export function assert( name, a, b ) {
+  const result = a === b
+  const color = result ? `fgGreen` : `fgRed`
+  const resultName = result ? `  OK ` : `ERROR`
+
+  logUnderControl( assertLogger, `[${color}]${resultName}[]`, name, a, b )
+}

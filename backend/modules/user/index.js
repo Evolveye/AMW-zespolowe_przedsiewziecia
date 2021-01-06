@@ -84,7 +84,7 @@ export default class UserModule extends Module {
       res.status(403).send(ANSWERS.PASSWORDS_NOT_SAME);
     }
 
-    if (!this.passwordTest(resetObj.password1))
+    if (!UserModule.isPasswordCorrect(resetObj.password1))
       return res.status(400).send("Password not passed polices.");
 
 
@@ -334,13 +334,13 @@ export default class UserModule extends Module {
     };
 
 
-    if (!this.passwordTest(req.body.password1))
+    if (!UserModule.isPasswordCorrect(req.body.password1))
       return res.status(400).send("Password not passed polices.");
 
-    if (!this.emailIsValid(user.email))
+    if (!UserModule.isEmailCorrect(user.email))
       return res.status(400).send("Wrong email.");
 
-    if (!this.nameValid(user.name) && this.nameValid(user.surname))
+    if (!UserModule.isNameCorrect(user.name) && UserModule.isNameCorrect(user.surname))
       return res.status(400).send("Provided name or surname not match length requirements (min=2 max=32)");
 
 
@@ -354,21 +354,18 @@ export default class UserModule extends Module {
   };
 
   /**
-   *
    * @param {string} argument
+   * @param {number} [minLen]
+   * @param {number} [maxLen]
    */
-  nameValid = (argument, minLen = 2, maxLen = 32) => argument.length >= minLen && argument.length <= maxLen
+  static isNameCorrect = (argument, minLen = 2, maxLen = 32) => argument.length >= minLen && argument.length <= maxLen
 
-  emailIsValid = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+  /** @param {string} email */
+  static isEmailCorrect = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
 
-
-  /**
-   *
-   * @param {string} password
-   * @returns {boolean} true if all condition are fullfilled.
-   */
-  passwordTest = (password) => {
-    options = {
+  /** @param {string} password */
+  static isPasswordCorrect(password) {
+    const options = {
       minLenght: 5,
       maxLenght: 10,
       bannedChars: `{}|":<>?`,
