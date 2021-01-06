@@ -6,41 +6,60 @@
 // one line of free spacee
 // then put a body for request.
 
+########################### TESTY ##################################
  GET  {{host}}/test
  //authentication: Bearer 0.28995713355807684
  
-#################################################################
+########################### ALL USERS #################################
  GET  {{host}}/users
-#################################################################
+######################### REGISTER ################################
 
-POST {{host}}/register
+POST {{host}}/api/register
 Content-Type: application/json
 
 {
-    "name":"Adam",
-    "surname":"Szreiber",
-    "email":"adam.szr98@gmail.com",
-    "password1":"KartkaPapieru",
-    "password2":"KartkaPapieru"
+    "name":"Zbyszek",
+    "surname":"jasko",
+    "email":"jasko.12348@gmail.com",
+    "password1":"Ogienwszopie",
+    "password2":"Ogienwszopie"
 }
-#################################################################
+######################## LOGIN ##################################
 @login = 0.03335528500414586
-POST {{host}}/login
+POST {{host}}/api/authenticate
 Content-Type: application/json
 
 {
     "login": {{login}},
     "password":"zzz1234a22doprs22"
 }
-
-######################################################
+###################### ME #####################################
 @token = 0.5472482137302535
 GET {{host}}/api/me
 Authentication: Bearer {{token}}
-#################################################################
+######################## LOGOUT ####################################
 GET {{host}}/logout 
 Authentication: Bearer {{token}}
-###################################################
+######################### Forgot passw ###################################
+POST  {{host}}/api/password/remind
+Content-Type: application/json
 
+{
+    "email":"wefele2381@aomrock.com"
+}
+
+#################################################################
+@uniqueId = 0.8446157894928614
+POST  {{host}}/api/password/reset?code={{uniqueId}}
+Content-Type: application/json
+
+{
+    "password1":"plakat",
+    "password2":"plakat",
+    "code":{{uniqueId}}
+
+}
+
+#################################################################
 GET {{host}}/activate/{{login}}
 

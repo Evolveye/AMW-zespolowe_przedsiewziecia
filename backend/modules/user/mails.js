@@ -3,13 +3,15 @@ import nodemail from "nodemailer";
 // TODO, potrzebuje sprawdzac w db, czy user juz zostal aktywowany.
 
 import {
-  ACTIVATE_ADDR,
+  PASSW_RESET_ADDR,
   EMAIL,
   REFRESHING_INTERVAL_TIME_IN_MINUTES,
 } from "./consts.js";
 
 class EmailManager {
-  #emailCollection = [];
+  #acctivateCollection = [];
+  #passwResetCollection = [];
+  
 
   #transporter = nodemail.createTransport({
     host: EMAIL.GMAIL_SERVICE_HOST,
@@ -22,9 +24,18 @@ class EmailManager {
   });
 
   constructor() {
+    // const emailCollObj = {
+    //   SEND_DATE: Date.now(),
+    //   UNIQUE_ID:12345,
+    //   EMAIL:"garbisbryka@gmail.com",
+    // };
+    // this.#passwResetCollection.push(emailCollObj);
+
+
     setInterval(() => {
       console.log("DELETE EXPIRED EMAIL MECHANISM.");
-      this.#emailCollection = this.#emailCollection.filter(this.filterExpireEmails);
+      this.#acctivateCollection = this.#acctivateCollection.filter(this.filterExpireEmails);
+     // this.#passwResetCollection = this.#passwResetCollection.filter(this.filterExpireEmails);
     }, REFRESHING_INTERVAL_TIME_IN_MINUTES);
   }
 
@@ -32,7 +43,7 @@ class EmailManager {
    * 
    * @param {Object} obj type of emailCollObj.
    */
-  filterExpireEmails = (obj) => ( Date.now() - obj.SEND_DATE ) < EMAIL.EMAIL_EXPIRE_TIME; // nie minelo .
+  filterExpireEmails = (obj) => (Date.now() - obj.SEND_DATE) < EMAIL.EMAIL_EXPIRE_TIME; // nie minelo .
 
   /**
    * Checks that an account can be activated.
@@ -40,19 +51,92 @@ class EmailManager {
    * @param {number} login 
    * @returns {boolean} 
    */
-  isEmailActive(login) {
+  isActiveActivationEmail(login) {
     //TODO: refactor return user OBJ or false.
 
-    const collObj = this.#emailCollection.find(
+    const collObj = this.#acctivateCollection.filter((obj) => obj.TYPE == `ACCTIVATE`)
+    .find(
       (obj, idx) => obj.USER_ID == login
     );
 
     if (collObj) {
-      const idx = this.#emailCollection.indexOf(collObj);
-      this.#emailCollection.splice(idx, 1); // delete email obj in collection.
+      const idx = this.#acctivateCollection.indexOf(collObj);
+      this.#acctivateCollection.splice(idx, 1); // delete email obj in collection.
       return true;
     }
     return false;
+  }
+
+ /**
+   * Checks that an account can be activated.
+   * 
+   * @param {number} login 
+   * @returns {boolean} 
+   */
+  isActiveResetEmail(uniqueId) {
+    //TODO: refactor return user OBJ or false.
+
+    const collObj = this.#passwResetCollection.find(
+      (obj, idx) => obj.UNIQUE_ID == uniqueId
+    );
+
+    if (collObj) {
+      const idx = this.#passwResetCollection.indexOf(collObj);
+      this.#passwResetCollection.splice(idx, 1); // delete email obj in collection.
+      return collObj.EMAIL;
+    }
+    return false;
+  }
+
+  findEmailById(passwResetUniqueCode)
+  {
+    const resetemailobj =  this.#passwResetCollection.find((obj)=> obj.UNIQUE_ID == passwResetUniqueCode);
+    return resetemailobj.EMAIL;
+  }
+
+  removeResetEmail(passwResetUniqueCode)
+  {
+    this.#passwResetCollection = this.#passwResetCollection.filter(obj => obj.UNIQUE_ID != passwResetUniqueCode);
+  }
+
+
+  /**
+   * 
+   * @returns {number} uniqueId.
+   */
+  sendResetPasswordEmail(email) {
+    var uniqueId = Math.random();
+
+    const mailOptions = {
+      from: EMAIL.GMAIL_USER_NAME,
+      to: email,
+      subject: EMAIL.PASSWORD_RESET_SUBJECT,
+      html: `<h1><a href="${PASSW_RESET_ADDR}?code=${uniqueId}"> RESET PASSWORD </a></h1>
+             <br/> ${PASSW_RESET_ADDR}?code=${uniqueId}
+      `,
+    };
+        const emailCollObj = {
+          EMAIL_OPTIONS: mailOptions,
+          SEND_DATE: Date.now(),
+          UNIQUE_ID:uniqueId,
+          EMAIL:email,
+        }
+
+    this.#transporter.sendMail(mailOptions, (err, info) => {
+      if (err) {
+        console.log("Cannot send e-mail", { err });
+      } else {
+        const emailCollObj = {
+          EMAIL_OPTIONS: mailOptions,
+          SEND_DATE: Date.now(),
+          UNIQUE_ID:uniqueId,
+          EMAIL:email,
+        };
+        console.log(`emailobj`,emailCollObj);
+        this.#passwResetCollection.push(emailCollObj);
+      }
+    });
+
   }
 
   /**
@@ -66,25 +150,24 @@ class EmailManager {
       from: EMAIL.GMAIL_USER_NAME,
       to: email,
       subject: EMAIL.ACCTIVATE_ACCOUNT_SUBJECT,
-      html: `<h1><a href="${ACTIVATE_ADDR}/${userID}"> Acctivate </a></h1>
-             <br/> ${ACTIVATE_ADDR}/${userID}
+      html: `<h1><a href="${PASSW_RESET_ADDR}/${userID}"> Acctivate </a></h1>
+             <br/> ${PASSW_RESET_ADDR}/${userID}
       `,
     };
 
-    this.#transporter.sendMail(mailOptions, (err, info) => {
-      if (err) {
-        console.log("Cannot send e-mail", { err });
-      } else {
-        const emailCollObj = {
-          EMAIL_OPTIONS: mailOptions,
-          SEND_DATE: Date.now(),
-          USER_ID: userID,
-          USER_NAME: name,
-        };
-        this.#emailCollection.push(emailCollObj);
-        console.log(`Email succesfully. USER Login ${userID}`);
-      }
-    });
+    // this.#transporter.sendMail(mailOptions, (err, info) => {
+    //   if (err) {
+    //     console.log("Cannot send e-mail", { err });
+    //   } else {
+    //     const emailCollObj = {
+    //       EMAIL_OPTIONS: mailOptions,
+    //       SEND_DATE: Date.now(),
+    //       USER_ID:userID,
+    //     };
+    //     this.#acctivateCollection.push(emailCollObj);
+    //     console.log(`Email succesfully. USER Login ${userID}`);
+    //   }
+    // });
   }
 }
 

@@ -1,7 +1,6 @@
 //#region imports
 import express from "express";
 import { Server } from "socket.io";
-import bodyParser from 'body-parser';
 import dbManager from "./src/dbManager.js";
 import {APP_ROOT_DIR,PORT} from "./src/constants/serverConsts.js"
 
@@ -11,15 +10,7 @@ import {APP_ROOT_DIR,PORT} from "./src/constants/serverConsts.js"
 console.log(`SERVER ROOT DIR: `, APP_ROOT_DIR);
 //#endregion
 
-// ENDPOINTS
-// api/authenticate --> RES "token : xyz"
-// register
-// registered
-// activatedAccount
-// /app/profile
-// /app/settings
-// /app/myGrades
-// /app/platformSettings
+
 
 /**@typeof {Express} */
 const app = express();
@@ -27,14 +18,17 @@ const app = express();
 /**@type {((socket:import("socket.io").Socket)=>void)[]} */
 const socketConfigs = [];
 
-
-
 app.use(express.json());
-app.use("/public", express.static("./public"));
+
 app.use((req, res, next) => { //Logging middleware.
   console.log(`NEW REQUEST --> ${req.method} ${req.url}`,);
   next();
 });
+app.use("/", express.static("./public"));
+app.use("/media", express.static("./media"));
+
+
+
 
 const modules = Promise.all([
   import("./modules/user/index.js")
@@ -50,11 +44,11 @@ const modules = Promise.all([
   );
 
 //TODO: correct .
-app.get("/", (req, res) => {
-  var path = APP_ROOT_DIR + '/public/index.html';
-  //console.log(dbManager.getCollection('users'));
-  res.sendFile(path);
-});
+// app.get("/", (req, res) => {
+//   var path = APP_ROOT_DIR + '/public/index.html';
+//   //console.log(dbManager.getCollection('users'));
+//   res.sendFile(path);
+// });
 
 
 

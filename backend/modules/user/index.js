@@ -38,29 +38,6 @@ export default class UserModule extends Module {
   constructor(dbManager) {
     super(dbManager);
 
-    // this.dbManager.createCollection(`users`, [
-    //   `login`,
-    //   `name`,
-    //   `surname`,
-    //   "password",
-    //   "email",
-    //   "activated",
-    // ]);
-
-    // this.#tokens.push({
-    //   lastActivity: Date.now(),
-    //   user: {
-    //     "login": 0.03335528500414586,
-    //     "name": "Zenek",
-    //     "surname": "Wkiszek",
-    //     "email": "notarealEmail@op.com",
-    //     "password": "zzz1234a22doprs22",
-    //     "activated": true
-    //   },
-    //   token:'12345'
-    // });
-
-    //console.log("tokens", this.#tokens);
 
     setInterval(() => {
       console.log("DELETE EXPIRED TOKEN MECHANISM.");
@@ -79,18 +56,83 @@ export default class UserModule extends Module {
     //TODO: Tworzenie kont z pominięciem wysyłania maila aktywacyjnego
     //TODO: Rename with prefix ws or http
     //TODO: Check if token already is assigned when user is logging in.
+
+
     //TODO: dodac forget password
+    // resetowanie hasla.
 
     app.use(this.tokenRefreshMiddleware);
+
     app.get("/test", this.test)
-    app.post("/register", this.registerMiddleware);
-    app.post("/login", this.loginMiddleware); //
     app.get("/api/me", this.whoAmIMiddleware); // 1 metoda dla ws i HTTP czy osobne ???
     app.get("/activate/:id", this.acctivateAccountMiddleware);
     app.get("/users", this.getAllUsers); // TODO: production Remove.
-    app.get("/logout", this.logoutMiddleware);
+    app.get("/api/logout", this.logoutMiddleware);
+
+
+    app.post("/api/register", this.registerMiddleware);
+    app.post("/api/login", this.loginMiddleware); //
+    app.post("/api/password/remind",this.passwordRemindMiddleware); 
+    app.post("/api/password/reset", this.passwordResetMiddleware); // update passw in db
+    
 
   }
+
+
+  passwordResetMiddleware = async (req,res,next)=>{
+     const resetObj  = req.body;
+
+    if(resetObj.password1!=resetObj.password2)
+    {
+      res.status(403).send(`Password are not the same.`);
+    }
+
+    const userEmail = emailsManager.isActiveResetEmail(resetObj.code);
+    if(userEmail)
+    {
+      //TODO: make db update.
+      res.status(200).send("Your password has been changed sucessfuly.");
+      const userObj= this.dbManager.updateObject(
+        `users`,
+        { email:userEmail},
+        { $set: { password: resetObj.password1 } }
+      )
+
+    }
+    else
+    {
+      res.status(400).send("Reset email  time expired ")
+    }
+  }
+
+  passwordRemindMiddleware = async (req,res,next)=>{
+
+    const email = req.body.email;
+    const user = await this.dbManager.findObject(`users`,(obj)=>obj.email == email)
+    if(user)
+    {
+      emailsManager.sendResetPasswordEmail(email);
+      res.status(200).send("Reset Password email has been sended. Check your E-mail ")
+  
+    }else{
+      res.status(400).send("cannot find user with that email");
+    }
+   
+
+
+    // if (emailsManager.isActiveResetEmail(uniqueId)) {
+    //   /** @type {User} */
+    //   const targetUser = await this.dbManager.findObject(
+    //     `users`,
+    //     /**@param {User} obj */
+    //     (obj) => obj.email == uniqueId
+    //   );
+
+    //   console.log(targetUser);
+    
+    // }
+  }
+
 
   /**
    *
@@ -146,6 +188,7 @@ export default class UserModule extends Module {
   }
 
   test = (req, res, next) => {
+
     res.status(200).json(this.#tokens);
   }
 
@@ -171,7 +214,7 @@ export default class UserModule extends Module {
     const accLogin = req.params.id;
 
 
-    if (emailsManager.isEmailActive(accLogin)) {
+    if (emailsManager.isActiveActivationEmail(accLogin)) {
       /** @type {User} */
       const targetUser = await this.dbManager.findObject(
         `users`,
@@ -251,6 +294,8 @@ export default class UserModule extends Module {
    */
   loginMiddleware = async (req, res, next) => {
     // W celu zalogowania się na stronie musi podać login i hasło.
+    console.log('####################',req.body);
+
     const user = {
       login: req.body.login.toString(),
       password: req.body.password,

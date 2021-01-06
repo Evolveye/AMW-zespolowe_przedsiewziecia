@@ -12,10 +12,12 @@ export const ERRORS = {
 const password = "secret123#"
 const email = "sass.project.amw@gmail.com"
 
+export const PASSW_RESET_ADDR = "http://localhost:3000/api/password/reset"
 export const ACTIVATE_ADDR = "http://localhost:3000/activate"
 export const EMAIL = {
     EMAIL_EXPIRE_TIME: ONE_MINUTE * 60,
     ACCTIVATE_ACCOUNT_SUBJECT: "Verify your SASS Portal account.",
+    PASSWORD_RESET_SUBJECT: "Reset your password.",
     GMAIL_SERVICE_NAME: "gmail",
     GMAIL_SERVICE_HOST: "smtp.gmail.com",
     GMAIL_SERVICE_SECURE: false,
