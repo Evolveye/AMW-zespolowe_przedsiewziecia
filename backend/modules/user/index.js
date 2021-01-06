@@ -2,10 +2,11 @@ import Module from "../baseModule.js";
 import * as CONSTS from "../../src/constants/serverConsts.js";
 import {
   REFRESHING_INTERVAL_TIME_IN_MINUTES,
-  TOKEN_EXPIRE_TIME_IN_MINUTES
+  TOKEN_EXPIRE_TIME_IN_MINUTES,
+  ANSWERS,
 } from './consts.js';
 import emailsManager from "./mails.js";
-import { ERRORS } from "../../src/constants/dbConsts.js";
+
 import e, { request } from "express";
 
 
@@ -38,28 +39,23 @@ export default class UserModule extends Module {
   constructor(dbManager) {
     super(dbManager);
 
-
     setInterval(() => {
       console.log("DELETE EXPIRED TOKEN MECHANISM.");
-      this.#tokens = this.#tokens.filter(this.FilterExpireTokens);
+      this.#tokens = this.#tokens.filter(this.filterExpireTokens);
     }, REFRESHING_INTERVAL_TIME_IN_MINUTES);
   }
 
-  FilterExpireTokens = (obj) =>
+  filterExpireTokens = (obj) =>
     Date.now() - obj.lastActivity < TOKEN_EXPIRE_TIME_IN_MINUTES;
 
   /**
    * @param {Express} app
    */
   configure(app) {
-    //TODO: logout.
     //TODO: Tworzenie kont z pominięciem wysyłania maila aktywacyjnego
     //TODO: Rename with prefix ws or http
     //TODO: Check if token already is assigned when user is logging in.
 
-
-    //TODO: dodac forget password
-    // resetowanie hasla.
 
     app.use(this.tokenRefreshMiddleware);
 
@@ -72,66 +68,47 @@ export default class UserModule extends Module {
 
     app.post("/api/register", this.registerMiddleware);
     app.post("/api/login", this.loginMiddleware); //
-    app.post("/api/password/remind",this.passwordRemindMiddleware); 
+    app.post("/api/password/remind", this.passwordRemindMiddleware);
     app.post("/api/password/reset", this.passwordResetMiddleware); // update passw in db
-    
+
 
   }
 
 
-  passwordResetMiddleware = async (req,res,next)=>{
-     const resetObj  = req.body;
+  passwordResetMiddleware = async (req, res, next) => {
+    const resetObj = req.body;
 
-    if(resetObj.password1!=resetObj.password2)
-    {
-      res.status(403).send(CONSTS.ERRORS.PASSWORDS_NOT_SAME);
+    if (resetObj.password1 != resetObj.password2) {
+      res.status(403).send(ANSWERS.PASSWORDS_NOT_SAME);
     }
 
     const userEmail = emailsManager.isActiveResetEmail(resetObj.code);
-    if(userEmail)
-    {
-      //TODO: make db update.
-      res.status(200).send("Your password has been changed sucessfuly.");
-      const userObj= this.dbManager.updateObject(
+    if (userEmail) {
+      const userObj = this.dbManager.updateObject(
         `users`,
-        { email:userEmail},
+        { email: userEmail },
         { $set: { password: resetObj.password1 } }
       )
 
+      res.status(200).send(ANSWERS.PASSWD_CHANGE_SUCCESS);
     }
-    else
-    {
-      res.status(400).send("Reset email  time expired ")
+    else {
+      res.status(400).send(ANSWERS.EMAIL_RESET_EXPIRED)
     }
   }
 
-  passwordRemindMiddleware = async (req,res,next)=>{
+  passwordRemindMiddleware = async (req, res, next) => {
 
-    const email = req.body.email;
-    const user = await this.dbManager.findObject(`users`,(obj)=>obj.email == email)
-    if(user)
-    {
+    const accountEmail = req.body.email;
+    const user = await this.dbManager.findObject(`users`, {email:accountEmail})
+    if (user) {
       //TODO: Production Uncoment.
-      emailsManager.sendResetPasswordEmail(email);
-      res.status(200).send("Reset Password email has been sended. Check your E-mail ")
-  
-    }else{
-      res.status(400).send("cannot find user with that email");
+      emailsManager.sendResetPasswordEmail(accountEmail);
+      res.status(200).send(ANSWERS.PASSWD_REMIND_SUCCES)
+
+    } else {
+      res.status(400).send(ANSWERS.PASSWD_REMIND_WRONG_EMAIL);
     }
-   
-
-
-    // if (emailsManager.isActiveResetEmail(uniqueId)) {
-    //   /** @type {User} */
-    //   const targetUser = await this.dbManager.findObject(
-    //     `users`,
-    //     /**@param {User} obj */
-    //     (obj) => obj.email == uniqueId
-    //   );
-
-    //   console.log(targetUser);
-    
-    // }
   }
 
 
@@ -149,25 +126,35 @@ export default class UserModule extends Module {
 
 
   logoutMiddleware = (req, res, next) => {
-    const authenticationToken = this.isAuthentication(req);
-    if (authenticationToken) {
-      //const token = authentication.match(/Bearer (.*)/)[1];
+    const authenticationToken = this.getTokenFromRequest(req);
 
-      this.#tokens = this.#tokens.filter((tokenData) => tokenData.token != authenticationToken);
-      res.status(200).send("You has been logged out.");
+    if (authenticationToken) {
+      if (this.tokenExist(authenticationToken)) {
+        this.#tokens = this.#tokens.filter((tokenData) => tokenData.token != authenticationToken);
+        res.status(200).send(ANSWERS.LOGOUT_SUCCESS);
+      }
+      else {
+        res.status(400).send(ANSWERS.TOKEN_NOT_EXIST);
+      }
+    } else {
+      res.status(400).send(ANSWERS.TOKEN_NOT_PROVIDED);
     }
   }
 
-  tokenRefreshMiddleware = (req, res, next) => {
-    const authenticationToken = this.isAuthentication(req);
-    if (authenticationToken) { // found a authentication header.
+  tokenExist(token) {
+    return this.#tokens.some(tokenObj => tokenObj.token == token)
+  }
 
+
+  tokenRefreshMiddleware = (req, res, next) => {
+    const authenticationToken = this.getTokenFromRequest(req);
+
+    if (this.tokenExist(authenticationToken)) { // found a authentication header.
       const obj = this.#tokens.find(
         (tokenData) => tokenData.token == authenticationToken
       );
 
       obj.lastActivity = Date.now();
-
     }
 
     // NOT found a authentication header.
@@ -179,17 +166,16 @@ export default class UserModule extends Module {
    * @param {Request} request
    * @returns {token|false}
    */
-  isAuthentication = (request) => {
+  getTokenFromRequest = (request) => {
     const authentication = request.header("Authentication");
 
     if (authentication)
       return authentication.match(/Bearer (.*)/)[1]
     else
-      return false;
+      false
   }
 
   test = (req, res, next) => {
-
     res.status(200).json(this.#tokens);
   }
 
@@ -216,40 +202,30 @@ export default class UserModule extends Module {
 
 
     if (emailsManager.isActiveActivationEmail(accLogin)) {
+
       /** @type {User} */
       const targetUser = await this.dbManager.findObject(
         `users`,
         /**@param {User} obj */
-        (obj) => obj.login == accLogin
+        { login: accLogin }
       );
 
-      console.log(targetUser);
-      if (!targetUser.activated) {
-        //  not activated
+      if (!targetUser.activated) {//  not activated
 
-        await this.dbManager.updateObject(`users`,
-          {
-            login: targetUser.login,
-          }
-          , { $set: { activated: true } });
-
-        //targetUser.activated = true;
-        console.log("ACCTIVATE: ", req.path);
-        res.status(200)
-          .send(`<h1> ACCOUNT ${req.params.id} ACTIVATED PROPERLY. </h1>`);
-      } // already activated
-      else {
-        console.log("Account already activated: ", req.path);
-        res.status(200)
-          .send(
-            `<h2 style="color=red"> ACCOUNT ${req.params.id} HAS BEEN ALREADY ACTIVATED. </h2>`
-          );
-      }
-    } else {
-      res.status(200)
-        .send(
-          `<h2 style="color=red"> ACCOUNT ${req.params.id} CAN NOT BE ACTIVATED,</h2> <br/> Email time has expired.`
+        await this.dbManager.updateObject(
+          `users`,
+          { login: targetUser.login, },
+          { $set: { activated: true } }
         );
+        console.log(`ACTIVATE USER: ${targetUser.name} ${targetUser.surname}`);
+
+        res.status(200).send(ANSWERS.ACCOUNT_ACTIVATION_SUCCESS);
+      }
+      else {// already activated
+        res.status(200).send(ANSWERS.ACCOUNT_ALREADY_ACTIVATED);
+      }
+    } else { // email exired
+      res.status(200).send(ANSWERS.EMAIL_ACTIVATE_EXPIRED);
     }
   }
 
@@ -262,29 +238,25 @@ export default class UserModule extends Module {
    */
   whoAmIMiddleware = (req, res, next) => {
     // TODO: Handle bad  request
-    const authentication = req.header("Authentication");
-    // console.log("REQUEST WhoIAm HEADER", { authentication });
+    const authentication = this.getTokenFromRequest(req);
 
-    /**
-     * @type {string}
-     */
-    const token = authentication.match(/Bearer (.*)/)[1];
-    //console.log('token ->', token);
+    if (authentication) { // has token and token exist in memeory db
+      if (this.tokenExist(authentication)) {
+        const user = this.findUserByToken(authentication); // get user associated token.
+        delete user.password;
 
-    const tokenData = this.#tokens.find(
-      (tokenData) => tokenData.token == token
-    );
-
-    if (tokenData) {
-      const { user } = tokenData;
-      // console.log("REQUEST WhoIAm", { user });
-      delete user.password;
-
-      res.json( user);
-    } else {
-      res.status(401).send(CONSTS.ERRORS.CANNOT_IDENTYFY_USER);
+        res.json(user);
+      } else {
+        res.status(401).send(ANSWERS.TOKEN_NOT_EXIST)
+      }
+    } else { // token not provided
+      res.status(401).send(ANSWERS.TOKEN_NOT_PROVIDED);
     }
   };
+
+
+  findUserByToken = (token) => this.#tokens.find((tokenObj) => tokenObj.token == token).user;
+
 
   /**
    * Accepted path /login
@@ -295,37 +267,42 @@ export default class UserModule extends Module {
    */
   loginMiddleware = async (req, res, next) => {
     // W celu zalogowania się na stronie musi podać login i hasło.
+
     const user = {
       login: req.body.login.toString(),
       password: req.body.password,
     };
+
     console.log(`REQUEST LOG-IN CREDENTIALS`, { user });
+
     /**@type {User} userObj */
     const userObj = await this.dbManager.findObject(
       `users`,
-      /**@param {User} potentialUser */
-      (potentialUser) => user.login == potentialUser.login && potentialUser.password == user.password
+      { login: user.login, password: user.password }
     );
-    
-    if(userObj)// jest w bazie
+
+    // /**@param {User} potentialUser */
+    // (potentialUser) => user.login == potentialUser.login && potentialUser.password == user.password
+
+    if (userObj)// jest w bazie
     {
       if (userObj.activated) { // aktywowany
         var token = Math.random().toString();
+
         this.#tokens.push({
           lastActivity: Date.now(),
           user: userObj,
           token,
         });
-  
         res.json(token); // or send and json stringify.
+
       } else {
-        res.status(401).send(`Your account is not activated.`);
+        res.status(401).send(ANSWERS.ACCOUNT_NOT_ACTIVATED);
       }
-    }else
-    {
-      res.status(401).send(`User with not exist. Please register first.`);
+    } else {
+      res.status(401).send(ANSWERS.USER_NOT_EXIST);
     }
-    
+
   };
 
   /**
@@ -339,7 +316,7 @@ export default class UserModule extends Module {
     // rejestracji konta należy podać imię, nazwisko, email, hasło i powtórnie hasło.
 
     if (req.body.password1 != req.body.password2)
-      res.status(400).send(CONSTS.ERRORS.PASSWORDS_NOT_SAME);
+      res.status(400).send(ANSWERS.PASSWORDS_NOT_SAME);
 
     //TODO: NAME/SURNAME ALREADY EXIST.
 
@@ -350,15 +327,11 @@ export default class UserModule extends Module {
       email: req.body.email,
       password: req.body.password1, // length validation?
       activated: false,
-      avatar:`/media/image/avatarDefault.jpg`,
+      avatar: `/media/image/avatarDefault.jpg`,
     };
 
     await this.dbManager.insertObject(`users`, user);
-    console.log("MARK --> ", await this.dbManager.getCollection(`users`));
-    console.log(" <-- MARK");
 
-    // this.dbManager.getCollection(`users`);
-    // this.#db.collection(`users`).find().toArray().then(console.log);
     emailsManager.sendAcctivationEmail(user.name, user.email, user.login);
 
     res.json(user);

@@ -4,6 +4,7 @@ import nodemail from "nodemailer";
 
 import {
   PASSW_RESET_ADDR,
+  ACTIVATE_ADDR,
   EMAIL,
   REFRESHING_INTERVAL_TIME_IN_MINUTES,
 } from "./consts.js";
@@ -59,10 +60,7 @@ class EmailManager {
   isActiveActivationEmail(login) {
     //TODO: refactor return user OBJ or false.
 
-    const collObj = this.#acctivateCollection.filter((obj) => obj.TYPE == `ACCTIVATE`)
-    .find(
-      (obj, idx) => obj.USER_ID == login
-    );
+    const collObj = this.#acctivateCollection.find((obj, idx) => obj.USER_ID == login);
 
     if (collObj) {
       const idx = this.#acctivateCollection.indexOf(collObj);
@@ -155,8 +153,8 @@ class EmailManager {
       from: EMAIL.GMAIL_USER_NAME,
       to: email,
       subject: EMAIL.ACCTIVATE_ACCOUNT_SUBJECT,
-      html: `<h1><a href="${PASSW_RESET_ADDR}/${userID}"> Acctivate </a></h1>
-             <br/> ${PASSW_RESET_ADDR}/${userID}
+      html: `<h1><a href="${ACTIVATE_ADDR}/${userID}"> Acctivate </a></h1>
+             <br/> ${ACTIVATE_ADDR}/${userID}
       `,
     };
 

@@ -18,44 +18,44 @@ POST {{host}}/api/register
 Content-Type: application/json
 
 {
-    "name":"abcdefghijklmnoprstuw",
-    "surname":"1234567890",
-    "email":"alphabetDigit@gmail.com",
-    "password1":"1234",
-    "password2":"1234"
+    "name":"Jastrzab",
+    "surname":"Bielik",
+    "email":"vofiko7621@28woman.com",
+    "password1":"ptak",
+    "password2":"ptak"
 }
 ######################## LOGIN ##################################
-@login = 0.9795861379140136
+@login = 0.9938147460824516
 POST {{host}}/api/login
 Content-Type: application/json
 
 {
     "login": {{login}},
-    "password":"Ogienwszopie"
+    "password":"ptak"
 }
 ###################### ME #####################################
-@token = 0.9177700965742472
+@token = 0.7394723770798901
 GET {{host}}/api/me
 Authentication: Bearer {{token}}
 ######################## LOGOUT ####################################
-GET {{host}}/logout 
+GET {{host}}/api/logout 
 Authentication: Bearer {{token}}
 ######################### Forgot passw ###################################
 POST  {{host}}/api/password/remind
 Content-Type: application/json
 
 {
-    "email":"adam.szr98@gmail.com"
+    "email":"vofiko7621@28woman.com"
 }
 
 #################################################################
-@uniqueId = 0.08422863516704693
+@uniqueId = 0.6043351227552578
 POST  {{host}}/api/password/reset?code={{uniqueId}}
 Content-Type: application/json
 
 {
-    "password1":"123",
-    "password2":"123",
+    "password1":"abc123",
+    "password2":"abc123",
     "code":{{uniqueId}}
 
 }
