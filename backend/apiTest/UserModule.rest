@@ -18,23 +18,23 @@ POST {{host}}/api/register
 Content-Type: application/json
 
 {
-    "name":"Zbyszek",
-    "surname":"jasko",
-    "email":"jasko.12348@gmail.com",
-    "password1":"Ogienwszopie",
-    "password2":"Ogienwszopie"
+    "name":"abcdefghijklmnoprstuw",
+    "surname":"1234567890",
+    "email":"alphabetDigit@gmail.com",
+    "password1":"1234",
+    "password2":"1234"
 }
 ######################## LOGIN ##################################
-@login = 0.03335528500414586
-POST {{host}}/api/authenticate
+@login = 0.9795861379140136
+POST {{host}}/api/login
 Content-Type: application/json
 
 {
     "login": {{login}},
-    "password":"zzz1234a22doprs22"
+    "password":"Ogienwszopie"
 }
 ###################### ME #####################################
-@token = 0.5472482137302535
+@token = 0.9177700965742472
 GET {{host}}/api/me
 Authentication: Bearer {{token}}
 ######################## LOGOUT ####################################
@@ -45,17 +45,17 @@ POST  {{host}}/api/password/remind
 Content-Type: application/json
 
 {
-    "email":"wefele2381@aomrock.com"
+    "email":"adam.szr98@gmail.com"
 }
 
 #################################################################
-@uniqueId = 0.8446157894928614
+@uniqueId = 0.08422863516704693
 POST  {{host}}/api/password/reset?code={{uniqueId}}
 Content-Type: application/json
 
 {
-    "password1":"plakat",
-    "password2":"plakat",
+    "password1":"123",
+    "password2":"123",
     "code":{{uniqueId}}
 
 }

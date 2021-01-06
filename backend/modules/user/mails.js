@@ -24,26 +24,31 @@ class EmailManager {
   });
 
   constructor() {
-    // const emailCollObj = {
-    //   SEND_DATE: Date.now(),
-    //   UNIQUE_ID:12345,
-    //   EMAIL:"garbisbryka@gmail.com",
-    // };
-    // this.#passwResetCollection.push(emailCollObj);
 
+    setInterval(() => { // Acctivation email's
+      console.log("DELETE EXPIRED ACCTIVATION EMAIL MECHANISM.");
+      this.#acctivateCollection = this.#acctivateCollection.filter(this.filterExpireActivationEmails);
+    }, REFRESHING_INTERVAL_TIME_IN_MINUTES);
 
-    setInterval(() => {
-      console.log("DELETE EXPIRED EMAIL MECHANISM.");
-      this.#acctivateCollection = this.#acctivateCollection.filter(this.filterExpireEmails);
-     // this.#passwResetCollection = this.#passwResetCollection.filter(this.filterExpireEmails);
+    setInterval(() => {// Reset Passwd email's
+      console.log("DELETE EXPIRED PASSWD EMAIL MECHANISM.");
+      this.#passwResetCollection = this.#passwResetCollection.filter(this.filterExpireResetEmails);
     }, REFRESHING_INTERVAL_TIME_IN_MINUTES);
   }
+
 
   /**
    * 
    * @param {Object} obj type of emailCollObj.
    */
-  filterExpireEmails = (obj) => (Date.now() - obj.SEND_DATE) < EMAIL.EMAIL_EXPIRE_TIME; // nie minelo .
+  filterExpireResetEmails = (obj) => (Date.now() - obj.SEND_DATE) < EMAIL.PASSWD_RESET_EXPIRE_TIME; // nie minelo .
+
+
+  /**
+   * 
+   * @param {Object} obj type of emailCollObj.
+   */
+  filterExpireActivationEmails = (obj) => (Date.now() - obj.SEND_DATE) < EMAIL.ACTIVATION_EXPIRE_TIME; // nie minelo .
 
   /**
    * Checks that an account can be activated.
@@ -132,7 +137,7 @@ class EmailManager {
           UNIQUE_ID:uniqueId,
           EMAIL:email,
         };
-        console.log(`emailobj`,emailCollObj);
+        console.log(`Reset Passw send --> `,{email:emailCollObj.EMAIL_OPTIONS.to});
         this.#passwResetCollection.push(emailCollObj);
       }
     });
@@ -155,19 +160,19 @@ class EmailManager {
       `,
     };
 
-    // this.#transporter.sendMail(mailOptions, (err, info) => {
-    //   if (err) {
-    //     console.log("Cannot send e-mail", { err });
-    //   } else {
-    //     const emailCollObj = {
-    //       EMAIL_OPTIONS: mailOptions,
-    //       SEND_DATE: Date.now(),
-    //       USER_ID:userID,
-    //     };
-    //     this.#acctivateCollection.push(emailCollObj);
-    //     console.log(`Email succesfully. USER Login ${userID}`);
-    //   }
-    // });
+    this.#transporter.sendMail(mailOptions, (err, info) => {
+      if (err) {
+        console.log("Cannot send e-mail", { err });
+      } else {
+        const emailCollObj = {
+          EMAIL_OPTIONS: mailOptions,
+          SEND_DATE: Date.now(),
+          USER_ID:userID,
+        };
+        this.#acctivateCollection.push(emailCollObj);
+        console.log(`Email succesfully. USER Login ${userID} email ${emailCollObj.EMAIL_OPTIONS.to}`);
+      }
+    });
   }
 }
 

@@ -84,7 +84,7 @@ export default class UserModule extends Module {
 
     if(resetObj.password1!=resetObj.password2)
     {
-      res.status(403).send(`Password are not the same.`);
+      res.status(403).send(CONSTS.ERRORS.PASSWORDS_NOT_SAME);
     }
 
     const userEmail = emailsManager.isActiveResetEmail(resetObj.code);
@@ -111,6 +111,7 @@ export default class UserModule extends Module {
     const user = await this.dbManager.findObject(`users`,(obj)=>obj.email == email)
     if(user)
     {
+      //TODO: Production Uncoment.
       emailsManager.sendResetPasswordEmail(email);
       res.status(200).send("Reset Password email has been sended. Check your E-mail ")
   
@@ -279,7 +280,7 @@ export default class UserModule extends Module {
       // console.log("REQUEST WhoIAm", { user });
       delete user.password;
 
-      res.send(JSON.stringify({ user }));
+      res.json( user);
     } else {
       res.status(401).send(CONSTS.ERRORS.CANNOT_IDENTYFY_USER);
     }
@@ -294,8 +295,6 @@ export default class UserModule extends Module {
    */
   loginMiddleware = async (req, res, next) => {
     // W celu zalogowania się na stronie musi podać login i hasło.
-    console.log('####################',req.body);
-
     const user = {
       login: req.body.login.toString(),
       password: req.body.password,
@@ -307,19 +306,26 @@ export default class UserModule extends Module {
       /**@param {User} potentialUser */
       (potentialUser) => user.login == potentialUser.login && potentialUser.password == user.password
     );
-    // console.log(`User ->>>>>>>`, { userObj })
-    if (userObj.activated) {
-      var token = Math.random().toString();
-      this.#tokens.push({
-        lastActivity: Date.now(),
-        user: userObj,
-        token,
-      });
-
-      res.json({ token }); // or send and json stringify.
-    } else {
-      res.status(401).send(ERRORS.NOT_EXIST);
+    
+    if(userObj)// jest w bazie
+    {
+      if (userObj.activated) { // aktywowany
+        var token = Math.random().toString();
+        this.#tokens.push({
+          lastActivity: Date.now(),
+          user: userObj,
+          token,
+        });
+  
+        res.json(token); // or send and json stringify.
+      } else {
+        res.status(401).send(`Your account is not activated.`);
+      }
+    }else
+    {
+      res.status(401).send(`User with not exist. Please register first.`);
     }
+    
   };
 
   /**
@@ -344,6 +350,7 @@ export default class UserModule extends Module {
       email: req.body.email,
       password: req.body.password1, // length validation?
       activated: false,
+      avatar:`/media/image/avatarDefault.jpg`,
     };
 
     await this.dbManager.insertObject(`users`, user);
@@ -354,7 +361,7 @@ export default class UserModule extends Module {
     // this.#db.collection(`users`).find().toArray().then(console.log);
     emailsManager.sendAcctivationEmail(user.name, user.email, user.login);
 
-    res.status(201).send(user);
+    res.json(user);
   };
 
   toString = () => "UserModule";
