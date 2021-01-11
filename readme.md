@@ -1,3 +1,7 @@
+# Platforma edukacyjna
+
+
+
 ```
 root/
  |- frontend/
@@ -18,40 +22,79 @@ root/
 
 Do poniższych endpointów APi
 należy utworzyć także zdarzenia WS o nazwach pasujacych do szablonu
-`WS :: api.<metoda>.<...reszta adresu HTTP z zamienionymi "/" na ".">`
+`api.<metoda>.<...reszta adresu HTTP bez parametrów z zamienionymi "/" na ".">`.  
+Przykład
+  - HTTP: GET :: `/api/groups/:groupId/notes`
+  - WS: `api.get.groups.notes`
 
-Logowanie
-```json
-POST :: /api/login
-{ //body 
-  "login": "string",
-  "haslo": "string"
-} 
+Wszelkie parametry idące z adresem HTTP
+powinny być umieszcozne w danych przesyłanych na serwer
+
+```js
+socket.emit( `api.get.groups.notes`, {
+  $args: {
+    groupId: `string`,
+  },
+} )
+socket.emit( `api.post.groups`, {
+  name: "string"
+  lecturer: "string"
+} )
 ```
 
-Rejestracja
+Dodatkowo niektóre pola moga być polami opcjonalnymi.
+Nazwy takowych pól zakończone są znakiem zapytania
+
 ```json
-POST :: /api/register
-{ //body 
-  "imie,": "string",
-  "nazwisko,": "string",
-  "email,": "string",
-  "haslo1,": "string",
-  "haslo2": "string",
+{
+  "nazwa_pola_obowiązkowego": "typ",
+  "nazwa_pola_oopcjonalnego?": "typ"
 }
 ```
 
-Przypomnij hasło
+Prosta wersja REST API zakłada obsługę poniższych metod HTTP:
+ * **GET** odpowiada za pobranie danych
+ * **DELETE** odpowiada za skasowanie danych
+ * **POST** odpowiada za stworzenie danych
+ * **PUT** odpowiada za edycję danych
+
+---
+
+### Zapytania generalne "/api/*"
+
+
+Logowanie `/api/login`
 ```json
-POST :: /api/password/remind
+POST
+{ //body 
+  "login": "string",
+  "password": "string"
+} 
+```
+
+Rejestracja `/api/register`
+```json
+POST
+{ //body 
+  "name": "string",
+  "surname": "string",
+  "email": "string",
+  "password1": "string",
+  "password2": "string",
+}
+```
+
+Przypomnij hasło `/api/password/remind`
+```json
+POST
 { //body 
   "email": "string"
 }
 ```
 
-Resetowanie hasła
+Resetowanie hasła `/api/password/reset`
 ```json
-POST :: /api/password/reset
+POST
 { //body 
   "password1": "string",
   "password2": "string",
@@ -59,122 +102,227 @@ POST :: /api/password/reset
 } 
 ```
 
-Dane zalogowanego użytkownika
+
+### Zapytania modułu użytkownika "/api/users/*"
+
+
+Dane zalogowanego użytkownika `/api/users/me`
 ```json
-GET :: /api/users/me
+GET
 { "authenthication": "string" } // header
 { // response
   "login": "string",
-  "activated": "boolean",
   "name": "string",
   "surname": "string",
   "email": "string",
-  "created": "number",
+  "activated": "boolean",
   "avatar": "string",
+  "createdDatetime": "number",
 }
 ```
 
-Lista wszystkich platform usera
+Aktualizacja danych zalogowanego użytkownika `/api/users/me`
 ```json
-GET :: /api/platforms
+PUT
+{ "authenthication": "string" } // header
+{ // response
+  "login?": "string",
+  "name?": "string",
+  "surname?": "string",
+  "email?": "string",
+  "avatar?": "string",
+  "password?": "string",
+  "newPassword1?": "string",
+  "newPassword2?": "string",
+}
+```
+
+Pobranie przypiętych elementów `/api/users/me/pinned`
+```json
+GET
+{ "authenthication": "string" } // header
+{ // response
+  "pinned": [
+    {
+      "type": "string",
+      "name": "string",
+      "_id": "string",
+    }
+  ]
+}
+```
+
+Skasowanie przypiętego elementu `/api/users/me/pinned/:elementId`
+```json
+DELETE
+{ "authenthication": "string" } // header
+```
+
+Dodawanie przypiętego elementu `/api/users/me/pinned`
+```json
+POST
+{ "authenthication": "string" } // header
+{ // body
+  "id": "string",
+  "type": "string",
+}
+```
+
+
+### Zapytania modułu platformy "/api/platforms/*"
+
+
+Lista wszystkich platform usera `/api/platforms`
+```json
+GET
 { "authenthication": "string" } // header
 { // response
   "platforms": [
     {
       "_id": "string",
-      "owner": "object<User>",
+      "owner": "Object<User>",
       "created": "number",
-      "assignedGroup": "array<number>",
       "administrator": "object<User>",
-      "assigned_users": "array<number>",
-      "org_name": "string",
+      "organisationName": "string",
     }
   ]
 }
 ```
 
-Grupy
+Tworzenie platformy `/api/platforms`
 ```json
-GET DELETE :: /api/users/me/pinned
+POST
 { "authenthication": "string" } // header
-```
-
-Kalendarz
-```json
-GET :: /api/calendar
-{ "authenthication": "string" } // header
-{ // response
-  "events": [
-    {
-      "type": "string",
-      "date": "string",
-      "href": "string",
-    }
-  ]
+{ // body
+  "organisationName": "string",
 }
 ```
 
-Lista grup platformy
+Lista userów platformy `/api/platforms/id:number/users`
 ```json
-GET :: /api/platforms/id:number/groups
-{ "authenthication": "string" } // header
-{ // GET response
-  "groups": "array<Group>"
-}
-```
-
-Lista userów platformy
-```json
-GET :: /api/platforms/id:number/users
+GET
 { "authenthication": "string" } // header
 { // response
   "users": "array<User>"
 }
 ```
 
-Tworzenie grupy
+Kasowanie userów z platformy `/api/platforms/id:number/users/id:number`
 ```json
-POST :: /api/platforms/id:number/groups
+DELETE
 { "authenthication": "string" } // header
+```
 
-{ // body
-	"name": "string",
-	"prowadzacy": "string",
+
+### Zapytania modułu grupy "/api/groups/*"
+
+
+Lista grup `/api/groups`
+```json
+GET
+{ "authenthication": "string" } // header
+{ // response
+  "groups": "array<Group>"
 }
 ```
 
-Dodawanie usera do grupy
+Tworzenie grupy `/api/groups`
+```json
+POST
+{ "authenthication": "string" } // header
+{ // body
+  "name": "string",
+  "lecturer": "string",
+}
+```
+
+Dodawanie usera do grupy `/api/groups`
 ```json
 POST
 { "authenthication": "string" } // header
 ```
 
-Kasowanie userów z platformy
+Kasowanie grupy `/api/groups/:groupId`
 ```json
-DELETE :: /api/platforms/id:number/users/id:number
+DELETE
 { "authenthication": "string" } // header
 ```
 
-Kasowanie grupy z platformy
+Pobranie wszystkich ocen użytkownika `/api/groups/notes`
 ```json
-DELETE :: /api/platforms/id:number/groups/id
+GET 
 { "authenthication": "string" } // header
-```
-
-Oceny
-```json
-GET/POST/PUT/DELETE :: /api/platform/id/groups/id/notes
-{ "authenthication": "string" } // header
-{ // GET response
-  "ocena": "string",
-	"opis": "string",
-	"data": "number",
-	"kto": "string",
+{ // response\
+  "notes": [
+    {
+      "_id": "string",
+      "value": "string",
+      "description": "string",
+      "date": "number",
+      "lecturer": "User",
+    }
+  ]
 }
 ```
 
-Oceny usera
+Pobranie wszystkich ocen użytkownika z danej grupy `/api/groups/:groupId/notes`
 ```json
-GET :: /api/users/me/notes
+GET
 { "authenthication": "string" } // header
+{ // response
+  "notes": [
+    {
+      "_id": "string",
+      "value": "string",
+      "description": "string",
+      "date": "number",
+      "lecturer": "User",
+    }
+  ]
+}
+```
+
+Skasowanie oceny `/api/groups/notes/:noteId`
+```json
+DELETE 
+{ "authenthication": "string" } // header
+```
+
+Stworzenie oceny `/api/groups/notes/`
+```json
+POST 
+{ "authenthication": "string" } // header
+{ // body
+  "value": "string",
+  "description": "string",
+}
+```
+
+Edycja oceny `/api/groups/notes/:noteId`
+```json
+PUT 
+{ "authenthication": "string" } // header
+{ // body
+  "value": "string",
+  "description": "string",
+}
+```
+
+
+### Zapytania modułu kalendarza "/api/calendar/*"
+
+
+Kalendarz `/api/calendar`
+```json
+GET
+{ "authenthication": "string" } // header
+{ // response
+  "events": [
+    {
+      "type": "string",
+      "date": "string",
+      "elementId": "string",
+    }
+  ]
+}
 ```
