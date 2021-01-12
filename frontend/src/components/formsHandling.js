@@ -1,4 +1,4 @@
-import DEBUG from "../config.json"
+import { DEBUG } from "../config.js"
 
 /**
  * @param {string} url
@@ -7,10 +7,16 @@ import DEBUG from "../config.json"
  * @param {Object<string,*>} body
  */
 export async function exchangeFormWithServer( url, method, headers, body ) {
+  console.log( {
+    url,
+    method: method.toUpperCase(),
+    headers,
+    body: [`GET`, `HEAD`].includes( method.toUpperCase() ) ? null : JSON.stringify( body ),
+  } )
   const response = await fetch( url, {
     method: method.toUpperCase(),
     headers,
-    body: JSON.stringify( body )
+    body: [`GET`, `HEAD`].includes( method.toUpperCase() ) ? null : JSON.stringify( body )
   } ).then( res => res.text() )
 
   /** @type {{error:string}|Object<string,*>} */
@@ -39,7 +45,7 @@ export async function exchangeFormWithServer( url, method, headers, body ) {
  * @param {(response:*) => void} param4.okCb
  */
 export async function handleForm( url, method, headers, body, { serverErrCb, dataErrCb, okCb } ) {
-  const { isError, reason, response } = await exchangeFormWithServer( url, method, headers, body )
+   const { isError, reason, response } = await exchangeFormWithServer( url, method, headers, body )
 
   if (isError) {
     if (reason) {
