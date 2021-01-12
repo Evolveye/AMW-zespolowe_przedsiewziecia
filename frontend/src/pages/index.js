@@ -7,12 +7,12 @@ import RightContainerMain from "../components/rightComponents/main"
 
 import "../components/style.css"
 
-const IndexPage = () => ( 
-  <div className="container"> 
+const IndexPage = () => (
+  <div className="container">
       <SEO title="Strona główna" />
-      
-        <LeftContainer /> 
-        <div className="hr-vertical"></div> 
+
+        <LeftContainer />
+        <div className="hr-vertical"></div>
         <RightContainerMain />
     </div>
 
