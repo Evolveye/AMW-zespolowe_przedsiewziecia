@@ -3,6 +3,7 @@ import { Server } from "socket.io";
 import dbManager from "./src/dbManager.js";
 import { APP_ROOT_DIR, PORT, LOGGERS } from "./src/constants/serverConsts.js"
 import { doRequestLogShouldBePrinted, logUnderControl } from "./src/utils.js"
+import cors from 'cors'
 
 /**@typeof {Express} */
 const app = express();
@@ -23,7 +24,7 @@ const server = app.listen(PORT, () => {
 });
 const wss = new Server(server);
 
-
+app.use(cors())
 app.use(express.json());
 app.use((req, res, next) => { //Logging middleware.
   if (doRequestLogShouldBePrinted( req )) {
