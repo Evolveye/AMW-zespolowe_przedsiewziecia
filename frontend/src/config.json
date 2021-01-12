@@ -1,16 +1,36 @@
 {
     "BACKEND_LOGIN_URL": "/api/login",
-    "BACKEND_USER_ME_URL": "/api/users/me",
+    "BACKEND_REGISTER_URL": "/api/register",
+
     "BACKEND_PASSWORD_REMIND_URL": "/api/password/remind",
     "BACKEND_PASSWORD_RESET_URL": "/api/password/reset/:code",
-    "BACKEND_REGISTER_URL": "/api/register",
+
+    "BACKEND_USER_ME_URL": "/api/users/me",
+
     "BACKEND_PLATFORMS_URL": "/api/platforms",
-    "BACKEND_USER_ME_PINNED_URL": "/api/users/me/pinned",
+    "BACKEND_USER_ME_PINNED_ADD_URL": "/api/users/me/pinned",
+    "BACKEND_USER_ME-PINNED_DEL_URL": "/api/users/me/pinned:elemenId",
+
+    "BACKEND_PLATFORMS_USERS_GET": "/api/platforms/id:number/users",
+    "BACKEND_PLATFORMS_USERS_DEL": "/api/platforms/id:number/users/id:number",
+
+    "BACKEND_PLATFORMS_GROUPS_GET": "/api/groups",
+    "BACKEND_PLATFORMS_GROUPS_POST": "/api/groups",
+    "BACKEND_PLATFORMS_GROUPS_ADD": "/api/groups",
+    "BACKEND_PLATFORMS_GROUPS_DEL": "/api/groups/:groupId",
+    "BACKEND_PLATFORMS_USERS_NOTES": "/api/groups/notes",
+    "BACKEND_PLATFORMS_GROUPS_USER_NOTES_GET": "/api/groups/:groupId/notes",
+    "BACKEND_PLATFORMS_GROUPS_USER_NOTES_DEL": "/api/groups/notes/:noteId",
+    "BACKEND_PLATFORMS_GROUPS_USER_NOTES_ADD": "/api/groups/notes",
+    "BACKEND_PLATFORMS_GROUPS_USER_NOTES_PUT": "/api/groups/notes/:noteId",
+
     "BACKEND_CALENDAR_URL": "/api/calendar",
-    "BACKEND_PLATFORMS_GROUPS": "/api/platforms/id:number/groups",
-    "BACKEND_PLATFORMS_USERS":"/api/platforms/id:number/users",
+
 
     "DEBUG_LOGIN_URL": "https://mockend.com/evolveye/prymitywna-platforma-edukacyjna/tree/dev-frontend/tokens/1",
     "DEBUG_USER_ME_URL": "https://mockend.com/evolveye/prymitywna-platforma-edukacyjna/tree/dev-frontend/users/1",
+
+    "WEB_SOCKET_URL": "ws://localhost:3000",
+
     "DEBUG": false
   }
