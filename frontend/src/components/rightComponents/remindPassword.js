@@ -3,20 +3,51 @@ import { Link } from "@reach/router"
 /* icons */
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {faEnvelope} from '@fortawesome/free-solid-svg-icons'
-
+import { DEBUG, BACKEND_PASSWORD_REMIND_URL } from "../../config.js"
 import { navigate } from "gatsby"
+import { handleForm } from "../formsHandling.js"
 
 
 class RightContainerRemindPassword extends React.Component {
-  
-  handleSubmit = event => {
-    event.preventDefault();
-    navigate('/checkMail');
+  constructor(props) {
+    super(props)
+    this.state = {
+      email: ``
+    };
   }
 
- 
+   /**
+   *
+   * @param {Subm} event
+   */
 
-  render() { 
+  handleInputChange = (event) => {
+    const { value, name } = event.target;
+    this.setState({
+      [name]: value
+    });
+  }
+
+  handleSubmit = event => {
+    event.preventDefault();
+
+    if (DEBUG) navigate('/checkMail')
+    else handleForm(
+      BACKEND_PASSWORD_REMIND_URL,
+      'post',
+      { "Content-Type": 'application/json' },
+      this.state,
+      {
+        okCb(){
+          navigate('/checkMail')
+        }
+      }
+    )
+  }
+
+
+
+  render() {
 
     return <>
       <div className="right-container">
@@ -36,9 +67,15 @@ class RightContainerRemindPassword extends React.Component {
               <form method="post" onSubmit={this.handleSubmit}>
               <div className="textbox textbox-remindPassword">
                   <FontAwesomeIcon icon={faEnvelope} size="2px" />
-                  <input type="text" name="email" placeholder="E-mail" />
+                  <input
+                  type="text"
+                  name="email"
+                  placeholder="E-mail"
+                  onChange={this.handleInputChange}
+                  required
+                  />
                 </div>
-              <div className="register-box-submit"> 
+              <div className="register-box-submit">
                   <input type="submit" value="Wyślij link" />
                 </div>
               </form>
