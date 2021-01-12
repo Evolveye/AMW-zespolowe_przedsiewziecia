@@ -8,8 +8,6 @@ import {
 } from './consts.js';
 import emailsManager from "./mails.js";
 
-import e, { request } from "express";
-
 
 /** @typedef {import('express').Express} Express */
 /** @typedef {import('express').Request} Request */
