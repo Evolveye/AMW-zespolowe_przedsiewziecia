@@ -1,11 +1,11 @@
-import React from "react" 
+import React from "react"
 
 const RightContainerCheckMail = () => (
- <div class="right-container">
- <div class="index-logo">
-     <a href="index.html"><div class="logo"> </div></a>
-     <span class="logo-text1">Sprawdź maila</span>
-     <span class="logo-text2">Na podany mail została wysłana wiadomość z linkiem aktywacyjnym</span>
+ <div className="right-container">
+ <div className="index-logo">
+     <a href="index.html"><div className="logo"> </div></a>
+     <span className="logo-text1">Sprawdź maila</span>
+     <span className="logo-text2">Na podany mail została wysłana wiadomość z linkiem aktywacyjnym</span>
  </div>
 </div>
 )
