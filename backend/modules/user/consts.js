@@ -3,10 +3,9 @@ export const TOKEN_EXPIRE_TIME_IN_MINUTES = ONE_MINUTE * 60
 export const REFRESHING_INTERVAL_TIME_IN_MINUTES = ONE_MINUTE
 
 export const ANSWERS = {
-    USER_NOT_EXIST: "Cannot find user with passed credentials.",
+    USER_NOT_EXIST:"Cannot find user with passed credentials." , //{code:1,error: "Cannot find user with passed credentials."},
     USER_ALREADY_EXIST: "Credentials are already used.",
     PASSWORDS_NOT_SAME: "Password's are not the same.",
-/* 1 - this look */    CANNOT_IDENTYFY_USER: "Provided bad token, can not find user with associated token.", 
     TOKEN_NOT_PROVIDED:"Your request does not contain authentication token",
     PASSWD_CHANGE_SUCCESS:"Your password has been changed sucessfuly.",
     EMAIL_RESET_EXPIRED : "Reset email time expired ",
@@ -14,11 +13,10 @@ export const ANSWERS = {
     PASSWD_REMIND_SUCCES:"Reset Password email has been sended. Check your E-mail",
     PASSWD_REMIND_WRONG_EMAIL:"Cannot find user with that email",
     LOGOUT_SUCCESS:"You has been logged out.",
- /* 1 - this look */    TOKEN_NOT_EXIST:"Provided token has propably expired or you are not logged in. Please login again.",
+    TOKEN_NOT_EXIST:"Provided token has propably expired or you are not logged in. Please login again.",
     ACCOUNT_ACTIVATION_SUCCESS:"Your account has ben activated successfully",
     ACCOUNT_ALREADY_ACTIVATED:"Account has ben already activated.",
     ACCOUNT_NOT_ACTIVATED:"Your acctount is not activated. Please check your adress email.",
-
 }
 
 const password = "secret123#"
