@@ -1,6 +1,5 @@
 import React from "react"
-
-
+import '@fortawesome/fontawesome-svg-core/styles.css';
 
 import SEO from "../components/seo"
 
@@ -9,15 +8,13 @@ import RightContainerLogin from "../components/rightComponents/login"
 
 import "../components/style.css"
 
-const LoginPage = () => ( 
-  <div className="container"> 
+export default () => (
+  <div className="container">
       <SEO title="Logowanie" />
-      
-        <LeftContainer /> 
-        <div className="hr-vertical"></div> 
+
+        <LeftContainer />
+        <div className="hr-vertical"></div>
         <RightContainerLogin />
     </div>
 
 )
-
-export default LoginPage
