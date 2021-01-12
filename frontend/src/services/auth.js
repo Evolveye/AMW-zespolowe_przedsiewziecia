@@ -1,10 +1,8 @@
 import {
   BACKEND_USER_ME_URL,
-
   DEBUG_USER_ME_URL,
-
   DEBUG
-} from "../config.json"
+} from "../config.js"
 
 /* DEBUG FETCH:
   fetch( `/api/login`, {
@@ -23,13 +21,13 @@ import {
  * @property {string} surname
  */
 
+// socket.on( `not authenticated`, console.log )
+
 const STORAGE_TOKEN_NAME = "sessionToken"
 const STORAGE_USER = "gatsbyUser"
 
-export function setToken(token){
-  window.localStorage.setItem(STORAGE_TOKEN_NAME, token)
-}
-
+export const setToken = token => isBrowser() && window.localStorage.setItem(STORAGE_TOKEN_NAME, token)
+export const getToken = () => isBrowser() ? window.localStorage.getItem(STORAGE_TOKEN_NAME) : null
 const isBrowser = () => typeof window !== "undefined"
 const setUser = user => window.localStorage.setItem(STORAGE_USER, JSON.stringify(user))
 
@@ -42,14 +40,14 @@ export async function getUser() {
 
   if (cachedUser) return cachedUser
 
-  const cachedToken = window.localStorage.getItem(STORAGE_TOKEN_NAME)
+  const cachedToken = getToken()
 
   if (!cachedToken) return null
 
   const f = () => DEBUG
     ? fetch( DEBUG_USER_ME_URL )
     : fetch( BACKEND_USER_ME_URL, {
-      headers: { "Authenticate":`Basic ${cachedToken}` }
+      headers: { "Authenticate":`Barer ${cachedToken}` }
     } )
 
   console.log( DEBUG ? DEBUG_USER_ME_URL : BACKEND_USER_ME_URL )
@@ -65,12 +63,22 @@ export async function getUser() {
 }
 
 export function isLoggedIn() {
-  if (isBrowser()) return window.localStorage.getItem(STORAGE_TOKEN_NAME)
+  if (isBrowser()) return getToken()
 }
 
 export function logout( cb ) {
   setUser(null)
   cb()
 
-  if (isBrowser()) window.localStorage.clear()
+  if (isBrowser()) {
+    console.log({
+      method: `post`,
+      headers: { "Authenticate":`Barer ${getToken()}` },
+    })
+    fetch( `/api/logout`, {
+      method: `post`,
+      headers: { "Authenticate":`Barer ${getToken()}` },
+    } ).then( () => window.localStorage.clear() )
+      .catch( console.error )
+  }
 }
