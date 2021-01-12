@@ -5,7 +5,7 @@ import { navigate } from "gatsby"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faUser, faEnvelope, faLock } from "@fortawesome/free-solid-svg-icons"
 
-import { DEBUG, BACKEND_REGISTER_URL } from "../../config.json"
+import { DEBUG, BACKEND_REGISTER_URL } from "../../config.js"
 import { handleForm } from "../formsHandling.js"
 
 
