@@ -16,7 +16,8 @@ body::-webkit-scrollbar {
 
 .login-text{
     color: #3F4041;
-    margin-left: 50px;
+    margin-left: 10px;
+    font-weight: bolder;
 }
 
 .router-container {
