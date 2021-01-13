@@ -28,7 +28,7 @@ const STORAGE_USER = "gatsbyUser"
 
 export const setToken = token => isBrowser() && window.localStorage.setItem(STORAGE_TOKEN_NAME, token)
 export const getToken = () => isBrowser() ? window.localStorage.getItem(STORAGE_TOKEN_NAME) : null
-const isBrowser = () => typeof window !== "undefined"
+export const isBrowser = () => typeof window !== "undefined"
 const setUser = user => window.localStorage.setItem(STORAGE_USER, JSON.stringify(user))
 
 
@@ -38,26 +38,29 @@ export async function getUser() {
 
   const cachedUser = JSON.parse( window.localStorage.getItem(STORAGE_USER) )
 
-  if (cachedUser) return cachedUser
+  if (cachedUser && !cachedUser.error) return cachedUser
 
   const cachedToken = getToken()
 
   if (!cachedToken) return null
 
+  console.log( `getUser`, { cachedToken } )
+
   const f = () => DEBUG
     ? fetch( DEBUG_USER_ME_URL )
     : fetch( BACKEND_USER_ME_URL, {
-      headers: { "Authenticate":`Barer ${cachedToken}` }
+      headers: { "Authentication":`Bearer ${cachedToken}` }
     } )
 
-  console.log( DEBUG ? DEBUG_USER_ME_URL : BACKEND_USER_ME_URL )
-
   return await f().then( data => data.json() )
-    .then( user => {
-      console.log( `FETCHED USER`, user )
-      setUser( user )
-
-      return user
+    .then( data => {
+      if (data.error) {
+        console.error( data.error )
+        return null
+      } else {
+        setUser( data )
+        return data
+      }
     } )
     .catch( console.error )
 }
@@ -71,10 +74,6 @@ export function logout( cb ) {
   cb()
 
   if (isBrowser()) {
-    console.log({
-      method: `post`,
-      headers: { "Authenticate":`Barer ${getToken()}` },
-    })
     fetch( `/api/logout`, {
       method: `post`,
       headers: { "Authenticate":`Barer ${getToken()}` },

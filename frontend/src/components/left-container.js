@@ -1,27 +1,27 @@
 import React from "react"
 import { Link } from "@reach/router"
 import { navigate } from "gatsby"
-import { isLoggedIn, logout } from "../services/auth"
+import { isLoggedIn, logout, getUser } from "../services/auth"
 import socket from "../services/webSocket.js"
 
 
 class LeftContainer extends React.Component {
-  state = {
-    platform:[]
-   }
+  state = { platform:[] }
 
- 
- componentDidMount() {
-   LeftContainer.getData().then( arr => arr.map((a, index) =>
-   <div className="platform-item-container" key={index}>
-   <Link to="/platforms/">
-     <div className="platform-item" title={a.org_name}>{a.org_name.substring(0,5)}</div>
-   </Link>
- </div>
-   ) ).then( platform => this.setState( { platform } ) )
+  componentDidMount() {
+    LeftContainer.getData().then( arr => arr.map( (org, index) =>
+      <div className="platform-item-container" key={index}>
+        <Link to="/platforms/">
+          <div className="platform-item" title={org.org_name}>{org.org_name.substring(0,5)}</div>
+        </Link>
+      </div>
+    ) ).then( platform => this.setState( { platform } ) )
+  }
 
- }
- 
+  handleAvatar = img => {
+    getUser().then( ({ avatar }) => img.src = avatar )
+  }
+
  render = () => <>
   <div className="left-container">
     {!isLoggedIn() ? (
@@ -39,6 +39,7 @@ class LeftContainer extends React.Component {
             <img
               src="https://upload.wikimedia.org/wikipedia/commons/5/55/Marcin_Najman_2014.jpg"
               alt=""
+              ref={this.handleAvatar}
             />
           </Link>
         </div>
@@ -81,10 +82,8 @@ class LeftContainer extends React.Component {
 </>
 
 static getData() {
-  if(socket) return new Promise(res => 
-    {
-      res([
-        {
+  if(!socket) return new Promise(res => res( [
+      {
           "_id": 1,
           "owner": "Jan",
           "created": "12",
@@ -120,16 +119,12 @@ static getData() {
           "assigned_users": "fa",
           "org_name": "285ic"
       }
-
-      ])
-      
-    }
-      )
-    
+  ] ) )
   else return new Promise(resolve => {
     socket.on(`api.get.platforms`, resolve)
     socket.emit(`api.get.platforms`)
   })
 }
+
 }
 export default LeftContainer

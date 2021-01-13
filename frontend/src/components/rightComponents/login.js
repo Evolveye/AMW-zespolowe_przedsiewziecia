@@ -25,28 +25,26 @@ class RightContainerLogin extends React.Component {
   handleSubmit = event => {
     event.preventDefault()
 
-    console.log(
-      DEBUG ? DEBUG_LOGIN_URL : BACKEND_LOGIN_URL,
-      DEBUG ? `GET` : `POST`,
-    )
+
 
     handleForm(
       DEBUG ? DEBUG_LOGIN_URL : BACKEND_LOGIN_URL,
       DEBUG ? `GET` : `POST`,
       { "Content-Type": `application/json` },
-      this.state, 
-      
+      this.state,
+
       {
         okCb( { token } ) {
+          setToken(token)
+
           socket.emit( `authenticate`, getToken() )
 
-          setToken(token)
           navigate(`/users/me`)
 
           console.info( `kliknąłeś zaloguj i token jest: ${token}` )
         }
       }
-    ) 
+    )
   }
 
   componentDidMount() {
@@ -55,7 +53,7 @@ class RightContainerLogin extends React.Component {
 
   render() {
     if (this.state.rerender && isLoggedIn()) navigate(`/users/me`)
-    
+
     return <>
       <div className="right-container">
         <div className="login-form">
@@ -91,7 +89,7 @@ class RightContainerLogin extends React.Component {
                     onChange={this.handleUpdate}
                   />
                 </div>
-                <span id="error-mess">elo</span>
+                <span id="error-mess"></span>
                 <div className="login-box-submit">
                   <div className="center-text-div">
                     <Link to="/password/remind">Zapomniałem hasła</Link>
