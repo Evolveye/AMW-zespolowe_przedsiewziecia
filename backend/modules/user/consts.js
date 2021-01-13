@@ -1,6 +1,6 @@
 export const ONE_MINUTE = 1000 * 60
 export const TOKEN_EXPIRE_TIME_IN_MINUTES = ONE_MINUTE * 30
-export const REFRESHING_INTERVAL_TIME_IN_MINUTES = ONE_MINUTE * 1
+export const REFRESHING_INTERVAL_TIME_IN_MINUTES = ONE_MINUTE * 5
 
 export const ANSWERS = {
     USER_NOT_EXIST:"Cannot find user with passed credentials." , //{code:1,error: "Cannot find user with passed credentials."},

@@ -68,7 +68,7 @@ class DatabaseManager {
 
 
   /**
-   * 
+   *
    * @param {string} collectionName  name of colleciton.
    * @param {mongoDb.FilterQuery} query an unique key:value
    * @returns {boolean} true if found atleast 1 element, otherwise false.

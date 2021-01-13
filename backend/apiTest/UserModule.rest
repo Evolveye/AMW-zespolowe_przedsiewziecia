@@ -38,16 +38,17 @@ POST {{host}}/api/login
 Content-Type: application/json
 
 {
-    "login": "abcd",
-    "password":"oprs"
+    "login": "1234",
+    "password":"abc"
 }
+######################## LOGOUT ####################################
+POST {{host}}/api/logout
+Authentication: Bearer 0.8562367255438517
 ###################### ME #####################################
-@token = 0.7524258849532679
+@token = 0.8656373095107819
 GET {{host}}/api/users/me
 Authentication: Bearer {{token}}
-######################## LOGOUT ####################################
-POST {{host}}/api/logout 
-Authentication: Bearer 0.38029602721803624
+
 ######################### REMIND ###################################
 POST  {{host}}/api/password/remind
 Content-Type: application/json

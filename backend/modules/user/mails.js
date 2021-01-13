@@ -15,7 +15,6 @@ class EmailManager {
   #acctivateCollection = [];
   #passwResetCollection = [];
 
-
   #transporter = nodemail.createTransport({
     host: EMAIL.GMAIL_SERVICE_HOST,
     port: EMAIL.GMAIL_SERVICE_PORT,
@@ -28,7 +27,6 @@ class EmailManager {
   });
 
   constructor() {
-
     setInterval(() => { // Acctivation email's
       console.log("DELETE EXPIRED ACCTIVATION EMAIL MECHANISM.");
       this.#acctivateCollection = this.#acctivateCollection.filter(this.filterExpireActivationEmails);
@@ -42,7 +40,7 @@ class EmailManager {
 
 
   /**
-   * 
+   *
    * @param {Object} obj type of emailCollObj.
    */
   filterExpireResetEmails = (obj) => (Date.now() - obj.SEND_DATE) < EMAIL.PASSWD_RESET_EXPIRE_TIME; // nie minelo .
@@ -51,16 +49,16 @@ class EmailManager {
   getAllResetEmails = ()=>this.#acctivateCollection;
 
   /**
-   * 
+   *
    * @param {Object} obj type of emailCollObj.
    */
   filterExpireActivationEmails = (obj) => (Date.now() - obj.SEND_DATE) < EMAIL.ACTIVATION_EXPIRE_TIME; // nie minelo .
 
   /**
    * Checks that an account can be activated.
-   * 
-   * @param {number} login 
-   * @returns {boolean} 
+   *
+   * @param {number} login
+   * @returns {boolean}
    */
   isActiveActivationEmail(login) {
     //TODO: refactor return user OBJ or false.
@@ -77,9 +75,9 @@ class EmailManager {
 
   /**
     * Checks that an account can be activated. If can the email will be deleted. otherwise false.
-    * 
-    * @param {number} login 
-    * @returns {string|boolean}  restuns  
+    *
+    * @param {number} login
+    * @returns {string|boolean}  restuns
     */
   isActiveResetEmail(uniqueId) {
     //TODO: refactor return user OBJ or false.
@@ -107,7 +105,7 @@ class EmailManager {
 
 
   /**
-   * 
+   *
    * @returns {number} uniqueId.
    */
   sendResetPasswordEmail(email) {
@@ -117,10 +115,7 @@ class EmailManager {
       from: EMAIL.GMAIL_USER_NAME,
       to: email,
       subject: EMAIL.PASSWORD_RESET_SUBJECT,
-      html: `<h1><a href="${PASSW_RESET_FRONT_ADDR}?code=${uniqueId}"> RESET PASSWORD </a></h1>
-             <br/> ${PASSW_RESET_ADDR} --> make  post call.
-             
-      `,
+      html: `<h1><a href="${PASSW_RESET_FRONT_ADDR}?code=${uniqueId}"> Click to reset your password. </a></h1> `,
     };
     const emailCollObj = {
       EMAIL_OPTIONS: mailOptions,
@@ -147,7 +142,7 @@ class EmailManager {
   }
 
   /**
-   * 
+   *
    * @param {string} name User name.
    * @param {string} email User personal e-mail.
    * @param {number} userID User login.
@@ -157,9 +152,7 @@ class EmailManager {
       from: EMAIL.GMAIL_USER_NAME,
       to: email,
       subject: EMAIL.ACCTIVATE_ACCOUNT_SUBJECT,
-      html: `<h1><a href="${ACTIVATE_FRONT_ADDR}?code=${userID}"> Acctivate PAGE </a></h1>
-             <br/><a href="${ACTIVATE_REQUEST_ADDR}/${userID}"> API ACCTIVATE REQUEST </a>
-      `,
+      html: `<h1><a href="${ACTIVATE_FRONT_ADDR}?code=${userID}"> Click to acctivate your account. </a></h1> `,
     };
    // console.log({ mailOptions });
     this.#transporter.sendMail(mailOptions, (err, info) => {
