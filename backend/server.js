@@ -3,10 +3,15 @@ import { Server } from "socket.io";
 import dbManager from "./src/dbManager.js";
 import { APP_ROOT_DIR, PORT, LOGGERS } from "./src/constants/serverConsts.js"
 import { doRequestLogShouldBePrinted, logUnderControl } from "./src/utils.js"
+import WSS from "./src/ws.js";
 import cors from 'cors'
+
+
+const wss = new WSS({ server })
 
 /**@typeof {Express} */
 const app = express();
+
 const modules = await Promise.all([
   import("./modules/user/index.js")
 ])
@@ -22,7 +27,7 @@ const server = app.listen(PORT, () => {
   // logUnderControl( LOGGERS.serverInfo, `[fgYellow]SERVER ROOT DIR[] ${APP_ROOT_DIR}` )
   logUnderControl( LOGGERS.server, `Working localhost:${PORT}` )
 });
-const wss = new Server(server);
+
 
 app.use(cors())
 app.use(express.json());
@@ -30,7 +35,6 @@ app.use((req, res, next) => { //Logging middleware.
   if (doRequestLogShouldBePrinted( req )) {
     logUnderControl( LOGGERS.routes, req.method, req.url )
   }
-
   next();
 });
 app.use("/", express.static("./public"));
