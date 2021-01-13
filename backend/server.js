@@ -7,8 +7,6 @@ import WSS from "./src/ws.js";
 import cors from 'cors'
 
 
-const wss = new WSS({ server })
-
 /**@typeof {Express} */
 const app = express();
 
@@ -24,19 +22,21 @@ const modules = await Promise.all([
       new Class(moduleLogger( Class.toString() ), dbManager))
   })
 const server = app.listen(PORT, () => {
-  // logUnderControl( LOGGERS.serverInfo, `[fgYellow]SERVER ROOT DIR[] ${APP_ROOT_DIR}` )
   logUnderControl( LOGGERS.server, `Working localhost:${PORT}` )
 });
 
+const wss = new WSS({ server })
 
-app.use(cors())
-app.use(express.json());
 app.use((req, res, next) => { //Logging middleware.
   if (doRequestLogShouldBePrinted( req )) {
     logUnderControl( LOGGERS.routes, req.method, req.url )
   }
   next();
 });
+
+app.use(cors())
+app.use(express.json());
+
 app.use("/", express.static("./public"));
 app.use("/media", express.static("./media"));
 
@@ -46,6 +46,20 @@ modules.forEach( (mod) => {
   mod.configure(app);
 } )
 
-wss.on(`connection`, (socket) => {
-  modules.forEach( mod => mod.socketConfigurator(socket) );
+wss.on(`connection`, (ws) => {
+  const socket = wss.reshapeWebSocket(ws)
+
+  modules.forEach(mod => mod.socketConfigurator(socket));
 });
+
+
+
+loggerMiddleware = (req,res,next) =>
+{
+  (req, res, next) => { //Logging middleware.
+    if (doRequestLogShouldBePrinted( req )) {
+      logUnderControl( LOGGERS.routes, req.method, req.url )
+    }
+    next();
+  }
+}

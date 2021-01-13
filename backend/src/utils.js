@@ -18,7 +18,7 @@ export function stringifyObjValues( obj ) {
 export const isRequestPageRoute = req => !req.url.match( /\.[^\.]+$/ )
 /** @param {import("express").Request} req */
 export const doRequestLogShouldBePrinted = req =>
-  LOG_ONLY_PAGES_ROUTE ? isRequestPageRoute( req ) : false
+  LOG_ONLY_PAGES_ROUTE ? isRequestPageRoute( req ) : true
 
 
 
