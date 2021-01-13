@@ -2,10 +2,10 @@ import React from "react"
 import { Link } from "@reach/router"
 
 const RightContainerChangedPassword = () => (
- <div class="right-container">
- <div class="index-logo">
+ <div className="right-container">
+ <div className="index-logo">
      <Link to="/"><div class="logo"> </div></Link>
-     <span class="logo-text1">Hasło zostało zmienione</span> 
+     <span className="logo-text1">Hasło zostało zmienione</span> 
  </div>
 </div>
 )

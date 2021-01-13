@@ -6,21 +6,20 @@ import {faLock} from '@fortawesome/free-solid-svg-icons'
 import { DEBUG, BACKEND_PASSWORD_RESET_URL} from "../../config.js"
 import { navigate } from "gatsby"
 import { handleForm } from "../formsHandling.js"
-
+import {isBrowser} from "../../services/auth"
 class RightContainerPasswordReset extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
       password1: ``,
-      password2: ``
+      password2: ``,
+      code: !isBrowser() ? "" : new URLSearchParams(window.location.search).get("code"),
     };
   }
 
- /**
-   *
+  /**
    * @param {Subm} event
    */
-
   handleInputChange = (event) => {
     const { value, name } = event.target;
     this.setState({
@@ -29,18 +28,13 @@ class RightContainerPasswordReset extends React.Component {
   }
   handleSubmit = event => {
     event.preventDefault();
-
     if (DEBUG) navigate('/changedPassword')
     else handleForm(
       BACKEND_PASSWORD_RESET_URL,
       'post',
       { "Content-Type": 'application/json' },
       this.state,
-      {
-        okCb(){
-          navigate('/changedPassword')
-        }
-      }
+      { okCb: () => navigate('/changedPassword') }
     )
   }
   render() {
@@ -62,7 +56,7 @@ class RightContainerPasswordReset extends React.Component {
             <div className="login-box-form">
               <form method="post" onSubmit={this.handleSubmit}>
               <div className="textbox textbox-remindPassword">
-                  <FontAwesomeIcon icon={faLock} size="2px" />
+                  <FontAwesomeIcon icon={faLock} size="1x" />
                   <input
                   type="password"
                   name="password1"
@@ -73,7 +67,7 @@ class RightContainerPasswordReset extends React.Component {
                   />
                 </div>
                 <div className="textbox textbox-remindPassword">
-                  <FontAwesomeIcon icon={faLock} size="2px" />
+                  <FontAwesomeIcon icon={faLock} size="1x" />
                   <input
                   type="password"
                   name="password2"

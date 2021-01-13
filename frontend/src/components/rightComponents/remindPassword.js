@@ -66,7 +66,7 @@ class RightContainerRemindPassword extends React.Component {
             <div className="login-box-form">
               <form method="post" onSubmit={this.handleSubmit}>
               <div className="textbox textbox-remindPassword">
-                  <FontAwesomeIcon icon={faEnvelope} size="2px" />
+                  <FontAwesomeIcon icon={faEnvelope} size="1x" />
                   <input
                   type="text"
                   name="email"
