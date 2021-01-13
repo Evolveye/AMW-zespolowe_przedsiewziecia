@@ -12,9 +12,8 @@ export default class Module {
 
   /**
    * @param {import('express').Express} app
-   * @param {DatabaseManager} dbManager
    */
-  configure(app, dbManager) {
+  configure(app) {
     throw new Error( `You have to override me!` )
   }
 

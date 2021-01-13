@@ -1,5 +1,5 @@
 export const ONE_MINUTE = 1000 * 60
-export const TOKEN_EXPIRE_TIME_IN_MINUTES = ONE_MINUTE * 60
+export const TOKEN_EXPIRE_TIME_IN_MINUTES = ONE_MINUTE * 30
 export const REFRESHING_INTERVAL_TIME_IN_MINUTES = ONE_MINUTE * 1
 
 export const ANSWERS = {
@@ -22,15 +22,14 @@ export const ANSWERS = {
 const password = "secret123#"
 const email = "sass.project.amw@gmail.com"
 
-export const ACTIVATE_REQUEST_ADDR = "http://localhost:3000/api/activate"
 export const PASSW_RESET_ADDR = "http://localhost:3000/api/password/reset"
+export const PASSW_RESET_FRONT_ADDR = "http://localhost:3000/password/reset"
 
-
-export const PASSW_RESET_FRONT_ADDR = "http://localhost:3000/api/password/reset"
+export const ACTIVATE_REQUEST_ADDR = "http://localhost:3000/api/activate"
 export const ACTIVATE_FRONT_ADDR = "http://localhost:3000/activate"
 
 export const EMAIL = {
-    ACTIVATION_EXPIRE_TIME: ONE_MINUTE * 60,
+    ACTIVATION_EXPIRE_TIME: ONE_MINUTE * 30,
     PASSWD_RESET_EXPIRE_TIME: ONE_MINUTE * 10,
     ACCTIVATE_ACCOUNT_SUBJECT: "Verify your SASS Portal account.",
     PASSWORD_RESET_SUBJECT: "Reset your password.",
