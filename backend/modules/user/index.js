@@ -116,18 +116,46 @@ export default class UserModule extends Module {
   }
 
 
-  /**
-   *
-   * @param {import("socket.io").Socket} socket
-   */
-  socketConfigurator = (socket) => {
-    socket.on('api.me', (token) => {
-      // find user....
 
+  /** @param {WS} socket */
+  socketConfigurator = (socket) => {
+    socket.userScope = { token: `` }
+
+    console.log(`nowy socket`, socket.id)
+    socket.on(`disconnect`, () => console.log(`socket wyszedł`, socket.id))
+
+    socket.on('authenticate', (token) => {
+
+      this.refreshToken(token);
+      console.log({ AuthToken: token });
+      const session = this.getSessionByToken(token);
+
+      socket.userScope.token = token
     })
-    this.logger(socket.id);
+
+    socket.on('api.get.users.me', data => this.authorizedSocket(socket, async (token) => {
+      const user = await this.getUserByToken(token);
+
+      delete user.password;
+
+      console.log("[WS] api.get.users.me --> "+JSON.stringify(user));
+      socket.emit('api.get.users.me', user);
+      //console.log("MARK #", user)
+    }))
   }
 
+    /**
+   * @param {WS} socket
+   * @param {(token:string) => void} cb
+   */
+  async authorizedSocket(socket, cb) {
+    const { token } = socket.userScope;
+
+    const tokenExist=await this.tokenExist(token);
+
+    if (DEBUG || tokenExist) cb(token)
+    else socket.emit(`not authenticated`)
+  }
 
   logoutMiddleware = (req, res, next) => {
     const authenticationToken = this.getTokenFromRequest(req);

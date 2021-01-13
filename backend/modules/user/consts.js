@@ -22,8 +22,13 @@ export const ANSWERS = {
 const password = "secret123#"
 const email = "sass.project.amw@gmail.com"
 
-export const PASSW_RESET_ADDR = "http://localhost:3000/api/password/reset"
-export const ACTIVATE_ADDR = "http://localhost:3000/activate"
+// export const ACTIVATE_REQUEST_ADDR = "http://localhost:3000/api/activate"
+// export const PASSW_RESET_ADDR = "http://localhost:3000/api/password/reset"
+
+
+export const PASSW_RESET_FRONT_ADDR = "http://localhost:3000/api/password/reset"
+export const ACTIVATE_FRONT_ADDR = "http://localhost:3000/activate"
+
 export const EMAIL = {
     ACTIVATION_EXPIRE_TIME: ONE_MINUTE * 60,
     PASSWD_RESET_EXPIRE_TIME: ONE_MINUTE * 10,
