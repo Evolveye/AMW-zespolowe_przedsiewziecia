@@ -47,10 +47,7 @@ class RightContainerMyGrades extends React.Component {
         this.data.grades = allGrades.map( ({ textContent }) => textContent.split( /[, ]+/ ).map( Number ) )
       } )
       .then( () => {
-
-        console.log("srednia w: ", this.average(this.data.grades[0]))
-        for(let i=0;i<this.data.grades.length;i++)
-        {
+        for(let i=0;i<this.data.grades.length;i++) {
           this.avgE += this.average(this.data.grades[i])
         }
         this.avgE = this.avgE/this.data.grades.length
