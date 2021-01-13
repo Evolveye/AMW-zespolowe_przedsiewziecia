@@ -1,5 +1,6 @@
 //import { getToken } from "./auth.js"
 import { WEB_SOCKET_URL } from "../config.js"
+import { getToken } from "./auth.js"
 
 const isBrowser = () => typeof window !== "undefined"
 let ws = null
@@ -12,8 +13,7 @@ if (isBrowser()) {
     emit(event, data) {
       if (!isBrowser()) return
 
-      console.log( { event, data } )
-      const msg = data === undefined ? { event, data } : event
+      const msg = data !== undefined ? { event, data } : event
       const send = () => this.send(JSON.stringify(msg))
 
       if (this.readyState !== 1) {
@@ -64,6 +64,10 @@ if (isBrowser()) {
 
   ws = new WS(WEB_SOCKET_URL)
   ws.on( `not authenticated`, console.log )
+
+  const token = getToken()
+
+  if (token) ws.emit( `authenticate`, token )
 }
 
 export default ws
