@@ -1,6 +1,6 @@
 export const ONE_MINUTE = 1000 * 60
 export const TOKEN_EXPIRE_TIME_IN_MINUTES = ONE_MINUTE * 60
-export const REFRESHING_INTERVAL_TIME_IN_MINUTES = ONE_MINUTE
+export const REFRESHING_INTERVAL_TIME_IN_MINUTES = ONE_MINUTE * 1
 
 export const ANSWERS = {
     USER_NOT_EXIST:"Cannot find user with passed credentials." , //{code:1,error: "Cannot find user with passed credentials."},
@@ -22,8 +22,8 @@ export const ANSWERS = {
 const password = "secret123#"
 const email = "sass.project.amw@gmail.com"
 
-// export const ACTIVATE_REQUEST_ADDR = "http://localhost:3000/api/activate"
-// export const PASSW_RESET_ADDR = "http://localhost:3000/api/password/reset"
+export const ACTIVATE_REQUEST_ADDR = "http://localhost:3000/api/activate"
+export const PASSW_RESET_ADDR = "http://localhost:3000/api/password/reset"
 
 
 export const PASSW_RESET_FRONT_ADDR = "http://localhost:3000/api/password/reset"
@@ -41,3 +41,5 @@ export const EMAIL = {
     GMAIL_USER_NAME: email,
     GMAIL_USER_PASSWORD: password,
 }
+
+export const DEBUG = false
