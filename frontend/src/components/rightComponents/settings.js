@@ -79,29 +79,7 @@ export default class Settings extends React.Component {
           <div className="settings-form-element-input">
             <input type="text" name="notifications" disabled />
           </div>
-        </div>
-
-        <div className="hr-horizontal"></div>
-
-        <div className="settings-form-element">
-          <div className="settings-form-element-label">
-            Login konta do scalenia
-          </div>
-          <div className="settings-form-element-input">
-            <input type="text" name="loginMerge" />
-          </div>
-        </div>
-        <div className="settings-form-element">
-          <div className="settings-form-element-label"></div>
-          <div className="settings-form-element-input settings-form-element-button">
-            <input
-              type="button"
-              name="loginMergeRequest"
-              value="Wyślij żądanie scalenia"
-              autoComplete="off"
-            />
-          </div>
-        </div>
+        </div> 
 
         <div className="hr-horizontal"></div>
 
