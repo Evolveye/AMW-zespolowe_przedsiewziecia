@@ -63,7 +63,7 @@ class RightContainerLogin extends React.Component {
             </Link>
             <div className="login-form-header-div-text">
               <span className="login-form-header-text">
-                Platforma edukacyjna - logownie
+                Platforma edukacyjna - logowanie
               </span>
             </div>
           </div>
