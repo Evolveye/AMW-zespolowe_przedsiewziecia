@@ -57,3 +57,22 @@ export const EMAIL = {
     GMAIL_USER_PASSWORD: password,
 }
 
+export const PASSWORD_RESTRICTIONS = {
+    minLen: 8,
+    maxLen: Infinity,
+    bannedChars: ``,
+    bannedWords: ['password'],
+    requireSpacialChar: true,
+    specialChars: `!@#$%^&*-+<>`,
+}
+
+export const NAMES_RESTRICTIONS = {
+    minLen: 2,
+    maxLen: 30,
+}
+
+export const REGISTER_RESTRICTION = {
+    canNamePasswordSame: false,
+    canNameSurnameSame: false,
+    canSurnamePasswordSame: false,
+}

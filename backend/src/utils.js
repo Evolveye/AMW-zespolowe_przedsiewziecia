@@ -59,7 +59,28 @@ export const sameWords = (word1, word2) => word1 === word2
  * @property {string} specialChars an string with specyfied special characters, if reqireSpecialChar is true and specialChars are not declared, result will be false.
  */
 
-
 export const isEmailCorrect = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
 
+/**
+ * @param {string} word An word to check validation.
+ * @param {Restriction} param1  Restriction.
+ */
+export const validateWord = ( word, { minLen, maxLen, bannedChars, bannedWords, requireSpacialChar, specialChars })  => {
+  const mnlen = minLen ? word.length >= minLen : true
+  const mxlen = maxLen ? word.length <= maxLen : true
+  const notBannedChars = bannedChars ? !word.split('').some((char) => bannedChars.includes(char)) : true
+
+  let specChars = true
+  if (requireSpacialChar) {
+    specChars = specialChars ? specialChars.split('').some(char => word.includes(char)) : false
+  }
+
+  let noWords = true
+  if (bannedWords) {
+    const wordsArrayCorrect = Array.isArray(bannedWords) && bannedWords.every(word => typeof word == 'string')
+    noWords = wordsArrayCorrect ? bannedWords.every((banned) => banned != word) : false
+  }
+
+  return mnlen && mxlen && notBannedChars && specChars && noWords
+}
 
