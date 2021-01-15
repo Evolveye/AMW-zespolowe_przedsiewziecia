@@ -1,23 +1,21 @@
 import React from "react"
 
-
-
 import SEO from "../components/seo"
 
 import LeftContainer from "../components/left-container"
-import PlatformSettigs from "../components/rightComponents/platformSettings"
+import AddPlatform from "../components/rightComponents/addPlatform"
 
 import "../components/style.css"
 
-const PlatformsPage = () => ( 
+const AddPlatformPage = () => ( 
   <div className="container"> 
-      <SEO title="Platforma" />
+      <SEO title="Nowa platforma" />
       
         <LeftContainer /> 
         <div className="hr-vertical"></div> 
-        <PlatformSettigs />
+        <AddPlatform />
     </div>
 
 )
 
-export default PlatformsPage
+export default AddPlatformPage

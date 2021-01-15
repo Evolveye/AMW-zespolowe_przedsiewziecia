@@ -11,7 +11,7 @@ class LeftContainer extends React.Component {
   componentDidMount() {
     LeftContainer.getData().then( arr => arr.map( (org, index) =>
       <div className="platform-item-container" key={index}>
-        <Link to="/platforms/">
+        <Link to="/platform/">
           <div className="platform-item" title={org.org_name}>{org.org_name.substring(0,5)}</div>
         </Link>
       </div>
@@ -63,7 +63,7 @@ class LeftContainer extends React.Component {
 
           <div className="platform-item-container">
             <div className="platform-item-add">
-              <Link to="/addPlatform">
+              <Link to="/platforms">
                 <img
                   src="https://www.freepnglogos.com/uploads/plus-icon/plus-icon-plus-math-icon-download-icons-9.png"
                   alt=""
