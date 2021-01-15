@@ -11,6 +11,7 @@ export default class User {
    * @param {string} param3.avatar
    */
   constructor(name, surname, email, { password = null, login = null, activated = false, avatar = null } = {}) {
+    this.id = `${Date.now()}t${Math.random().toString().slice(2)}r`
     this.name = name
     this.surname = surname
     this.email = email

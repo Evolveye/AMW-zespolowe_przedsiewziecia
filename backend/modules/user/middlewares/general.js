@@ -2,32 +2,34 @@
 import { ANSWERS } from "../consts.js";
 import { stringifyObjValues } from "../../../src/utils.js ";
 import User from "../model.js"
+import { PASSWORD_RESTRICTIONS, NAMES_RESTRICTIONS, REGISTER_RESTRICTION } from "../consts.js"
+import { validateWord, sameWords, isEmailCorrect } from '../../../src/utils.js'
+import { DEBUG } from "./../../../consts.js";
 
-/** Accepted path /login
- * @param {MiddlewareParameters} param0
+/** path /login
+ *  @param {MiddlewareParameters} param0
  */
 export async function loginMiddleware({ refreshToken, dbManager, logger, req, res, next }) {
 
     const { login, password } = stringifyObjValues(req.body)
 
-    if (!(login && password)) {
-        console.error(`ERROR`, { login, password })
-
-        return res.status(400).json({ error: ANSWERS.USER_NOT_EXIST });
+    if (!login || !password) { //TODO why and, should be ||
+        return res.status(400).json( ANSWERS.USER_NOT_EXIST );
     }
+
 
     logger(`REQUEST LOG-IN CREDENTIALS\n${JSON.stringify({ user: { login, password } })}`);
 
     /**@type {User} userObj */
     const userObj = await dbManager.findObject(`users`, { login, password });
+    
 
-    if (!userObj) return res.status(401).json({ error: ANSWERS.USER_NOT_EXIST });
-    if (!userObj.activated) res.status(401).json({ error: ANSWERS.ACCOUNT_NOT_ACTIVATED });
+
+    if (!userObj) return res.status(401).json( ANSWERS.USER_NOT_EXIST );
+    if (!userObj.activated) res.status(401).json( ANSWERS.ACCOUNT_NOT_ACTIVATED );
 
     const query = {
-        'user.login': userObj.login,
-        'user.password': userObj.password,
-        'user.email': userObj.email,
+            userId:userObj.id
     }
 
     const activeUserSession = await dbManager.findObject('usersSessions', query);
@@ -41,9 +43,9 @@ export async function loginMiddleware({ refreshToken, dbManager, logger, req, re
     const token = Math.random().toString();
     logger("LOGGED IN => " + JSON.stringify({ token }))
 
-    const activeSession = {
+    const activeSession = { //TODO: refactor, not user but an user._id
         lastActivity: Date.now(),
-        user: userObj,
+        userId: userObj.id,
         token,
     }
 
@@ -53,49 +55,61 @@ export async function loginMiddleware({ refreshToken, dbManager, logger, req, re
 };
 
 
-
-
-/** @param {MiddlewareParameters} param0 */
+/** path /api/logout
+ *  @param {MiddlewareParameters} param0
+ */
 export async function logoutMiddleware({ deleteSessionByToken, tokenExist, getTokenFromRequest, req, res }) {
-
-    const authenticationToken = getTokenFromRequest(req);
-
-    if (!authenticationToken) return res.status(400).json({ error: ANSWERS.TOKEN_NOT_PROVIDED })
-
-    if (!await tokenExist(authenticationToken))
-        return res.status(400).json({ error: ANSWERS.TOKEN_NOT_EXIST })
-
-    await deleteSessionByToken(authenticationToken);
+    await deleteSessionByToken(req.token);
     return res.status(200).json({ SUCCESS: ANSWERS.LOGOUT_SUCCESS });
 }
 
 
 
-/**
- * path /register
- * @param {MiddlewareParameters} param0
+/** path /api/register
+ *  @param {MiddlewareParameters} param0
  */
-export async function registerMiddleware({ saveUserInDb, emailsManager, isNameCorrect, isEmailCorrect, isPasswordCorrect, passwordsSame, logger, req, res }) {
-    // TODO: remove login to some token.
+export async function registerMiddleware({ saveUserInDb, emailsManager, logger, req, res }) {
     logger(`REQUEST REGISTER ${JSON.stringify(req.body)}`);
-    // rejestracji konta należy podać imię, nazwisko, email, hasło i powtórnie hasło.
 
     const { name, surname, email, password1, password2 } = stringifyObjValues(req.body)
 
-    if (!passwordsSame(password1, password2))
-        return res.status(400).json({ error: ANSWERS.PASSWORDS_NOT_SAME });
+
+
+    if (!sameWords(password1, password2))
+        return res.status(400).json( ANSWERS.PASSWD_NOT_SAME);
 
     /**@type {User} */
     const user = new User(name, surname, email, { password: password1 });
 
-    if (!isPasswordCorrect(req.body.password1))
-        return res.status(400).json({ error: "Password not passed polices." });
+    if (!DEBUG) {
+        if (!REGISTER_RESTRICTION.canNameSurnameSame) {
+            if (sameWords( user.name,user.surname))
+            return res.status(400).json(ANSWERS.REGISTER_SAME_NAME_SURNAME)
+        }
 
-    if (!isEmailCorrect(user.email))
-        return res.status(400).json({ error: "Wrong email." });
+        if(!REGISTER_RESTRICTION.canNamePasswordSame)
+        {
+            if(sameWords(user.name , user.password))
+            return res.status(400).json(ANSWERS.REGISTER_SAME_NAME_PASSWORD)
+        }
+        if(!REGISTER_RESTRICTION.canSurnamePasswordSame)
+        {
+            if(sameWords(user.surname, user.password))
+            return res.status(400).json(ANSWERS.REGISTER_SAME_SURNAME_PASSWORD)
+        }
 
-    if (!isNameCorrect(user.name) && isNameCorrect(user.surname))
-        return res.status(400).json({ error: "Provided name or surname not match length requirements (min=2 max=32)" });
+        if (!validateWord(password1, PASSWORD_RESTRICTIONS))
+            return res.status(400).json(ANSWERS.PASSWD_POLICES_ERR);
+
+        if (!isEmailCorrect(user.email))
+            return res.status(400).json(ANSWERS.EMAIL_NOT_CORRECT );
+
+        if (!(validateWord(user.name, NAMES_RESTRICTIONS) && validateWord(user.surname, NAMES_RESTRICTIONS)))
+            return res.status(400).json(ANSWERS.REGISTER_NAMES_POLICES_ERR);
+
+
+    }
+
 
     await saveUserInDb(user);
 
@@ -110,16 +124,21 @@ export async function registerMiddleware({ saveUserInDb, emailsManager, isNameCo
 
 
 
-/** @param {MiddlewareParameters} param0 */
-export async function createUserMiddleware({ saveUserInDb, isNameCorrect, isEmailCorrect, req, res }) {
+/** path /api/create/user
+ *  @param {MiddlewareParameters} param0
+ * */
+export async function createUserMiddleware({ saveUserInDb, req, res }) {
     const { name, surname, email } = req.body;
-    if (!(name && surname && email)) return res.status(400).json({ error: "Name surname or email was empty." });
 
-    if (!isEmailCorrect(email))
-        return res.status(400).json({ error: "Wrong email." });
+    if (!(name && surname && email)) return res.status(400).json(ANSWERS.CREATE_CREDENTIAL_NOT_PROVIDED);
 
-    if (!isNameCorrect(name) || !isNameCorrect(surname))
-        return res.status(400).json({ error: "Provided name or surname not match length requirements (min=2 max=32)" });
+    if (!DEBUG) {
+        if (!isEmailCorrect(email))
+            return res.status(400).json(ANSWERS.EMAIL_NOT_CORRECT);
+
+        if (!(validateWord(name, NAMES_RESTRICTIONS) && validateWord(surname, NAMES_RESTRICTIONS)))
+            return res.status(400).json(ANSWERS.REGISTER_NAMES_POLICES_ERR);
+    }
 
 
     const newUser = new User(name, surname, email, { activated: true })
@@ -132,21 +151,21 @@ export async function createUserMiddleware({ saveUserInDb, isNameCorrect, isEmai
 
 
 
-/** Accepted path /acctivate/:id
+/** Accepted path /api/activate/:code
  * @param {MiddlewareParameters} param0
  */
 export async function acctivateAccountMiddleware({ logger, dbManager, emailsManager, req, res }) {
     const accLogin = req.params.code;
     console.log({ LOGIN: accLogin });
 
-    if (!emailsManager.isActiveActivationEmail(accLogin)) res.status(200).json({ ERROR: ANSWERS.EMAIL_ACTIVATE_EXPIRED });
+    if (!emailsManager.isActiveActivationEmail(accLogin)) res.status(200).json(ANSWERS.EMAIL_ACTIVATE_EXPIRED);
 
     /** @type {User} */
-    const targetUser = await dbManager.findObject(  `users`,
+    const targetUser = await dbManager.findObject(`users`,
         { login: accLogin }
     );
 
-    if (targetUser.activated === true) return res.status(200).json({ ERROR: ANSWERS.ACCOUNT_ALREADY_ACTIVATED });
+    if (targetUser.activated === true) return res.status(200).json(ANSWERS.ACCOUNT_ALREADY_ACTIVATED);
 
     await dbManager.updateObject(`users`,
         { login: targetUser.login, },
@@ -154,6 +173,6 @@ export async function acctivateAccountMiddleware({ logger, dbManager, emailsMana
     );
 
     logger(`ACTIVATE USER: ${targetUser.name} ${targetUser.surname}`);
-    return  res.status(200).json({ SUCCESS: ANSWERS.ACCOUNT_ACTIVATION_SUCCESS });
+    return res.status(200).json({ SUCCESS: ANSWERS.ACCOUNT_ACTIVATION_SUCCESS });
 }
 

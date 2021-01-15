@@ -6,16 +6,16 @@
  * @property {string} owner
  * @property {string} created
  * @property {string} administrator
- * @property {string} organisationName
+ * @property {string} platformName
  */
 
-export default class Platform {
-    constructor(name,ownerId,organisationName = '') {
-        this.name = name
-        this.owner = ownerId // TODO: type =  User.
+export class Platform {
+    constructor(owner,platformName) {
+        this.id = `${Date.now()}t${Math.random().toString().slice(2)}r`
+        this.owner = owner // TODO: type =  User.
         this.created = Date.now()
-        this.administrator = ownerId // TODO: type =  User.
-        this.organisationName = organisationName
-
+        this.administrator = owner // TODO: type =  User.
+        this.name = platformName //
+        this.membersIds = [owner.id]
     }
 }

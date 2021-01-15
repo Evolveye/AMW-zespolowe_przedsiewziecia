@@ -76,6 +76,7 @@ export default class Logger {
 
     this.isSeparated = options.separated
     this.#logger = items => {
+      // console.log( 1 )
       if (items.length != nonStaticPartsCount) {
         throw new Error( `Wrong count of passed items. Expected ${nonStaticPartsCount}, found ${items.length}` )
       }
@@ -83,6 +84,7 @@ export default class Logger {
       const preparedItems = []
       const date = Logger.getDate( options.locales )
 
+      // console.log( 2 )
       for (const part of parts) {
         const {
           color,
@@ -102,6 +104,7 @@ export default class Logger {
           ? `${value.slice( 0 , maxLen - 3 )}...`
           : value
 
+        // console.log( -3 )
         switch (align) {
           case `left`:
             fieldValue += ` `.repeat( fieldLength )
@@ -124,6 +127,7 @@ export default class Logger {
           firstSplitLen,
         } )
 
+        // console.log( -4 )
         preparedItems.push( fieldValue.replace( /\n/g, `\n` + (options.newLinePrefix || `     | `) )
           .replace( `{YYYY}`, date.YYYY )
           .replace( `{MM}`, date.MM )
@@ -139,6 +143,7 @@ export default class Logger {
           } )
         )
       }
+      // console.log( 5 )
 
       console.log( pattern, ...preparedItems )
     }

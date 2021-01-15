@@ -10,6 +10,9 @@ export default class Module {
     this.dbManager = dbManager
   }
 
+  logWs   = string => this.logger( `[  [fgGreen]WS[]  ] ${string}` )
+  logHttp = string => this.logger( `[ [fgGreen]HTTP[] ] ${string}` )
+
   /**
    * @param {import('express').Express} app
    */

@@ -28,12 +28,10 @@ class EmailManager {
 
   constructor() {
     setInterval(() => { // Acctivation email's
-      console.log("DELETE EXPIRED ACCTIVATION EMAIL MECHANISM.");
       this.#acctivateCollection = this.#acctivateCollection.filter(this.filterExpireActivationEmails);
     }, REFRESHING_INTERVAL_TIME_IN_MINUTES);
 
     setInterval(() => {// Reset Passwd email's
-      console.log("DELETE EXPIRED PASSWD EMAIL MECHANISM.");
       this.#passwResetCollection = this.#passwResetCollection.filter(this.filterExpireResetEmails);
     }, REFRESHING_INTERVAL_TIME_IN_MINUTES);
   }
@@ -45,8 +43,8 @@ class EmailManager {
    */
   filterExpireResetEmails = (obj) => (Date.now() - obj.SEND_DATE) < EMAIL.PASSWD_RESET_EXPIRE_TIME; // nie minelo .
 
-  getAllAcctivationEmails = ()=>this.#acctivateCollection;
-  getAllResetEmails = ()=>this.#acctivateCollection;
+  getAllAcctivationEmails = () => this.#acctivateCollection;
+  getAllResetEmails = () => this.#acctivateCollection;
 
   /**
    *
@@ -64,13 +62,13 @@ class EmailManager {
     //TODO: refactor return user OBJ or false.
 
     const collObj = this.#acctivateCollection.find((obj, idx) => obj.USER_ID == login);
+    if (!collObj) return false
 
-    if (collObj) {
-      const idx = this.#acctivateCollection.indexOf(collObj);
-      this.#acctivateCollection.splice(idx, 1); // delete email obj in collection.
-      return true;
-    }
-    return false;
+
+    const idx = this.#acctivateCollection.indexOf(collObj);
+    this.#acctivateCollection.splice(idx, 1); // delete email obj in collection.
+    return true;
+
   }
 
   /**
@@ -154,7 +152,7 @@ class EmailManager {
       subject: EMAIL.ACCTIVATE_ACCOUNT_SUBJECT,
       html: `<h1><a href="${ACTIVATE_FRONT_ADDR}?code=${userID}"> Click to acctivate your account. </a></h1> `,
     };
-   // console.log({ mailOptions });
+    // console.log({ mailOptions });
     this.#transporter.sendMail(mailOptions, (err, info) => {
       if (err) {
         console.log("Cannot send e-mail", { err });
