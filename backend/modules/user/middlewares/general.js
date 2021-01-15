@@ -73,12 +73,11 @@ export async function registerMiddleware({ saveUserInDb, emailsManager, logger, 
 
     const { name, surname, email, password1, password2 } = stringifyObjValues(req.body)
 
-
-
-
+    if(!sameWords(password1,password2))
+        res.status(200).json(ANSWERS.PASSWD_NOT_SAME)
 
     /**@type {User} */
-    const user = new User(name, surname, email, {  password1, password2 });
+    const user = new User(name, surname, email, { password:password1 });
 
     if (!DEBUG) {
         let mess = user.validEmail()
@@ -91,9 +90,7 @@ export async function registerMiddleware({ saveUserInDb, emailsManager, logger, 
         if(mess) return res.status(400).json(mess)
     }
 
-
     await saveUserInDb(user);
-
 
     emailsManager.sendAcctivationEmail(user.name, user.email, user.login);
 

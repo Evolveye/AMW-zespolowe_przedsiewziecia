@@ -18,14 +18,16 @@ export default class User {
    * @param {boolean} param3.activated
    * @param {string} param3.avatar
    */
-  constructor(name, surname, email, { password1 = null, password2 = null, login = null, activated = false, avatar = null } = {}) {
+  constructor(name, surname, email, {  password = null, login = null, activated = false, avatar = null } = {}) {
     this.id = `${Date.now()}t${Math.random().toString().slice(2)}r`
     this.name = name
     this.surname = surname
     this.email = email
-    this.login = login ?? Math.random().toString()
-    this.password1 = password1 ?? Math.random().toString().slice(2).substring(0, 4)
-    this.password2 = password2 ?? Math.random().toString().slice(2).substring(0, 4)
+    this.login = login ?? name.slice( 0, 2 )
+      + Math.random().toString().slice( 2, 5 )
+      + surname.slice( 0, 2 )
+    this.password= password ?? Math.random().toString().slice(2).substring(0, 4)
+
     this.activated = activated
     this.avatar = avatar ?? `/media/image/avatarDefault.jpg`
     this.createdDatetime = Date.now()
@@ -38,18 +40,15 @@ export default class User {
 
   validPasswords() {
 
-    if (!sameWords(this.password1, this.password2))
-      return ANSWERS.PASSWD_NOT_SAME
-
     if (!REGISTER_RESTRICTION.canNamePasswordSame)
-      if (sameWords(this.name, this.password1))
+      if (sameWords(this.name, this.password))
         return ANSWERS.REGISTER_SAME_NAME_PASSWORD
 
     if (!REGISTER_RESTRICTION.canSurnamePasswordSame)
-      if (sameWords(this.surname, this.password1))
+      if (sameWords(this.surname, this.password))
         return ANSWERS.REGISTER_SAME_SURNAME_PASSWORD
 
-    if (!validateWord(this.password1, PASSWORD_RESTRICTIONS))
+    if (!validateWord(this.password, PASSWORD_RESTRICTIONS))
       return ANSWERS.PASSWD_POLICES_ERR
 
   }

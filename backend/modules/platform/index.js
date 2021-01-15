@@ -40,17 +40,18 @@ export default class PlatformModule extends Module {
 
   handleCreateNewUser = async (req,res,next)=>{
     const { name, surname, email } = req.body;
-    const targetPlatform = req.params.id
-//TODO sprawdzenie czy platfroma istnieje
-    if (!(name && surname && email)) return res.status(400).json({code:206, error:"Not provided - name or surname or email"});
+    const user = new User(name,surname,email,{activated:true})
 
     if (!DEBUG) {
-        if (!isEmailCorrect(email))
-            return res.status(400).json({code:207,error:"Provided wrong email address."});
+      let mess = user.validEmail()
+      if(mess) return res.status(400).json(mess)
 
-        if (!(validateWord(name, NAMES_RESTRICTIONS) && validateWord(surname, NAMES_RESTRICTIONS)))
-            return res.status(400).json({code:208,error:"Name restrictions failed."});
+      mess = user.validNames()
+      if(mess)return res.status(400).json(mess)
     }
+
+    const targetPlatform = req.params.id
+    //TODO sprawdzenie czy platfroma istnieje
 
 
     const newUser = new User(name, surname, email, { activated: true })
