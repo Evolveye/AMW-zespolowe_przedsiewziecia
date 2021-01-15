@@ -3,6 +3,7 @@ import {
   ANSWERS,
   REGISTER_RESTRICTION,
   NAMES_RESTRICTIONS,
+  PASSWORD_RESTRICTIONS,
 } from './consts.js'
 
 export default class User {
@@ -40,24 +41,24 @@ export default class User {
     if (!sameWords(this.password1, this.password2))
       return ANSWERS.PASSWD_NOT_SAME
 
+    if (!REGISTER_RESTRICTION.canNamePasswordSame)
+      if (sameWords(this.name, this.password1))
+        return ANSWERS.REGISTER_SAME_NAME_PASSWORD
+
+    if (!REGISTER_RESTRICTION.canSurnamePasswordSame)
+      if (sameWords(this.surname, this.password1))
+        return ANSWERS.REGISTER_SAME_SURNAME_PASSWORD
+
+    if (!validateWord(this.password1, PASSWORD_RESTRICTIONS))
+      return ANSWERS.PASSWD_POLICES_ERR
+
+  }
+
+  validNames() {
     if (!REGISTER_RESTRICTION.canNameSurnameSame)
       if (sameWords(this.name, this.surname))
         return ANSWERS.REGISTER_SAME_NAME_SURNAME
 
-
-    if (!REGISTER_RESTRICTION.canNamePasswordSame)
-      if (sameWords(this.name, this.password))
-        return ANSWERS.REGISTER_SAME_NAME_PASSWORD
-
-    if (!REGISTER_RESTRICTION.canSurnamePasswordSame)
-      if (sameWords(this.surname, this.password))
-        return ANSWERS.REGISTER_SAME_SURNAME_PASSWORD
-
-    if (!validateWord(password1, PASSWORD_RESTRICTIONS))
-      return ANSWERS.PASSWD_POLICES_ERR
-
-  }
-  validNames() {
     if (!(validateWord(this.name, NAMES_RESTRICTIONS) && validateWord(this.surname, NAMES_RESTRICTIONS)))
       return ANSWERS.REGISTER_NAMES_POLICES_ERR
   }
