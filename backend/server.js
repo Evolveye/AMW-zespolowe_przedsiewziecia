@@ -17,11 +17,31 @@ import {
 const app = express()
 
 const moduleLogger = modName => string => log(LOGGERS.module, modName, string)
+
+/** @type {import("./modules/module.js").default[]} */
+const modules = []
 const importedModules = await Promise.all([
   import(`./modules/user/index.js`),
   import(`./modules/platform/index.js`)
-]).then((modules) => modules.map((mod) => mod.default))
-const modules = importedModules.map(Class => new Class(moduleLogger(Class.toString()), dbManager))
+]).then(mods => mods.map(({default:d}) => d).map( Class => {
+  const requiredModules = []
+  let doInstallation = true
+
+  for (const requiredModule of Class.requiredModules) {
+    const req = modules.find( m => m.toString() )
+
+    if (req) {
+      requiredModules.push( { [req.toString()]:req } )
+    } else {
+      doInstallation = false
+      break
+    }
+  }
+
+  if (doInstallation) {
+    modules.push( new Class(moduleLogger(Class.toString()), dbManager, requiredModules) )
+  }
+}))
 
 const server = app.listen(PORT, () => log(LOGGERS.server, `Working localhost:${PORT}`));
 const wss = new WSS({ server })

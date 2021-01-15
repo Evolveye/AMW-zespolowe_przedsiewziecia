@@ -1,4 +1,4 @@
-import Module from '../baseModule.js'
+import Module from '../module.js'
 
 /**
  * @typedef {Object} Group

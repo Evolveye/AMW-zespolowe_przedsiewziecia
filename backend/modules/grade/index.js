@@ -1,5 +1,5 @@
 import Grade from './model.js'
-import Module from '../baseModule.js'
+import Module from '../module.js'
 
 export default class gradeModule extends Module {
 
@@ -45,7 +45,7 @@ export default class gradeModule extends Module {
 
         throw new Error('create grades not impelemented');
         return newGrade;
-        // todo: 
+        // todo:
     }
 
     getGradeByGradeId(gradeId) {

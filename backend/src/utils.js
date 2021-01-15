@@ -41,7 +41,7 @@ export const isDigit = (n) => Boolean([true, true, true, true, true, true, true,
 export const isEveryDigit = (n) => n.split('').every(char => isDigit(char))
 export const isEveryUpper = (n) => n.split('').every(char => char === char.toUpperCase())
 export const isEveryLowwer = (n) => n.split('').every(char => char === char.toLowerCase())
-export const notContainDigit = (n) => word.split('').every(char => !isDigit(char))
+export const notContainDigit = (n) => n.split('').every(char => !isDigit(char))
 
 /**
  * @param {string} word1
@@ -59,7 +59,6 @@ export const sameWords = (word1, word2) => word1 === word2
  * @property {string} specialChars an string with specyfied special characters, if reqireSpecialChar is true and specialChars are not declared, result will be false.
  */
 
-export const isEmailCorrect = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
 
 /**
  * @param {string} word An word to check validation.

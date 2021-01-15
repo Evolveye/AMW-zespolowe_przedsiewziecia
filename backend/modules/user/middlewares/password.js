@@ -7,7 +7,7 @@ import { sameWords, validateWord } from "./../../../src/utils.js"
 
 /** path /api/password/reset
  *  @param {MiddlewareParameters} param0 */
-export async function passwordResetMiddleware({ emailsManager, dbManager, req, res }) {
+export async function passwordResetMiddleware({ collectionName, emailsManager, dbManager, req, res }) {
   const resetObj = req.body; // TODO refactor into user obj
 
 
@@ -26,7 +26,7 @@ export async function passwordResetMiddleware({ emailsManager, dbManager, req, r
   if (!emailObj) return res.status(400).json({ error: ANSWERS.EMAIL_RESET_EXPIRED })
 
 
-  await dbManager.updateObject(`users`,
+  await dbManager.updateObject(collectionName,
     { email: emailObj },
     { $set: { password: resetObj.password1 } }
   )
@@ -39,12 +39,12 @@ export async function passwordResetMiddleware({ emailsManager, dbManager, req, r
 
 /** path /api/password/remind
  *  @param {MiddlewareParameters} param0 */
-export async function passwordRemindMiddleware({ emailsManager, dbManager, req, res, next }) {
+export async function passwordRemindMiddleware({collectionName, emailsManager, dbManager, req, res, next }) {
 
   const accountEmail = req.body.email;
   if (!accountEmail) return res.status(400).json(ANSWERS.PASSWD_RESET_NO_EMAIL_PROVIDED)
 
-  const user = await dbManager.findObject(`users`, { email: accountEmail })
+  const user = await dbManager.findObject(collectionName, { email: accountEmail })
   if (!user) return res.status(400).json(ANSWERS.PASSWD_REMIND_WRONG_EMAIL);
 
 

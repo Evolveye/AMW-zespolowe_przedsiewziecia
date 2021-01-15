@@ -1,11 +1,15 @@
 /** @typedef {import('../src/dbManager').default} DatabaseManager */
 
 export default class Module {
+  static requiredModules = []
+
   /**
    * @param {(log:string) => void} logger
    * @param {DatabaseManager} dbManager
    */
-  constructor( logger, dbManager ) {
+  constructor( collectionName, logger, dbManager, requiredModules ) {
+    this.collectionName = collectionName
+    this.requiredModules = requiredModules
     this.logger = logger
     this.dbManager = dbManager
   }
@@ -13,9 +17,7 @@ export default class Module {
   logWs   = string => this.logger( `[  [fgGreen]WS[]  ] ${string}` )
   logHttp = string => this.logger( `[ [fgGreen]HTTP[] ] ${string}` )
 
-  /**
-   * @param {import('express').Express} app
-   */
+  /** @param {import('express').Express} app */
   configure(app) {
     throw new Error( `You have to override me!` )
   }

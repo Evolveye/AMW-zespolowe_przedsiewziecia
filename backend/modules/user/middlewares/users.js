@@ -6,7 +6,7 @@ import { ANSWERS } from "../consts.js";
 /** path /api/users
  *  @param {MiddlewareParameters} param0 */
 export async function getAllUsers({ dbManager, req, res, next }) {
-  return res.status(200).json(await dbManager.getCollection(`users`))
+  return res.status(200).json(await dbManager.getCollection('users'))
 }
 
 /** path /api/users/me  --> POST
@@ -39,7 +39,7 @@ export async function updateUserSettings({ dbManager, getUserByToken, passwordsS
   user = { name: `Adam`, surname: `Adam`, age: null, email: `` } // req.body
   notNullEntries = Object.entries(user).filter(([_, v]) => v)
   notNullUser = Object.fromEntries(notNullEntries)
-  console.log(notNullUser)
+  // console.log(notNullUser)
 
 
   // makeUpdate = {}

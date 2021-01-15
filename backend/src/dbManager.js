@@ -42,7 +42,7 @@ class DatabaseManager {
   async findObject(collectionName, findSchema) {
     if (await this.collectionExist(collectionName)) {
       const obj = await this.#db.collection(collectionName).findOne(findSchema);
-      console.log( {collectionName, findSchema, obj} )
+
       if (!obj) return null
 
       Object.keys( obj ).filter( k => k[ 0 ] === `_` ).forEach( k => delete obj[ k ] )

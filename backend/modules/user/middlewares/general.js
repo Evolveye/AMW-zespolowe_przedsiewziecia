@@ -3,13 +3,13 @@ import { ANSWERS } from "../consts.js";
 import { stringifyObjValues } from "../../../src/utils.js ";
 import User from "../model.js"
 import { PASSWORD_RESTRICTIONS, NAMES_RESTRICTIONS, REGISTER_RESTRICTION } from "../consts.js"
-import { validateWord, sameWords, isEmailCorrect } from '../../../src/utils.js'
+import { validateWord, sameWords } from '../../../src/utils.js'
 import { DEBUG } from "./../../../consts.js";
 
 /** path /login
  *  @param {MiddlewareParameters} param0
  */
-export async function loginMiddleware({ refreshToken, dbManager, logger, req, res, next }) {
+export async function loginMiddleware({ collectionName,refreshToken, dbManager, logger, req, res, next }) {
 
     const { login, password } = stringifyObjValues(req.body)
 
@@ -21,8 +21,8 @@ export async function loginMiddleware({ refreshToken, dbManager, logger, req, re
     logger(`REQUEST LOG-IN CREDENTIALS\n${JSON.stringify({ user: { login, password } })}`);
 
     /**@type {User} userObj */
-    const userObj = await dbManager.findObject(`users`, { login, password });
-    
+    const userObj = await dbManager.findObject(collectionName, { login, password });
+
 
 
     if (!userObj) return res.status(401).json( ANSWERS.USER_NOT_EXIST );
@@ -75,39 +75,20 @@ export async function registerMiddleware({ saveUserInDb, emailsManager, logger, 
 
 
 
-    if (!sameWords(password1, password2))
-        return res.status(400).json( ANSWERS.PASSWD_NOT_SAME);
+
 
     /**@type {User} */
-    const user = new User(name, surname, email, { password: password1 });
+    const user = new User(name, surname, email, {  password1, password2 });
 
     if (!DEBUG) {
-        if (!REGISTER_RESTRICTION.canNameSurnameSame) {
-            if (sameWords( user.name,user.surname))
-            return res.status(400).json(ANSWERS.REGISTER_SAME_NAME_SURNAME)
-        }
+        let mess = user.validEmail()
+        if(mess) return res.status(400).json(mess)
 
-        if(!REGISTER_RESTRICTION.canNamePasswordSame)
-        {
-            if(sameWords(user.name , user.password))
-            return res.status(400).json(ANSWERS.REGISTER_SAME_NAME_PASSWORD)
-        }
-        if(!REGISTER_RESTRICTION.canSurnamePasswordSame)
-        {
-            if(sameWords(user.surname, user.password))
-            return res.status(400).json(ANSWERS.REGISTER_SAME_SURNAME_PASSWORD)
-        }
+        mess = user.validNames()
+        if(mess)return res.status(400).json(mess)
 
-        if (!validateWord(password1, PASSWORD_RESTRICTIONS))
-            return res.status(400).json(ANSWERS.PASSWD_POLICES_ERR);
-
-        if (!isEmailCorrect(user.email))
-            return res.status(400).json(ANSWERS.EMAIL_NOT_CORRECT );
-
-        if (!(validateWord(user.name, NAMES_RESTRICTIONS) && validateWord(user.surname, NAMES_RESTRICTIONS)))
-            return res.status(400).json(ANSWERS.REGISTER_NAMES_POLICES_ERR);
-
-
+        mess = user.validPasswords()
+        if(mess) return res.status(400).json(mess)
     }
 
 
@@ -154,20 +135,20 @@ export async function createUserMiddleware({ saveUserInDb, req, res }) {
 /** Accepted path /api/activate/:code
  * @param {MiddlewareParameters} param0
  */
-export async function acctivateAccountMiddleware({ logger, dbManager, emailsManager, req, res }) {
+export async function acctivateAccountMiddleware({ collectionName,logger, dbManager, emailsManager, req, res }) {
     const accLogin = req.params.code;
-    console.log({ LOGIN: accLogin });
+   // console.log({ LOGIN: accLogin });
 
     if (!emailsManager.isActiveActivationEmail(accLogin)) res.status(200).json(ANSWERS.EMAIL_ACTIVATE_EXPIRED);
 
     /** @type {User} */
-    const targetUser = await dbManager.findObject(`users`,
+    const targetUser = await dbManager.findObject(collectionName,
         { login: accLogin }
     );
 
     if (targetUser.activated === true) return res.status(200).json(ANSWERS.ACCOUNT_ALREADY_ACTIVATED);
 
-    await dbManager.updateObject(`users`,
+    await dbManager.updateObject(collectionName,
         { login: targetUser.login, },
         { $set: { activated: true } }
     );

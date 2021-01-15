@@ -1,4 +1,4 @@
-import Module from "../baseModule.js";
+import Module from "../module.js";
 import emailsManager from "./mails.js";
 import User from './model.js'
 import {
@@ -86,19 +86,14 @@ class MiddlewareUtils {
 
     this.emailsManager = emailsManager //CORRECT ?
     this.logger = userModule.logger
+    this.collectionName = userModule.collectionName
 
   }
 }
 
 export default class UserModule extends Module {
-
-
-  /**
-   * @param {Logger} logger
-   * @param {DatabaseManager} dbManager
-   */
-  constructor(logger, dbManager) {
-    super(logger, dbManager);
+  constructor(...params) {
+    super( `users`, ...params);
 
     setInterval(async () => {
       this.logger("DELETE EXPIRED TOKEN MECHANISM.");
@@ -133,7 +128,8 @@ export default class UserModule extends Module {
     app.use(this.tokenRefreshMiddleware);
 
     app.post("/api/logout", (req, res, next) => logoutMiddleware({ req, res, next, ...utils }));
-    app.post("/api/create/user", (req, res, next) => createUserMiddleware({ req, res, next, ...utils })); // TODO: remove to platformModel. tworzenie użytkowników do platformy
+ // app.post("/api/create/user", (req, res, next) => createUserMiddleware({ req, res, next, ...utils }));
+
 
 
     //users.js
@@ -160,7 +156,7 @@ export default class UserModule extends Module {
 
 
   /** @param {User} user new user to save. */
-  saveUserInDb = async (user) => await this.dbManager.insertObject(`users`, user)
+  saveUserInDb = async (user) => await this.dbManager.insertObject(this.collectionName, user)
 
 
   /** @param {WS} socket */
@@ -209,7 +205,7 @@ export default class UserModule extends Module {
 
   /** @param {string} token */
   deleteSessionByToken = token => {
-    console.log({ UserLogout: token })
+   // console.log({ UserLogout: token })
     this.dbManager.deleteObject('usersSessions', { token: token });
   }
 
@@ -266,7 +262,7 @@ export default class UserModule extends Module {
 
   /** @param {string} token */
   handleWhoAmI = async token => {
-    console.log({ token })
+   // console.log({ token })
     const user = await this.getUserByToken(token); // get user associated token.
     delete user.password;
     return user;
