@@ -9,15 +9,14 @@ import PlatformSettigs from "../components/rightComponents/platformSettings"
 
 import "../components/style.css"
 
-const PlatformsPage = () => ( 
-  <div className="container"> 
+const PlatformPage = ({ location }) => (
+  <div className="container">
       <SEO title="Platforma" />
-      
-        <LeftContainer /> 
-        <div className="hr-vertical"></div> 
-        <PlatformSettigs />
-    </div>
 
+        <LeftContainer />
+        <div className="hr-vertical"></div>
+        <PlatformSettigs platformId={location.state.platformId}/> 
+    </div>
 )
 
-export default PlatformsPage
+export default PlatformPage
