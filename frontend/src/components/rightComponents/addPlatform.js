@@ -1,5 +1,7 @@
-import React from "react"
-
+import React from "react" 
+import socket from "../../services/webSocket.js"
+import { getSocketEventFromHttp, BACKEND_PLATFORMS_URL } from "../../config"
+import { navigate } from "gatsby"
 
 
 export default class AddPlatform extends React.Component { 
@@ -14,6 +16,26 @@ export default class AddPlatform extends React.Component {
     [event.target.name]: event.target.value,
   })
 }
+
+handleSubmit = event => {
+  event.preventDefault()
+  console.log("kliknąłeś wyślij")
+  console.log("wysyłane dane: ", this.state)
+  const reply =  AddPlatform.setData(this.state)
+  reply.then(({powodzenie}) => {
+    if(powodzenie === true){
+      console.log(powodzenie)
+      alert('platforma "'+ this.state.name + '" została dodana')
+      navigate(`/users/me`);
+    }
+    else{
+      //błąd z serwera
+      alert('wystąpił błąd, platforma nie została dodana')
+      document.getElementById("addPlatformForm").reset()
+      this.setState({name: '', description: '', password:''})
+    }
+  }) 
+}
   render = () => 
   <div className="right-container-settings">
     <div className="settings-header">
@@ -26,7 +48,7 @@ export default class AddPlatform extends React.Component {
 
     <div className="hr-horizontal"></div>
     <div className="settings-form">
-      <form method="post">
+      <form method="post" onSubmit={this.handleSubmit} id="addPlatformForm">
         <div className="settings-form-element">
           <div className="settings-form-element-label">Nazwa</div>
           <div className="settings-form-element-input">
@@ -57,4 +79,15 @@ export default class AddPlatform extends React.Component {
       </form>
     </div>
   </div> 
+
+  static setData(data){
+    const eventName = getSocketEventFromHttp( `post`, BACKEND_PLATFORMS_URL )
+
+    if(!socket) return new Promise(res => res([]))
+    else return new Promise(resolve =>{
+      socket.emit(eventName, data) 
+      socket.on(eventName, resolve)
+      console.log(resolve)
+    }).catch((error)=> console.error(`${eventName} :: ${error}`));
+  }
 }
