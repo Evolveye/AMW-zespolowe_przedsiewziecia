@@ -1,13 +1,13 @@
 import React from "react"
 import { Link } from "@reach/router"
 /* icons */
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {faUser, faLock} from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faUser, faLock } from "@fortawesome/free-solid-svg-icons"
 /* autentykacja */
 import { navigate } from "gatsby"
 import { isLoggedIn } from "../../services/auth"
 import { handleForm } from "../formsHandling.js"
-import {DEBUG, DEBUG_LOGIN_URL, BACKEND_LOGIN_URL} from "../../config.js"
+import { DEBUG, DEBUG_LOGIN_URL, BACKEND_LOGIN_URL } from "../../config.js"
 import { setToken, getToken } from "../../services/auth"
 import socket from "../../services/webSocket"
 
@@ -25,8 +25,6 @@ class RightContainerLogin extends React.Component {
   handleSubmit = event => {
     event.preventDefault()
 
-
-
     handleForm(
       DEBUG ? DEBUG_LOGIN_URL : BACKEND_LOGIN_URL,
       DEBUG ? `GET` : `POST`,
@@ -34,74 +32,76 @@ class RightContainerLogin extends React.Component {
       this.state,
 
       {
-        okCb( { token } ) {
+        okCb({ token }) {
           setToken(token)
 
-          socket.emit( `authenticate`, getToken() )
+          socket.emit(`authenticate`, getToken())
 
           navigate(`/users/me`)
 
-          console.info( `kliknąłeś zaloguj i token jest: ${token}` )
-        }
+          console.info(`kliknąłeś zaloguj i token jest: ${token}`)
+        },
       }
     )
   }
 
   componentDidMount() {
-    this.setState( { rerender:false } )
+    this.setState({ rerender: false })
   }
 
   render() {
     if (this.state.rerender && isLoggedIn()) navigate(`/users/me`)
 
-    return <>
-      <div className="right-container">
-        <div className="login-form">
-          <div className="login-form-header">
-            <Link to="/">
-              <div className="logo-mini"></div>
-            </Link>
-            <div className="login-form-header-div-text">
-              <span className="login-form-header-text">
-                Platforma edukacyjna - logowanie
-              </span>
+    return (
+      <>
+        <div className="right-container">
+          <div className="login-form">
+            <div className="login-form-header">
+              <Link to="/">
+                <div className="logo-mini"></div>
+              </Link>
+              <div className="login-form-header-div-text">
+                <span className="login-form-header-text">
+                  Platforma edukacyjna - logowanie
+                </span>
+              </div>
             </div>
-          </div>
-          <div className="login-box">
-            <div className="login-box-form">
-              <form method="post" onSubmit={this.handleSubmit}>
-                <div className="textbox">
-                <FontAwesomeIcon icon={faUser} size="1x" />
-                  <input
-                   type="text"
-                   name="login"
-                   placeholder="Login"
-                   onChange={this.handleUpdate}
+            <div className="login-box">
+              <div className="login-box-form">
+                <form method="post" onSubmit={this.handleSubmit}>
+                  <div className="textbox">
+                    <FontAwesomeIcon icon={faUser} size="1x" />
+                    <input
+                      type="text"
+                      name="login"
+                      placeholder="Login"
+                      onChange={this.handleUpdate}
                     />
-                </div>
-
-                <div className="textbox">
-                <FontAwesomeIcon icon={faLock} size="1x" />
-                  <input
-                    type="password"
-                    name="password"
-                    placeholder="Hasło"
-                    onChange={this.handleUpdate}
-                  />
-                </div>
-                <span id="error-mess"></span>
-                <div className="login-box-submit">
-                  <div className="center-text-div">
-                    <Link to="/password/remind">Zapomniałem hasła</Link>
                   </div>
-                  <input type="submit" value="Zaloguj się" />
-                </div>
-              </form>
+
+                  <div className="textbox">
+                    <FontAwesomeIcon icon={faLock} size="1x" />
+                    <input
+                      type="password"
+                      name="password"
+                      placeholder="Hasło"
+                      onChange={this.handleUpdate}
+                    />
+                  </div>
+                  <span id="error-mess"></span>
+                  <div className="login-box-submit">
+                    <div className="center-text-div">
+                      <Link to="/password/remind">Zapomniałem hasła</Link>
+                    </div>
+                    <input type="submit" value="Zaloguj się" />
+                  </div>
+                </form>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </>
+      </>
+    )
   }
 }
 export default RightContainerLogin
