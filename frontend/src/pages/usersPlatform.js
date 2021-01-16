@@ -7,13 +7,13 @@ import PlatformUsers from "../components/rightComponents/platformUsers"
 
 import "../components/style.css"
 
-const RegisteredPage = () => ( 
+const RegisteredPage = ({location}) => ( 
   <div className="container"> 
       <SEO title="Zarejestrowany" />
       
         <LeftContainer /> 
         <div className="hr-vertical"></div> 
-        <PlatformUsers />
+        <PlatformUsers platformId={location.state.platformId}/>
     </div>
 
 )
