@@ -194,7 +194,6 @@ export default class UserModule extends Module {
 
     //console.log("TOKEN 1234 -> ", token);
     const tokenExist = await this.tokenExist(token);
-
     //console.log("EXIST Token 4567 =>", tokenExist);
     // console.log(`[WS] Authorization ${token}
     // Token exists ${JSON.stringify(tokenExist)} `)

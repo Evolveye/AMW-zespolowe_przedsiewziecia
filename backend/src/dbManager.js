@@ -51,6 +51,18 @@ class DatabaseManager {
     }
   }
 
+  async findManyObjects(collectionName,findSchema){
+    if(await this.collectionExist(collectionName))
+    {
+      const obj = await this.#db.collection(collectionName).find(findSchema)
+      if(!obj) return null
+
+      Object.keys( obj ).filter( k => k[ 0 ] === `_` ).forEach( k => delete obj[ k ] )
+
+      return obj
+    }
+  }
+
   /**
    * updates object, find by specyfied unique {key:value} object,
    * new values of document are passed in {key:value} object
