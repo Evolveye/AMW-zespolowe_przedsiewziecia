@@ -28,7 +28,7 @@ export default class PlatformModule extends Module {
     app.post(`/api/platforms/:id/users`, this.httpCreateNewUser) // Tworzenie użytkownika do platformy.
     app.get(`/api/platforms/:id/users`, this.httpGetUsersOfPlatform)  // Lista userów platformy /api/platforms/id:number/users
     app.delete(`/api/platforms/:platformId/users/:userId`, this.httpDeleteUserFromPlatform) // Kasowanie userów z platformy /api/platforms/id:number/users/id:number
-    app.delete(`/api/platforms/:id`, this.httpDeletePlatform) // DELETE usuwanie platformy   /api/platforms/:id
+    app.delete(`/api/platforms/:id`, this.httpDeletePlatform) // DELETE usuwanie platformy  /api/platforms/:id
   }
 
 
@@ -55,8 +55,6 @@ export default class PlatformModule extends Module {
 
     res.status(200).send({ code: 205, success: "User has been deleted." })
   }
-
-
 
   httpDeletePlatform = async (req, res, next) => {
     // DELETE usuwanie platformy   /api/platforms/:id
