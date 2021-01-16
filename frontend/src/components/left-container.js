@@ -14,8 +14,8 @@ class LeftContainer extends React.Component {
         arr.map((org, index) => (
           <div className="platform-item-container" key={index}>
             <Link to={`/platform`} state={{ platformId:org._id }}>
-              <div className="platform-item" title={org.org_name}>
-                {org.org_name.substring(0, 5)}
+              <div className="platform-item" title={org.name}>
+                {org.name.substring(0, 5)}
               </div>
             </Link>
           </div>
@@ -94,9 +94,8 @@ class LeftContainer extends React.Component {
             owner: "Jan",
             created: "12",
             assignedGroup: "wf",
-            administrator: "adam",
-            assigned_users: "fa",
-            org_name: "185ic",
+            administrator: "adam", 
+            name: "185ic",
           },
           {
             _id: 2,
@@ -104,8 +103,7 @@ class LeftContainer extends React.Component {
             created: "12",
             assignedGroup: "wf",
             administrator: "adam",
-            assigned_users: "fa",
-            org_name: "285ic",
+            name: "285ic",
           },
           {
             _id: 3,
@@ -113,17 +111,15 @@ class LeftContainer extends React.Component {
             created: "12",
             assignedGroup: "wf",
             administrator: "adam",
-            assigned_users: "fa",
-            org_name: "385ic",
+            name: "385ic",
           },
           {
             _id: 4,
             owner: "Janea",
             created: "12",
             assignedGroup: "wf",
-            administrator: "adam",
-            assigned_users: "fa",
-            org_name: "485ic",
+            administrator: "adam", 
+            name: "485ic",
           },
         ])
       )
