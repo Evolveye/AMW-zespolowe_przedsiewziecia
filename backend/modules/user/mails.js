@@ -101,6 +101,31 @@ class EmailManager {
     this.#passwResetCollection = this.#passwResetCollection.filter(obj => obj.UNIQUE_ID != passwResetUniqueCode);
   }
 
+/**
+ *
+ * @param {object} param0 an email content
+ * @param {string} param0.title title of email
+ * @param {string} param0.body html content of email.
+ * @param {string} param0.email reciver email
+ */
+  sendEmail({title,body,email})
+  {
+
+    const mailOptions = {
+      from: EMAIL.GMAIL_USER_NAME,
+      to: email,
+      subject: title,
+      html: body,
+    }
+
+    this.#transporter.sendMail(mailOptions, (err, info) => {
+      if (err) {
+        throw err
+      } else {
+        console.log(`Reset Passw send --> `, { email: emailCollObj.EMAIL_OPTIONS.to });
+      }
+    });
+  }
 
   /**
    *

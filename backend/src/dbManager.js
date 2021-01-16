@@ -96,6 +96,14 @@ class DatabaseManager {
     }
   }
 
+   /**
+   * @param {string} collectionName  name of colleciton.
+   */
+  createCollection(collectionName)
+  {
+   return this.#db.createCollection(collectionName);
+  }
+
 
   /**
    * @param {string} collectionName  name of colleciton.
@@ -111,8 +119,9 @@ class DatabaseManager {
   /**
    * @param {string} collectionName Name of collection.
    * @returns {boolean}
+   * @deprecated
    */
-  async collectionExist(collectionName) {
+  async collectionExist(collectionName) { // TODO to remove
     const collectionArray = await this.#db.listCollections().toArray();
     return collectionArray.some((collection) => collection.name == collectionName && collection.type == 'collection');
   }

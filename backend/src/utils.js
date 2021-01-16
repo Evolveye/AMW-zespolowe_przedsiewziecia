@@ -64,7 +64,7 @@ export const sameWords = (word1, word2) => word1 === word2
  * @param {string} word An word to check validation.
  * @param {Restriction} param1  Restriction.
  */
-export const validateWord = ( word, { minLen, maxLen, bannedChars, bannedWords, requireSpacialChar, specialChars })  => {
+export const validateWord = (word, { minLen, maxLen, bannedChars, bannedWords, requireSpacialChar, specialChars }) => {
   const mnlen = minLen ? word.length >= minLen : true
   const mxlen = maxLen ? word.length <= maxLen : true
   const notBannedChars = bannedChars ? !word.split('').some((char) => bannedChars.includes(char)) : true
@@ -83,3 +83,26 @@ export const validateWord = ( word, { minLen, maxLen, bannedChars, bannedWords, 
   return mnlen && mxlen && notBannedChars && specChars && noWords
 }
 
+
+export function randomString(length = 10, countChars = 5) {
+  const alphabet = `abcdefghijklmnouprstwxyz!@#$%^&*()<>`
+  const { random, floor } = Math
+  const rand = str => floor(random() * str.length)
+
+  let passwLen = length
+  let charsCount = countChars
+  let password = ``
+
+  if (passwLen < charsCount) [passwLen, charsCount] = [passwLen, charsCount]
+
+  for (let i = 0; i < passwLen; ++i) password += floor(random() * 10)
+
+  for (let i = 0; i < charsCount; ++i) {
+    const index = rand(password)
+    let char = alphabet[rand(alphabet)]
+    if (random() > .5) char = char.toUpperCase()
+
+    password = password.slice(0, index) + char + password.slice(index)
+  }
+  return password
+}

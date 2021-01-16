@@ -6,12 +6,15 @@ import { Platform } from "./model.js"
 import User from './../user/model.js'
 import { DEBUG } from '../../consts.js'
 
-
 export default class PlatformModule extends Module {
   static requiredModules = [`UserModule`]
 
   constructor(...params) {
     super(`platforms`, ...params)
+
+
+
+
   }
 
 
@@ -46,9 +49,12 @@ export default class PlatformModule extends Module {
     // GET Kasowanie userów z platformy /api/platforms/id:number/users/id:number
     const { platformId, userId } = req.params
 
+    if (!await this.platformExist(platformId))
+      return res.status(400).json({ code: 208, error: "Cannot delete not existing platform." })
+
     const client = req.user
     const targetPlatform = await this.getPlatformFromDb(platformId)
-
+    console.log(targetPlatform)
     if (! await this.isPlatformOwner(client.id, targetPlatform)) return res.status(405).json(ANSWERS.PLATFORM_DELETE_NOT_ADMIN)
     if (sameWords(client.id, userId)) return res.status(400).json({ code: 204, error: "Platform owner can not delete himsef, from platform users." })
     if (!this.isUserAssigned(userId, targetPlatform)) return res.status(400).json(ANSWERS.PLATFORM_USER_NOT_MEMBER)
@@ -57,13 +63,17 @@ export default class PlatformModule extends Module {
 
     res.status(200).send({ code: 205, success: "User has been deleted." })
   }
-  
+
 
   httpDeletePlatform = async (req, res, next) => {
     // DELETE usuwanie platformy   /api/platforms/:id
     const targetPlatformId = req.params.id
+    if (!await this.platformExist(targetPlatformId))
+      return res.status(400).json({ code: 208, error: "Cannot delete not existing platform." })
 
-    if (!await this.checkUserAdmin(req.user.id, targetPlatformId)) return res.status(400).json({ code: 209, error: "You dont have privilages to create new users on this platform." })
+    if (!await this.checkUserAdmin(req.user.id, targetPlatformId))
+      return res.status(400).json({ code: 209, error: "You dont have privilages to create new users on this platform." })
+
     await this.dbManager.deleteObject(this.collectionName, { id: { $eq: targetPlatformId } })
     return res.status(200).json({ code: 210, success: "Platform deleted successfuly." })
   }
@@ -86,15 +96,25 @@ export default class PlatformModule extends Module {
 
   httpCreateNewUser = async (req, res, next) => {
     const { name, surname, email } = req.body;
-    const user = new User(name, surname, email, { activated: true })
+    // const user = new User(name, surname, email, { activated: true })
 
-    if (!DEBUG) {
-      let mess = user.validEmail()
-      if (mess) return res.status(400).json(mess)
+    // //TODO: cannnot add account when already  email is in db.
+    // if (!DEBUG) {
+    //   let mess = user.validEmail()
+    //   if (mess) return res.status(400).json(mess)
 
-      mess = user.validNames()
-      if (mess) return res.status(400).json(mess)
+    //   mess = user.validNames()
+    //   if (mess) return res.status(400).json(mess)
+    // }
+    const emailContnet = {
+      titleText: "Portal edukacyjny - utworzono konto dla Ciebie.",
+      bodyHtml: "<h1><a href=`localhost:3000/`> Przejdz do portalu.</a></h1>"
     }
+    //console.log('Mark 1')
+    const user = await this.requiredModules[0].UserModule.createUser({ name, surname, email, activated: true }, emailContnet);
+    //console.log('Mark 2')
+    if (!(user instanceof User)) // jesli nie jest userem, to jest bladem.
+      res.status(400).json(user)
 
     const targetPlatformId = req.params.id
 
@@ -105,13 +125,16 @@ export default class PlatformModule extends Module {
       return res.status(400).json({ code: 209, error: "You dont have privilages to create new users on this platform." })
 
 
-    const newUser = new User(name, surname, email, { activated: true })
-    await this.requiredModules[0].UserModule.saveUserInDb(newUser);
-    delete newUser.password
+    //const newUser = new User(name, surname, email, { activated: true })
 
+    //console.log(user)
+    // await this.requiredModules[0].UserModule.saveUserInDb(user);
+    delete user.password
+    // console.log(1)
     // TODO: Wyslij email. ze ktoś dodał do platfformy.
-    await this.dbManager.updateObject(this.collectionName, { id: targetPlatformId }, { $push: { membersIds: newUser.id } })
-    return res.status(200).json({ user: newUser });
+
+    await this.dbManager.updateObject(this.collectionName, { id: targetPlatformId }, { $push: { membersIds: user.id } })
+    return res.status(200).json({ user });
   }
 
   platformExist = id => {
@@ -123,10 +146,16 @@ export default class PlatformModule extends Module {
     // GET Lista userów platformy /api/platforms/id:number/users
     const targetPlatformId = req.params.id
 
+   // console.log({})
+    if (! (await this.platformExist(targetPlatformId)) )
+      return res.status(400).json({ code: 208, error: "Cannot get all users assigned to platform. Bacause target platform does not exist." })
+
     if (!targetPlatformId)
       return res.status(400).json({ code: 211, error: "Please provide correct platform id." })
     if (!this.checkUserAssigned(req.user.id, targetPlatformId))
       return res.status(400).json({ code: 212, error: "Can not send users from platform, where u are not assigned in." })
+
+
 
     const processedUsers = await this.getAllUsersInPlatform(targetPlatformId)
       .then(ids => ids.map(id => this.requiredModules[0].UserModule.getUserById(id)))
@@ -157,7 +186,7 @@ export default class PlatformModule extends Module {
 
 
   canCreatePlatform = async (userId) => {
-    const ownerOf = await this.dbManager.findManyObjects(this.collectionName, { 'owner.id': { $eq: userId } }).then(cursor => cursor.toArray())
+    let ownerOf = await this.dbManager.findManyObjects(this.collectionName, { 'owner.id': { $eq: userId } }).then(cursor => cursor.toArray())
     return ownerOf.length === 0 // TODO: max count of owner platform.
   }
 
@@ -191,6 +220,7 @@ export default class PlatformModule extends Module {
 
 
   isPlatformOwner(userId, platformObj) {
+    console.log(platformObj)
     return userId === platformObj.owner.id
   }
 
@@ -202,12 +232,16 @@ export default class PlatformModule extends Module {
 
 
   async checkUserAssigned(userId, platformId) {
+
     const platform = await this.getPlatformFromDb(platformId) // w platformach sa id userow
+    if (!platform) return false
+    console.log(platform)
     const userList = platform.membersIds
+
     return userList.some(id => id === userId)
   }
 
-  
+
   toString = () => this.constructor.toString()
   static toString = () => "PlatformModule"
 }

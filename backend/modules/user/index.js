@@ -29,7 +29,6 @@ import {
 } from "./middlewares/password.js"
 
 
-// TODO: kody errorów.
 
 /**
  * @typedef {object} RequestAddition
@@ -93,20 +92,27 @@ class MiddlewareUtils {
 
 export default class UserModule extends Module {
   constructor(...params) {
-    super( `users`, ...params);
+    super(`users`, ...params);
+
+    const myCollections = [`${this.collectionName}Sessions`]
+
+    new Promise(async res => {
+      myCollections.forEach(async collectionName => {
+        if (!(await this.dbManager.collectionExist(collectionName)))
+          await this.dbManager.createCollection(collectionName)
+      })
+
+      res()
+    })
 
     setInterval(async () => {
       this.logger("DELETE EXPIRED TOKEN MECHANISM.");
 
-      await this.dbManager.deleteObjectsInCollection('usersSessions',
-        {
-          lastActivity:
-          {// wszystko co nie spelnia warunku zostaje usuniete
-            "$lt": Date.now() - TOKEN_EXPIRE_TIME_IN_MINUTES /* to ms */
-          }
+      await this.dbManager.deleteObjectsInCollection('usersSessions', {
+        lastActivity: {// wszystko co nie spelnia warunku zostaje usuniete
+          "$lt": Date.now() - TOKEN_EXPIRE_TIME_IN_MINUTES /* to ms */
         }
-      )
-
+      })
     }, REFRESHING_INTERVAL_TIME_IN_MINUTES);
   }
 
@@ -128,8 +134,6 @@ export default class UserModule extends Module {
     app.use(this.tokenRefreshMiddleware);
 
     app.post("/api/logout", (req, res, next) => logoutMiddleware({ req, res, next, ...utils }));
- // app.post("/api/create/user", (req, res, next) => createUserMiddleware({ req, res, next, ...utils }));
-
 
 
     //users.js
@@ -142,17 +146,15 @@ export default class UserModule extends Module {
   authorizeMiddleware = async (req, res, next) => {
     const authenticationToken = this.getTokenFromRequest(req);
 
-    if (!authenticationToken) return res.status(400).json( ANSWERS.TOKEN_NOT_PROVIDED )
-
+    if (!authenticationToken) return res.status(400).json(ANSWERS.TOKEN_NOT_PROVIDED)
 
     if (!await this.tokenExist(authenticationToken))
-        return res.status(400).json( ANSWERS.TOKEN_NOT_EXIST )
+      return res.status(400).json(ANSWERS.TOKEN_NOT_EXIST)
 
     req.token = authenticationToken
     req.user = await this.getUserByToken(authenticationToken)
     next()
   }
-
 
 
   /** @param {User} user new user to save. */
@@ -164,7 +166,6 @@ export default class UserModule extends Module {
     socket.userScope = { token: `` }
 
     socket.on('authenticate', (token) => {
-
       this.refreshToken(token);
       // this.logger({ AuthToken: token });
       const session = this.getSessionByToken(token);
@@ -185,6 +186,7 @@ export default class UserModule extends Module {
     }))
   }
 
+
   /**
    * @param {WS} socket
    * @param {(token:string) => void} cb
@@ -202,11 +204,13 @@ export default class UserModule extends Module {
     else socket.emit(`not authenticated`)
   }
 
+
   /** @param {string} token */
   deleteSessionByToken = token => {
-   // console.log({ UserLogout: token })
+    // console.log({ UserLogout: token })
     this.dbManager.deleteObject('usersSessions', { token: token });
   }
+
 
   /** @param {string} token */
   tokenExist = token => this.dbManager.findObject('usersSessions', { token: token })
@@ -243,6 +247,7 @@ export default class UserModule extends Module {
     );
   }
 
+
   /**
    * @param {Request} req
    * @param {Response} res
@@ -259,19 +264,24 @@ export default class UserModule extends Module {
     next();
   }
 
+
   /** @param {string} token */
   handleWhoAmI = async token => {
-   // console.log({ token })
+    // console.log({ token })
     const user = await this.getUserByToken(token); // get user associated token.
     delete user.password;
     return user;
   }
+
+
   /** @param {string} token */
   getSessionByToken = async (token) => {
     return await this.dbManager.findObject('usersSessions', { token: token });
   }
 
+
   getUserById = async (user_id) => await this.dbManager.findObject('users', { id: user_id })
+
 
   /** @param {string} token */
   getUserByToken = async (token) => {
@@ -281,6 +291,45 @@ export default class UserModule extends Module {
     const userObj = this.getUserById(sessionObj.userId)
     return userObj
   }
+
+
+  //TODO: emails
+  /**
+   *
+   * @param {object} param0 an field required to create new user.
+   * @param {object} [mailContent] title=text and body=htmt
+   * @param {string} mailContent.titleText title = text
+   * @param {string} mailContent.bodyHtml  body = html
+   * @throws {object} an {code:number,error:string} or User object injected.
+   */
+  async createUser({ name, surname, email, ...restOfUser }, mailContent = null) {
+    // name, surname, email, {  password = null, login = null, activated = false, avatar = null } = {}
+
+    const user = new User(name, surname, email, restOfUser)
+    let notValid = null
+
+    if (!DEBUG) { // TODO: Start Point.
+      if ((notValid = user.validEmail()) !== undefined) // jesli zwrocilo objekt Answer.error
+        return notValid
+
+      if ((notValid = user.validPasswords()) !== undefined)
+        return notValid
+
+      if ((notValid = user.validNames()) !== undefined)
+        return notValid
+    }
+    await this.dbManager.insertObject(this.collectionName, user)
+
+    if (mailContent)
+      emailsManager.sendEmail({
+        title: mailContent.titleText,
+        body: mailContent.bodyHtml,
+        email: user.email
+      })
+
+    return user
+  }
+
 
 
   /**@returns {string}  Name of class */
