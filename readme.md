@@ -57,8 +57,9 @@ Prosta wersja REST API zakłada obsługę poniższych metod HTTP:
     Każde pobranie danych jest semantyczne określone w zwróconym przez serwer obiekcie.
     Przykłądowo, dla endpointu `/api/platforms`:
     ```json
-    // Błędna odpowiedź -- obiekt z nazwaną tablicą
+    // Poprawna odpowiedź -- obiekt z nazwaną tablicą
     { "platforms": [ ... ] }
+    
     // Błędna odpowiedź -- nienazwana tablica
     [ ... ]
     ```
