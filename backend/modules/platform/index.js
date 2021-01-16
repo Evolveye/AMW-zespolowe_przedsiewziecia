@@ -14,6 +14,7 @@ export default class PlatformModule extends Module {
     super(`platforms`, ...params)
   }
 
+
   /** @param {import('express').Express} app */
   configure(app) {
 
@@ -40,6 +41,7 @@ export default class PlatformModule extends Module {
     socket.on(`api.delete.platforms.users`, () => { })
   }
 
+
   httpDeleteUserFromPlatform = async (req, res, next) => {
     // GET Kasowanie userów z platformy /api/platforms/id:number/users/id:number
     const { platformId, userId } = req.params
@@ -55,6 +57,7 @@ export default class PlatformModule extends Module {
 
     res.status(200).send({ code: 205, success: "User has been deleted." })
   }
+  
 
   httpDeletePlatform = async (req, res, next) => {
     // DELETE usuwanie platformy   /api/platforms/:id
@@ -66,9 +69,8 @@ export default class PlatformModule extends Module {
   }
 
 
-
   httpGetUserPlatforms = async (req, res, next) => {
-    //  get(`/api/platforms`, this.httpGetAllPlatforms) // Lista wszystkich platform usera 
+    //  get(`/api/platforms`, this.httpGetAllPlatforms) // Lista wszystkich platform usera
     const user = req.user
 
     /** @type {Array} assignedPlatforms */
@@ -76,16 +78,13 @@ export default class PlatformModule extends Module {
 
     if (!assignedPlatforms) return res.status(400).json({ code: 208, error: `This user dont belong to any platform.` }) // TODO: Send empty array.
 
-    this.logger(` ${user.name} ${user.surname} ${JSON.stringify({ PlatformList: assignedPlatforms.map(a => a.name) })}`)
+    // this.logger(` ${user.name} ${user.surname} ${JSON.stringify({ PlatformList: assignedPlatforms.map(a => a.name) })}`)
 
     return res.status(200).json(assignedPlatforms);
   }
 
 
-
-
   httpCreateNewUser = async (req, res, next) => {
-
     const { name, surname, email } = req.body;
     const user = new User(name, surname, email, { activated: true })
 
@@ -99,8 +98,11 @@ export default class PlatformModule extends Module {
 
     const targetPlatformId = req.params.id
 
-    if (!await this.platformExist(targetPlatformId)) return res.status(400).json({ code: 208, error: "Cannot create new User. Bacause target platform does not exist." })
-    if (!await this.checkUserAdmin(req.user.id, targetPlatformId)) return res.status(400).json({ code: 209, error: "You dont have privilages to create new users on this platform." })
+    if (!await this.platformExist(targetPlatformId))
+      return res.status(400).json({ code: 208, error: "Cannot create new User. Bacause target platform does not exist." })
+
+    if (!await this.checkUserAdmin(req.user.id, targetPlatformId))
+      return res.status(400).json({ code: 209, error: "You dont have privilages to create new users on this platform." })
 
 
     const newUser = new User(name, surname, email, { activated: true })
@@ -119,54 +121,62 @@ export default class PlatformModule extends Module {
 
   httpGetUsersOfPlatform = async (req, res, next) => {
     // GET Lista userów platformy /api/platforms/id:number/users
-    const targetPlatform = req.params.id
+    const targetPlatformId = req.params.id
 
-    const usersInPlatform = await this.getAllUsersInPlatform(targetPlatform)
+    if (!targetPlatformId)
+      return res.status(400).json({ code: 211, error: "Please provide correct platform id." })
+    if (!this.checkUserAssigned(req.user.id, targetPlatformId))
+      return res.status(400).json({ code: 212, error: "Can not send users from platform, where u are not assigned in." })
 
-    res.status(200).json(usersInPlatform)
+    const processedUsers = await this.getAllUsersInPlatform(targetPlatformId)
+      .then(ids => ids.map(id => this.requiredModules[0].UserModule.getUserById(id)))
+      .then(users => Promise.all(users))
+      .then(users => users.map(({ login, password, ...processedUser }) => processedUser))
+
+    return res.status(200).json(processedUsers)
   }
 
 
   httpCreatePlatform = async (req, res, next) => {
     // POST Tworzenie platformy /api/platforms
-
-    if (!await this.canCreatePlatform(req.user.id)) return res.status(400).json({ code: 210, error: "You have already an your own platform." })
-
     const { name } = req.body
 
-
     if (!name) return res.status(400).json({ code: 203, error: "Platform name not provided." })
-
+    if (!await this.canCreatePlatform(req.user.id)) return res.status(400).json({ code: 210, error: "You have already an your own platform." })
 
     const newPlatform = new Platform(req.user, name)
-
     await this.savePlatformInDb(newPlatform);
 
     return res.status(200).json(newPlatform)
   }
 
 
-
   getAllUserPlatforms(userId) {
     return this.dbManager.findManyObjects(this.collectionName, { membersIds: { $eq: userId } })
   }
+
 
   canCreatePlatform = async (userId) => {
     const ownerOf = await this.dbManager.findManyObjects(this.collectionName, { 'owner.id': { $eq: userId } }).then(cursor => cursor.toArray())
     return ownerOf.length === 0 // TODO: max count of owner platform.
   }
 
+
   getAllPlatformsInDb() {
     return this.dbManager.getCollection(this.collectionName)
   }
 
-  getAllUsersInPlatform(platformId) {
-    return this.getPlatformFromDb(platformId).membersIds
+
+  async getAllUsersInPlatform(platformId) {
+    const platforms = await this.getPlatformFromDb(platformId)
+    return platforms.membersIds
   }
+
 
   savePlatformInDb(platform) {
     return this.dbManager.insertObject(this.collectionName, platform)
   }
+
 
   getPlatformFromDb(platformId) {
     return this.dbManager.findObject(this.collectionName, { id: platformId })
@@ -179,14 +189,17 @@ export default class PlatformModule extends Module {
     return userList.some(id => id === userId)
   }
 
+
   isPlatformOwner(userId, platformObj) {
     return userId === platformObj.owner.id
   }
+
 
   async checkUserAdmin(userId, platformId) {
     const platform = await this.getPlatformFromDb(platformId)
     return platform.owner.id === userId
   }
+
 
   async checkUserAssigned(userId, platformId) {
     const platform = await this.getPlatformFromDb(platformId) // w platformach sa id userow
@@ -194,6 +207,7 @@ export default class PlatformModule extends Module {
     return userList.some(id => id === userId)
   }
 
+  
   toString = () => this.constructor.toString()
   static toString = () => "PlatformModule"
 }
