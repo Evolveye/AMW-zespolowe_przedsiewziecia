@@ -53,10 +53,19 @@ Nazwy takowych pól zakończone są znakiem zapytania
 ```
 
 Prosta wersja REST API zakłada obsługę poniższych metod HTTP:
- * **GET** odpowiada za pobranie danych
- * **DELETE** odpowiada za skasowanie danych
- * **POST** odpowiada za stworzenie danych
- * **PUT** odpowiada za edycję danych
+  * **GET** odpowiada za pobranie danych
+    Każde pobranie danych jest semantyczne określone w zwróconym przez serwer obiekcie.
+    Przykłądowo, dla endpointu `/api/platforms`:
+    ```json
+    // Błędna odpowiedź -- obiekt z nazwaną tablicą
+    { "platforms": [ ... ] }
+    // Błędna odpowiedź -- nienazwana tablica
+    [ ... ]
+    ```
+  * **DELETE** odpowiada za skasowanie danych
+  * **POST** odpowiada za stworzenie danych
+  * **PUT** odpowiada za edycję danych
+
 
 ---
 
@@ -183,7 +192,7 @@ GET
       "owner": "Object<User>",
       "created": "number",
       "administrator": "object<User>",
-      "organisationName": "string",
+      "name": "string",
     }
   ]
 }
@@ -194,8 +203,14 @@ Tworzenie platformy `/api/platforms`
 POST
 { "authenthication": "string" } // header
 { // body
-  "organisationName": "string",
+  "name": "string",
 }
+```
+
+Kasowanie platformy `/api/platforms/id:number`
+```json
+DELETE
+{ "authenthication": "string" } // header
 ```
 
 Lista userów platformy `/api/platforms/id:number/users`
@@ -204,6 +219,17 @@ GET
 { "authenthication": "string" } // header
 { // response
   "users": "array<User>"
+}
+```
+
+Dodawanie użytkownika do platformy `/api/platforms/id:number/users`
+```json
+POST
+{ "authenthication": "string" } // header
+{ // body
+  "name": "string",
+  "surname": "string",
+  "email": "string",
 }
 ```
 
