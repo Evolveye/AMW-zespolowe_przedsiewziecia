@@ -264,7 +264,7 @@ POST
 }
 ```
 
-Dodawanie usera do grupy `/api/groups`
+Dodawanie usera do grupy `/api/groups/users`
 ```json
 POST
 { "authenthication": "string" } // header
@@ -273,6 +273,12 @@ POST
     "string"
   ]
 }
+```
+
+Usuwanie usera z grupy `/api/groups/users/:userId`
+```json
+DELETE
+{ "authenthication": "string" } // header
 ```
 
 Kasowanie grupy `/api/groups/:groupId`
