@@ -16,5 +16,6 @@ export class Platform {
         this.administrator = owner // TODO: type =  User.
         this.name = platformName //
         this.membersIds = [owner.id]
+        this.assignedGroups = []
     }
 }

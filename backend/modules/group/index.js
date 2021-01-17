@@ -26,7 +26,11 @@ export default class groupModule extends Module {
   }
 
   configure(app) {
-    // GET Lista grup /api/groups // header { "authenthication": "string" }
+    // GET Lista grup usera - wszystkie do które należy. /api/groups // header { "authenthication": "string" }
+    app.get(`/api/groups`, this.httpHandleMyGroups)
+
+    // GET api/groups/platform/:id -- wszystkie grupy na danej platformie.
+    app.get(`/api/groups/platform/:platformId`, this.httpHandleAllGroupsInPlatform)
 
     // kto moze tworzyc grupy, all? or owner
     app.post(`/api/groups`, this.httpCreateGroup)
@@ -58,27 +62,59 @@ export default class groupModule extends Module {
   }
 
 
+  httpHandleAllGroupsInPlatform = async (req, res, next) => {
+    const user = req.user
+    const targetPlatform = req.params.platformId
+
+    if (!(await this.requiredModules.PlatformModule.platformExist(targetPlatform)))
+      return res.status(400).json({ code: 208, error: "Cannot create new User. Bacause target platform does not exist." })
+
+    if (!(await this.requiredModules.PlatformModule.checkUserAdmin(user.id, targetPlatform)))
+      return res.status(400).json({ code: 209, error: "You dont have privilages to create new users on this platform." })
+
+    const groups = await this.dbManager.findManyObjects(
+      this.collectionName,
+      { platformId: { $eq: targetPlatform } }
+    ).then(Array.from)
+
+    res.json({groups})
+  }
+
+
+
+  httpHandleMyGroups = async (req, res, next) => {
+    // GET Lista grup usera - wszystkie do które należy. /api/groups // header { "authenthication": "string" }
+    const client = req.user
+
+    //BUG
+    const clientGroups = await this.dbManager.findManyObjects(
+      this.collectionName,
+      { assignedUsers: { $elemMatch: client.id } }
+    ).then(Array.from)
+
+    return res.json({ groups: clientGroups })
+  }
 
 
   httpDeleteGroup = async (req, res, next) => {
     // DELETE Kasowanie grupy /api/groups/:groupId   { "authenthication": "string" } // header
-  
-      /** @type {import("../user/index.js").default} */
-      const userMod = this.requiredModules.userModule
-      /** @type {import("../platform/index.js").default} */
-      const platformMod = this.requiredModules.platformModule
-  
-      const { groupId } = req.body
-  
-      if (!(await this.groupExist(groupId)))
-        return res.status(400).json({ code: 302, error: "Targeted group does not exist." })
-  
-      if (!(await platformMod.checkUserAdmin(req.user.id, platformId)))
-        return res.status(400).json({ code: 300, error: "Only platform admin can create a group." })
 
-      await this.dbManager.deleteObject(this.collectionName,{id:{$eq:groupId}})
-    
-     return res.json({code:303, success:"Group has been deleted sucessfuly."})
+    /** @type {import("../user/index.js").default} */
+    const userMod = this.requiredModules.userModule
+    /** @type {import("../platform/index.js").default} */
+    const platformMod = this.requiredModules.platformModule
+
+    const { groupId } = req.body
+
+    if (!(await this.groupExist(groupId)))
+      return res.status(400).json({ code: 302, error: "Targeted group does not exist." })
+
+    if (!(await platformMod.checkUserAdmin(req.user.id, platformId)))
+      return res.status(400).json({ code: 300, error: "Only platform admin can create a group." })
+
+    await this.dbManager.deleteObject(this.collectionName, { id: { $eq: groupId } })
+
+    return res.json({ code: 303, success: "Group has been deleted sucessfuly." })
   }
 
   httpAddGroupMember = async (req, res, next) => {
