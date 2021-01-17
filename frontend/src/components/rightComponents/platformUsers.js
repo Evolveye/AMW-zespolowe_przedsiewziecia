@@ -54,7 +54,7 @@ export default class PlatformUsers extends React.Component {
       }
       document.getElementById("add-name").value = ""
       document.getElementById("add-surname").value = ""
-      document.getElementById("add-email").value = ""
+      document.getElementById("add-email").value = "" 
     })
   }
 
@@ -199,27 +199,7 @@ export default class PlatformUsers extends React.Component {
             <div className="grid-item  rola">Rola</div>
             <div className="grid-item  znak"></div>
 
-            {this.state.userList}
-
-            <div className="grades-gained-container-grid-new-row">
-              <div className="grid-item  dodaj border-bottom-none"></div>
-              <div className="grid-item  imie border-bottom-none">Imie</div>
-              <div className="grid-item nazwisko border-bottom-none">
-                Nazwisko
-              </div>
-              <div className="grid-item  email  border-bottom-none">
-                Adres E-mail
-              </div>
-              <div className="grid-item  rola border-bottom-none">Rola</div>
-              <div className="grid-item  znak delete border-bottom-none">
-                <input
-                  type="submit"
-                  className="delete"
-                  value="X"
-                  onClick={this.handleDelete}
-                />
-              </div>
-            </div>
+            {this.state.userList} 
           </div>
         </div>
       </div>
