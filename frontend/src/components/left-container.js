@@ -4,16 +4,18 @@ import { Link } from "gatsby"
 import { navigate } from "gatsby"
 import { isLoggedIn, logout, getUser } from "../services/auth"
 import socket from "../services/webSocket.js"
+import { getToken } from "../services/auth"
+import { getSocketEventFromHttp, BACKEND_PLATFORMS_URL } from "../config"
 
 class LeftContainer extends React.Component {
   state = { platform: [] }
 
   componentDidMount() {
     LeftContainer.getData()
-      .then(arr =>
-        arr.map((org, index) => (
+      .then(({platforms}) => 
+      platforms.map((org, index) => (
           <div className="platform-item-container" key={index}>
-            <Link to={`/platform`} state={{ platformId:org._id }}>
+            <Link to={`/platform`} state={{ platformId:org.id, platformName:org.name }}>
               <div className="platform-item" title={org.name}>
                 {org.name.substring(0, 5)}
               </div>
@@ -83,51 +85,60 @@ class LeftContainer extends React.Component {
         )}
       </div>
     </>
-  )
+  ) 
 
-  static getData() {
-    if (socket)
-      return new Promise(res =>
-        res([
-          {
-            _id: 1,
-            owner: "Jan",
-            created: "12",
-            assignedGroup: "wf",
-            administrator: "adam", 
-            name: "185ic",
-          },
-          {
-            _id: 2,
-            owner: "Janea",
-            created: "12",
-            assignedGroup: "wf",
-            administrator: "adam",
-            name: "285ic",
-          },
-          {
-            _id: 3,
-            owner: "Janea",
-            created: "12",
-            assignedGroup: "wf",
-            administrator: "adam",
-            name: "385ic",
-          },
-          {
-            _id: 4,
-            owner: "Janea",
-            created: "12",
-            assignedGroup: "wf",
-            administrator: "adam", 
-            name: "485ic",
-          },
-        ])
-      )
-    else
-      return new Promise(resolve => {
-        socket.on(`api.get.platforms`, resolve)
-        socket.emit(`api.get.platforms`)
-      })
+  static getData(){ 
+    return fetch( BACKEND_PLATFORMS_URL, {
+      method: `GET`,
+      headers: { 
+        "Authentication":`Bearer ${getToken()}`
+      }, 
+    } ).then( res => res.json() )
   }
+  
+  // static getData() {
+  //   if (!socket)
+  //     return new Promise(res =>
+  //       res([
+  //         {
+  //           _id: 1,
+  //           owner: "Jan",
+  //           created: "12",
+  //           assignedGroup: "wf",
+  //           administrator: "adam", 
+  //           name: "185ic",
+  //         },
+  //         {
+  //           _id: 2,
+  //           owner: "Janea",
+  //           created: "12",
+  //           assignedGroup: "wf",
+  //           administrator: "adam",
+  //           name: "285ic",
+  //         },
+  //         {
+  //           _id: 3,
+  //           owner: "Janea",
+  //           created: "12",
+  //           assignedGroup: "wf",
+  //           administrator: "adam",
+  //           name: "385ic",
+  //         },
+  //         {
+  //           _id: 4,
+  //           owner: "Janea",
+  //           created: "12",
+  //           assignedGroup: "wf",
+  //           administrator: "adam", 
+  //           name: "485ic",
+  //         },
+  //       ])
+  //     )
+  //   else
+  //     return new Promise(resolve => {
+  //       socket.on(`api.get.platforms`, resolve)
+  //       socket.emit(`api.get.platforms`)
+  //     })
+  // }
 }
 export default LeftContainer
