@@ -12,22 +12,26 @@ class LeftContainer extends React.Component {
 
   componentDidMount() {
     LeftContainer.getData()
-      .then(({platforms}) => 
-      platforms.map((org, index) => (
+      .then(( {platforms} ) =>
+        //console.log(platforms)
+        platforms.map((org, index) => (
           <div className="platform-item-container" key={index}>
-            <Link to={`/platform`} state={{ platformId:org.id, platformName:org.name }}>
+            <Link
+              to={`/platform`}
+              state={{ platformId: org.id, platformName: org.name }}
+            >
               <div className="platform-item" title={org.name}>
                 {org.name.substring(0, 5)}
               </div>
             </Link>
           </div>
-        ))
+        )) 
       )
       .then(platform => this.setState({ platform }))
   }
 
   handleAvatar = img => {
-    getUser().then(({ avatar }) => img && (img.src = avatar) )
+    getUser().then(({ avatar }) => img && (img.src = avatar))
   }
 
   render = () => (
@@ -85,17 +89,17 @@ class LeftContainer extends React.Component {
         )}
       </div>
     </>
-  ) 
+  )
 
-  static getData(){ 
-    return fetch( BACKEND_PLATFORMS_URL, {
+  static getData() {
+    return fetch(BACKEND_PLATFORMS_URL, {
       method: `GET`,
-      headers: { 
-        "Authentication":`Bearer ${getToken()}`
-      }, 
-    } ).then( res => res.json() )
+      headers: {
+        Authentication: `Bearer ${getToken()}`,
+      },
+    }).then(res => res.json())
   }
-  
+
   // static getData() {
   //   if (!socket)
   //     return new Promise(res =>
@@ -105,7 +109,7 @@ class LeftContainer extends React.Component {
   //           owner: "Jan",
   //           created: "12",
   //           assignedGroup: "wf",
-  //           administrator: "adam", 
+  //           administrator: "adam",
   //           name: "185ic",
   //         },
   //         {
@@ -129,7 +133,7 @@ class LeftContainer extends React.Component {
   //           owner: "Janea",
   //           created: "12",
   //           assignedGroup: "wf",
-  //           administrator: "adam", 
+  //           administrator: "adam",
   //           name: "485ic",
   //         },
   //       ])
