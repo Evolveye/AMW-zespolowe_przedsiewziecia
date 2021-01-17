@@ -238,7 +238,10 @@ export default class UserModule extends Module {
    * @param {NextFunction} next
    */
   test = async (req, res, next) => {
-    res.json(
+    console.log(1);
+    debugger;
+
+   return res.status(200).json(
       {
         ActiveSessions: await this.dbManager.getCollection('usersSessions'),
         AcctivationEmailsCollection: emailsManager.getAllAcctivationEmails(),
@@ -273,6 +276,8 @@ export default class UserModule extends Module {
     return user;
   }
 
+  userExist = (userId) => this.dbManager.objectExist(this.collectionName,{id:{ $eq: userId}})
+
 
   /** @param {string} token */
   getSessionByToken = async (token) => {
@@ -287,6 +292,7 @@ export default class UserModule extends Module {
   getUserByToken = async (token) => {
     // TODO: Refactor, first call to usersSesstions
     // next take user id. find user by id and return.
+
     const sessionObj = await this.getSessionByToken(token)
     const userObj = this.getUserById(sessionObj.userId)
     return userObj

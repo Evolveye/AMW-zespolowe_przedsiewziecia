@@ -27,8 +27,8 @@ class DatabaseManager {
     if (await this.collectionExist(collectionName)) {
       const objs = await this.#db.collection(collectionName).find().toArray()
 
-      objs.forEach( obj => Object.keys( obj )
-        .filter( k => k[ 0 ] === `_` ).forEach( k => delete obj[ k ] )
+      objs.forEach(obj => Object.keys(obj)
+        .filter(k => k[0] === `_`).forEach(k => delete obj[k])
       )
 
       return objs
@@ -45,19 +45,18 @@ class DatabaseManager {
 
       if (!obj) return null
 
-      Object.keys( obj ).filter( k => k[ 0 ] === `_` ).forEach( k => delete obj[ k ] )
+      Object.keys(obj).filter(k => k[0] === `_`).forEach(k => delete obj[k])
 
       return obj
     }
   }
 
-  async findManyObjects(collectionName,findSchema){
-    if(await this.collectionExist(collectionName))
-    {
+  async findManyObjects(collectionName, findSchema) {
+    if (await this.collectionExist(collectionName)) {
       const obj = await this.#db.collection(collectionName).find(findSchema)
-      if(!obj) return null
+      if (!obj) return null
 
-      Object.keys( obj ).filter( k => k[ 0 ] === `_` ).forEach( k => delete obj[ k ] )
+      Object.keys(obj).filter(k => k[0] === `_`).forEach(k => delete obj[k])
 
       return obj
     }
@@ -74,6 +73,15 @@ class DatabaseManager {
   async updateObject(collectionName, findPattern, newValues) {
     if (await this.collectionExist(collectionName))
       await this.#db.collection(collectionName).updateOne((findPattern), (newValues))
+  }
+
+
+ // findOneAndUpdate(
+  //   <filter>,
+  //   <update document or aggregation pipeline>,
+  //  { $push: { <field1>: { <modifier1>: <value1>, ... }, ... } }
+  findOneAndUpdate(collectionName, findPattern, update) {
+    return this.#db.collection(collectionName).findOneAndUpdate(findPattern, update)
   }
 
 
@@ -96,12 +104,11 @@ class DatabaseManager {
     }
   }
 
-   /**
-   * @param {string} collectionName  name of colleciton.
-   */
-  createCollection(collectionName)
-  {
-   return this.#db.createCollection(collectionName);
+  /**
+  * @param {string} collectionName  name of colleciton.
+  */
+  createCollection(collectionName) {
+    return this.#db.createCollection(collectionName);
   }
 
 

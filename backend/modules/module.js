@@ -7,7 +7,7 @@ export default class Module {
    * @param {string} collectionName
    * @param {(log:string) => void} logger
    * @param {DatabaseManager} dbManager
-   * @param {Module[]} collectionName
+   * @param {Object<string,Module>} requiredModules
    */
   constructor( collectionName, logger, dbManager, requiredModules ) {
     this.collectionName = collectionName

@@ -6,13 +6,15 @@ import { Platform } from "./model.js"
 import User from './../user/model.js'
 import { DEBUG } from '../../consts.js'
 
+
+
 export default class PlatformModule extends Module {
   static requiredModules = [`UserModule`]
 
   constructor(...params) {
     super(`platforms`, ...params)
 
-
+    console.log("this");
 
 
   }
@@ -54,14 +56,15 @@ export default class PlatformModule extends Module {
 
     const client = req.user
     const targetPlatform = await this.getPlatformFromDb(platformId)
-    console.log(targetPlatform)
-    if (! await this.isPlatformOwner(client.id, targetPlatform)) return res.status(405).json(ANSWERS.PLATFORM_DELETE_NOT_ADMIN)
+
+
+    if (!(await this.isPlatformOwner(client.id, targetPlatform))) return res.status(405).json(ANSWERS.PLATFORM_DELETE_NOT_ADMIN)
     if (sameWords(client.id, userId)) return res.status(400).json({ code: 204, error: "Platform owner can not delete himsef, from platform users." })
     if (!this.isUserAssigned(userId, targetPlatform)) return res.status(400).json(ANSWERS.PLATFORM_USER_NOT_MEMBER)
 
     await this.dbManager.updateObject(this.collectionName, { 'id': targetPlatform.id }, { $pull: { 'membersIds': userId } })
 
-    res.status(200).send({ code: 205, success: "User has been deleted." })
+    return res.status(200).send({ code: 205, success: "User has been deleted." })
   }
 
 
@@ -88,33 +91,22 @@ export default class PlatformModule extends Module {
 
     if (!assignedPlatforms) return res.status(400).json({ code: 208, error: `This user dont belong to any platform.` }) // TODO: Send empty array.
 
-    // this.logger(` ${user.name} ${user.surname} ${JSON.stringify({ PlatformList: assignedPlatforms.map(a => a.name) })}`)
-
-    return res.status(200).json(assignedPlatforms);
+    return res.status(200).json({ platforms: assignedPlatforms });
   }
 
 
   httpCreateNewUser = async (req, res, next) => {
     const { name, surname, email } = req.body;
-    // const user = new User(name, surname, email, { activated: true })
 
-    // //TODO: cannnot add account when already  email is in db.
-    // if (!DEBUG) {
-    //   let mess = user.validEmail()
-    //   if (mess) return res.status(400).json(mess)
-
-    //   mess = user.validNames()
-    //   if (mess) return res.status(400).json(mess)
-    // }
     const emailContnet = {
       titleText: "Portal edukacyjny - utworzono konto dla Ciebie.",
       bodyHtml: "<h1><a href=`localhost:3000/`> Przejdz do portalu.</a></h1>"
     }
-    //console.log('Mark 1')
-    const user = await this.requiredModules[0].UserModule.createUser({ name, surname, email, activated: true }, emailContnet);
-    //console.log('Mark 2')
+    
+    const user = await this.requiredModules.userModule.createUser({ name, surname, email, activated: true }, emailContnet)
+
     if (!(user instanceof User)) // jesli nie jest userem, to jest bladem.
-      res.status(400).json(user)
+     return res.status(400).json(user)
 
     const targetPlatformId = req.params.id
 
@@ -125,13 +117,9 @@ export default class PlatformModule extends Module {
       return res.status(400).json({ code: 209, error: "You dont have privilages to create new users on this platform." })
 
 
-    //const newUser = new User(name, surname, email, { activated: true })
 
-    //console.log(user)
-    // await this.requiredModules[0].UserModule.saveUserInDb(user);
+
     delete user.password
-    // console.log(1)
-    // TODO: Wyslij email. ze ktoś dodał do platfformy.
 
     await this.dbManager.updateObject(this.collectionName, { id: targetPlatformId }, { $push: { membersIds: user.id } })
     return res.status(200).json({ user });
@@ -146,8 +134,8 @@ export default class PlatformModule extends Module {
     // GET Lista userów platformy /api/platforms/id:number/users
     const targetPlatformId = req.params.id
 
-   // console.log({})
-    if (! (await this.platformExist(targetPlatformId)) )
+    // console.log({})
+    if (!(await this.platformExist(targetPlatformId)))
       return res.status(400).json({ code: 208, error: "Cannot get all users assigned to platform. Bacause target platform does not exist." })
 
     if (!targetPlatformId)
@@ -158,25 +146,29 @@ export default class PlatformModule extends Module {
 
 
     const processedUsers = await this.getAllUsersInPlatform(targetPlatformId)
-      .then(ids => ids.map(id => this.requiredModules[0].UserModule.getUserById(id)))
+      .then(ids => ids.map(id => this.requiredModules.userModule.getUserById(id)))
       .then(users => Promise.all(users))
       .then(users => users.map(({ login, password, ...processedUser }) => processedUser))
 
-    return res.status(200).json(processedUsers)
+    return res.status(200).json({ users: processedUsers })
   }
 
 
   httpCreatePlatform = async (req, res, next) => {
     // POST Tworzenie platformy /api/platforms
     const { name } = req.body
+    // TODO: check user exits with posted email. 
 
     if (!name) return res.status(400).json({ code: 203, error: "Platform name not provided." })
-    if (!await this.canCreatePlatform(req.user.id)) return res.status(400).json({ code: 210, error: "You have already an your own platform." })
+
+    if (!DEBUG)
+      if (!(await this.canCreatePlatform(req.user.id)))
+        return res.status(400).json({ code: 210, error: "You have already an your own platform." })
 
     const newPlatform = new Platform(req.user, name)
     await this.savePlatformInDb(newPlatform);
 
-    return res.status(200).json(newPlatform)
+    return res.status(200).json({ platform: newPlatform })
   }
 
 

@@ -1,4 +1,3 @@
-// lecturer or admin platformy.
 
 /**
  * @typedef {Object} platform

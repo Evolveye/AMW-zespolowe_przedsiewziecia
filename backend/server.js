@@ -22,16 +22,19 @@ const moduleLogger = modName => string => log(LOGGERS.module, modName, string)
 const modules = []
 const importedModules = await Promise.all([
   import(`./modules/user/index.js`),
-  import(`./modules/platform/index.js`)
+  import(`./modules/platform/index.js`),
+  import(`./modules/group/index.js`),
 ]).then(mods => mods.map(({default:d}) => d).map( Class => {
-  const requiredModules = []
+  const requiredModules = {}
   let doInstallation = true
 
   for (const requiredModule of Class.requiredModules) {
-    const req = modules.find( m => m.toString() )
+    const req = modules.find( m => m.toString() === requiredModule )
 
     if (req) {
-      requiredModules.push( { [req.toString()]:req } )
+      const moduleString = req.toString()
+
+      requiredModules[ moduleString.charAt( 0 ).toLowerCase() + moduleString.slice( 1 ) ] = req
     } else {
       doInstallation = false
       break
