@@ -15,7 +15,7 @@ const PlatformPage = ({ location }) => (
 
         <LeftContainer />
         <div className="hr-vertical"></div>
-        <PlatformSettigs platformId={location.state.platformId}/> 
+        <PlatformSettigs platformId={location.state.platformId} platformName={location.state.platformName}/> 
     </div>
 )
 
