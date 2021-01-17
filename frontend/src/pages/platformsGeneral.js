@@ -9,13 +9,13 @@ import PatformsSettingsGeneral from "../components/rightComponents/platformsSett
 
 import "../components/style.css" 
 
-const PlatformGeneralPage = () => ( 
+const PlatformGeneralPage = ({location}) => ( 
   <div className="container"> 
       <SEO title="Platforma" />
       
         <LeftContainer /> 
         <div className="hr-vertical"></div> 
-        <PatformsSettingsGeneral />
+        <PatformsSettingsGeneral platformId={location.state.platformId}/>
     </div>
 
 )
