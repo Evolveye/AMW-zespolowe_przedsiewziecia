@@ -1,11 +1,60 @@
-import React from "react"
-
+import React from "react" 
 import { navigate } from "@reach/router"
 
+import { getSocketEventFromHttp ,BACKEND_PLATFORMS_GROUPS_GET, BACKEND_PLATFORMS_GROUPS_POST } from "../../config" 
+import socket from "../../services/webSocket.js"
+
 export default class PlatformGroups extends React.Component {
+  state = {
+    name: ``,
+    lecturer: ``,
+  }
+
+  groupList = {
+    list: [],
+}
+
   goBack = () => {
     navigate(-1)
   }
+
+  handleUpdate = event => {
+    this.setState({
+      [event.target.name]: event.target.value,
+    })
+  }
+
+  handleSubmit = event => {
+    event.preventDefault()
+    alert("kliknales wyślij")
+    console.log("dane: ", this.state) 
+    
+    const reply = PlatformGroups.setData(this.state)
+    reply.then(({success}) => {
+      if(success===true){
+        console.log(success)
+        alert('grupa "'+ this.state.name + '" została dodana') 
+        document.getElementById("add-name").value = ""
+        document.getElementById("add-lecturer").value = ""
+      }
+    })
+  }
+
+  componentDidMount() {
+    PlatformGroups.getData() 
+      .then(arr =>
+        arr.map((group, index) => (
+          <div className="grades-gained-container-grid-new-row" key={index}>
+              <div className="grid-item  dodaj border-bottom-none"></div>
+              <div className="grid-item  imie border-bottom-none">{group.name}</div>
+              <div className="grid-item nazwisko rola border-bottom-none">{group.lecturer}</div>
+              <div className="grid-item  znak delete border-bottom-none">X</div>
+            </div>
+        ))
+      ).then(list => this.groupList.setState({ list }))
+      .then(console.log('pobiera dane'))
+  }
+
   render = () => (
     <div className="right-container-settings">
       <div className="settings-header">
@@ -22,43 +71,90 @@ export default class PlatformGroups extends React.Component {
       </div>
       <div className="platform-users">
         <div className="grid-filtre">
-          <div class="filtre-add-group-wrapp">
-            <div class="grid-item  empty-filtre-user"></div>
-            <div class="grid-item  imie">Nazwa</div>
-            <div class="grid-item  nazwisko rola">Prowadzący</div>
-            <div class="grid-item  znak"></div>
+          <div className="filtre-add-group-wrapp">
+            <div className="grid-item  empty-filtre-user"></div>
+            <div className="grid-item  imie">Nazwa</div>
+            <div className="grid-item  nazwisko rola">Prowadzący</div>
+            <div className="grid-item  znak"></div>
 
-            <div class="grades-gained-container-grid-new-row">
-              <div class="grid-item  filtruj">Filtruj</div>
-              <div class="grid-item  imie"></div>
-              <div class="grid-item nazwisko rola"></div>
-              <div class="grid-item  znak"></div>
+            <div className="grades-gained-container-grid-new-row">
+              <div className="grid-item  filtruj">Filtruj</div>
+              <div className="grid-item  imie"></div>
+              <div className="grid-item nazwisko rola"></div>
+              <div className="grid-item  znak"></div>
             </div>
 
-            <div class="grades-gained-container-grid-new-row">
-              <div class="grid-item  dodaj border-bottom-none">Dodaj</div>
-              <div class="grid-item  imie border-bottom-none"></div>
-              <div class="grid-item nazwisko border-bottom-none rola"></div>
-              <div class="grid-item  znak border-bottom-none">+</div>
+            <div className="grades-gained-container-grid-new-row">
+              <div className="grid-item  dodaj border-bottom-none">Dodaj</div>
+              <div className="grid-item  imie border-bottom-none">
+              <input
+                  type="text"
+                  name="name"
+                  placeholder="Wpisz..."
+                  id="add-name"
+                  onChange={this.handleUpdate}
+                />
+
+              </div>
+              <div className="grid-item prowadzacy border-bottom-none rola">
+              <input
+                  type="text"
+                  name="lecturer"
+                  placeholder="Wpisz..."
+                  id="add-lecturer"
+                  onChange={this.handleUpdate}
+                />
+              </div>
+              <div className="grid-item  znak border-bottom-none">
+              <input
+                  type="submit"
+                  className="dodaj"
+                  value="+"
+                  onClick={this.handleSubmit}
+                />
+              </div>
             </div>
           </div>
         </div>
-        <dic className="grid-users">
-          <div class="filtre-add-group-wrapp">
-            <div class="grid-item  empty-filtre-user"></div>
-            <div class="grid-item  imie">Nazwa</div>
-            <div class="grid-item  nazwisko rola">Prowadzący</div>
-            <div class="grid-item  znak"></div>
+        <div className="grid-users">
+          <div className="filtre-add-group-wrapp">
+            <div className="grid-item  empty-filtre-user"></div>
+            <div className="grid-item  imie">Nazwa</div>
+            <div className="grid-item  nazwisko rola">Prowadzący</div>
+            <div className="grid-item  znak"></div>
 
-            <div class="grades-gained-container-grid-new-row">
-              <div class="grid-item  dodaj border-bottom-none"></div>
-              <div class="grid-item  imie border-bottom-none"></div>
-              <div class="grid-item nazwisko rola border-bottom-none"></div>
-              <div class="grid-item  znak delete border-bottom-none">X</div>
+            <div className="grades-gained-container-grid-new-row">
+              <div className="grid-item  dodaj border-bottom-none"></div>
+              <div className="grid-item  imie border-bottom-none"></div>
+              <div className="grid-item nazwisko rola border-bottom-none"></div>
+              <div className="grid-item  znak delete border-bottom-none">X</div>
             </div>
+            {this.groupList.list}
           </div>
-        </dic>
+        </div>
       </div>
     </div>
   )
+
+  static setData(data) {
+    const eventName = getSocketEventFromHttp(`post`, BACKEND_PLATFORMS_GROUPS_POST)
+
+    if (!socket) return new Promise(res => res([]))
+    else
+      return new Promise(resolve => { 
+        socket.emit(eventName, data)
+        socket.on(eventName, resolve)
+        console.log(resolve)
+      }).catch(error => console.error(`${eventName} :: ${error}`))
+  }
+
+  static getData() {
+    const eventName = getSocketEventFromHttp(`get`, BACKEND_PLATFORMS_GROUPS_GET) 
+    if (!socket) return new Promise(res => res([]))
+    else
+      return new Promise(resolve => {
+        socket.on(eventName, resolve)
+        socket.emit(eventName) 
+      }).catch(error => console.error(`${eventName} :: ${error}`))
+  }
 }
