@@ -156,7 +156,7 @@ GET
     {
       "type": "string",
       "name": "string",
-      "_id": "string",
+      "id": "string",
     }
   ]
 }
@@ -189,7 +189,7 @@ GET
 { // response
   "platforms": [
     {
-      "_id": "string",
+      "id": "string",
       "owner": "Object<User>",
       "created": "number",
       "administrator": "object<User>",
@@ -219,7 +219,18 @@ Lista userów platformy `/api/platforms/id:number/users`
 GET
 { "authenthication": "string" } // header
 { // response
-  "users": "array<User>"
+  "users": [
+    {
+      "id": "string",
+      "login": "string",
+      "name": "string",
+      "surname": "string",
+      "email": "string",
+      "activated": "boolean",
+      "avatar": "string",
+      "createdDatetime": "number",
+    }
+  ]
 }
 ```
 
@@ -249,7 +260,14 @@ Lista grup użytkownika `/api/groups`
 GET
 { "authenthication": "string" } // header
 { // response
-  "groups": "array<Group>"
+  "groups": [
+    {
+      "id": "string",
+      "name": "string",
+      "createdDatetime": "number",
+      "lecturer": "User",
+    }
+  ]
 }
 ```
 
@@ -264,12 +282,14 @@ POST
 }
 ```
 
-Lista grup użytkownika `/api/groups/platform/:platformId`
+Lista grup użytkownika z danej platformy `/api/groups/platform/:platformId`
 ```json
 GET
 { "authenthication": "string" } // header
 { // response
-  "groups": "array<Group>"
+  "groups": [
+    "<Groups>"
+  ]
 }
 ```
 
@@ -304,7 +324,7 @@ GET
 { // response\
   "notes": [
     {
-      "_id": "string",
+      "id": "string",
       "value": "string",
       "description": "string",
       "date": "number",
@@ -320,13 +340,7 @@ GET
 { "authenthication": "string" } // header
 { // response
   "notes": [
-    {
-      "_id": "string",
-      "value": "string",
-      "description": "string",
-      "date": "number",
-      "lecturer": "User",
-    }
+    "<Notes>"
   ]
 }
 ```
