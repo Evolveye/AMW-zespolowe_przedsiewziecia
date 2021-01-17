@@ -2,12 +2,13 @@ import React from "react"
 import socket from "../../services/webSocket.js"
 import { getSocketEventFromHttp, BACKEND_PLATFORMS_URL } from "../../config"
 import { navigate } from "gatsby"
+import { getToken } from "../../services/auth"
 
 export default class AddPlatform extends React.Component {
   state = {
     name: "",
     description: "",
-    password: "",
+    //password: "",
   }
 
   handleUpdate = event => {
@@ -21,16 +22,16 @@ export default class AddPlatform extends React.Component {
     console.log("kliknąłeś wyślij")
     console.log("wysyłane dane: ", this.state)
     const reply = AddPlatform.setData(this.state)
-    reply.then(({ powodzenie }) => {
-      if (powodzenie === true) {
-        console.log(powodzenie)
+    reply.then((answer) => {
+      if (!answer.error) {
+        console.log(answer)
         alert('platforma "' + this.state.name + '" została dodana') 
         navigate(`/users/me`)
       } else {
         //błąd z serwera
         alert("wystąpił błąd, platforma nie została dodana")
         document.getElementById("addPlatformForm").reset()
-        this.setState({ name: "", description: "", password: "" })
+        this.setState({ name: "", description: ""})
       }
     })
   }
@@ -55,21 +56,21 @@ export default class AddPlatform extends React.Component {
           <div className="settings-form-element">
             <div className="settings-form-element-label">Nazwa</div>
             <div className="settings-form-element-input">
-              <input type="text" name="name" onChange={this.handleUpdate} />
+              <input type="json" name="name" onChange={this.handleUpdate} />
             </div>
           </div>
           <div className="settings-form-element">
             <div className="settings-form-element-label">Opis</div>
             <div className="settings-form-element-input">
               <textarea
-                type="text"
+                type="json"
                 name="description"
                 onChange={this.handleUpdate}
               />
             </div>
           </div>
 
-          <div className="settings-form-element">
+          {/* <div className="settings-form-element">
             <div className="settings-form-element-label">
               Potwierdź utworzenie hasłem
             </div>
@@ -80,7 +81,7 @@ export default class AddPlatform extends React.Component {
                 onChange={this.handleUpdate}
               />
             </div>
-          </div>
+          </div> */}
           <div className="settings-form-element">
             <div className="settings-form-element-label"></div>
             <div className="settings-form-element-input settings-form-element-button">
@@ -92,6 +93,21 @@ export default class AddPlatform extends React.Component {
     </div>
   )
 
+    static setData(data){ 
+      return fetch( BACKEND_PLATFORMS_URL, {
+        method: `POST`,
+        headers: { 
+          "Content-Type": 'application/json',
+          "Authentication":`Bearer ${getToken()}`
+        },
+        body: JSON.stringify( data ),
+      } ).then( res => res.json() )
+    }
+
+
+
+
+/*
   static setData(data) {
     const eventName = getSocketEventFromHttp(`post`, BACKEND_PLATFORMS_URL)
 
@@ -103,4 +119,5 @@ export default class AddPlatform extends React.Component {
         console.log(resolve)
       }).catch(error => console.error(`${eventName} :: ${error}`))
   }
+  */
 }
