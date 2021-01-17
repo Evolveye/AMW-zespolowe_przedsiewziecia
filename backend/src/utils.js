@@ -106,3 +106,7 @@ export function randomString(length = 10, countChars = 5) {
   }
   return password
 }
+
+export function random( min=0, max=9 ) {
+  return Math.floor( Math.random() * (max - min + 1) ) + min
+}

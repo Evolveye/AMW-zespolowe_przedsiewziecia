@@ -1,6 +1,8 @@
 import Module from '../module.js'
 import Group from './model.js'
-
+import Grade from './../grade/model.js'
+import { random } from '../../src/utils.js';
+import { DEBUG } from '../../consts.js';
 
 // /**
 //  * @typedef {Object} Group
@@ -44,7 +46,7 @@ export default class groupModule extends Module {
 
 
     // GET Pobranie wszystkich ocen użytkownika /api/groups/notes { "authenthication": "string" } // header
-    // app.get(`/api/groups/notes`, this.httpGetMyNotes)
+    app.get(`/api/groups/notes`, this.httpGetMyNotes)
     // httpGetMyNotes = (req, res, next) => {
     //   // GET Pobranie wszystkich ocen użytkownika /api/groups/notes { "authenthication": "string" } // header
     //   //   "notes": [
@@ -62,22 +64,39 @@ export default class groupModule extends Module {
   }
 
 
+  httpGetMyNotes = async (req, res, next) => {
+    const client = req.user
+    let notes = []
+    notes.push(new Grade(client.id, `1610876669429t03916096803370239r`, random(1, 5), 'fakeGroup1', { description: "mocked note 1" }))
+    notes.push(new Grade(client.id, `1610876669429t03916096803370239r`, random(1, 5), 'fakeGroup1', { description: "mocked note 2" }))
+    notes.push(new Grade(client.id, `1610876669429t03916096803370239r`, random(1, 5), 'fakeGroup1', { description: "mocked note 3" }))
+    notes.push(new Grade(client.id, `1610876669429t03916096803370239r`, random(1, 5), 'fakeGroup1', { description: "mocked note 4" }))
+
+    // znajdz wszystkie grupy do których należy user,
+    // znajdz wszystkie oceny dla każdej ww grupy
+    // przefiltruj, oceny, poprzez grade.userId == client.id
+
+    return res.json({ notes })
+  }
+
   httpHandleAllGroupsInPlatform = async (req, res, next) => {
     const user = req.user
+
+    console.log(req.params)
     const targetPlatform = req.params.platformId
 
-    if (!(await this.requiredModules.PlatformModule.platformExist(targetPlatform)))
+    if (!(await this.requiredModules.platformModule.platformExist(targetPlatform)))
       return res.status(400).json({ code: 208, error: "Cannot create new User. Bacause target platform does not exist." })
 
-    if (!(await this.requiredModules.PlatformModule.checkUserAdmin(user.id, targetPlatform)))
+    if (!(await this.requiredModules.platformModule.checkUserAdmin(user.id, targetPlatform)))
       return res.status(400).json({ code: 209, error: "You dont have privilages to create new users on this platform." })
 
     const groups = await this.dbManager.findManyObjects(
       this.collectionName,
       { platformId: { $eq: targetPlatform } }
-    ).then(Array.from)
+    ).then(cursor => cursor.toArray())
 
-    res.json({groups})
+    res.json({ groups })
   }
 
 
@@ -89,8 +108,10 @@ export default class groupModule extends Module {
     //BUG
     const clientGroups = await this.dbManager.findManyObjects(
       this.collectionName,
-      { assignedUsers: { $elemMatch: client.id } }
-    ).then(Array.from)
+      { membersIds : { $in: [client.id] } }
+    ).then(cursor => cursor.toArray() )
+
+
 
     return res.json({ groups: clientGroups })
   }
@@ -117,6 +138,7 @@ export default class groupModule extends Module {
     return res.json({ code: 303, success: "Group has been deleted sucessfuly." })
   }
 
+
   httpAddGroupMember = async (req, res, next) => {
     /** @type {import("../user/index.js").default} */
     const userMod = this.requiredModules.userModule
@@ -124,32 +146,41 @@ export default class groupModule extends Module {
     const platformMod = this.requiredModules.platformModule
 
 
-    const { groupId, userIds } = req.body
+    const { groupId, usersIds } = req.body
 
     if (!(await this.groupExist(groupId)))
       return res.status(400).json({ code: 302, error: "Targeted group does not exist." })
 
-    if (!(await platformMod.checkUserAdmin(client.id, platformId)))
+    // poobrac objekt grupy.
+   //  grupa.platformId
+    const groupObj = await this.dbManager.findObject(
+      this.collectionName,
+      {id:{$eq:groupId}}
+    )
+
+    if (!(await platformMod.checkUserAdmin(req.user.id, groupObj.platformId)))
       return res.status(400).json({ code: 300, error: "Only platform admin can create a group." })
 
+    if (!DEBUG) {
+      // BUG: PAWEŁ
+      const result = await Promise.all(usersIds.map(userId => userMod.userExist(userId)))
+      console.log({ result })
+      if (!result.every(Boolean))
+        return res.status(400).json({ code: 301, error: "You are trying to assign non existing user." })
 
-    // BUG: PAWEŁ
-    const result = await Promise.all(userIds.map(userId => userMod.userExist(userId)))
-    console.log({ result })
-    if (!result.every(Boolean))
-      return res.status(400).json({ code: 301, error: "You are trying to assign non existing user." })
-
-
-    // TODO: check list if exist, filter existing members, and add them, return to client partly bad. with notAdded : [ids]
-
-    // findOneAndUpdate(
-    //   <filter>,
-    //   <update document or aggregation pipeline>,
-    //  { $push: { <field1>: { <modifier1>: <value1>, ... }, ... } }
-
-    await this.dbManager.findOneAndUpdate(this.collectionName, { id: { $eq: groupId } }, { $push: { membersIds: userIds } })
+      // TODO: check list if exist, filter existing members, and add them, return to client partly bad. with notAdded : [ids]
+      // findOneAndUpdate(
+      //   <filter>,
+      //   <update document or aggregation pipeline>,
+      //  { $push: { <field1>: { <modifier1>: <value1>, ... }, ... } }
+    }
 
 
+    await this.dbManager.findOneAndUpdate(
+      this.collectionName,
+      {id: { $eq: groupId } },
+      { $push: { membersIds: { $each:usersIds } } },
+    )
     return res.status(200).json({ code: 302, success: "Succesfully assigned users to group." })
   }
 

@@ -238,8 +238,7 @@ export default class UserModule extends Module {
    * @param {NextFunction} next
    */
   test = async (req, res, next) => {
-    console.log(1);
-    debugger;
+
 
    return res.status(200).json(
       {
