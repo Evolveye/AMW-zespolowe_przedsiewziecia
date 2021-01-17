@@ -49,7 +49,7 @@ export async function getUser() {
   const f = () => DEBUG
     ? fetch( DEBUG_USER_ME_URL )
     : fetch( BACKEND_USER_ME_URL, {
-      headers: { "Authentication":`Bearer ${cachedToken}` }
+      headers: {"Authentication":`Bearer ${cachedToken}` }
     } )
 
   return await f().then( data => data.json() )
