@@ -244,7 +244,7 @@ DELETE
 ### Zapytania modułu grupy "/api/groups/*"
 
 
-Lista grup `/api/groups`
+Lista grup użytkownika `/api/groups`
 ```json
 GET
 { "authenthication": "string" } // header
@@ -264,11 +264,21 @@ POST
 }
 ```
 
+Lista grup użytkownika `/api/groups/platform/:platformId`
+```json
+GET
+{ "authenthication": "string" } // header
+{ // response
+  "groups": "array<Group>"
+}
+```
+
 Dodawanie usera do grupy `/api/groups/users`
 ```json
 POST
 { "authenthication": "string" } // header
-{
+{ // body
+  "groupId": "string",
   "usersIds": [
     "string"
   ]
