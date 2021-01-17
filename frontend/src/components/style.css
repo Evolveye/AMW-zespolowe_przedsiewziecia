@@ -701,6 +701,10 @@ textarea{
     gap: 200px;
 }
 
+.platform-users input{
+    width: 200px;
+}
+
 .grid-filtre{
 
     margin-top: 100px;
