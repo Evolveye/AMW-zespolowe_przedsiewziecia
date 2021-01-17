@@ -19,7 +19,7 @@ export const BACKEND_PLATFORMS_USERS_POST = `${HOST}/api/platforms/id:number/use
 export const BACKEND_PLATFORMS_USERS_GET = `${HOST}/api/platforms/id:number/users`
 export const BACKEND_PLATFORMS_USERS_DEL = `${HOST}/api/platforms/id:number/users/id:number`
 
-export const BACKEND_PLATFORMS_GROUPS_GET = `${HOST}/api/groups`
+export const BACKEND_PLATFORMS_GROUPS_GET = `${HOST}/api/groups/platform/:platformId`
 export const BACKEND_PLATFORMS_GROUPS_POST = `${HOST}/api/groups`
 export const BACKEND_PLATFORMS_GROUPS_ADD = `${HOST}/api/groups`
 export const BACKEND_PLATFORMS_GROUPS_DEL = `${HOST}/api/groups/:groupId`
