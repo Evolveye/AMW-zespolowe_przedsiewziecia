@@ -260,6 +260,7 @@ POST
 { // body
   "name": "string",
   "lecturer": "string",
+  "platformId": "string",
 }
 ```
 
@@ -267,6 +268,11 @@ Dodawanie usera do grupy `/api/groups`
 ```json
 POST
 { "authenthication": "string" } // header
+{
+  "usersIds": [
+    "string"
+  ]
+}
 ```
 
 Kasowanie grupy `/api/groups/:groupId`
