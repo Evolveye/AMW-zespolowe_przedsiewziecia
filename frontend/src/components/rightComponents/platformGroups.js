@@ -1,18 +1,21 @@
-import React from "react" 
+import React from "react"
 import { navigate } from "@reach/router"
-
-import { getSocketEventFromHttp ,BACKEND_PLATFORMS_GROUPS_GET, BACKEND_PLATFORMS_GROUPS_POST } from "../../config" 
 import socket from "../../services/webSocket.js"
-
+import {
+  getSocketEventFromHttp,
+  BACKEND_PLATFORMS_GROUPS_GET,
+  BACKEND_PLATFORMS_USERS_GET,
+  BACKEND_PLATFORMS_GROUPS_POST,
+} from "../../config"
+import { getToken } from "../../services/auth"
 export default class PlatformGroups extends React.Component {
   state = {
     name: ``,
     lecturer: ``,
+    platformId: this.props.platformId,
+    groupList: [],
+    userList: [],
   }
-
-  groupList = {
-    list: [],
-}
 
   goBack = () => {
     navigate(-1)
@@ -27,32 +30,64 @@ export default class PlatformGroups extends React.Component {
   handleSubmit = event => {
     event.preventDefault()
     alert("kliknales wyślij")
-    console.log("dane: ", this.state) 
-    
-    const reply = PlatformGroups.setData(this.state)
-    reply.then(({success}) => {
-      if(success===true){
-        console.log(success)
-        alert('grupa "'+ this.state.name + '" została dodana') 
-        document.getElementById("add-name").value = ""
-        document.getElementById("add-lecturer").value = ""
+    console.log("dane: ", this.state)
+    const { userList, groupList, ...formData } = this.state
+    const reply = PlatformGroups.setDataGroups(formData)
+    console.log("formData wysyłanie: ", formData)
+    reply.then(data => {
+      if (data.error) {
+        //błąd z serwera
+        alert("wystąpił błąd, grupa nie została dodana")
+        return null
       }
+      const {groups} = data
+      console.log(groups)
+      alert('grupa "' + this.state.name + '" została dodana')
+      document.getElementById("add-name").value = ""
     })
   }
 
+  showUsers = () => {
+    console.log("metoda showUsers")
+    const reply = PlatformGroups.getDataUsers(this.props.platformId)
+    reply
+      .then(({ users }) => {
+        if (!users.error) {
+          console.log(users)
+          return users.map((user, index) => (
+            <option
+              value={user.id}
+              key={index}
+            >{`${user.name} ${user.surname}`}</option>
+          ))
+        } else {
+          alert("nie udało się załadować użytkowników")
+          return this.state.userList
+        }
+      })
+      .then(userList => this.setState({ userList }))
+  }
+
   componentDidMount() {
-    PlatformGroups.getData() 
-      .then(arr =>
-        arr.map((group, index) => (
+    this.showUsers()
+    console.log("id platformy: ", this.props.platformId)
+    PlatformGroups.getDataGroups(this.props.platformId)
+      .then(({ groups }) =>
+      //console.log("grupy lista: ", groups)
+        groups.map((group, index) => (
           <div className="grades-gained-container-grid-new-row" key={index}>
-              <div className="grid-item  dodaj border-bottom-none"></div>
-              <div className="grid-item  imie border-bottom-none">{group.name}</div>
-              <div className="grid-item nazwisko rola border-bottom-none">{group.lecturer}</div>
-              <div className="grid-item  znak delete border-bottom-none">X</div>
+            <div className="grid-item  dodaj border-bottom-none"></div>
+            <div className="grid-item  imie border-bottom-none">
+              {group.name}
             </div>
+            <div className="grid-item nazwisko rola border-bottom-none">
+            {`${group.lecturer.name} ${group.lecturer.surname}`}
+            </div>
+            <div className="grid-item  znak delete border-bottom-none">X</div>
+          </div>
         ))
-      ).then(list => this.groupList.setState({ list }))
-      .then(console.log('pobiera dane'))
+      )
+      .then(groupList => this.setState({ groupList })) 
   }
 
   render = () => (
@@ -87,26 +122,21 @@ export default class PlatformGroups extends React.Component {
             <div className="grades-gained-container-grid-new-row">
               <div className="grid-item  dodaj border-bottom-none">Dodaj</div>
               <div className="grid-item  imie border-bottom-none">
-              <input
+                <input
                   type="text"
                   name="name"
                   placeholder="Wpisz..."
                   id="add-name"
                   onChange={this.handleUpdate}
                 />
-
               </div>
               <div className="grid-item prowadzacy border-bottom-none rola">
-              <input
-                  type="text"
-                  name="lecturer"
-                  placeholder="Wpisz..."
-                  id="add-lecturer"
-                  onChange={this.handleUpdate}
-                />
+                <select name="lecturer" onChange={this.handleUpdate}>
+                  {this.state.userList}
+                </select>
               </div>
               <div className="grid-item  znak border-bottom-none">
-              <input
+                <input
                   type="submit"
                   className="dodaj"
                   value="+"
@@ -121,21 +151,50 @@ export default class PlatformGroups extends React.Component {
             <div className="grid-item  empty-filtre-user"></div>
             <div className="grid-item  imie">Nazwa</div>
             <div className="grid-item  nazwisko rola">Prowadzący</div>
-            <div className="grid-item  znak"></div>
-
-            <div className="grades-gained-container-grid-new-row">
-              <div className="grid-item  dodaj border-bottom-none"></div>
-              <div className="grid-item  imie border-bottom-none"></div>
-              <div className="grid-item nazwisko rola border-bottom-none"></div>
-              <div className="grid-item  znak delete border-bottom-none">X</div>
-            </div>
-            {this.groupList.list}
+            <div className="grid-item  znak"></div> 
+            {this.state.groupList}
           </div>
         </div>
       </div>
     </div>
   )
 
+  static getDataGroups(id) {
+    console.log("adres http pobrania grup: ", BACKEND_PLATFORMS_GROUPS_GET.replace(':platformId', id))
+    return fetch(BACKEND_PLATFORMS_GROUPS_GET.replace(':platformId', id), {
+      method: `GET`,
+      headers: {
+        Authentication: `Bearer ${getToken()}`,
+      },
+    }).then(res => res.json())
+  }
+
+  static getDataUsers(id) {
+    console.log(
+      "adres http pobrania użytkowników: ",
+      BACKEND_PLATFORMS_USERS_GET.replace("id:number", id)
+    )
+    return fetch(BACKEND_PLATFORMS_USERS_GET.replace("id:number", id), {
+      method: `GET`,
+      headers: {
+        Authentication: `Bearer ${getToken()}`,
+      },
+    }).then(res => res.json())
+  }
+
+  static setDataGroups(data) {
+    console.log("adres http dodania grup: ", BACKEND_PLATFORMS_GROUPS_POST)
+    return fetch(BACKEND_PLATFORMS_GROUPS_POST, {
+      method: `POST`,
+      headers: {
+        "Content-Type": "application/json",
+        Authentication: `Bearer ${getToken()}`,
+      },
+      body: JSON.stringify(data),
+    }).then(res => res.json())
+  }
+
+  /*
   static setData(data) {
     const eventName = getSocketEventFromHttp(`post`, BACKEND_PLATFORMS_GROUPS_POST)
 
@@ -157,4 +216,5 @@ export default class PlatformGroups extends React.Component {
         socket.emit(eventName) 
       }).catch(error => console.error(`${eventName} :: ${error}`))
   }
+  */
 }
