@@ -277,7 +277,7 @@ POST
 { "authenthication": "string" } // header
 { // body
   "name": "string",
-  "lecturer": "string",
+  "lecturerId": "string",
   "platformId": "string",
 }
 ```
@@ -288,7 +288,7 @@ GET
 { "authenthication": "string" } // header
 { // response
   "groups": [
-    "<Groups>"
+    "<Groups>",
   ]
 }
 ```
@@ -300,7 +300,7 @@ POST
 { // body
   "groupId": "string",
   "usersIds": [
-    "string"
+    "string",
   ]
 }
 ```
@@ -321,14 +321,24 @@ Pobranie wszystkich ocen użytkownika `/api/groups/notes`
 ```json
 GET 
 { "authenthication": "string" } // header
-{ // response\
-  "notes": [
+{ // response
+  "data": [
     {
-      "id": "string",
-      "value": "string",
-      "description": "string",
-      "date": "number",
-      "lecturer": "User",
+      "platform": "Platform",
+      "groups": [
+        {
+          "group": "Group",
+          "notes": [
+            {
+              "id": "string",
+              "value": "string",
+              "description": "string",
+              "date": "number",
+              "lecturer": "User",
+            }
+          ]
+        }
+      ]
     }
   ]
 }
@@ -340,8 +350,19 @@ GET
 { "authenthication": "string" } // header
 { // response
   "notes": [
-    "<Notes>"
+    "<Notes>",
   ]
+}
+```
+
+Stworzenie oceny `/api/groups/:groupId/notes/`
+```json
+POST 
+{ "authenthication": "string" } // header
+{ // body
+  "value": "string",
+  "description": "string",
+  "userId": "string",
 }
 ```
 
@@ -349,16 +370,6 @@ Skasowanie oceny `/api/groups/notes/:noteId`
 ```json
 DELETE 
 { "authenthication": "string" } // header
-```
-
-Stworzenie oceny `/api/groups/notes/`
-```json
-POST 
-{ "authenthication": "string" } // header
-{ // body
-  "value": "string",
-  "description": "string",
-}
 ```
 
 Edycja oceny `/api/groups/notes/:noteId`
