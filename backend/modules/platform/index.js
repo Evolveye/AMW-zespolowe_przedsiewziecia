@@ -105,7 +105,7 @@ export default class PlatformModule extends Module {
     const user = await this.requiredModules.userModule.createUser({ name, surname, email, activated: true }, emailContnet)
 
     if (!(user instanceof User)) // jesli nie jest userem, to jest bladem.
-     return res.status(400).json(user)
+      return res.status(400).json(user)
 
     const targetPlatformId = req.params.id
 
@@ -199,7 +199,7 @@ export default class PlatformModule extends Module {
 
 
   getPlatformFromDb(platformId) {
-    return this.dbManager.findObject(this.collectionName, { id:{$eq: platformId }})
+    return this.dbManager.findObject(this.collectionName, { id: { $eq: platformId } })
   }
 
 

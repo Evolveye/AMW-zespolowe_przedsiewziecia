@@ -36,6 +36,13 @@ export default class groupModule extends Module {
     // GET api/groups/platform/:id -- wszystkie grupy na danej platformie.
     app.get(`/api/groups/platform/:platformId`, this.httpHandleAllGroupsInPlatform)
 
+
+    // get all users of group
+    // Pobieranie listy użytkowników z grupy /api/groups/:groupId/users
+    // GET // header   { "authenthication": "string"}  // body { "users": [  "<User>", ] }
+    app.get(`/api/groups/:groupId/users`, this.httpHandleAllUsersInGroup)
+
+
     // kto moze tworzyc grupy, all? or owner
     app.post(`/api/groups`, this.httpCreateGroup)
 
@@ -46,12 +53,14 @@ export default class groupModule extends Module {
     app.delete(`/api/groups/:groupId`, this.httpDeleteGroup)
     // kasowanie grupy możliwe tylko przez owner platformy.
 
+    // kasowanie usera z grupy api/groups/:groupId/users/:userId
+    // delete auth
+    app.delete(`/api/groups/:groupId/users/:userId`, this.httpHandleDeleteUserFromGroup)
+
+
+
     // ##############################################################################
 
-    // Stworzenie oceny /api/groups/notes/
-    // POST { "authenthication": "string" } // header
-    // { "value": "string","description": "string" }
-    app.post(`/api/groups/:groupId/notes/`, this.httpCreateNote)
 
     // GET Pobranie WSZYSTKICH ocen użytkownika
     // { "authenthication": "string" } // header
@@ -63,18 +72,150 @@ export default class groupModule extends Module {
     // /api/groups/:groupId/notes
     app.get(`/api/groups/:groupId/notes`, this.httpHandleNotesFromGroup)
 
+    // // Stworzenie oceny /api/groups/notes/
+    // // POST { "authenthication": "string" } // header
+    // // { "value": "string","description": "string" }
+    // app.post(`/api/groups/:groupId/notes/`, this.httpCreateNote)
+
+    // // Edycja oceny /api/groups/notes/:noteId
+    // // PUT { "authenthication": "string" } // header
+    // //{ // body  "value": "string",  "description": "string",}
+    // app.put(`/api/groups/notes/:noteId`, this.httpHandleNoteUpdate)
+
+    // // Skasowanie oceny /api/groups/notes/:noteId
+    // // { "authenthication": "string" } // header
+    // app.delete(`/api/groups/notes/:noteId`, this.httpHandleDeleteNote)
+
+  }
+
+  httpHandleAllUsersInGroup = async (req, res, next) => {
+    // get all users of group
+    // Pobieranie listy użytkowników z grupy /api/groups/:groupId/users
+    // GET // header { "authenthication": "string"}  // body { "users": [  "<User>", ] }
+    const groupId = req.params.groupId
+    const client = req.user
+    const targetGroup = await this.getGroupObject(groupId)
+
+    if (!targetGroup)
+      return res.status(400).json({ code: 302, error: "Targeted group does not exist." })
+
+    const isMember = this.isUserAssigned(client.id, targetGroup)
+    const isAdmin = await this.requiredModules.platformModule.checkUserAdmin(client.id, targetGroup.platformId)
+
+    if (!isMember && !isAdmin)
+      return res.status(400).json({ code: 302, error: "Only member or platform admin can look at userlist of group." })
+
+    const tasks = targetGroup.membersIds.map((id) => this.requiredModules.userModule.getUserById(id))
+    const users = await Promise.all(tasks)
+
+    res.json({ users })
+  }
 
 
-    // Skasowanie oceny /api/groups/notes/:noteId
-    // { "authenthication": "string" } // header
+  httpHandleDeleteUserFromGroup = async (req, res, next) => {
+    // // kasowanie usera z grupy api/groups/:groupId/users/:userId
+    // // delete auth
+
+    const { groupId, userId } = req.params
+    const groupObj = await this.getGroupObject(groupId)
+    const client = req.user
+
+    if (!groupObj)
+      return res.status(400).json({ code: 302, error: "Targeted group does not exist." })
+
+    if (!this.isUserAssigned(userId, groupObj))
+      return res.status(400).json({ code: 305, error: "User is not a member of this group." })
+
+    const platformId = groupObj.platformId;
+    const isAdmin = await this.requiredModules.platformModule.checkUserAdmin(client.id, platformId)
+
+    if (groupObj.lecturer.id != client.id && !isAdmin)
+      return res.status(400).json({ code: 309, error: "Only Lecturer or Admin can delete a member of group" })
+
+    await this.dbManager.updateObject(
+      this.collectionName,
+      { id: { $eq: groupId } },
+      { $pull: { membersIds: userId } }
+    )
+
+    return res.json({ code: 310, success: "User has been deleted from group successfully" })
+  }
 
 
-
+  httpHandleNoteUpdate = async (req, res, next) => {
     // Edycja oceny /api/groups/notes/:noteId
     // PUT { "authenthication": "string" } // header
     //{ // body  "value": "string",  "description": "string",}
 
+    const noteId = req.params.noteId
+    const { value, description } = req.body
+    const client = req.user
+
+    if (!value)
+      return res.status(200).json({ code: 307, error: `To update an note, you have to provide value.` })
+
+    const targetNote = await this.dbManager.findObject(`groupsNotes`, { id: { $eq: noteId } })
+
+
+    if (!targetNote)
+      return res.status(400).json({ code: 306, error: "Target note does not exists." })
+
+
+    const group = await this.getGroupObject(targetNote.groupId)
+
+    const platformId = group.platformId;
+    const isAdmin = await this.requiredModules.platformModule.checkUserAdmin(client.id, platformId)
+
+    if (targetNote.lecturer.id != client.id && !isAdmin)
+      return res.status(400).json({ code: 308, error: "Only Lecturer or Admin can update note." })
+
+
+    if (!description)
+      await this.dbManager.updateObject(
+        `groupsNotes`,
+        { id: { $eq: noteId } },
+        { value: value })
+    else
+      await this.dbManager.updateObject(
+        `groupsNotes`,
+        { id: { $eq: noteId } },
+        { $set: { value: value, description: description } }
+      )
+
+    return res.json({ code: 309, success: `Note has been updated.` })
   }
+
+
+
+  httpHandleDeleteNote = async (req, res, next) => {
+    // Skasowanie oceny /api/groups/notes/:noteId
+    // { "authenthication": "string" } // header
+    const noteId = req.param.noteId
+    const client = req.user
+
+    // admin or lecturer.
+
+    const targetNote = await this.dbManager.findObject(`groupsNotes`, { id: { $eq: noteId } })
+
+
+    if (!targetNote)
+      return res.status(400).json({ code: 306, error: "Target note does not exists." })
+
+
+    const group = await this.getGroupObject(targetNote.groupId)
+
+    const platformId = group.platformId;
+    const isAdmin = await this.requiredModules.platformModule.checkUserAdmin(client.id, platformId)
+
+    if (targetNote.lecturer.id != client.id && !isAdmin)
+      return res.status(400).json({ code: 308, error: "Only Lecturer or Admin can delete note." })
+
+    this.dbManager.deleteObject(`groupsNotes`, { id: { $eq: noteId } })
+
+    res.json({ code: 307, success: "Note has been deleted successfully." })
+  }
+
+
 
   httpHandleNotesFromGroup = async (req, res, next) => { // Pobranie wszystkich ocen użytkownika z DANEJ GRUPY
 
@@ -94,7 +235,7 @@ export default class groupModule extends Module {
 
     const notes = await this.getAllUserNotesInGroup(groupId, clinet.id).then(cursor => cursor.toArray())
 
-    return res.json( {notes} )
+    return res.json({ notes })
   }
 
 
@@ -305,7 +446,7 @@ export default class groupModule extends Module {
     await this.dbManager.updateObject(
       `platforms`,
       { id: { $eq: platformId } },
-      {$push :{ assignedGroups: group.id}}
+      { $push: { assignedGroups: group.id } }
     )
 
     //BUG: ASSIGN GROUP TO PLATFORM
