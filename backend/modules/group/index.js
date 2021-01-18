@@ -73,20 +73,20 @@ export default class groupModule extends Module {
     app.get(`/api/groups/:groupId/notes`, this.httpHandleNotesFromGroup)
   
 
-    
-    // // Stworzenie oceny /api/groups/notes/
-    // // POST { "authenthication": "string" } // header
-    // // { "value": "string","description": "string" }
-    // app.post(`/api/groups/:groupId/notes/`, this.httpCreateNote)
 
-    // // Edycja oceny /api/groups/notes/:noteId
-    // // PUT { "authenthication": "string" } // header
-    // //{ // body  "value": "string",  "description": "string",}
-    // app.put(`/api/groups/notes/:noteId`, this.httpHandleNoteUpdate)
+    // Stworzenie oceny /api/groups/notes/
+    // POST { "authenthication": "string" } // header
+    // { "value": "string","description": "string" }
+    app.post(`/api/groups/:groupId/notes/`, this.httpCreateNote)
 
-    // // Skasowanie oceny /api/groups/notes/:noteId
-    // // { "authenthication": "string" } // header
-    // app.delete(`/api/groups/notes/:noteId`, this.httpHandleDeleteNote)
+    // Edycja oceny /api/groups/notes/:noteId
+    // PUT { "authenthication": "string" } // header
+    //{ // body  "value": "string",  "description": "string",}
+    app.put(`/api/groups/notes/:noteId`, this.httpHandleNoteUpdate)
+
+    // Skasowanie oceny /api/groups/notes/:noteId
+    // { "authenthication": "string" } // header
+    app.delete(`/api/groups/notes/:noteId`, this.httpHandleDeleteNote)
 
   }
 
