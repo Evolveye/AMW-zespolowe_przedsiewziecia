@@ -71,7 +71,9 @@ export default class groupModule extends Module {
     // { "authenthication": "string" } // header
     // /api/groups/:groupId/notes
     app.get(`/api/groups/:groupId/notes`, this.httpHandleNotesFromGroup)
+  
 
+    
     // // Stworzenie oceny /api/groups/notes/
     // // POST { "authenthication": "string" } // header
     // // { "value": "string","description": "string" }
