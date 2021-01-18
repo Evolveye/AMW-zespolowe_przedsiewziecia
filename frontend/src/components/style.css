@@ -757,9 +757,61 @@ a{
 }
 
 
+.grid-add-user-group {
+    display: grid;
+    grid-template-columns: repeat(5,  1fr);
+    max-width:  800px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 5px 10px;
+    
+    grid-template-areas:
+      "funkcja1 imie1 nazwisko1 rola1 znak1"
+      "funkcjaF imieF nazwiskoF rolaF znakF"
+      "funkcjaD imieD imieD rolaD znakD"
+      ;
+  }
+  .funkcja1{grid-area: funkcja1;}
+  .imie1{grid-area: imie1;}
+  .nazwisko1{grid-area: nazwisko1;}
+  .rola1{grid-area: rola1;}
+  .znak1{grid-area: znak1;}
+  .funkcjaF{grid-area: funkcjaF;} 
+  .imieF{grid-area: imieF;}
+  .nazwiskoF{grid-area: nazwiskoF;}
+  .rolaF{grid-area: rolaF;}
+  .znakF{grid-area: znakF;}
+  .funkcjaD{grid-area: funkcjaD;}
+  .imieD{grid-area: imieD;}
+  .rolaD{grid-area: rolaD;} 
+  .znakD{grid-area: znakD;}
+  
+  
+  
+  
+  
+  
+  .box {
+    border: 1px solid rgba(0, 0, 0, 0.8);
+    border-top: none;
+    font-size: 15px;
+    text-align: center;
+  }
+  .grid-add-user-group-new-row {
+    display: contents;
+  }
+  
+  .funkcja{
+    border:none;text-align: right; padding-right: 25px; color: black;
+  }
+  .znak{border:none; text-align:left; font-weight: bold; padding-left: 20px; font-size: 30px;}
 
-
-
+  .box input[type=submit]{
+    border: none; 
+    background: none;
+    font-size: 40px;
+    width: 30px !important;
+}
 
 
 

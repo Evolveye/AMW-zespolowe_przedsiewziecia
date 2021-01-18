@@ -3,19 +3,19 @@ import React from "react"
 import SEO from "../components/seo"
 
 import LeftContainer from "../components/left-container"
-import PlatformSettigsGroup from "../components/rightComponents/groups"
+import GroupUsers from "../components/rightComponents/groupUsers"
 
 import "../components/style.css"
 
-const GroupsPage = ({location}) => ( 
+const UsersGroupPage = ({location}) => ( 
   <div className="container"> 
-      <SEO title="Grupy" />
+      <SEO title="Zarejestrowany" />
       
         <LeftContainer /> 
         <div className="hr-vertical"></div> 
-        <PlatformSettigsGroup platformId={location.state.platformId} groupId={location.state.groupId}/>
+        <GroupUsers groupId={location.state.groupId} platformId={location.state.platformId}/>
     </div>
 
 )
 
-export default GroupsPage
+export default UsersGroupPage

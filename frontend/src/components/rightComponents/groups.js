@@ -1,9 +1,18 @@
 import { Link } from "gatsby"
 import React from "react"
 
-const PlatformSettigsGroup = () => {
-  return (
-    <div className="right-container-profile">
+class PlatformSettigsGroup extends React.Component {
+
+  showProps(){
+    console.log("platform id: ", this.props.platformId)
+    console.log("group id: ", this.props.groupId)
+  }
+
+  componentDidMount(){
+    this.showProps()
+  }
+  render = () => ( 
+    <div className="right-container-profile"> 
       <div className="right-container-profile-left">
         <div className="right-container-profile-left-text">
           <span>Ustawienia grupy</span>
@@ -12,7 +21,7 @@ const PlatformSettigsGroup = () => {
         <div className="subjects-list">
           <div className="subject">
             <div className="subject-name">
-              <Link to="/usersPlatform/">Użytkownicy</Link>
+              <Link to="/usersGroup/" state={{platformId:this.props.platformId ,groupId: this.props.groupId}}>Użytkownicy</Link>
             </div>
           </div>
           <div className="subject">
@@ -42,5 +51,7 @@ const PlatformSettigsGroup = () => {
       </div>
     </div>
   )
-}
+
+  
+} 
 export default PlatformSettigsGroup

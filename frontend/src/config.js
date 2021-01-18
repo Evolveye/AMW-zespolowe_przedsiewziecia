@@ -24,6 +24,7 @@ export const BACKEND_PLATFORMS_GROUPS_POST = `${HOST}/api/groups`
 export const BACKEND_PLATFORMS_GROUPS_ADD = `${HOST}/api/groups`
 export const BACKEND_PLATFORMS_GROUPS_DEL = `${HOST}/api/groups/:groupId`
 export const BACKEND_PLATFORMS_USERS_NOTES = `${HOST}/api/groups/notes`
+export const BACKEND_PLATFORMS_USERS_ADD = `${HOST}/api/groups/users`
 export const BACKEND_PLATFORMS_GROUPS_USER_NOTES_GET = `${HOST}/api/groups/:groupId/notes`
 export const BACKEND_PLATFORMS_GROUPS_USER_NOTES_DEL = `${HOST}/api/groups/notes/:noteId`
 export const BACKEND_PLATFORMS_GROUPS_USER_NOTES_ADD = `${HOST}/api/groups/notes`
