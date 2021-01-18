@@ -69,5 +69,5 @@ export default class PlatformSettigs extends React.Component {
         </div>
       </>
     )
-  }
+  } 
 }
