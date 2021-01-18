@@ -18,8 +18,7 @@ export default class Settings extends React.Component {
       ref.querySelector(`[name="email"]`).value = email
       ref.querySelector(`[name="name"]`).value = name
       ref.querySelector(`[name="surname"]`).value = surname
-      ref.querySelector(`.avatar-image`).src = avatar
-      ref.querySelector(`[name="loginMerge"]`).value = ""
+      ref.querySelector(`.avatar-image`).src = avatar 
     })
   }
 
