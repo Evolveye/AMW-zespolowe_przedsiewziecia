@@ -1,9 +1,28 @@
 import { Link } from "gatsby"
 import React from "react"
+import { getToken } from "../../services/auth"
+import { BACKEND_PLATFORMS_GROUPS_GET } from "../../config"
 
 export default class PlatformSettigs extends React.Component {
   state = {
-    platformId: "",
+    platformId: this.props.platformId,
+    groupList: [],
+  }
+
+  componentDidMount(){
+    PlatformSettigs.getDataGroups(this.state.platformId)
+      .then(({ groups }) =>
+      //console.log("grupy lista: ", groups)
+        groups.map((group,index)=>( 
+          <div className="subject" key={index}>
+                <div className="subject-icon"></div>
+                <div className="subject-name">
+                  <Link to="/groups/" state={{platformId: this.state.platformId, groupId: group.id}}>{group.name}</Link>
+                </div>
+          </div>
+
+        ))
+      ).then(groupList=> this.setState({groupList}))
   }
 
   render() {
@@ -41,7 +60,7 @@ export default class PlatformSettigs extends React.Component {
               <span>Grupy</span>
             </div>
             <div className="subjects-list">
-              <div className="subject">
+              {/* <div className="subject">
                 <div className="subject-icon"></div>
                 <div className="subject-name">
                   <Link to="/groups/">Przedmiot 1</Link>
@@ -50,7 +69,8 @@ export default class PlatformSettigs extends React.Component {
               <div className="subject">
                 <div className="subject-icon"></div>
                 <div className="subject-name">Przedmiot 2</div>
-              </div>
+              </div> */}
+              {this.state.groupList}
             </div>
           </div>
 
@@ -70,4 +90,14 @@ export default class PlatformSettigs extends React.Component {
       </>
     )
   } 
+
+  static getDataGroups(id) {
+    console.log("adres http pobrania grup: ", BACKEND_PLATFORMS_GROUPS_GET.replace(':platformId', id))
+    return fetch(BACKEND_PLATFORMS_GROUPS_GET.replace(':platformId', id), {
+      method: `GET`,
+      headers: {
+        Authentication: `Bearer ${getToken()}`,
+      },
+    }).then(res => res.json())
+  }
 }
