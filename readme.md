@@ -405,7 +405,9 @@ POST
   "dateStart": "number",
   "dateEnd": "number",
   "description": "string",
-  "link": "string",
+  "externalUrl": "string",
+  "platformId": "string",
+  "groupId?": "string"
 }
 ```
 
@@ -420,7 +422,7 @@ GET
 }
 ```
 
-Odczytywanie wszystkich spotkań z danej grupy `/api/meets/:meetId/group/:groupId`
+Odczytywanie wszystkich spotkań z danej grupy `/api/meets/group/:groupId`
 ```json
 GET
 { "authenthication": "string" } // header
