@@ -305,7 +305,18 @@ POST
 }
 ```
 
-Usuwanie usera z grupy `/api/groups/users/:userId`
+Pobieranie listy użytkowników z grupy `/api/groups/:groupId/users`
+```json
+GET
+{ "authenthication": "string" } // header
+{ // body
+  "users": [
+    "<User>",
+  ]
+}
+```
+
+Usuwanie usera z grupy `/api/groups/:groupId/users/:userId`
 ```json
 DELETE
 { "authenthication": "string" } // header
