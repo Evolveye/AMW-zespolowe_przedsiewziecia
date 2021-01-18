@@ -38,9 +38,14 @@ export default class PlatformUsers extends React.Component {
     console.log("props id: ", this.platformId)
     const { userList, ...formData } = this.state
     const reply = PlatformUsers.setData(formData,this.props.platformId)
-    reply.then(({ user }) => {
-      if (!user.error) {
-        console.log(user)
+    reply.then(data => {
+      if (data.error) {
+        //błąd z serwera
+        alert("wystąpił błąd, użytkownik nie został dodany") 
+        return null
+      } 
+      const {user} = data
+      console.log(user)
         alert(
           'użytkownik "' +
             this.state.name +
@@ -48,10 +53,6 @@ export default class PlatformUsers extends React.Component {
             this.state.surname +
             '" został dodany'
         )
-      } else {
-        //błąd z serwera
-        alert("wystąpił błąd, użytkownik nie został dodany")
-      }
       document.getElementById("add-name").value = ""
       document.getElementById("add-surname").value = ""
       document.getElementById("add-email").value = "" 
