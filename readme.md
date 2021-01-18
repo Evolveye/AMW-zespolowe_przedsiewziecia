@@ -300,7 +300,7 @@ POST
 { // body
   "groupId": "string",
   "usersIds": [
-    "string",
+    "<string>",
   ]
 }
 ```
@@ -380,6 +380,93 @@ PUT
   "value": "string",
   "description": "string",
 }
+```
+
+
+### Zapytania modułu kalendarza "/api/meets/*"
+
+
+Tworzenie spotkania `/api/meets`
+```json
+POST
+{ "authenthication": "string" } // header
+{ // body
+  "dateStart": "number",
+  "dateEnd": "number",
+  "description": "string",
+  "link": "string",
+}
+```
+
+Odczytywanie wszystkich spotkań `/api/meets`
+```json
+GET
+{ "authenthication": "string" } // header
+{ // body
+  "meets": [
+    "<Meet>"
+  ]
+}
+```
+
+Odczytywanie wszystkich spotkań z danej grupy `/api/meets/:meetId/group/:groupId`
+```json
+GET
+{ "authenthication": "string" } // header
+{ // body
+  "meets": [
+    "<Meet>"
+  ]
+}
+```
+
+Odczytywanie spotkania `/api/meets/:meetId`
+```json
+GET
+{ "authenthication": "string" } // header
+{ // response
+  "meet": {
+    "id": "string",
+    "dateStart": "number",
+    "dateEnd": "number",
+    "description": "string",
+    "link": "string",
+  }
+}
+```
+
+Kasowanie spotkania `/api/meets/:meetId`
+```json
+DELETE
+{ "authenthication": "string" } // header
+```
+
+Odczytywanie uczestników spotkania `/api/meets/:meetId/users`
+```json
+GET
+{ "authenthication": "string" } // header
+{ // response
+  "participants": [
+    "<User>"
+  ]
+}
+```
+
+Dodawanie uczestników do spotkania `/api/meets/:meetId/users`
+```json
+POST
+{ "authenthication": "string" } // header
+{ // body
+  "participantsIds": [
+    "<string>"
+  ]
+}
+```
+
+Usuwanie uczestnika ze spotkania `/api/meets/:meetId/users/:userId`
+```json
+DELETE
+{ "authenthication": "string" } // header
 ```
 
 
