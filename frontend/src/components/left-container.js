@@ -8,26 +8,29 @@ import { getToken } from "../services/auth"
 import { getSocketEventFromHttp, BACKEND_PLATFORMS_URL } from "../config"
 
 class LeftContainer extends React.Component {
-  state = { platform: [] }
+  state = { platforms: [] }
 
   componentDidMount() {
     LeftContainer.getData()
-      .then(( {platforms} ) =>
-        //console.log(platforms)
-        platforms.map((org, index) => (
-          <div className="platform-item-container" key={index}>
-            <Link
-              to={`/platform`}
-              state={{ platformId: org.id, platformName: org.name }}
-            >
-              <div className="platform-item" title={org.name}>
-                {org.name.substring(0, 5)}
-              </div>
-            </Link>
-          </div>
-        )) 
-      )
-      .then(platform => this.setState({ platform }))
+      .then(({ platforms }) => {
+        console.log(platforms)
+        if (platforms) {
+          return platforms.map((org, index) => (
+            <div className="platform-item-container" key={index}>
+              <Link
+                to={`/platform`}
+                state={{ platformId: org.id, platformName: org.name }}
+              >
+                <div className="platform-item" title={org.name}>
+                  {org.name.substring(0, 5)}
+                </div>
+              </Link>
+            </div>
+          ))
+        }
+        return this.state.platforms
+      })
+      .then(platforms => this.setState({ platforms }))
   }
 
   handleAvatar = img => {
@@ -70,7 +73,7 @@ class LeftContainer extends React.Component {
             <hr className="hr-under-menu" />
 
             <div className="platform-list">
-              {this.state.platform}
+              {this.state.platforms}
 
               <div className="platform-item-container">
                 <div className="platform-item-add">
