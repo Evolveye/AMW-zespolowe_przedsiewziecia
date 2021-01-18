@@ -1,8 +1,8 @@
 import { exec } from "child_process"
 
 import pkg from 'chai'
-import fetch from "node-fetch";
-import { url } from "inspector";
+import fetch from "node-fetch"
+import { url } from "inspector"
 const {should,assert,expect} = pkg
 
 exec("node server.js")
@@ -10,10 +10,10 @@ await new Promise( res => setTimeout( res, 1000 ) )
 
 const host = `http://localhost:3000`
 
-// app.post("/api/login", (req, res, next) => loginMiddleware({ req, res, next, ...utils }));
-//     app.post("/api/register", (req, res, next) => registerMiddleware({ req, res, next, ...utils }));
-//     app.post("/api/password/remind", (req, res, next) => passwordRemindMiddleware({ req, res, next, ...utils }));
-//     app.post("/api/password/reset", (req, res, next) => passwordResetMiddleware({ req, res, next, ...utils })); // update passw in db
+// app.post("/api/login", (req, res, next) => loginMiddleware({ req, res, next, ...utils }))
+//     app.post("/api/register", (req, res, next) => registerMiddleware({ req, res, next, ...utils }))
+//     app.post("/api/password/remind", (req, res, next) => passwordRemindMiddleware({ req, res, next, ...utils }))
+//     app.post("/api/password/reset", (req, res, next) => passwordResetMiddleware({ req, res, next, ...utils })) // update passw in db
 //     app.get("/api/activate/:code", (req, res, next) => acctivateAccountMiddleware({ req, res, next, ...utils }))
 
 
@@ -32,8 +32,8 @@ describe('TESTOWY ', () => {
     it('liczby ', () => {
         const numb = 10
         assert.ok(numb === numb)
-    });
-});
+    })
+})
 
 describe(('User Module Tests'),()=>{
     it(`Test localhost-a`, async () =>{
@@ -54,7 +54,7 @@ describe(('User Module Tests'),()=>{
         const response = await fetch(endpoint,{headers, body:JSON.stringify(body), method:`POST`})
         const text = await response.json(response)
         assert.ok(text,'Pobrano dane z serwera')
-        assert.equal(response.status,200,'Bad request');
+        assert.equal(response.status,200,'Bad request')
     })
 
 })

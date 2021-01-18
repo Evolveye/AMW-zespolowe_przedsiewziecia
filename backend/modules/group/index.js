@@ -1,19 +1,14 @@
 import Module from '../module.js'
 import Group from './model.js'
 import Grade from './../grade/model.js'
-import { random } from '../../src/utils.js';
-import { DEBUG } from '../../consts.js';
+import { DEBUG } from '../../consts.js'
 
-// /**
-//  * @typedef {Object} Group
-//  * @property {string} lecturer
-//  * @property {string} name
-//  */
+
 export default class groupModule extends Module {
   static requiredModules = [`UserModule`, `PlatformModule`]
 
   constructor(...params) {
-    super(`groups`, ...params);
+    super(`groups`, ...params)
 
     const myCollections = [`${this.collectionName}Notes`]
 
@@ -27,7 +22,14 @@ export default class groupModule extends Module {
 
   }
 
+  /** @param {import("socket.io").Socket} socket */
+  socketConfigurator(socket) {
+
+  }
+
+
   configure(app) {
+
     // GET Lista grup usera - wszystkie do które należy. /api/groups // header { "authenthication": "string" }
     app.get(`/api/groups`, this.httpHandleMyGroups)
 
@@ -44,39 +46,127 @@ export default class groupModule extends Module {
     app.delete(`/api/groups/:groupId`, this.httpDeleteGroup)
     // kasowanie grupy możliwe tylko przez owner platformy.
 
+    // ##############################################################################
 
-    // GET Pobranie wszystkich ocen użytkownika /api/groups/notes { "authenthication": "string" } // header
-    app.get(`/api/groups/notes`, this.httpGetMyNotes)
-    // httpGetMyNotes = (req, res, next) => {
-    //   // GET Pobranie wszystkich ocen użytkownika /api/groups/notes { "authenthication": "string" } // header
-    //   //   "notes": [
-    //   //     {
-    //   //       "_id": "string",
-    //   //       "value": "string",
-    //   //       "description": "string",
-    //   //       "date": "number",
-    //   //       "lecturer": "User",
-    //   //     }
-    //   //   ]
-    //   // }
-    // }
+    // Stworzenie oceny /api/groups/notes/
+    // POST { "authenthication": "string" } // header
+    // { "value": "string","description": "string" }
+    app.post(`/api/groups/:groupId/notes/`, this.httpCreateNote)
+
+    // GET Pobranie WSZYSTKICH ocen użytkownika
+    // { "authenthication": "string" } // header
+    // /api/groups/notes { "authenthication": "string" } // header
+    app.get(`/api/groups/notes`, this.httpGetAllMyNotes)
+
+    // GET Pobranie wszystkich ocen użytkownika z DANEJ GRUPY
+    // { "authenthication": "string" } // header
+    // /api/groups/:groupId/notes
+    app.get(`/api/groups/:groupId/notes`, this.httpHandleNotesFromGroup)
+
+
+
+    // Skasowanie oceny /api/groups/notes/:noteId
+    // { "authenthication": "string" } // header
+
+
+
+    // Edycja oceny /api/groups/notes/:noteId
+    // PUT { "authenthication": "string" } // header
+    //{ // body  "value": "string",  "description": "string",}
 
   }
 
+  httpHandleNotesFromGroup = async (req, res, next) => { // Pobranie wszystkich ocen użytkownika z DANEJ GRUPY
 
-  httpGetMyNotes = async (req, res, next) => {
+    // GET Pobranie wszystkich ocen użytkownika z DANEJ GRUPY
+    // { "authenthication": "string" } // header
+    // /api/groups/:groupId/notes
+
+    const clinet = req.user
+    const groupId = req.params.groupId
+    const targetGroup = await this.getGroupObject(groupId)
+
+    if (!targetGroup)
+      return res.status(400).json({ code: 302, error: "Targeted group does not exist." })
+
+    if (!this.isUserAssigned(clinet.id, targetGroup))
+      return res.status(400).json({ code: 305, error: "User is not a member of this group." })
+
+    const notes = await this.getAllUserNotesInGroup(groupId, clinet.id).then(cursor => cursor.toArray())
+
+    return res.json( {notes} )
+  }
+
+
+
+
+  httpCreateNote = async (req, res, next) => { // Stworzenie oceny /api/groups/:groupId/notes/
+    // POST { "authenthication": "string" } // header
+    // { "value": "string","description": "string" }
+    const groupId = req.params.groupId
+    const { value, description, userId } = req.body
+    const lecturer = req.user
+    const note = new Grade(userId, lecturer, value, groupId, { description })
+
+    const targetGroup = await this.getGroupObject(groupId)
+
+    if (!targetGroup)
+      return res.status(400).json({ code: 302, error: "Targeted group does not exist." })
+
+    if (!this.isUserAssigned(userId, targetGroup))
+      return res.status(400).json({ code: 305, error: "User is not a member of this group." })
+
+    const isAdmin = await this.requiredModules.platformModule.checkUserAdmin(lecturer.id, targetGroup.platformId)
+
+    if (!(this.isLecturer(lecturer.id, targetGroup) || isAdmin))
+      return res.status(400).json({ code: 304, error: "Only lecturer or Admin can create an new notes." })
+
+    await this.saveNote(note)
+
+    return res.json({ note })
+  }
+
+
+
+
+
+
+  httpGetAllMyNotes = async (req, res, next) => {
+    // GET Pobranie WSZYSTKICH ocen użytkownika
+    // { "authenthication": "string" } // header
+    // /api/groups/notes { "authenthication": "string" } // header
+
     const client = req.user
-    let notes = []
-    notes.push(new Grade(client.id, `1610876669429t03916096803370239r`, random(1, 5), 'fakeGroup1', { description: "mocked note 1" }))
-    notes.push(new Grade(client.id, `1610876669429t03916096803370239r`, random(1, 5), 'fakeGroup1', { description: "mocked note 2" }))
-    notes.push(new Grade(client.id, `1610876669429t03916096803370239r`, random(1, 5), 'fakeGroup1', { description: "mocked note 3" }))
-    notes.push(new Grade(client.id, `1610876669429t03916096803370239r`, random(1, 5), 'fakeGroup1', { description: "mocked note 4" }))
 
-    // znajdz wszystkie grupy do których należy user,
-    // znajdz wszystkie oceny dla każdej ww grupy
-    // przefiltruj, oceny, poprzez grade.userId == client.id
 
-    return res.json({ notes })
+    const groupsInPlatforms = {}
+    const notesInGroups = {}
+
+    const userPlatforms = await this.requiredModules.platformModule.getAllUserPlatforms(client.id).then(cur => cur.toArray())
+    /** @type {Group[]} */
+    const userGroups = await this.getAllUserGroups(client.id).then(cur => cur.toArray())
+    const userNotes = await this.getAllUserNotes(client.id).then(cur => cur.toArray())
+
+    // zmiana nazwy db dla ocen
+
+    userPlatforms.forEach(platform => groupsInPlatforms[platform.id] = {
+      platform,
+      groups: []
+    })
+
+    userGroups.forEach(group => notesInGroups[group.id] = {
+      group,
+      notes: []
+    })
+
+    userNotes.forEach(note => notesInGroups[note.groupId].notes.push(note))
+    Object.values(notesInGroups).forEach(value =>
+      groupsInPlatforms[value.group.platformId].groups.push(value)
+    )
+
+    const data = Object.values(groupsInPlatforms)
+
+    return res.json({ data })
   }
 
   httpHandleAllGroupsInPlatform = async (req, res, next) => {
@@ -89,14 +179,14 @@ export default class groupModule extends Module {
       return res.status(400).json({ code: 208, error: "Cannot create new User. Bacause target platform does not exist." })
 
     if (!(await this.requiredModules.platformModule.checkUserAdmin(user.id, targetPlatform)))
-      return res.status(400).json({ code: 209, error: "You dont have privilages to create new users on this platform." })
+      return res.status(400).json({ code: 209, error: "You are not an admin, to get all groups in platform." })
 
     const groups = await this.dbManager.findManyObjects(
       this.collectionName,
       { platformId: { $eq: targetPlatform } }
     ).then(cursor => cursor.toArray())
 
-    res.json({ groups })
+    return res.json({ groups })
   }
 
 
@@ -108,8 +198,8 @@ export default class groupModule extends Module {
     //BUG
     const clientGroups = await this.dbManager.findManyObjects(
       this.collectionName,
-      { membersIds : { $in: [client.id] } }
-    ).then(cursor => cursor.toArray() )
+      { membersIds: { $in: [client.id] } }
+    ).then(cursor => cursor.toArray())
 
 
 
@@ -152,10 +242,10 @@ export default class groupModule extends Module {
       return res.status(400).json({ code: 302, error: "Targeted group does not exist." })
 
     // poobrac objekt grupy.
-   //  grupa.platformId
+    //  grupa.platformId
     const groupObj = await this.dbManager.findObject(
       this.collectionName,
-      {id:{$eq:groupId}}
+      { id: { $eq: groupId } }
     )
 
     if (!(await platformMod.checkUserAdmin(req.user.id, groupObj.platformId)))
@@ -178,13 +268,12 @@ export default class groupModule extends Module {
 
     await this.dbManager.findOneAndUpdate(
       this.collectionName,
-      {id: { $eq: groupId } },
-      { $push: { membersIds: { $each:usersIds } } },
+      { id: { $eq: groupId } },
+      { $push: { membersIds: { $each: usersIds } } },
     )
-    return res.status(200).json({ code: 302, success: "Succesfully assigned users to group." })
+    return res.json({ code: 302, success: "Succesfully assigned users to group." })
   }
 
-  groupExist = (groupId) => this.dbManager.objectExist(this.collectionName, { id: { $eq: groupId } })
 
 
   httpCreateGroup = async (req, res, next) => {
@@ -211,24 +300,39 @@ export default class groupModule extends Module {
 
     let group = new Group(name, lecturerObj, platformId)
     group.membersIds.push(lecturerObj.id)
-    await this.saveGroup(group);
+    await this.saveGroup(group)
+
+    await this.dbManager.updateObject(
+      `platforms`,
+      { id: { $eq: platformId } },
+      {$push :{ assignedGroups: group.id}}
+    )
+
+    //BUG: ASSIGN GROUP TO PLATFORM
 
     return res.status(200).json(group)
   }
 
   saveGroup = (group) => this.dbManager.insertObject(this.collectionName, group)
+  saveNote = (note) => this.dbManager.insertObject(`groupsNotes`, note)
 
-  isLecturerOrOwner = async (userId) => {
+  groupExist = (groupId) => this.dbManager.objectExist(this.collectionName, { id: { $eq: groupId } })
 
-  }
+  isLecturer = (userId, groupObj) => groupObj.lecturer.id === userId
 
+  getAllUserGroups = (userId) => this.dbManager.findManyObjects('groups', { membersIds: { $in: [userId] } })
 
+  getGroupObject = (groupId) =>
+    this.dbManager.findObject(this.collectionName, { id: { $eq: groupId } })
 
-  /** @param {import("socket.io").Socket} socket */
-  socketConfigurator(socket) {
+  getAllPlatformGroups = (platformId) => this.dbManager.findManyObjects(this.collectionName, { platformId: { $eq: platformId } })
+  getAllUserNotes = (userId) =>
+    this.dbManager.findManyObjects('groupsNotes', { userId: { $eq: userId } })
+  getAllUserNotesInGroup = (groupId, userId) =>
+    this.dbManager.findManyObjects('groupsNotes', { userId: { $eq: userId }, groupId: { $eq: groupId } })
 
-  }
-
+  isUserAssigned = (userId, groupObj) =>
+    groupObj.membersIds.some(id => id === userId)
 
 
 

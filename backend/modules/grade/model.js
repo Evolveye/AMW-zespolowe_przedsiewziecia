@@ -13,14 +13,15 @@
 
 
 export default class Grade {
-    constructor( userId, lecturerId, value,groupId, { date = null, description ='' })
+    constructor( userId, lecturer, value,groupId, { date = null, description ='' })
     {
        // this.gradeId = gradeId
         this.userId = userId
-        this.lecturerId=lecturerId
+        this.lecturer = lecturer
         this.date = date ??  Date.now()
         this.description = description ?? ``
         this.value = value
         this.groupId = groupId
+        this.id = `${Date.now()}t${Math.random().toString().slice(2)}r`
     }
 }

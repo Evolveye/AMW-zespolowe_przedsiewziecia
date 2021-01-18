@@ -1,5 +1,5 @@
-import Module from "../module.js";
-import emailsManager from "./mails.js";
+import Module from "../module.js"
+import emailsManager from "./mails.js"
 import User from './model.js'
 import {
   REFRESHING_INTERVAL_TIME_IN_MINUTES,
@@ -92,7 +92,7 @@ class MiddlewareUtils {
 
 export default class UserModule extends Module {
   constructor(...params) {
-    super(`users`, ...params);
+    super(`users`, ...params)
 
     const myCollections = [`${this.collectionName}Sessions`]
 
@@ -106,14 +106,14 @@ export default class UserModule extends Module {
     })
 
     setInterval(async () => {
-      this.logger("DELETE EXPIRED TOKEN MECHANISM.");
+      this.logger("DELETE EXPIRED TOKEN MECHANISM.")
 
       await this.dbManager.deleteObjectsInCollection('usersSessions', {
         lastActivity: {// wszystko co nie spelnia warunku zostaje usuniete
           "$lt": Date.now() - TOKEN_EXPIRE_TIME_IN_MINUTES /* to ms */
         }
       })
-    }, REFRESHING_INTERVAL_TIME_IN_MINUTES);
+    }, REFRESHING_INTERVAL_TIME_IN_MINUTES)
   }
 
   /** @param {Express} app */
@@ -124,27 +124,27 @@ export default class UserModule extends Module {
 
     app.get("/test", this.test)
 
-    app.post("/api/login", (req, res, next) => loginMiddleware({ req, res, next, ...utils }));
-    app.post("/api/register", (req, res, next) => registerMiddleware({ req, res, next, ...utils }));
-    app.post("/api/password/remind", (req, res, next) => passwordRemindMiddleware({ req, res, next, ...utils }));
-    app.post("/api/password/reset", (req, res, next) => passwordResetMiddleware({ req, res, next, ...utils })); // update passw in db
+    app.post("/api/login", (req, res, next) => loginMiddleware({ req, res, next, ...utils }))
+    app.post("/api/register", (req, res, next) => registerMiddleware({ req, res, next, ...utils }))
+    app.post("/api/password/remind", (req, res, next) => passwordRemindMiddleware({ req, res, next, ...utils }))
+    app.post("/api/password/reset", (req, res, next) => passwordResetMiddleware({ req, res, next, ...utils })) // update passw in db
     app.get("/api/activate/:code", (req, res, next) => acctivateAccountMiddleware({ req, res, next, ...utils }))
 
     app.use(this.authorizeMiddleware)
-    app.use(this.tokenRefreshMiddleware);
+    app.use(this.tokenRefreshMiddleware)
 
-    app.post("/api/logout", (req, res, next) => logoutMiddleware({ req, res, next, ...utils }));
+    app.post("/api/logout", (req, res, next) => logoutMiddleware({ req, res, next, ...utils }))
 
 
     //users.js
-    app.get("/api/users/me", (req, res, next) => httpAmIMiddleware({ req, res, next, ...utils }));
-    app.get("/api/users", (req, res, next) => getAllUsers({ req, res, next, ...utils })); // TODO: AUTH ONLY restiction.  tutaj wywalam nawet password
+    app.get("/api/users/me", (req, res, next) => httpAmIMiddleware({ req, res, next, ...utils }))
+    app.get("/api/users", (req, res, next) => getAllUsers({ req, res, next, ...utils })) // TODO: AUTH ONLY restiction.  tutaj wywalam nawet password
     app.put("/api/users/me", (req, res, next) => updateUserSettings({ req, res, next, ...utils }))
 
   }
 
   authorizeMiddleware = async (req, res, next) => {
-    const authenticationToken = this.getTokenFromRequest(req);
+    const authenticationToken = this.getTokenFromRequest(req)
 
     if (!authenticationToken) return res.status(400).json(ANSWERS.TOKEN_NOT_PROVIDED)
 
@@ -166,22 +166,22 @@ export default class UserModule extends Module {
     socket.userScope = { token: `` }
 
     socket.on('authenticate', (token) => {
-      this.refreshToken(token);
-      // this.logger({ AuthToken: token });
-      const session = this.getSessionByToken(token);
+      this.refreshToken(token)
+      // this.logger({ AuthToken: token })
+      const session = this.getSessionByToken(token)
 
       socket.userScope.token = token
     })
 
     socket.on('api.get.users.me', data => this.authorizedSocket(socket, async (token) => {
 
-      const user = await this.getUserByToken(token);
-      // console.log({user});
+      const user = await this.getUserByToken(token)
+      // console.log({user})
 
-      delete user.password;
+      delete user.password
 
-      this.logWs(JSON.stringify({ name: user.name, surname: user.surname }));
-      socket.emit('api.get.users.me', user);
+      this.logWs(JSON.stringify({ name: user.name, surname: user.surname }))
+      socket.emit('api.get.users.me', user)
       //console.log("MARK #", user)
     }))
   }
@@ -192,11 +192,11 @@ export default class UserModule extends Module {
    * @param {(token:string) => void} cb
    */
   async authorizedSocket(socket, cb) {
-    const { token } = socket.userScope;
+    const { token } = socket.userScope
 
-    //console.log("TOKEN 1234 -> ", token);
-    const tokenExist = await this.tokenExist(token);
-    //console.log("EXIST Token 4567 =>", tokenExist);
+    //console.log("TOKEN 1234 -> ", token)
+    const tokenExist = await this.tokenExist(token)
+    //console.log("EXIST Token 4567 =>", tokenExist)
     // console.log(`[WS] Authorization ${token}
     // Token exists ${JSON.stringify(tokenExist)} `)
 
@@ -208,7 +208,7 @@ export default class UserModule extends Module {
   /** @param {string} token */
   deleteSessionByToken = token => {
     // console.log({ UserLogout: token })
-    this.dbManager.deleteObject('usersSessions', { token: token });
+    this.dbManager.deleteObject('usersSessions', { token: token })
   }
 
 
@@ -227,7 +227,7 @@ export default class UserModule extends Module {
    * @returns {string|null}
    */
   getTokenFromRequest = (request) => {
-    const authentication = request.header("Authentication");
+    const authentication = request.header("Authentication")
     return authentication ? authentication.match(/Bearer (.*)/)[1] : null
   }
 
@@ -246,7 +246,7 @@ export default class UserModule extends Module {
         AcctivationEmailsCollection: emailsManager.getAllAcctivationEmails(),
         ResetEmailCollection: emailsManager.getAllResetEmails(),
       }
-    );
+    )
   }
 
 
@@ -256,23 +256,23 @@ export default class UserModule extends Module {
    * @param {NextFunction} next
    */
   tokenRefreshMiddleware = async (req, res, next) => {
-    const authenticationToken = this.getTokenFromRequest(req);
+    const authenticationToken = this.getTokenFromRequest(req)
     if (authenticationToken)
       if (await this.tokenExist(authenticationToken)) { // found a authentication header.
         await this.refreshToken(authenticationToken)
       }
 
     // NOT found a authentication header.
-    next();
+    next()
   }
 
 
   /** @param {string} token */
   handleWhoAmI = async token => {
     // console.log({ token })
-    const user = await this.getUserByToken(token); // get user associated token.
-    delete user.password;
-    return user;
+    const user = await this.getUserByToken(token) // get user associated token.
+    delete user.password
+    return user
   }
 
   userExist = (userId) => this.dbManager.objectExist(this.collectionName,{id:{ $eq: userId}})
@@ -280,7 +280,7 @@ export default class UserModule extends Module {
 
   /** @param {string} token */
   getSessionByToken = async (token) => {
-    return await this.dbManager.findObject('usersSessions', { token: token });
+    return await this.dbManager.findObject('usersSessions', { token: token })
   }
 
 
@@ -309,7 +309,7 @@ export default class UserModule extends Module {
    */
   async createUser({ name, surname, email, ...restOfUser }, mailContent = null) {
     // name, surname, email, {  password = null, login = null, activated = false, avatar = null } = {}
-
+    // BUG: wyslac login i hasło userowi.
     const user = new User(name, surname, email, restOfUser)
     let notValid = null
 
@@ -325,6 +325,8 @@ export default class UserModule extends Module {
     }
     await this.dbManager.insertObject(this.collectionName, user)
 
+
+    
     if (mailContent)
       emailsManager.sendEmail({
         title: mailContent.titleText,

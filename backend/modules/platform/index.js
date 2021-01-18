@@ -1,7 +1,7 @@
-import { sameWords } from "../../src/utils.js";
-import Module from "../module.js";
+import { sameWords } from "../../src/utils.js"
+import Module from "../module.js"
 import group from '../group/index.js'
-import { ANSWERS } from "./consts.js";
+import { ANSWERS } from "./consts.js"
 import { Platform } from "./model.js"
 import User from './../user/model.js'
 import { DEBUG } from '../../consts.js'
@@ -14,7 +14,6 @@ export default class PlatformModule extends Module {
   constructor(...params) {
     super(`platforms`, ...params)
 
-    console.log("this");
 
 
   }
@@ -91,18 +90,18 @@ export default class PlatformModule extends Module {
 
     if (!assignedPlatforms) return res.status(400).json({ code: 208, error: `This user dont belong to any platform.` }) // TODO: Send empty array.
 
-    return res.status(200).json({ platforms: assignedPlatforms });
+    return res.status(200).json({ platforms: assignedPlatforms })
   }
 
 
   httpCreateNewUser = async (req, res, next) => {
-    const { name, surname, email } = req.body;
+    const { name, surname, email } = req.body
 
     const emailContnet = {
       titleText: "Portal edukacyjny - utworzono konto dla Ciebie.",
       bodyHtml: "<h1><a href=`localhost:3000/`> Przejdz do portalu.</a></h1>"
     }
-    
+
     const user = await this.requiredModules.userModule.createUser({ name, surname, email, activated: true }, emailContnet)
 
     if (!(user instanceof User)) // jesli nie jest userem, to jest bladem.
@@ -122,7 +121,7 @@ export default class PlatformModule extends Module {
     delete user.password
 
     await this.dbManager.updateObject(this.collectionName, { id: targetPlatformId }, { $push: { membersIds: user.id } })
-    return res.status(200).json({ user });
+    return res.status(200).json({ user })
   }
 
   platformExist = id => {
@@ -157,7 +156,7 @@ export default class PlatformModule extends Module {
   httpCreatePlatform = async (req, res, next) => {
     // POST Tworzenie platformy /api/platforms
     const { name } = req.body
-    // TODO: check user exits with posted email. 
+    // TODO: check user exits with posted email.
 
     if (!name) return res.status(400).json({ code: 203, error: "Platform name not provided." })
 
@@ -166,7 +165,7 @@ export default class PlatformModule extends Module {
         return res.status(400).json({ code: 210, error: "You have already an your own platform." })
 
     const newPlatform = new Platform(req.user, name)
-    await this.savePlatformInDb(newPlatform);
+    await this.savePlatformInDb(newPlatform)
 
     return res.status(200).json({ platform: newPlatform })
   }
@@ -200,7 +199,7 @@ export default class PlatformModule extends Module {
 
 
   getPlatformFromDb(platformId) {
-    return this.dbManager.findObject(this.collectionName, { id: platformId })
+    return this.dbManager.findObject(this.collectionName, { id:{$eq: platformId }})
   }
 
 

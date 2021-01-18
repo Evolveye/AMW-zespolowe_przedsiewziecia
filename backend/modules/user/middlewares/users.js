@@ -1,6 +1,6 @@
 /** @typedef {import("../index.js").MiddlewareParameters} MiddlewareParameters */
 
-import { ANSWERS } from "../consts.js";
+import { ANSWERS } from "../consts.js"
 
 
 /** path /api/users
@@ -29,7 +29,7 @@ export async function updateUserSettings({ dbManager, getUserByToken, passwordsS
 
 
   const { login, name, surname, email, avatar, password, newPassword1, newPassword2 }
-    = req.body;
+    = req.body
 
   // pass1 == pass2 and != password
   // db overrride session
@@ -63,11 +63,11 @@ export async function updateUserSettings({ dbManager, getUserByToken, passwordsS
   // make updat on db.,
 
 
-  // const findQuery = {};
+  // const findQuery = {}
   userToUpdate = getUserByToken(activeToken)
   if (userToUpdate) // znaleziono usera do update
   {
-    await dbManager.updateObject('users', userToUpdate, makeUpdate);
+    await dbManager.updateObject('users', userToUpdate, makeUpdate)
   }
 
   res.status(400).json(ANSWERS.TOKEN_NOT_EXIST)
@@ -79,5 +79,5 @@ export async function updateUserSettings({ dbManager, getUserByToken, passwordsS
  * */
 export async function httpAmIMiddleware({ tokenExist, handleWhoAmI, getTokenFromRequest, req, res}) {
   const answer = await handleWhoAmI(req.token)
-  res.json({ user: answer }); // TODO: wysyłać sam answer.
-};
+  res.json({ user: answer }) // TODO: wysyłać sam answer.
+}

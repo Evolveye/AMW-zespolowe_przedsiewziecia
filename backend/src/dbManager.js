@@ -8,15 +8,15 @@ class DatabaseManager {
   /**
    * @type {mongoDb.Db}
    */
-  #db = null;
+  #db = null
 
   constructor() {
     mongoDb.connect(DB_CONN_STRING, { useUnifiedTopology: true }, (error, mgClient) => {
       if (error)
         console.error(error)
-      this.#db = mgClient.db(DB_NAME);
+      this.#db = mgClient.db(DB_NAME)
 
-    });
+    })
   }
 
   /**
@@ -41,7 +41,7 @@ class DatabaseManager {
   */
   async findObject(collectionName, findSchema) {
     if (await this.collectionExist(collectionName)) {
-      const obj = await this.#db.collection(collectionName).findOne(findSchema);
+      const obj = await this.#db.collection(collectionName).findOne(findSchema)
 
       if (!obj) return null
 
@@ -91,7 +91,7 @@ class DatabaseManager {
   */
   async deleteObjectsInCollection(collectionName, filter) {
     if (await this.collectionExist(collectionName))
-      await this.#db.collection(collectionName).deleteMany(filter);
+      await this.#db.collection(collectionName).deleteMany(filter)
   }
 
   /**
@@ -100,7 +100,7 @@ class DatabaseManager {
   */
   async deleteObject(collectionName, query) {
     if (await this.collectionExist(collectionName)) {
-      await this.#db.collection(collectionName).deleteOne(query);
+      await this.#db.collection(collectionName).deleteOne(query)
     }
   }
 
@@ -108,7 +108,7 @@ class DatabaseManager {
   * @param {string} collectionName  name of colleciton.
   */
   createCollection(collectionName) {
-    return this.#db.createCollection(collectionName);
+    return this.#db.createCollection(collectionName)
   }
 
 
@@ -129,8 +129,8 @@ class DatabaseManager {
    * @deprecated
    */
   async collectionExist(collectionName) { // TODO to remove
-    const collectionArray = await this.#db.listCollections().toArray();
-    return collectionArray.some((collection) => collection.name == collectionName && collection.type == 'collection');
+    const collectionArray = await this.#db.listCollections().toArray()
+    return collectionArray.some((collection) => collection.name == collectionName && collection.type == 'collection')
   }
 
   /**
@@ -138,9 +138,9 @@ class DatabaseManager {
    * @param {object} obj An item to insert.
    */
   insertObject(collectionName, obj) {
-    return this.#db.collection(collectionName).insertOne(obj);
+    return this.#db.collection(collectionName).insertOne(obj)
   }
 }
 
-export default new DatabaseManager();
+export default new DatabaseManager()
 

@@ -21,7 +21,7 @@ export const ANSWERS = { // error - success
     EMAIL_ACTIVATE_EXPIRED:         { code:112, error:"Activate email time expired" },
     EMAIL_NOT_CORRECT:              { code:113, error:"Provided email not match restriction pattern. Make sure u passed correct adres email." },
 
-    LOGOUT_SUCCESS:                 { code:114, error:"You has been logged out." },
+    LOGOUT_SUCCESS:                 { code:114, success:"You has been logged out." },
 
     ACCOUNT_ACTIVATION_SUCCESS:     { code:115, success:"Your account has ben activated successfully" },
     ACCOUNT_ALREADY_ACTIVATED:      { code:116, error:"Account has ben already activated." },

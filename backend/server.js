@@ -1,9 +1,9 @@
-import express from "express";
-import { Server } from "socket.io";
+import express from "express"
+import { Server } from "socket.io"
 import cors from 'cors'
 
-import WSS from "./src/ws.js";
-import dbManager from "./src/dbManager.js";
+import WSS from "./src/ws.js"
+import dbManager from "./src/dbManager.js"
 import { DEBUG, APP_ROOT_DIR, PORT, LOGGERS } from "./consts.js" // LOGGERS
 import {
   doHttpLogShouldBePrinted as doHttpLog,
@@ -46,14 +46,14 @@ const importedModules = await Promise.all([
   }
 }))
 
-const server = app.listen(PORT, () => log(LOGGERS.server, `Working localhost:${PORT}`));
+const server = app.listen(PORT, () => log(LOGGERS.server, `Working localhost:${PORT}`))
 const wss = new WSS({ server })
 
 
 
 app.use((req, _, next) => next( //logging middleware
   doHttpLog(req) ? log(LOGGERS.newRequest, `HTTP`, req.method, req.url) : undefined
-));
+))
 
 app.use("/", express.static(DEBUG ? "./public" : "../frontend"))
 app.use("/media", express.static("./media"))
@@ -63,7 +63,7 @@ app.use(express.json())
 
 modules.forEach((mod) => {
   log(LOGGERS.server, `[fgYellow]LOADED MODULE[] ${mod.toString()}`)
-  mod.configure(app);
+  mod.configure(app)
 })
 
 wss.on(`connection`, (ws) => {
@@ -86,5 +86,5 @@ wss.on(`connection`, (ws) => {
     doWsLog() && log( LOGGERS.newRequest, `WS`, `[fgGreen]Socket left[]`, socket.id )
   )
 
-  modules.forEach(mod => mod.socketConfigurator(socket));
-});
+  modules.forEach(mod => mod.socketConfigurator(socket))
+})

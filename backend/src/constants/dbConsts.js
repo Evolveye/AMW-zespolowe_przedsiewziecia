@@ -1,7 +1,7 @@
 const DB_PORT = 27017
-const DB_HOSTNAME = `localhost`;
+const DB_HOSTNAME = `localhost`
 export const DB_CONN_STRING = `mongodb://127.0.0.1:27017`
-export const DB_NAME = `SassPE`;
+export const DB_NAME = `SassPE`
 
 
 export const ERRORS = {

@@ -43,21 +43,21 @@ export default class gradeModule extends Module {
          */
         console.log('newGrade', newGrade)
 
-        throw new Error('create grades not impelemented');
-        return newGrade;
+        throw new Error('create grades not impelemented')
+        return newGrade
         // todo:
     }
 
     getGradeByGradeId(gradeId) {
-        throw new Error('get grade not impelemented');
+        throw new Error('get grade not impelemented')
     }
 
     getGradesByUserId(userId) {
-        throw new Error('get grade not impelemented');
+        throw new Error('get grade not impelemented')
     }
 
     editGrade(gradeId) {
-        throw new Error('get grade not impelemented');
+        throw new Error('get grade not impelemented')
     }
 }
 
