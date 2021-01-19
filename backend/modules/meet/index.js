@@ -46,7 +46,7 @@ export default class MeetModule extends Module {
     // //Dodawanie uczestników do spotkania /api/meets/:meetId/users
     // // // header POST{ "authenthication": "string" } 
     // // // body {   "participantsIds": [    "<string>"  ]}
-    // app.post(`/api/meets/:meetId/users`, this.httpHandleAddUsers)
+    app.post(`/api/meets/:meetId/users`, this.httpHandleAddUsers)
 
     // // Usuwanie uczestnika ze spotkania 
     // // DELETE{ "authenthication": "string" } // header
