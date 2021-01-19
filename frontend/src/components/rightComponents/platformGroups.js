@@ -30,8 +30,7 @@ export default class PlatformGroups extends React.Component {
   }
 
   handleSubmit = event => {
-    event.preventDefault()
-    alert("kliknales wyślij")
+    event.preventDefault() 
     console.log("dane: ", this.state)
     const { userList, groupList, ...formData } = this.state
     const reply = PlatformGroups.setDataGroups(formData)

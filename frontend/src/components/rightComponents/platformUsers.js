@@ -29,8 +29,7 @@ export default class PlatformUsers extends React.Component {
   }
 
   handleSubmit = event => {
-    event.preventDefault()
-    alert("kliknales wyslij")
+    event.preventDefault() 
     console.log("dane: ", this.state)
     console.log("props id: ", this.platformId)
     const { userList, ...formData } = this.state

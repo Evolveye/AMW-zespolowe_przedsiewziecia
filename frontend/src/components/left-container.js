@@ -13,7 +13,6 @@ class LeftContainer extends React.Component {
   componentDidMount() {
     LeftContainer.getData()
       .then(({ platforms }) => {
-        console.log(platforms)
         if (platforms) {
           return platforms.map((org, index) => (
             <div className="platform-item-container" key={index}>
@@ -34,7 +33,7 @@ class LeftContainer extends React.Component {
   }
 
   handleAvatar = img => {
-    getUser().then(({ avatar }) => img && (img.src = avatar))
+    getUser().then((user)=> user || {}).then(({ avatar = "" }) => img && (img.src = avatar))
   }
 
   render = () => (

@@ -10,7 +10,6 @@ export default class PatformsSettingsGeneral extends React.Component {
 
   handleSubmit = event => {
     event.preventDefault()
-    alert("kliknales skasuj") 
     console.log("props id: ", this.props.platformId)
     const reply = PatformsSettingsGeneral.delData(this.props.platformId) 
     reply.then((answer) => {

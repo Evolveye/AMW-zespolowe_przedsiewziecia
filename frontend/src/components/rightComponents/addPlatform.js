@@ -20,8 +20,6 @@ export default class AddPlatform extends React.Component {
 
   handleSubmit = event => {
     event.preventDefault()
-    console.log("kliknąłeś wyślij")
-    console.log("wysyłane dane: ", this.state)
     const reply = AddPlatform.setData(this.state)
     reply.then(answer => {
       if (!answer.error) {

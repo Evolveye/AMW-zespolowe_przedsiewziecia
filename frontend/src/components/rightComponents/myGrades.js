@@ -20,27 +20,14 @@ class RightContainerMyGrades extends React.Component {
 
   average = array => array.reduce((a, b) => a + b) / array.length
 
-  handlePlatformClick = (platformTag, groups) => {
-    alert("kliknąłeś")
-    console.log("groups: ", groups)
-    const table = groups.map(({ group, notes }, index) => {
-      console.log("values: ", {notes})
+  handlePlatformClick = (platformTag, groups) => { 
+    this.data.average = ""; 
+    const table = groups.map(({ group, notes }, index) => { 
       const average =
        notes.reduce((avg, { value }) => parseFloat(avg) + parseFloat(value), 0) / notes.length 
-      // const average = notes.reduce(function(avg, {value}){
-      //  console.log("average function - avg: ", avg)
-      //  console.log("average function - value: ", value)
-      //  console.log("avg + value", avg + value)
-      //  return avg + value
-      // },0)
-      console.log("notes length: ", notes.length)
-      console.log("average: ", average)
       const notesElements = notes.map(({ value }, index) => <span key={index}>{value},</span>) 
       this.data.grades.push(average)
-      console.log("this data grades average: ", this.data.grades)
       this.data.average = this.data.grades.reduce((a, b) => a + b, 0) / this.data.grades.length
-      console.log("this data average: ", this.data.average)
-      console.log("notesElements: ", notesElements)
 
       return (
         <div className="grades-gained-container-grid-new-row" key={index}>
@@ -53,15 +40,13 @@ class RightContainerMyGrades extends React.Component {
         </div>
       )
     })
-    this.setState({grades: table});
-    console.log("this state: ", this.state.grades)
+    this.setState({grades: table}); 
     //ref.innerHTML = table
   }
 
   componentDidMount() {
     RightContainerMyGrades.getData()
-      .then(({ data }) => {
-        console.log("dane:", data)
+      .then(({ data }) => { 
         return data.map((platform, index) => (
           <div className="subject" key={index}>
             <div className="subject-icon"></div>
