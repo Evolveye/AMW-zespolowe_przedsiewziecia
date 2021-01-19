@@ -26,7 +26,7 @@ class PlatformSettigsGroup extends React.Component {
           </div>
           <div className="subject">
             <div className="subject-name">
-              <Link to="/platformGroups/">Oceny</Link>
+              <Link to="/groupNotes/">Oceny</Link>
             </div>
           </div>
           <div className="subject">
@@ -34,7 +34,7 @@ class PlatformSettigsGroup extends React.Component {
           </div>
           <div className="subject">
             <div className="subject-name">
-              <Link to="/platformsGeneral/">Spotkania</Link>
+              <Link to="/groupMeets/">Spotkania</Link>
             </div>
           </div>
         </div>

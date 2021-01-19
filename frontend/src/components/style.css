@@ -14,7 +14,7 @@ body::-webkit-scrollbar {
     padding-left: 29px;
 }
 
-.login-text{
+.login-text {
     color: #3F4041;
     margin-left: 10px;
     font-weight: bolder;
@@ -599,21 +599,22 @@ form .under-space {
 
 }
 
-.grid-item{
+.grid-item {
     border: 1px solid rgba(0, 0, 0, 0.8);
-    border-top: none; 
+    border-top: none;
     font-size: 15px;
-    
+
 }
-.grid-item input{
+
+.grid-item input {
     box-shadow: none;
     border: none;
     text-align: left;
     outline: none;
-    width:100px;
-    
-    
-    
+    width: 100px;
+
+
+
 }
 
 
@@ -622,78 +623,119 @@ form .under-space {
     display: contents;
 }
 
-.przedmiot{ border-left: none !important ; }
-.ocena-koncowa{ border-right: none !important ; }
-.empty{ border-top: 1px solid black;}
-.empty3{border-right: 1px solid black;}
-.srednia-koncowa{ border-bottom: none !important; border-right: none !important;border-top: 1px solid black;}
+.przedmiot {
+    border-left: none !important;
+}
 
-textarea{
+.ocena-koncowa {
+    border-right: none !important;
+}
+
+.empty {
+    border-top: 1px solid black;
+}
+
+.empty3 {
+    border-right: 1px solid black;
+}
+
+.srednia-koncowa {
+    border-bottom: none !important;
+    border-right: none !important;
+    border-top: 1px solid black;
+}
+
+textarea {
     width: 60%;
     height: 140px;
 }
 
 
 
-.back-main-view{
+.back-main-view {
     font-size: 15px;
     margin-right: 90px;
-    position:absolute;
-   top:10px;
-   right:0px;
+    position: absolute;
+    top: 10px;
+    right: 0px;
 
 }
 
 
 .filtre-add-user-wrapp {
     display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      padding: 5px 10px;
-      max-width:  800px;
+    grid-template-columns: repeat(6, 1fr);
+    padding: 5px 10px;
+    max-width: 800px;
 
-      margin-left: auto;
-      margin-right: auto;
-  }
+    margin-left: auto;
+    margin-right: auto;
+}
 
-  .grid-item {
+.grid-item {
     border: 1px solid rgba(0, 0, 0, 0.8);
-      border-top: none;
+    border-top: none;
 
-      font-size: 15px;
-      text-align: center;
-  }
-  .grades-gained-container-grid-new-row {
+    font-size: 15px;
+    text-align: center;
+}
+
+.grades-gained-container-grid-new-row {
     display: contents;
-  }
-  .empty-filtre-user{
+}
+
+.empty-filtre-user {
     border: none;
-  }
-  .filtruj{
+}
+
+.filtruj {
     border: none;
     text-align: right;
     padding-right: 25px;
-  }
-  .dodaj{border:none;text-align: right; padding-right: 25px; color: black;}
-  .znak{border:none; text-align:left; font-weight: bold; padding-left: 20px; font-size: 30px;}
-  .imie{border-left:none;}
-  .border-bottom-none{
+}
+
+.dodaj {
+    border: none;
+    text-align: right;
+    padding-right: 25px;
+    color: black;
+}
+
+.znak {
+    border: none;
+    text-align: left;
+    font-weight: bold;
+    padding-left: 20px;
+    font-size: 30px;
+}
+
+.imie {
+    border-left: none;
+}
+
+.border-bottom-none {
     border-bottom: none;
-  }
-  .rola{
-    border-right:none;
-  }
-  .delete{color:red; font-size: 30px !important;} 
+}
 
-  .grid-item input[type=submit]{
-      border: none; 
-      background: none;
-      font-size: 40px;
-      width: 30px !important;
-  }
- 
+.rola {
+    border-right: none;
+}
+
+.delete {
+    color: red;
+    font-size: 30px !important;
+}
+
+.grid-item input[type=submit] {
+    border: none;
+    background: none;
+    font-size: 40px;
+    width: 30px !important;
+}
 
 
-.platform-users{
+
+.platform-users {
     width: 85%;
     height: 100%;
     display: flex;
@@ -701,28 +743,28 @@ textarea{
     gap: 200px;
 }
 
-.platform-users input{
+.platform-users input {
     width: 200px;
 }
 
-.grid-filtre{
+.grid-filtre {
 
     margin-top: 100px;
 
 }
 
-.filtre-add-group-wrapp{
+.filtre-add-group-wrapp {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     padding: 5px 10px;
-    max-width:  800px;
+    max-width: 800px;
 
     margin-left: auto;
     margin-right: auto;
 }
 
 
-a{
+a {
     text-decoration: none;
 }
 
@@ -752,65 +794,80 @@ a{
     border-radius: 50%;
 }
 
-.error-mess{
+.error-mess {
     font-size: 10px;
 }
 
 
 .grid-add-user-group {
     display: grid;
-    grid-template-columns: repeat(5,  1fr);
-    max-width:  800px;
+    grid-template-columns: repeat(5, 1fr);
+    max-width: 800px;
     margin-left: auto;
     margin-right: auto;
     padding: 5px 10px;
-    
-    grid-template-areas:
-      "funkcja1 imie1 nazwisko1 rola1 znak1"
-      "funkcjaF imieF nazwiskoF rolaF znakF"
-      "funkcjaD imieD imieD rolaD znakD"
-      ;
-  }
-  .funkcja1{grid-area: funkcja1;}
-  .imie1{grid-area: imie1;}
-  .nazwisko1{grid-area: nazwisko1;}
-  .rola1{grid-area: rola1;}
-  .znak1{grid-area: znak1;}
-  .funkcjaF{grid-area: funkcjaF;} 
-  .imieF{grid-area: imieF;}
-  .nazwiskoF{grid-area: nazwiskoF;}
-  .rolaF{grid-area: rolaF;}
-  .znakF{grid-area: znakF;}
-  .funkcjaD{grid-area: funkcjaD;}
-  .imieD{grid-area: imieD;}
-  .rolaD{grid-area: rolaD;} 
-  .znakD{grid-area: znakD;}
-  
-  
-  
-  
-  
-  
-  .box {
-    border: 1px solid rgba(0, 0, 0, 0.8);
-    border-top: none;
-    font-size: 15px;
-    text-align: center;
-  }
-  .grid-add-user-group-new-row {
-    display: contents;
-  }
-  
-  .funkcja{
-    border:none;text-align: right; padding-right: 25px; color: black;
-  }
-  .znak{border:none; text-align:left; font-weight: bold; padding-left: 20px; font-size: 30px;}
 
-  .box input[type=submit]{
-    border: none; 
-    background: none;
-    font-size: 40px;
-    width: 30px !important;
+    grid-template-areas:
+        "funkcja1 imie1 nazwisko1 rola1 znak1"
+        "funkcjaF imieF nazwiskoF rolaF znakF"
+        "funkcjaD imieD imieD rolaD znakD"
+    ;
+}
+
+.funkcja1 {
+    grid-area: funkcja1;
+}
+
+.imie1 {
+    grid-area: imie1;
+}
+
+.nazwisko1 {
+    grid-area: nazwisko1;
+}
+
+.rola1 {
+    grid-area: rola1;
+}
+
+.znak1 {
+    grid-area: znak1;
+}
+
+.funkcjaF {
+    grid-area: funkcjaF;
+}
+
+.imieF {
+    grid-area: imieF;
+}
+
+.nazwiskoF {
+    grid-area: nazwiskoF;
+}
+
+.rolaF {
+    grid-area: rolaF;
+}
+
+.znakF {
+    grid-area: znakF;
+}
+
+.funkcjaD {
+    grid-area: funkcjaD;
+}
+
+.imieD {
+    grid-area: imieD;
+}
+
+.rolaD {
+    grid-area: rolaD;
+}
+
+.znakD {
+    grid-area: znakD;
 }
 
 
@@ -818,6 +875,162 @@ a{
 
 
 
-  .border-1{
-      border: 1px solid black;
-  }
+.box {
+    border: 1px solid rgba(0, 0, 0, 0.8);
+    border-top: none;
+    font-size: 15px;
+    text-align: center;
+}
+
+.grid-add-user-group-new-row {
+    display: contents;
+}
+
+.funkcja {
+    border: none;
+    text-align: right;
+    padding-right: 25px;
+    color: black;
+}
+
+.znak {
+    border: none;
+    text-align: left;
+    font-weight: bold;
+    padding-left: 20px;
+    font-size: 30px;
+}
+
+.box input[type=submit] {
+    border: none;
+    background: none;
+    font-size: 40px;
+    width: 30px !important;
+}
+
+.box input {
+    box-shadow: none;
+    border: none;
+    text-align: left;
+    outline: none;
+    width: 100px;
+
+
+
+}
+
+
+
+
+.border-1 {
+    border: 1px solid black;
+}
+
+.add-user-notes-wrapp {
+    margin-top: 50px;
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 5px 10px;
+
+    grid-template-areas:
+        "funkcja1 imie1 nazwisko1 ocena1 opis1 znak1"
+        "funkcjaD imieD imieD ocenaD opisD znakD"
+    ;
+
+}
+
+.box {
+    border: 1px solid rgba(0, 0, 0, 0.8);
+    border-top: none;
+    font-size: 15px;
+    text-align: center;
+}
+
+.add-user-notes-new-row {
+    display: contents;
+}
+
+
+.funkcja1 {
+    grid-area: funkcja1;
+}
+
+.imie1 {
+    grid-area: imie1;
+}
+
+.nazwisko1 {
+    grid-area: nazwisko1;
+}
+
+.ocena1 {
+    grid-area: ocena1
+}
+
+.opis1 {
+    grid-area: opis1;
+}
+
+.znak1 {
+    grid-area: znak1;
+}
+
+.funkcjaD {
+    grid-area: funkcjaD;
+}
+
+.imieD {
+    grid-area: imieD;
+}
+
+.ocenaD {
+    grid-area: ocenaD;
+}
+
+.opisD {
+    grid-area: opisD;
+}
+
+.znakD {
+    grid-area: znakD;
+}
+
+.filtre-user-notes-wrapp {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 5px 10px;
+
+    grid-template-areas:
+        "funkcja1 imie1 nazwisko1 ocena1 opis1 znak1"
+        "funkcjaF imieF nazwiskoF ocenaF opisF znakF"
+    ;
+}
+
+
+
+.group-users {
+    width: 85%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 50px;
+}
+
+.list-user-notes-wrapp {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 5px 10px;
+}
+
+.list-user-notes-new-row {
+    display: contents;
+}
