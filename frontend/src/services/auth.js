@@ -38,13 +38,13 @@ export async function getUser() {
 
   const cachedUser = JSON.parse( window.localStorage.getItem(STORAGE_USER) )
 
-  if (cachedUser && !cachedUser.error) return cachedUser
+  if (cachedUser && !cachedUser.error) {
+    return cachedUser
+  }
 
   const cachedToken = getToken()
 
-  if (!cachedToken) return null
-
-  console.log( `getUser`, { cachedToken } )
+  if (!cachedToken) return null 
 
   const f = () => DEBUG
     ? fetch( DEBUG_USER_ME_URL )
@@ -53,13 +53,14 @@ export async function getUser() {
     } )
 
   return await f().then( data => data.json() )
-    .then( data => {
+    .then( data => { 
       if (data.error) {
         console.error( data.error )
         return null
       } else {
-        setUser( data )
-        return data
+        const {user} = data
+        setUser( user )
+        return user
       }
     } )
     .catch( console.error )
