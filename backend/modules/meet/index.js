@@ -34,7 +34,7 @@ export default class MeetModule extends Module {
     //GET {{host}}/api/meets/:meetId
     app.get(`/api/meets/:meetId`, this.httpHandleMeetInfo)
 
-    //   Odczytywanie wszystkich spotkań z danej grupy /api/meets/group/:groupId
+    // Odczytywanie wszystkich spotkań z danej grupy /api/meets/group/:groupId
     // GET{ "authenthication": "string" } // header{ // body  "meets": [    "<Meet>"  ]}
     app.get(`/api/meets/group/:groupId`, this.httpHandleGetAllMeetingFromGroup)
 
@@ -86,7 +86,7 @@ export default class MeetModule extends Module {
     ).then(cursor => cursor.toArray())
 
 
-    return res.json({meets:meetings})
+    return res.json({ meets: meetings })
   }
 
 
@@ -159,8 +159,12 @@ export default class MeetModule extends Module {
         error: "Can not find meeting. Make sure that meeting id is correct."
       })
 
+
+
+    const platformObj = await this.requiredModules.platformModule.getPlatformFromDb(meetingObj.platformId)
+
     const isLecturer = this.isUserLecturer(client.id, meetingObj)
-    const isOwner = await this.requiredModules.platformModule.checkUserAdmin(client.id, meetingObj.platformId)
+    const isOwner = this.requiredModules.platformModule.isPlatformOwner(client.id, platformObj)
 
     if (!isLecturer && !isOwner)
       return res.status(400).json({
@@ -168,15 +172,29 @@ export default class MeetModule extends Module {
         error: "Only lecturer or Platform owner, have access to add members to meeting."
       })
 
-    //TODO: check that user exist.
+    //take users that are members of platform.
+    const positiveIds = platformObj.membersIds.filter((id) => newMembers.some(member => id === member))
 
+    // const query = { // znajdz platformę  do której należa wszyscy.
+    //   $and: [
+    //     { membersIds: { $all:newMembers } },
+    //     { platformId: meetingObj.platformId }
+    //   ]
+    // }
+    // this.dbManager.findObject(
+    //   'platforms',
+    //   { platformId:meetingObj.platformId, $in:[ newMembers,membersIds ] }
+    // )
     await this.dbManager.findOneAndUpdate(
       this.collectionName,
       { id: { $eq: meetingId } },
-      { $push: { membersIds: { $each: newMembers } } },
+      { $push: { membersIds: { $each: positiveIds } } },
     )
 
-    return res.json({ code: 409, success: "New parcipants has been assigned to meeting" })
+    if (positiveIds.length !== newMembers.length)
+      return res.json({ code: 412, success: "Not all of users was assigned to platform. Because of that added to meeting only members of platform" })
+
+    return res.json({ code: 409, success: "All new parcipants has been assigned to meeting" })
   }
 
 
@@ -310,15 +328,23 @@ export default class MeetModule extends Module {
     //   "description": "string",
     //   "externalUrl": "string",
     //   "platformId": "string",
-    //   "groupId?": "string"
+    //   "groupId?": "string"  --> gdy nie istnieje. error
+    //    wtedy
     // }
 
     const client = req.user
 
     const { dateStart, dateEnd, description, externalUrl, platformId, groupId } = req.body
-
+    const platfromObj = await this.requiredModules.platformModule.getPlatformFromDb(platformId)
     const isAssigned = await this.requiredModules.platformModule.checkUserAssigned(client.id, platformId)
 
+    if (groupId != "") {
+      const isGroupAssignedToPlatform = platfromObj.assignedGroups.some(id => id === groupId)
+
+      if (!isGroupAssignedToPlatform)
+        return res.status(400).json({ code: 415, error: "Can not create meeting for this group, because group is not assigned to targeted platform." })
+    }
+    // 
     if (!isAssigned)
       return res.status(400).json({ code: 400, error: "You cant create meeting on platform, You need to be a member of platfrom." })
 

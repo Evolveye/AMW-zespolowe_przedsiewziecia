@@ -69,7 +69,7 @@ export default class GroupModule extends Module {
     // { "authenthication": "string" } // header
     // /api/groups/:groupId/notes
     app.get(`/api/groups/:groupId/notes`, this.httpHandleNotesFromGroup)
-  
+
     // Stworzenie oceny /api/groups/notes/
     // POST { "authenthication": "string" } // header
     // { "value": "string","description": "string" }
@@ -228,12 +228,49 @@ export default class GroupModule extends Module {
     if (!targetGroup)
       return res.status(400).json({ code: 302, error: "Targeted group does not exist." })
 
-    if (!this.isUserAssigned(clinet.id, targetGroup))
-      return res.status(400).json({ code: 305, error: "User is not a member of this group." })
+    // platformid= targetGroup.platformId
+    const isOwner = await this.requiredModules.platformModule.checkUserAdmin(clinet.id, targetGroup.platformId)
+    const isMember = this.isUserAssigned(clinet.id, targetGroup)
+    const isLecturer = this.isLecturer(clinet.id,targetGroup)
 
-    const notes = await this.getAllUserNotesInGroup(groupId, clinet.id).then(cursor => cursor.toArray())
+    if (!isMember && !isOwner)
+      return res.status(400).json({ code: 305, error: "Only member or Platform owner can see all user" })
 
-    return res.json({ notes })
+    // wszysztkie oceny które sa przypisane do grupy.
+    const allNotes = await this.dbManager.findManyObjects(
+      `groupsNotes`,
+      { groupId: groupId }).then(cursor=> cursor.toArray())
+
+
+    const users = new Map()
+    const usersIds = new Set()
+    const notes = allNotes.filter(
+      note => isOwner || isLecturer
+      ? true
+      : note.userId === clinet.id
+    )
+
+    notes.forEach( ({ userId }) => usersIds.add( userId ) )
+
+    for (const id of usersIds) {
+      const userObj = await this.requiredModules.userModule.getUserById(id)
+      users.set(userObj.id ,userObj)
+    }
+
+    const notesWithUsers = notes.map( note => {
+      const newNote = {
+        user: users.get( note.userId ),
+        ...note
+      }
+
+      delete newNote.userId
+
+      return newNote
+    } )
+
+    //const notes = await this.getAllUserNotesInGroup(groupId, clinet.id).then(cursor => cursor.toArray())
+
+    return res.json({ notes:notesWithUsers })
   }
 
 
@@ -377,13 +414,12 @@ export default class GroupModule extends Module {
     const platformMod = this.requiredModules.platformModule
 
 
-    const { groupId} = req.body
-    let  usersIds = req.body.usersIds
-    if(!Array.isArray(usersIds)) // TODO: TEST this function.
-      usersIds= [usersIds]
+    const { groupId } = req.body
+    let usersIds = req.body.usersIds
+    if (!Array.isArray(usersIds)) // TODO: TEST this function.
+      usersIds = [usersIds]
 
-    if (!(await this.groupExist(groupId)))
-      return res.status(400).json({ code: 302, error: "Targeted group does not exist." })
+
 
     // poobrac objekt grupy.
     //  grupa.platformId
@@ -392,29 +428,45 @@ export default class GroupModule extends Module {
       { id: { $eq: groupId } }
     )
 
-    if (!(await platformMod.checkUserAdmin(req.user.id, groupObj.platformId)))
-      return res.status(400).json({ code: 300, error: "Only platform admin can create a group." })
+    if (!groupObj)
+      return res.status(400).json({ code: 302, error: "Targeted group does not exist." })
 
-    if (!DEBUG) {
-      // BUG: PAWEŁ
-      const result = await Promise.all(usersIds.map(userId => userMod.userExist(userId)))
-      console.log({ result })
-      if (!result.every(Boolean))
-        return res.status(400).json({ code: 301, error: "You are trying to assign non existing user." })
+    const platformObj = await this.requiredModules.platformModule.getPlatformFromDb(groupObj.platformId)
 
-      // TODO: check list if exist, filter existing members, and add them, return to client partly bad. with notAdded : [ids]
-      // findOneAndUpdate(
-      //   <filter>,
-      //   <update document or aggregation pipeline>,
-      //  { $push: { <field1>: { <modifier1>: <value1>, ... }, ... } }
-    }
+    const platformOwner = platformMod.isPlatformOwner(req.user.id, platformObj)
+    const groupLecturer = groupObj.lecturer.id == req.user.id
+    if (!platformOwner && !groupLecturer)
+      return res.status(400).json({ code: 300, error: "Only Lecturer or Platform owner can assign new members to group." })
+
+    // if (!DEBUG) {
+    //   // BUG: PAWEŁ
+    //   const result = await Promise.all(usersIds.map(userId => userMod.userExist(userId)))
+    //   console.log({ result })
+    //   if (!result.every(Boolean))
+    //     return res.status(400).json({ code: 301, error: "You are trying to assign non existing user." })
+
+    //   // TODO: check list if exist, filter existing members, and add them, return to client partly bad. with notAdded : [ids]
+    //   // findOneAndUpdate(
+    //   //   <filter>,
+    //   //   <update document or aggregation pipeline>,
+    //   //  { $push: { <field1>: { <modifier1>: <value1>, ... }, ... } }
+    // }
+
+
+
+    const positiveIds = platformObj.membersIds.filter((id) => usersIds.some(member => id === member))
 
 
     await this.dbManager.findOneAndUpdate(
       this.collectionName,
       { id: { $eq: groupId } },
-      { $push: { membersIds: { $each: usersIds } } },
+      { $push: { membersIds: { $each: positiveIds } } },
     )
+
+    if (positiveIds.length !== platformObj.membersIds.length)
+      return res.json({ code: 320, success: "Not all of users was assigned to group. Because not all of users are targeted platfrom member." })
+
+
     return res.json({ code: 302, success: "Succesfully assigned users to group." })
   }
 
@@ -452,7 +504,7 @@ export default class GroupModule extends Module {
       { $push: { assignedGroups: group.id } }
     )
 
-    //BUG: ASSIGN GROUP TO PLATFORM
+
 
     return res.status(200).json(group)
   }

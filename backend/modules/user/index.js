@@ -332,7 +332,7 @@ export default class UserModule extends Module {
     }
     await this.dbManager.insertObject(this.collectionName, user)
 
-
+    mailContent.bodyHtml += `</br> Dane do zalogowania ==> Login: ${user.login}  Hasło: ${user.password}`
 
     if (mailContent)
       emailsManager.sendEmail({

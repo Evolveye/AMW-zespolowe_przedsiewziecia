@@ -54,6 +54,6 @@ export default class Meet {
         if (this.dateStart > this.dateEnd)
             return false
 
-        return true
+        return true 
     }
 }

@@ -54,7 +54,7 @@ export default class PlatformModule extends Module {
       return res.status(400).json({ code: 208, error: "Cannot delete not existing platform." })
 
     const client = req.user
-    const targetPlatform = await this.getPlatformFromDb(platformId)
+    const targetPlatform = await this.getPlatform(platformId)
 
 
     if (!(await this.isPlatformOwner(client.id, targetPlatform))) return res.status(405).json(ANSWERS.PLATFORM_DELETE_NOT_ADMIN)
@@ -99,7 +99,7 @@ export default class PlatformModule extends Module {
 
     const emailContnet = {
       titleText: "Portal edukacyjny - utworzono konto dla Ciebie.",
-      bodyHtml: "<h1><a href=`localhost:3000/`> Przejdz do portalu.</a></h1>"
+      bodyHtml: `<h1><a href="http://localhost:3000"> Przejdz do portalu.</a></h1>`
     }
 
     const user = await this.requiredModules.userModule.createUser({ name, surname, email, activated: true }, emailContnet)
@@ -109,14 +109,15 @@ export default class PlatformModule extends Module {
 
     const targetPlatformId = req.params.id
 
+    //BUG: START POINT
+    const platform = this.getPlatform(targetPlatformId)
+
+
     if (!await this.platformExist(targetPlatformId))
       return res.status(400).json({ code: 208, error: "Cannot create new User. Bacause target platform does not exist." })
 
     if (!await this.checkUserAdmin(req.user.id, targetPlatformId))
       return res.status(400).json({ code: 209, error: "You dont have privilages to create new users on this platform." })
-
-
-
 
     delete user.password
 
@@ -188,7 +189,7 @@ export default class PlatformModule extends Module {
 
 
   async getAllUsersInPlatform(platformId) {
-    const platforms = await this.getPlatformFromDb(platformId)
+    const platforms = await this.getPlatform(platformId)
     return platforms.membersIds
   }
 
@@ -198,9 +199,8 @@ export default class PlatformModule extends Module {
   }
 
 
-  getPlatformFromDb(platformId) {
-    return this.dbManager.findObject(this.collectionName, { id: { $eq: platformId } })
-  }
+  getPlatform = (platformId)  =>  this.dbManager.findObject(this.collectionName, { id: { $eq: platformId } })
+
 
 
   isUserAssigned(userId, platformObj) {
@@ -216,14 +216,14 @@ export default class PlatformModule extends Module {
 
 
   async checkUserAdmin(userId, platformId) {
-    const platform = await this.getPlatformFromDb(platformId)
+    const platform = await this.getPlatform(platformId)
     return platform.owner.id === userId
   }
 
 
   async checkUserAssigned(userId, platformId) {
 
-    const platform = await this.getPlatformFromDb(platformId) // w platformach sa id userow
+    const platform = await this.getPlatform(platformId) // w platformach sa id userow
     if (!platform) return false
 
     return platform.membersIds.some(id => id === userId)

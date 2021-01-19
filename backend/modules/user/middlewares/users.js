@@ -77,7 +77,7 @@ export async function updateUserSettings({ dbManager, getUserByToken, passwordsS
 /** path /api/users/me  --> GET
  *  @param {MiddlewareParameters} param0
  * */
-export async function httpAmIMiddleware({ tokenExist, handleWhoAmI, getTokenFromRequest, req, res}) {
+export async function httpAmIMiddleware({ tokenExist, handleWhoAmI, getTokenFromRequest, req, res }) {
   const answer = await handleWhoAmI(req.token)
-  res.json({ user: answer }) // TODO: wysyłać sam answer.
+  res.json({ user: answer })
 }
