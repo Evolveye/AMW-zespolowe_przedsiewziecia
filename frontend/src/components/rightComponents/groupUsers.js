@@ -5,6 +5,7 @@ import {
   getSocketEventFromHttp,
   BACKEND_PLATFORMS_USERS_GET,
   BACKEND_PLATFORMS_USERS_ADD,
+  BACKEND_PLATFORMS_GROUP_USERS_GET
 } from "../../config"
 import { getToken } from "../../services/auth"
 
@@ -14,6 +15,7 @@ export default class GroupUsers extends React.Component {
     usersIds: new Set(),
     //role: ``,
     userList: [],
+    userGroupList:[],
   }
 
   goBack = () => {
@@ -69,6 +71,38 @@ export default class GroupUsers extends React.Component {
         ))
       })
       .then(userList => this.setState({ userList }))
+
+      const replyGroup = GroupUsers.getDataGroupUsers(this.props.groupId)
+      replyGroup.then(({users})=>{
+        if(users.error){
+          console.log("brak użytkowników")
+          return null
+        }
+        console.log("uzytkownicy: ", users)
+        return users.map((user,index)=>(
+          <div className="grades-gained-container-grid-new-row" key={index}>
+            <div className="grid-item  dodaj border-bottom-none"></div>
+            <div className="grid-item  imie border-bottom-none">
+              {user.name}
+            </div>
+            <div className="grid-item nazwisko border-bottom-none">
+              {user.surname}
+            </div>
+            <div className="grid-item  email  border-bottom-none">
+              {user.email}
+            </div>
+            <div className="grid-item  rola border-bottom-none">Rola</div>
+            <div className="grid-item  znak delete border-bottom-none">
+              <input
+                type="submit"
+                className="delete"
+                value="X"
+                onClick={this.handleDelete}
+              />
+            </div>
+          </div>
+        ))
+      }).then(userGroupList => this.setState({ userGroupList }))
   }
 
   render = () => (
@@ -134,6 +168,7 @@ export default class GroupUsers extends React.Component {
             <div className="grid-item  email">Adres E-mail</div>
             <div className="grid-item  rola">Rola</div>
             <div className="grid-item  znak"></div>
+            {this.state.userGroupList}
           </div>
         </div>
       </div>
@@ -161,9 +196,15 @@ export default class GroupUsers extends React.Component {
       body: JSON.stringify(data),
     }).then(res => res.json())
   }
-/*
-  static getDataGroupUsers(){
 
+  static getDataGroupUsers(id){
+    console.log("adres: ", BACKEND_PLATFORMS_GROUP_USERS_GET.replace(':groupId', id))
+    return fetch(BACKEND_PLATFORMS_GROUP_USERS_GET.replace(':groupId', id), {
+      method: `GET`,
+      headers: {
+        Authentication: `Bearer ${getToken()}`,
+      },
+    }).then(res => res.json())
   }
-  */
+  
 }
