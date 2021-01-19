@@ -1,9 +1,10 @@
-import { Link } from "gatsby"
+//import { Link } from "gatsby"
 import React from "react"
 import {
   BACKEND_PLATFORMS_GROUP_USERS_GET,
   BACKEND_PLATFORMS_GROUPS_MEET_ADD_USER,
   BACKEND_PLATFORMS_GROUPS_MEET_GET_USER,
+  BACKEND_PLATFORMS_GROUPS_MEET_DEL_USER,
 } from "../../config"
 import { getToken } from "../../services/auth"
 
@@ -14,6 +15,20 @@ class MeetingUsers extends React.Component {
     participantsIds: new Set(),
     userListMeeting: [],
     userListGroup: [],
+  }
+
+  handleDelete = id => {
+    console.log("id do usunięcia: ", id)
+        const reply = MeetingUsers.delData(id, this.state.meetingId)
+        reply.then(data => {
+            if(data.error){
+                alert("nie udało się usunąć użytkownika ze spotkania")
+                return null
+            }
+            const {del} = data
+            console.log("usunieto spotkanie: ", del)
+            alert("użytkownik usunięty ze spotkania")
+        })
   }
 
   handleUpdate = event => { 
@@ -71,7 +86,14 @@ class MeetingUsers extends React.Component {
             <div className="box funkcja"></div>
             <div className="box imie">{participant.name}</div>
             <div className="box nazwisko">{participant.surname}</div>
-            <div className="box znak"></div>
+            <div className="box znak">
+            <input
+                type="submit"
+                className="delete"
+                value="X"
+                onClick={() => this.handleDelete(participant.id)}
+              />
+            </div>
           </div>
         ))
       })
@@ -123,8 +145,8 @@ class MeetingUsers extends React.Component {
             <div className="add-user-meeting-wrapper-new-row">
               <div className="box funkcjaDodaj">Dodaj</div>
               <div className="box imieDodaj">
-                <select name="usersIds" onChange={this.handleUpdate}>
-                  <option></option>
+                <select name="usersIds" onBlur={this.handleUpdate}>
+                  <option>wybierz</option>
                   {this.state.userListGroup}
                 </select>
               </div>
@@ -202,5 +224,16 @@ class MeetingUsers extends React.Component {
       }
     ).then(res => res.json())
   }
+
+  static delData(userId, meetingId){
+    const address1 = BACKEND_PLATFORMS_GROUPS_MEET_DEL_USER.replace(':meetId',meetingId)
+    const address2 = address1.replace(':userId', userId)
+    return fetch(address2,{
+      method: `DELETE`,
+      headers: { 
+        "Authentication":`Bearer ${getToken()}`
+      }, 
+    } ).then( res => res.json() )
+}
 }
 export default MeetingUsers

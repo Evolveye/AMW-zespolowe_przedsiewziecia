@@ -37,6 +37,7 @@ export const BACKEND_PLATFORMS_GROUPS_MEET_DEL = `${HOST}/api/meets/:meetId`
 export const BACKEND_PLATFORMS_GROUPS_MEET = `${HOST}/api/meets/group/:groupId`
 export const BACKEND_PLATFORMS_GROUPS_MEET_ADD_USER = `${HOST}/api/meets/:meetId/users`
 export const BACKEND_PLATFORMS_GROUPS_MEET_GET_USER = `${HOST}/api/meets/:meetId/users`
+export const BACKEND_PLATFORMS_GROUPS_MEET_DEL_USER = `${HOST}/api/meets/:meetId/users/:userId`
 
 export const BACKEND_CALENDAR_URL = "/api/calendar"
 
