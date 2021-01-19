@@ -50,7 +50,7 @@ export default class MeetModule extends Module {
 
     // // Usuwanie uczestnika ze spotkania 
     // // DELETE{ "authenthication": "string" } // header
-    // app.delete(`/api/meets/:meetId/users/:userId`, this.httpHandleDeleteUserFromMeeting)
+    app.delete(`/api/meets/:meetId/users/:userId`, this.httpHandleDeleteUserFromMeeting)
 
     // //Kasowanie spotkania /api/meets/:meetId
     // //DELETE { "authenthication": "string" } // header
