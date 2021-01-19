@@ -25,7 +25,7 @@ class RightContainerMyGrades extends React.Component {
     const table = groups.map(({ group, notes }, index) => { 
       const average =
        notes.reduce((avg, { value }) => parseFloat(avg) + parseFloat(value), 0) / notes.length 
-      const notesElements = notes.map(({ value }, index) => <span key={index}>{value},</span>) 
+      const notesElements = notes.map(({ value, description }, index) => <span key={index} title={description}>{value},</span>) 
       this.data.grades.push(average)
       this.data.average = this.data.grades.reduce((a, b) => a + b, 0) / this.data.grades.length
 
