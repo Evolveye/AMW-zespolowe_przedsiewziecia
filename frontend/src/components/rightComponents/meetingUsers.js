@@ -7,6 +7,7 @@ import {
   BACKEND_PLATFORMS_GROUPS_MEET_DEL_USER,
 } from "../../config"
 import { getToken } from "../../services/auth"
+import { navigate } from "@reach/router"
 
 class MeetingUsers extends React.Component {
   state = {
@@ -15,6 +16,10 @@ class MeetingUsers extends React.Component {
     participantsIds: new Set(),
     userListMeeting: [],
     userListGroup: [],
+  }
+
+  goBack = () => {
+    navigate(-1)
   }
 
   handleDelete = id => {
