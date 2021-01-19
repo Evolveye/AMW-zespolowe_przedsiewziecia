@@ -144,6 +144,7 @@ export default class GroupUsers extends React.Component {
               <div className="box funkcjaD funkcja">Dodaj</div>
               <div className="box imieD">
                 <select name="usersIds" onBlur={this.handleUpdate}>
+                  <option>wybierz</option>
                   {this.state.userList}
                 </select>
               </div>

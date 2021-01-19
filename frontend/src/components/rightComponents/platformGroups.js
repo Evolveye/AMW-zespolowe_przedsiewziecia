@@ -135,6 +135,7 @@ export default class PlatformGroups extends React.Component {
               </div>
               <div className="grid-item prowadzacy border-bottom-none rola">
                 <select name="lecturer" onBlur={this.handleUpdate}>
+                  <option>wybierz</option>
                   {this.state.userList}
                 </select>
               </div>

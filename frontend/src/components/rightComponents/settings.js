@@ -23,7 +23,7 @@ export default class Settings extends React.Component {
   }
 
   render = () => (
-    <div className="right-container-settings" ref={this.handleRef}>
+    <div className="right-container-settings flex-direction-column" ref={this.handleRef}>
       <div className="settings-header">
         <div className="avatar-container">
           <img

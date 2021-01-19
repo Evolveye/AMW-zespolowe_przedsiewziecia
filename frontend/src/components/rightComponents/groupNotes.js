@@ -250,7 +250,7 @@ export default class NotesGroup extends React.Component {
             <div className="box funkcjaD">Dodaj</div>
             <div className="box imieD">
               <select name="userId" onBlur={this.handleUpdate}>
-                <option></option>
+                <option>wybierz</option>
                 {this.state.userListGroup}
               </select>
             </div>
@@ -313,16 +313,7 @@ export default class NotesGroup extends React.Component {
           <div className="box nazwiskoLF">Nazwisko</div>
           <div className="box ocenyLF">Oceny</div>
           <div className="box ocenaKoncowaLF">Ocena Końcowa</div>
-          <div className="box znakLF">X</div>
-
-          <div className="list-user-notes-new-row">
-            <div className="box funkcjaLR"></div>
-            <div className="box imieLR">jakies</div>
-            <div className="box nazwiskoLR">jakiesN</div>
-            <div className="box ocenyLR">jakiesO</div>
-            <div className="box ocenyKLR">jakiesOK</div>
-            <div className="box znakLR"></div>
-          </div>
+          <div className="box znakLF"></div>
           {this.state.notesList}
         </div>
       </div>

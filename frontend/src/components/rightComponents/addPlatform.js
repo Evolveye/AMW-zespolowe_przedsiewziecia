@@ -38,7 +38,7 @@ export default class AddPlatform extends React.Component {
     })
   }
   render = () => (
-    <div className="right-container-settings">
+    <div className="right-container-settings flex-direction-column">
       <div className="settings-header">
         <div className="avatar-container">
           <div className="platform-adding">

@@ -767,6 +767,9 @@ textarea {
 a {
     text-decoration: none;
 }
+.flex-direction-column{
+    flex-direction: column;
+}
 
 .platform-adding {
     width: 90px;
