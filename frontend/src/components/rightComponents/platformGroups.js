@@ -8,6 +8,8 @@ import {
   BACKEND_PLATFORMS_GROUPS_POST,
 } from "../../config"
 import { getToken } from "../../services/auth"
+import { isBrowser } from "../../services/auth"
+
 export default class PlatformGroups extends React.Component {
   state = {
     name: ``,
@@ -40,10 +42,12 @@ export default class PlatformGroups extends React.Component {
         alert("wystąpił błąd, grupa nie została dodana")
         return null
       }
-      const {groups} = data
+      const { groups } = data
       console.log(groups)
       alert('grupa "' + this.state.name + '" została dodana')
-      document.getElementById("add-name").value = ""
+      if (isBrowser) {
+        document.getElementById("add-name").value = ""
+      }
     })
   }
 
@@ -73,7 +77,7 @@ export default class PlatformGroups extends React.Component {
     console.log("id platformy: ", this.props.platformId)
     PlatformGroups.getDataGroups(this.props.platformId)
       .then(({ groups }) =>
-      //console.log("grupy lista: ", groups)
+        //console.log("grupy lista: ", groups)
         groups.map((group, index) => (
           <div className="grades-gained-container-grid-new-row" key={index}>
             <div className="grid-item  dodaj border-bottom-none"></div>
@@ -81,13 +85,13 @@ export default class PlatformGroups extends React.Component {
               {group.name}
             </div>
             <div className="grid-item nazwisko rola border-bottom-none">
-            {`${group.lecturer.name} ${group.lecturer.surname}`}
+              {`${group.lecturer.name} ${group.lecturer.surname}`}
             </div>
             <div className="grid-item  znak delete border-bottom-none">X</div>
           </div>
         ))
       )
-      .then(groupList => this.setState({ groupList })) 
+      .then(groupList => this.setState({ groupList }))
   }
 
   render = () => (
@@ -151,7 +155,7 @@ export default class PlatformGroups extends React.Component {
             <div className="grid-item  empty-filtre-user"></div>
             <div className="grid-item  imie">Nazwa</div>
             <div className="grid-item  nazwisko rola">Prowadzący</div>
-            <div className="grid-item  znak"></div> 
+            <div className="grid-item  znak"></div>
             {this.state.groupList}
           </div>
         </div>
@@ -160,8 +164,11 @@ export default class PlatformGroups extends React.Component {
   )
 
   static getDataGroups(id) {
-    console.log("adres http pobrania grup: ", BACKEND_PLATFORMS_GROUPS_GET.replace(':platformId', id))
-    return fetch(BACKEND_PLATFORMS_GROUPS_GET.replace(':platformId', id), {
+    console.log(
+      "adres http pobrania grup: ",
+      BACKEND_PLATFORMS_GROUPS_GET.replace(":platformId", id)
+    )
+    return fetch(BACKEND_PLATFORMS_GROUPS_GET.replace(":platformId", id), {
       method: `GET`,
       headers: {
         Authentication: `Bearer ${getToken()}`,

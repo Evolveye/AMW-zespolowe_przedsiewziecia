@@ -3,6 +3,7 @@ import socket from "../../services/webSocket.js"
 import { getSocketEventFromHttp, BACKEND_PLATFORMS_URL } from "../../config"
 import { navigate } from "gatsby"
 import { getToken } from "../../services/auth"
+import { isBrowser } from "../../services/auth"
 
 export default class AddPlatform extends React.Component {
   state = {
@@ -22,16 +23,18 @@ export default class AddPlatform extends React.Component {
     console.log("kliknąłeś wyślij")
     console.log("wysyłane dane: ", this.state)
     const reply = AddPlatform.setData(this.state)
-    reply.then((answer) => {
+    reply.then(answer => {
       if (!answer.error) {
         console.log(answer)
-        alert('platforma "' + this.state.name + '" została dodana') 
+        alert('platforma "' + this.state.name + '" została dodana')
         navigate(`/users/me`)
       } else {
         //błąd z serwera
         alert("wystąpił błąd, platforma nie została dodana")
-        document.getElementById("addPlatformForm").reset()
-        this.setState({ name: "", description: ""})
+        if (isBrowser) {
+          document.getElementById("addPlatformForm").reset()
+          this.setState({ name: "", description: "" })
+        }
       }
     })
   }
@@ -93,21 +96,18 @@ export default class AddPlatform extends React.Component {
     </div>
   )
 
-    static setData(data){ 
-      return fetch( BACKEND_PLATFORMS_URL, {
-        method: `POST`,
-        headers: { 
-          "Content-Type": 'application/json',
-          "Authentication":`Bearer ${getToken()}`
-        },
-        body: JSON.stringify( data ),
-      } ).then( res => res.json() )
-    }
+  static setData(data) {
+    return fetch(BACKEND_PLATFORMS_URL, {
+      method: `POST`,
+      headers: {
+        "Content-Type": "application/json",
+        Authentication: `Bearer ${getToken()}`,
+      },
+      body: JSON.stringify(data),
+    }).then(res => res.json())
+  }
 
-
-
-
-/*
+  /*
   static setData(data) {
     const eventName = getSocketEventFromHttp(`post`, BACKEND_PLATFORMS_URL)
 

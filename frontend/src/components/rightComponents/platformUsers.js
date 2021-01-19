@@ -7,6 +7,7 @@ import {
   BACKEND_PLATFORMS_USERS_POST,
 } from "../../config"
 import { getToken } from "../../services/auth"
+import { isBrowser } from "../../services/auth"
 
 export default class PlatformUsers extends React.Component {
   state = {
@@ -14,12 +15,8 @@ export default class PlatformUsers extends React.Component {
     surname: ``,
     email: ``,
     //role: ``,
-    userList: []
-
-  } 
-    
-
-  
+    userList: [],
+  }
 
   goBack = () => {
     navigate(-1)
@@ -37,25 +34,27 @@ export default class PlatformUsers extends React.Component {
     console.log("dane: ", this.state)
     console.log("props id: ", this.platformId)
     const { userList, ...formData } = this.state
-    const reply = PlatformUsers.setData(formData,this.props.platformId)
+    const reply = PlatformUsers.setData(formData, this.props.platformId)
     reply.then(data => {
       if (data.error) {
         //błąd z serwera
-        alert("wystąpił błąd, użytkownik nie został dodany") 
+        alert("wystąpił błąd, użytkownik nie został dodany")
         return null
-      } 
-      const {user} = data
+      }
+      const { user } = data
       console.log(user)
-        alert(
-          'użytkownik "' +
-            this.state.name +
-            " " +
-            this.state.surname +
-            '" został dodany'
-        )
-      document.getElementById("add-name").value = ""
-      document.getElementById("add-surname").value = ""
-      document.getElementById("add-email").value = "" 
+      alert(
+        'użytkownik "' +
+          this.state.name +
+          " " +
+          this.state.surname +
+          '" został dodany'
+      )
+      if (isBrowser) {
+        document.getElementById("add-name").value = ""
+        document.getElementById("add-surname").value = ""
+        document.getElementById("add-email").value = ""
+      }
     })
   }
 
@@ -64,33 +63,35 @@ export default class PlatformUsers extends React.Component {
     alert("kliknales usuń")
   }
 
-  
   componentDidMount() {
-    PlatformUsers.getData(this.props.platformId) 
-      .then(({users}) =>
+    PlatformUsers.getData(this.props.platformId)
+      .then(({ users }) =>
         users.map((user, index) => (
           <div className="grades-gained-container-grid-new-row" key={index}>
-              <div className="grid-item  dodaj border-bottom-none"></div>
-              <div className="grid-item  imie border-bottom-none">{user.name}</div>
-              <div className="grid-item nazwisko border-bottom-none">
-              {user.surname}
-              </div>
-              <div className="grid-item  email  border-bottom-none">
-              {user.email}
-              </div>
-              <div className="grid-item  rola border-bottom-none">Rola</div>
-              <div className="grid-item  znak delete border-bottom-none">
-                <input
-                  type="submit"
-                  className="delete"
-                  value="X"
-                  onClick={this.handleDelete}
-                />
-              </div>
+            <div className="grid-item  dodaj border-bottom-none"></div>
+            <div className="grid-item  imie border-bottom-none">
+              {user.name}
             </div>
+            <div className="grid-item nazwisko border-bottom-none">
+              {user.surname}
+            </div>
+            <div className="grid-item  email  border-bottom-none">
+              {user.email}
+            </div>
+            <div className="grid-item  rola border-bottom-none">Rola</div>
+            <div className="grid-item  znak delete border-bottom-none">
+              <input
+                type="submit"
+                className="delete"
+                value="X"
+                onClick={this.handleDelete}
+              />
+            </div>
+          </div>
         ))
-      ).then(userList => this.setState( {userList } ))
-      .then(console.log('pobiera dane'))
+      )
+      .then(userList => this.setState({ userList }))
+      .then(console.log("pobiera dane"))
   }
 
   render = () => (
@@ -200,7 +201,7 @@ export default class PlatformUsers extends React.Component {
             <div className="grid-item  rola">Rola</div>
             <div className="grid-item  znak"></div>
 
-            {this.state.userList} 
+            {this.state.userList}
           </div>
         </div>
       </div>
@@ -224,7 +225,7 @@ export default class PlatformUsers extends React.Component {
       method: `GET`,
       headers: {
         Authentication: `Bearer ${getToken()}`,
-      }
+      },
     }).then(res => res.json())
   }
 
