@@ -433,6 +433,28 @@ GET
 }
 ```
 
+Odczytywanie wszystkich publicznych spotkań `/api/meets/public`
+```json
+GET
+{ "authenthication": "string" } // header
+{ // body
+  "meets": [
+    "<Meet>"
+  ]
+}
+```
+
+Odczytywanie wszystkich spotkań nieprzypisanych do grupy `/api/meets/groupless`
+```json
+GET
+{ "authenthication": "string" } // header
+{ // body
+  "meets": [
+    "<Meet>"
+  ]
+}
+```
+
 Odczytywanie spotkania `/api/meets/:meetId`
 ```json
 GET
