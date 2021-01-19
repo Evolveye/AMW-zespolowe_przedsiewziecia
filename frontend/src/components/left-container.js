@@ -3,9 +3,10 @@ import React from "react"
 import { Link } from "gatsby"
 import { navigate } from "gatsby"
 import { isLoggedIn, logout, getUser } from "../services/auth"
-import socket from "../services/webSocket.js"
+//import socket from "../services/webSocket.js"
 import { getToken } from "../services/auth"
-import { getSocketEventFromHttp, BACKEND_PLATFORMS_URL } from "../config"
+//import { getSocketEventFromHttp } from "../config"
+import {  BACKEND_PLATFORMS_URL } from "../config"
 
 class LeftContainer extends React.Component {
   state = { platforms: [] }

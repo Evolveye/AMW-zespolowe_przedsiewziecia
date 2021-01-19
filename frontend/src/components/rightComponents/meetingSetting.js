@@ -1,7 +1,7 @@
 import { Link } from "gatsby"
 import React from "react"
-import {BACKEND_PLATFORMS_GROUPS_MEET} from "../../config"
-import { getToken } from "../../services/auth"
+//import {BACKEND_PLATFORMS_GROUPS_MEET} from "../../config"
+//import { getToken } from "../../services/auth"
 
 class MeetingSetting extends React.Component {
  
@@ -39,7 +39,7 @@ class MeetingSetting extends React.Component {
             <span>Spotkania</span>
           </div>
           <div className="meeting-meeting-link">
-              <span><a href={this.props.meetingLink} target="_blank">{this.props.meetingLink}</a></span>
+              <span><a href={this.props.meetingLink} target="_blank" rel="noreferrer" >{this.props.meetingLink}</a></span>
               {/* <span><Link to={this.props.meetingLink}>{this.props.meetingLink}</Link> </span> */}
           </div>
         </div>

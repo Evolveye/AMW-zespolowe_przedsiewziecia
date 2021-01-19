@@ -1,8 +1,8 @@
 import React from "react"
 import { navigate } from "@reach/router"
-import socket from "../../services/webSocket.js"
+//import socket from "../../services/webSocket.js"
+//import {getSocketEventFromHttp } from "../../config"
 import {
-  getSocketEventFromHttp,
   BACKEND_PLATFORMS_USERS_GET,
   BACKEND_PLATFORMS_USERS_POST,
 } from "../../config"

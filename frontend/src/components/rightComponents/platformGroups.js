@@ -1,8 +1,8 @@
 import React from "react"
 import { navigate } from "@reach/router"
-import socket from "../../services/webSocket.js"
+//import socket from "../../services/webSocket.js"
+//import {getSocketEventFromHttp } from "../../config"
 import {
-  getSocketEventFromHttp,
   BACKEND_PLATFORMS_GROUPS_GET,
   BACKEND_PLATFORMS_USERS_GET,
   BACKEND_PLATFORMS_GROUPS_POST,
@@ -134,7 +134,7 @@ export default class PlatformGroups extends React.Component {
                 />
               </div>
               <div className="grid-item prowadzacy border-bottom-none rola">
-                <select name="lecturer" onChange={this.handleUpdate}>
+                <select name="lecturer" onBlur={this.handleUpdate}>
                   {this.state.userList}
                 </select>
               </div>

@@ -1,8 +1,8 @@
 import React from "react"
 import { navigate } from "@reach/router"
-import socket from "../../services/webSocket.js"
+//import socket from "../../services/webSocket.js"
+//import {getSocketEventFromHttp} from "../../config"
 import {
-  getSocketEventFromHttp,
   BACKEND_PLATFORMS_GROUP_USERS_GET,
   BACKEND_PLATFORMS_GROUPS_USER_NOTES_ADD,
   BACKEND_PLATFORMS_GROUPS_USER_NOTES_GET,
@@ -249,7 +249,7 @@ export default class NotesGroup extends React.Component {
           <div className="add-user-notes-new-row">
             <div className="box funkcjaD">Dodaj</div>
             <div className="box imieD">
-              <select name="userId" onChange={this.handleUpdate}>
+              <select name="userId" onBlur={this.handleUpdate}>
                 <option></option>
                 {this.state.userListGroup}
               </select>

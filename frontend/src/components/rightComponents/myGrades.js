@@ -1,5 +1,5 @@
 import React from "react"
-import socket from "../../services/webSocket.js"
+//import socket from "../../services/webSocket.js"
 import { getToken } from "../../services/auth"
 import { BACKEND_PLATFORMS_USERS_NOTES } from "../../config"
 

@@ -1,8 +1,8 @@
 import React from "react"
 import { navigate } from "@reach/router"
-import socket from "../../services/webSocket.js"
+//import socket from "../../services/webSocket.js"
+//impoty {getSocketEventFromHttp} from "../../config"
 import {
-  getSocketEventFromHttp,
   BACKEND_PLATFORMS_USERS_GET,
   BACKEND_PLATFORMS_USERS_ADD,
   BACKEND_PLATFORMS_GROUP_USERS_GET
@@ -23,7 +23,7 @@ export default class GroupUsers extends React.Component {
   }
 
   handleUpdate = event => {
-    if (event.target.name == "usersIds") {
+    if (event.target.name === "usersIds") {
       this.state.usersIds.add(event.target.value)
     } else {
       this.setState({
@@ -143,7 +143,7 @@ export default class GroupUsers extends React.Component {
             <div className="grid-add-user-group-new-row">
               <div className="box funkcjaD funkcja">Dodaj</div>
               <div className="box imieD">
-                <select name="usersIds" onChange={this.handleUpdate}>
+                <select name="usersIds" onBlur={this.handleUpdate}>
                   {this.state.userList}
                 </select>
               </div>
