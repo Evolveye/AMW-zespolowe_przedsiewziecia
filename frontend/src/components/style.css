@@ -419,6 +419,7 @@ form .under-space {
     height: 200px;
     overflow: auto;
 
+
 }
 
 .subject {
@@ -441,6 +442,7 @@ form .under-space {
 
 .subject-name {
     font-size: 25px;
+    cursor: pointer;
 }
 
 .right-container-profile-right {
@@ -484,9 +486,7 @@ form .under-space {
 
 
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    overflow: auto;
+
 
 }
 
@@ -1033,4 +1033,105 @@ a {
 
 .list-user-notes-new-row {
     display: contents;
+}
+
+
+
+.filtre-add-meet-wrapp {
+    display: grid;
+    grid-template-columns: repeat(6, auto);
+    padding: 5px 10px;
+    max-width: 800px;
+
+    margin-left: auto;
+    margin-right: auto;
+}
+
+
+.notes-left {
+    width: 20%;
+}
+
+.meeting-meeting-link {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 90%;
+
+}
+
+.add-user-meeting-wrapper { 
+    display: grid;
+    grid-template-columns: repeat(4, auto);
+    padding: 5px 10px;
+    max-width: 800px;
+    max-width: 800px;
+    grid-template-areas:
+        "funkcjaNaglowek imieNaglowek nazwiskoNaglowek znakNaglowek"
+        "funkcjaFiltruj imieFiltruj nazwiskoFiltruj znakFiltruj"
+        "funkcjaDodaj imieDodaj imieDodaj znakDodaj";
+}
+
+.add-user-meeting-wrapper-new-row {
+    display: contents;
+}
+
+
+.funkcjaNaglowek {
+    grid-area: funkcjaNaglowek;
+}
+
+.imieNaglowek {
+    grid-area: imieNaglowek;
+}
+
+.nazwiskoNaglowek {
+    grid-area: nazwiskoNaglowek;
+}
+
+.znakNaglowek {
+    grid-area: znakNaglowek;
+}
+
+.funkcjaFiltruj {
+    grid-area: funkcjaFiltruj;
+}
+
+.imieFiltruj {
+    grid-area: imieFiltruj;
+}
+
+.nazwiskoFiltruj {
+    grid-area: nazwiskoFiltruj;
+}
+
+.znakFiltruj {
+    grid-area: znakFiltruj;
+}
+
+.funkcjaDodaj {
+    grid-area: funkcjaDodaj;
+}
+
+.imieDodaj {
+    grid-area: imieDodaj;
+}
+
+.nazwiskoDodaj {
+    grid-area: nazwiskoDodaj;
+}
+
+.znakDodaj {
+    grid-area: znakDodaj;
+}
+
+
+.meeting-users{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background-color: #0E6CF8;
+    width: 100%;
 }
