@@ -28,7 +28,7 @@ export default class MeetModule extends Module {
     // Tworzenie spotkania /api/meets
     app.post(`/api/meets`, this.httpHandleCreateMeet)
 
-   // Odczytywanie wszystkich spotkań /api/meets
+    // Odczytywanie wszystkich spotkań /api/meets
     app.get(`/api/meets`, this.httpHandleGetAllMeets)
 
     //GET {{host}}/api/meets/:meetId
@@ -43,12 +43,26 @@ export default class MeetModule extends Module {
     //  / response  { / "participants": [    "<User>"  ]}
     app.get(`/api/meets/:meetId/users`, this.handleGetAllMeetingMembers)
 
+
+    // Odczytywanie wszystkich publicznych spotkań /api/meets/public
+    // GET // header { "authenthication": "string" } // body {   "meets": [    "<Meet>"  ]}
+    //  wszystkie meet.public === true
+    //  WSZYSCY - nie ważne od zapytania.
+    app.get(`/api/meets/public`, this.httpHandlePublicMeets)
+
+
+    // Odczytywanie wszystkich spotkań nieprzypisanych do grupy /api/meets/groupless
+    // GET // header  { "authenthication": "string" } // body { "meets": [ "<Meet>" ] }
+    // memersIds => contain user
+    // admin widzi.
+    app.get(`/api/meets/groupless`, this.httpHandleGrouplessMeetings)
+
     // //Dodawanie uczestników do spotkania /api/meets/:meetId/users
-    // // // header POST{ "authenthication": "string" } 
+    // // // header POST{ "authenthication": "string" }
     // // // body {   "participantsIds": [    "<string>"  ]}
     app.post(`/api/meets/:meetId/users`, this.httpHandleAddUsers)
 
-    // // Usuwanie uczestnika ze spotkania 
+    // // Usuwanie uczestnika ze spotkania
     // // DELETE{ "authenthication": "string" } // header
     app.delete(`/api/meets/:meetId/users/:userId`, this.httpHandleDeleteUserFromMeeting)
 
@@ -57,21 +71,49 @@ export default class MeetModule extends Module {
     app.delete(`/api/meets/:meetId`, this.httpHandleDeleteMeet)
   }
 
+  httpHandleGrouplessMeetings = async (req, res, next) => {
+    // Odczytywanie wszystkich spotkań nieprzypisanych do grupy /api/meets/groupless
+    // GET // header  { "authenthication": "string" } // body { "meets": [ "<Meet>" ] }
+    // memersIds => contain user
+    // admin widzi.
+
+
+    const client = req.user
+
+    const meetings = await this.dbManager.findManyObjects(
+      this.collectionName,
+      { membersIds: client.id, groupId: "" }
+    ).then(cursor => cursor.toArray())
+
+
+    return res.json({meets:meetings})
+  }
+
+
+  httpHandlePublicMeets = async (req, res, next) => {
+    const meets = await this.dbManager.findManyObjects(
+      this.collectionName,
+      { public: true }
+    ).then(cursor => cursor.toArray())
+
+    return res.json({ meets })
+  }
+
   httpHandleDeleteUserFromMeeting = async (req, res, next) => {
-    // Usuwanie uczestnika ze spotkania 
+    // Usuwanie uczestnika ze spotkania
     // DELETE{ "authenthication": "string" } // header
     /// api/meets/:meetId/users/:userId
     const client = req.user
-    const {meetId,userId} = req.params
+    const { meetId, userId } = req.params
 
     const meetingObj = await this.getMeetingById(meetId)
-    if(!meetingObj)
-    return res.status(400).json({
-      code: 404,
-      error: "Can not find meeting. Make sure that meeting id is correct."
-    })
+    if (!meetingObj)
+      return res.status(400).json({
+        code: 404,
+        error: "Can not find meeting. Make sure that meeting id is correct."
+      })
 
-    
+
     const isLecturer = this.isUserLecturer(client.id, meetingObj)
     const isOwner = await this.requiredModules.platformModule.checkUserAdmin(client.id, meetingObj.platformId)
     if (!isLecturer && !isOwner)
@@ -79,26 +121,26 @@ export default class MeetModule extends Module {
         code: 408,
         error: "Only lecturer or Platform owner, have access to add members to meeting."
       })
-    
-    const isMember = this.isMeetingMember(userId,meetingObj)
-    if(!isMember)
-    return res.status(400).json({
-      code: 410,
-      error: "Targeted user isn't a member of specified group"
-    })
 
-    if(sameWords(client.id,userId))
-    return res.status(400).json({
-      code: 411,
-      error: "As lecturer or PlatOwner -PO - You can not delete himself from meeting members."
-    })
+    const isMember = this.isMeetingMember(userId, meetingObj)
+    if (!isMember)
+      return res.status(400).json({
+        code: 410,
+        error: "Targeted user isn't a member of specified group"
+      })
+
+    if (sameWords(client.id, userId))
+      return res.status(400).json({
+        code: 411,
+        error: "As lecturer or PlatOwner - PO - You can not delete himself from meeting members."
+      })
 
     await this.dbManager.updateObject(
       this.collectionName,
       { id: { $eq: meetingObj.id } },
       { $pull: { membersIds: userId } }
     )
-    return res.json({code:412,success:"User has been deleted from user list of meeting"})
+    return res.json({ code: 412, success: "User has been deleted from user list of meeting" })
   }
 
 
@@ -148,7 +190,7 @@ export default class MeetModule extends Module {
         code: 404,
         error: "Can not find meeting. Make sure that meeting id is correct."
       })
-    // const isLecturer = this.isUserLecturer(client.id, meetingObj) 
+    // const isLecturer = this.isUserLecturer(client.id, meetingObj)
     // jest dopisywany do membersów.
 
     const isOwner = await this.requiredModules.platformModule.checkUserAdmin(client.id, meetingObj.platformId)
@@ -201,8 +243,6 @@ export default class MeetModule extends Module {
     const client = req.user
     const groupId = req.params.groupId
 
-    // TODO: START POINT>
-    console.log(this.requiredModules)
     const groupObj = await this.requiredModules.groupModule.getGroupObject(groupId)
 
     if (!groupObj)
