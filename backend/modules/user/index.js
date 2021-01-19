@@ -143,7 +143,14 @@ export default class UserModule extends Module {
 
   }
 
+  /**
+   * @param {Request} req
+   * @param {Response} req
+   * @param {NextFunction} next
+   */
   authorizeMiddleware = async (req, res, next) => {
+    if (!req.path.startsWith( `/api` )) return next()
+
     const authenticationToken = this.getTokenFromRequest(req)
 
     if (!authenticationToken) return res.status(400).json(ANSWERS.TOKEN_NOT_PROVIDED)
@@ -326,7 +333,7 @@ export default class UserModule extends Module {
     await this.dbManager.insertObject(this.collectionName, user)
 
 
-    
+
     if (mailContent)
       emailsManager.sendEmail({
         title: mailContent.titleText,

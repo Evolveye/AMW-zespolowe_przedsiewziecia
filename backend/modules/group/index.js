@@ -4,7 +4,7 @@ import Grade from './../grade/model.js'
 import { DEBUG } from '../../consts.js'
 
 
-export default class groupModule extends Module {
+export default class GroupModule extends Module {
   static requiredModules = [`UserModule`, `PlatformModule`]
 
   constructor(...params) {
@@ -36,12 +36,10 @@ export default class groupModule extends Module {
     // GET api/groups/platform/:id -- wszystkie grupy na danej platformie.
     app.get(`/api/groups/platform/:platformId`, this.httpHandleAllGroupsInPlatform)
 
-
     // get all users of group
     // Pobieranie listy użytkowników z grupy /api/groups/:groupId/users
     // GET // header   { "authenthication": "string"}  // body { "users": [  "<User>", ] }
     app.get(`/api/groups/:groupId/users`, this.httpHandleAllUsersInGroup)
-
 
     // kto moze tworzyc grupy, all? or owner
     app.post(`/api/groups`, this.httpCreateGroup)
@@ -72,8 +70,6 @@ export default class groupModule extends Module {
     // /api/groups/:groupId/notes
     app.get(`/api/groups/:groupId/notes`, this.httpHandleNotesFromGroup)
   
-
-
     // Stworzenie oceny /api/groups/notes/
     // POST { "authenthication": "string" } // header
     // { "value": "string","description": "string" }
@@ -249,6 +245,8 @@ export default class groupModule extends Module {
     const groupId = req.params.groupId
     const { value, description, userId } = req.body
     const lecturer = req.user
+
+    /**@type {Grade} */
     const note = new Grade(userId, lecturer, value, groupId, { description })
 
     const targetGroup = await this.getGroupObject(groupId)
@@ -379,7 +377,10 @@ export default class groupModule extends Module {
     const platformMod = this.requiredModules.platformModule
 
 
-    const { groupId, usersIds } = req.body
+    const { groupId} = req.body
+    let  usersIds = req.body.usersIds
+    if(!Array.isArray(usersIds)) // TODO: TEST this function.
+      usersIds= [usersIds]
 
     if (!(await this.groupExist(groupId)))
       return res.status(400).json({ code: 302, error: "Targeted group does not exist." })

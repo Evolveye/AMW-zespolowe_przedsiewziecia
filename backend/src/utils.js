@@ -107,6 +107,21 @@ export function randomString(length = 10, countChars = 5) {
   return password
 }
 
-export function random( min=0, max=9 ) {
-  return Math.floor( Math.random() * (max - min + 1) ) + min
+export function random(min = 0, max = 9) {
+  return Math.floor(Math.random() * (max - min + 1)) + min
+}
+
+export function validateDate(date,maxYearsAhead) {
+  const now = Date.now()
+  const year = 1000 * 60 * 60 * 24 * 365
+
+  const years = maxYearsAhead * year
+
+  if (date < now)
+    return false
+
+  if (date > now + years)
+    return false
+
+  return true
 }

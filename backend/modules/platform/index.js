@@ -211,7 +211,6 @@ export default class PlatformModule extends Module {
 
 
   isPlatformOwner(userId, platformObj) {
-    console.log(platformObj)
     return userId === platformObj.owner.id
   }
 
@@ -226,10 +225,8 @@ export default class PlatformModule extends Module {
 
     const platform = await this.getPlatformFromDb(platformId) // w platformach sa id userow
     if (!platform) return false
-    console.log(platform)
-    const userList = platform.membersIds
 
-    return userList.some(id => id === userId)
+    return platform.membersIds.some(id => id === userId)
   }
 
 

@@ -24,6 +24,7 @@ const importedModules = await Promise.all([
   import(`./modules/user/index.js`),
   import(`./modules/platform/index.js`),
   import(`./modules/group/index.js`),
+  import(`./modules/meet/index.js`),
 ]).then(mods => mods.map(({default:d}) => d).map( Class => {
   const requiredModules = {}
   let doInstallation = true
@@ -65,6 +66,7 @@ modules.forEach((mod) => {
   log(LOGGERS.server, `[fgYellow]LOADED MODULE[] ${mod.toString()}`)
   mod.configure(app)
 })
+app.use((_, res) => res.status( 404 ).json( { code:0, error:`Endpoint not found` } ) )
 
 wss.on(`connection`, (ws) => {
   const socket = wss.reshapeWebSocket(ws)

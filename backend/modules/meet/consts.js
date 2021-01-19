@@ -1,0 +1,1 @@
+export const MEETING_DATE_MAX_YEARS_AHEAD  = 10
