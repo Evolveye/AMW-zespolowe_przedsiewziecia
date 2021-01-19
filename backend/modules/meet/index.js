@@ -28,20 +28,20 @@ export default class MeetModule extends Module {
     // Tworzenie spotkania /api/meets
     app.post(`/api/meets`, this.httpHandleCreateMeet)
 
-    //Odczytywanie wszystkich spotkań /api/meets
-    // app.get(`/api/meets`, this.httpHandleGetAllMeets)
+   // Odczytywanie wszystkich spotkań /api/meets
+    app.get(`/api/meets`, this.httpHandleGetAllMeets)
 
-    // //GET {{host}}/api/meets/:meetId
-    // app.get(`/api/meets/:meetId`, this.httpHandleMeetInfo)
+    //GET {{host}}/api/meets/:meetId
+    app.get(`/api/meets/:meetId`, this.httpHandleMeetInfo)
 
-    // //   Odczytywanie wszystkich spotkań z danej grupy /api/meets/group/:groupId
-    // // GET{ "authenthication": "string" } // header{ // body  "meets": [    "<Meet>"  ]}
-    // app.get(`/api/meets/group/:groupId`, this.httpHandleGetAllMeetingFromGroup)
+    //   Odczytywanie wszystkich spotkań z danej grupy /api/meets/group/:groupId
+    // GET{ "authenthication": "string" } // header{ // body  "meets": [    "<Meet>"  ]}
+    app.get(`/api/meets/group/:groupId`, this.httpHandleGetAllMeetingFromGroup)
 
-    // // Odczytywanie uczestników spotkania /api/meets/:meetId/users
-    // // GET // header { "authenthication": "string" }
-    // //  / response  { / "participants": [    "<User>"  ]}
-    // app.get(`/api/meets/:meetId/users`, this.handleGetAllMeetingMembers)
+    // Odczytywanie uczestników spotkania /api/meets/:meetId/users
+    // GET // header { "authenthication": "string" }
+    //  / response  { / "participants": [    "<User>"  ]}
+    app.get(`/api/meets/:meetId/users`, this.handleGetAllMeetingMembers)
 
     // //Dodawanie uczestników do spotkania /api/meets/:meetId/users
     // // // header POST{ "authenthication": "string" } 
