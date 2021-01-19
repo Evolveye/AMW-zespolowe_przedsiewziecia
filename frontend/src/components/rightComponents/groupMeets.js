@@ -38,7 +38,7 @@ class GroupMakeMeets extends React.Component {
             }
             const {del} = data
             console.log("usunieto spotkanie: ", del)
-            alert("spotkanie zostało usunięte")
+            alert("spotkanie zostało usunięte!")
         })
     }
 
