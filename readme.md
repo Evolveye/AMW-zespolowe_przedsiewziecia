@@ -127,13 +127,15 @@ Prosta wersja REST API zakłada obsługę poniższych metod HTTP:
   GET
   { "authenthication": "string" } // header
   { // response
-    "login": "string",
-    "name": "string",
-    "surname": "string",
-    "email": "string",
-    "activated": "boolean",
-    "avatar": "string",
-    "createdDatetime": "number",
+    "user": {
+      "login": "string",
+      "name": "string",
+      "surname": "string",
+      "email": "string",
+      "activated": "boolean",
+      "avatar": "string",
+      "createdDatetime": "number"
+    }
   }
   ```
 
@@ -141,7 +143,7 @@ Prosta wersja REST API zakłada obsługę poniższych metod HTTP:
   ```json
   PUT
   { "authenthication": "string" } // header
-  { // response
+  { // body
     "login?": "string",
     "name?": "string",
     "surname?": "string",
