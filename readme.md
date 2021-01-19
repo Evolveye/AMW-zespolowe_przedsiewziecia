@@ -70,455 +70,474 @@ Prosta wersja REST API zakłada obsługę poniższych metod HTTP:
 
 ---
 
-### Zapytania generalne "/api/*"
+<details>
+  <summary>Zapytania generalne "/api/*"</summary>
+
+  <!-- ### Zapytania generalne "/api/*" -->
 
 
-Logowanie `/api/login`
-```json
-POST
-{ //body 
-  "login": "string",
-  "password": "string"
-} 
-```
+  Logowanie `/api/login`
+  ```json
+  POST
+  { //body 
+    "login": "string",
+    "password": "string"
+  } 
+  ```
 
-Rejestracja `/api/register`
-```json
-POST
-{ //body 
-  "name": "string",
-  "surname": "string",
-  "email": "string",
-  "password1": "string",
-  "password2": "string",
-}
-```
+  Rejestracja `/api/register`
+  ```json
+  POST
+  { //body 
+    "name": "string",
+    "surname": "string",
+    "email": "string",
+    "password1": "string",
+    "password2": "string",
+  }
+  ```
 
-Przypomnij hasło `/api/password/remind`
-```json
-POST
-{ //body 
-  "email": "string"
-}
-```
+  Przypomnij hasło `/api/password/remind`
+  ```json
+  POST
+  { //body 
+    "email": "string"
+  }
+  ```
 
-Resetowanie hasła `/api/password/reset`
-```json
-POST
-{ //body 
-  "password1": "string",
-  "password2": "string",
-  "code": "string",
-} 
-```
+  Resetowanie hasła `/api/password/reset`
+  ```json
+  POST
+  { //body 
+    "password1": "string",
+    "password2": "string",
+    "code": "string",
+  } 
+  ```
+</details>
 
+<details>
+  <summary>Zapytania modułu użytkownika "/api/users/*"</summary>
 
-### Zapytania modułu użytkownika "/api/users/*"
-
-
-Dane zalogowanego użytkownika `/api/users/me`
-```json
-GET
-{ "authenthication": "string" } // header
-{ // response
-  "login": "string",
-  "name": "string",
-  "surname": "string",
-  "email": "string",
-  "activated": "boolean",
-  "avatar": "string",
-  "createdDatetime": "number",
-}
-```
-
-Aktualizacja danych zalogowanego użytkownika `/api/users/me`
-```json
-PUT
-{ "authenthication": "string" } // header
-{ // response
-  "login?": "string",
-  "name?": "string",
-  "surname?": "string",
-  "email?": "string",
-  "avatar?": "string",
-  "password?": "string",
-  "newPassword1?": "string",
-  "newPassword2?": "string",
-}
-```
-
-Pobranie przypiętych elementów `/api/users/me/pinned`
-```json
-GET
-{ "authenthication": "string" } // header
-{ // response
-  "pinned": [
-    {
-      "type": "string",
-      "name": "string",
-      "id": "string",
-    }
-  ]
-}
-```
-
-Skasowanie przypiętego elementu `/api/users/me/pinned/:elementId`
-```json
-DELETE
-{ "authenthication": "string" } // header
-```
-
-Dodawanie przypiętego elementu `/api/users/me/pinned`
-```json
-POST
-{ "authenthication": "string" } // header
-{ // body
-  "id": "string",
-  "type": "string",
-}
-```
+  <!-- ### Zapytania modułu użytkownika "/api/users/*" -->
 
 
-### Zapytania modułu platformy "/api/platforms/*"
+  Dane zalogowanego użytkownika `/api/users/me`
+  ```json
+  GET
+  { "authenthication": "string" } // header
+  { // response
+    "login": "string",
+    "name": "string",
+    "surname": "string",
+    "email": "string",
+    "activated": "boolean",
+    "avatar": "string",
+    "createdDatetime": "number",
+  }
+  ```
 
+  Aktualizacja danych zalogowanego użytkownika `/api/users/me`
+  ```json
+  PUT
+  { "authenthication": "string" } // header
+  { // response
+    "login?": "string",
+    "name?": "string",
+    "surname?": "string",
+    "email?": "string",
+    "avatar?": "string",
+    "password?": "string",
+    "newPassword1?": "string",
+    "newPassword2?": "string",
+  }
+  ```
 
-Lista wszystkich platform usera `/api/platforms`
-```json
-GET
-{ "authenthication": "string" } // header
-{ // response
-  "platforms": [
-    {
-      "id": "string",
-      "owner": "Object<User>",
-      "created": "number",
-      "administrator": "object<User>",
-      "name": "string",
-    }
-  ]
-}
-```
+  Pobranie przypiętych elementów `/api/users/me/pinned`
+  ```json
+  GET
+  { "authenthication": "string" } // header
+  { // response
+    "pinned": [
+      {
+        "type": "string",
+        "name": "string",
+        "id": "string",
+      }
+    ]
+  }
+  ```
 
-Tworzenie platformy `/api/platforms`
-```json
-POST
-{ "authenthication": "string" } // header
-{ // body
-  "name": "string",
-}
-```
+  Skasowanie przypiętego elementu `/api/users/me/pinned/:elementId`
+  ```json
+  DELETE
+  { "authenthication": "string" } // header
+  ```
 
-Kasowanie platformy `/api/platforms/id:number`
-```json
-DELETE
-{ "authenthication": "string" } // header
-```
-
-Lista userów platformy `/api/platforms/id:number/users`
-```json
-GET
-{ "authenthication": "string" } // header
-{ // response
-  "users": [
-    {
-      "id": "string",
-      "login": "string",
-      "name": "string",
-      "surname": "string",
-      "email": "string",
-      "activated": "boolean",
-      "avatar": "string",
-      "createdDatetime": "number",
-    }
-  ]
-}
-```
-
-Dodawanie użytkownika do platformy `/api/platforms/id:number/users`
-```json
-POST
-{ "authenthication": "string" } // header
-{ // body
-  "name": "string",
-  "surname": "string",
-  "email": "string",
-}
-```
-
-Kasowanie userów z platformy `/api/platforms/id:number/users/id:number`
-```json
-DELETE
-{ "authenthication": "string" } // header
-```
-
-
-### Zapytania modułu grupy "/api/groups/*"
-
-
-Lista grup użytkownika `/api/groups`
-```json
-GET
-{ "authenthication": "string" } // header
-{ // response
-  "groups": [
-    {
-      "id": "string",
-      "name": "string",
-      "createdDatetime": "number",
-      "lecturer": "User",
-    }
-  ]
-}
-```
-
-Tworzenie grupy `/api/groups`
-```json
-POST
-{ "authenthication": "string" } // header
-{ // body
-  "name": "string",
-  "lecturerId": "string",
-  "platformId": "string",
-}
-```
-
-Lista grup użytkownika z danej platformy `/api/groups/platform/:platformId`
-```json
-GET
-{ "authenthication": "string" } // header
-{ // response
-  "groups": [
-    "<Groups>",
-  ]
-}
-```
-
-Dodawanie usera do grupy `/api/groups/users`
-```json
-POST
-{ "authenthication": "string" } // header
-{ // body
-  "groupId": "string",
-  "usersIds": [
-    "<string>",
-  ]
-}
-```
-
-Pobieranie listy użytkowników z grupy `/api/groups/:groupId/users`
-```json
-GET
-{ "authenthication": "string" } // header
-{ // body
-  "users": [
-    "<User>",
-  ]
-}
-```
-
-Usuwanie usera z grupy `/api/groups/:groupId/users/:userId`
-```json
-DELETE
-{ "authenthication": "string" } // header
-```
-
-Kasowanie grupy `/api/groups/:groupId`
-```json
-DELETE
-{ "authenthication": "string" } // header
-```
-
-Pobranie wszystkich ocen użytkownika `/api/groups/notes`
-```json
-GET 
-{ "authenthication": "string" } // header
-{ // response
-  "data": [
-    {
-      "platform": "Platform",
-      "groups": [
-        {
-          "group": "Group",
-          "notes": [
-            {
-              "id": "string",
-              "value": "string",
-              "description": "string",
-              "date": "number",
-              "lecturer": "User",
-            }
-          ]
-        }
-      ]
-    }
-  ]
-}
-```
-
-Pobranie wszystkich ocen użytkownika z danej grupy `/api/groups/:groupId/notes`
-```json
-GET
-{ "authenthication": "string" } // header
-{ // response
-  "notes": [
-    "<Notes>",
-  ]
-}
-```
-
-Stworzenie oceny `/api/groups/:groupId/notes/`
-```json
-POST 
-{ "authenthication": "string" } // header
-{ // body
-  "value": "string",
-  "description": "string",
-  "userId": "string",
-}
-```
-
-Skasowanie oceny `/api/groups/notes/:noteId`
-```json
-DELETE 
-{ "authenthication": "string" } // header
-```
-
-Edycja oceny `/api/groups/notes/:noteId`
-```json
-PUT 
-{ "authenthication": "string" } // header
-{ // body
-  "value": "string",
-  "description": "string",
-}
-```
-
-
-### Zapytania modułu kalendarza "/api/meets/*"
-
-
-Tworzenie spotkania `/api/meets`
-```json
-POST
-{ "authenthication": "string" } // header
-{ // body
-  "dateStart": "number",
-  "dateEnd": "number",
-  "description": "string",
-  "externalUrl": "string",
-  "platformId": "string",
-  "groupId?": "string"
-}
-```
-
-Odczytywanie wszystkich spotkań `/api/meets`
-```json
-GET
-{ "authenthication": "string" } // header
-{ // body
-  "meets": [
-    "<Meet>"
-  ]
-}
-```
-
-Odczytywanie wszystkich spotkań z danej grupy `/api/meets/group/:groupId`
-```json
-GET
-{ "authenthication": "string" } // header
-{ // body
-  "meets": [
-    "<Meet>"
-  ]
-}
-```
-
-Odczytywanie wszystkich publicznych spotkań `/api/meets/public`
-```json
-GET
-{ "authenthication": "string" } // header
-{ // body
-  "meets": [
-    "<Meet>"
-  ]
-}
-```
-
-Odczytywanie wszystkich spotkań nieprzypisanych do grupy `/api/meets/groupless`
-```json
-GET
-{ "authenthication": "string" } // header
-{ // body
-  "meets": [
-    "<Meet>"
-  ]
-}
-```
-
-Odczytywanie spotkania `/api/meets/:meetId`
-```json
-GET
-{ "authenthication": "string" } // header
-{ // response
-  "meet": {
+  Dodawanie przypiętego elementu `/api/users/me/pinned`
+  ```json
+  POST
+  { "authenthication": "string" } // header
+  { // body
     "id": "string",
+    "type": "string",
+  }
+  ```
+</details>
+
+<details>
+  <summary>Zapytania modułu platformy "/api/platforms/*"</summary>
+
+  <!-- ### Zapytania modułu platformy "/api/platforms/*" -->
+
+
+  Lista wszystkich platform usera `/api/platforms`
+  ```json
+  GET
+  { "authenthication": "string" } // header
+  { // response
+    "platforms": [
+      {
+        "id": "string",
+        "owner": "Object<User>",
+        "created": "number",
+        "administrator": "object<User>",
+        "name": "string",
+      }
+    ]
+  }
+  ```
+
+  Tworzenie platformy `/api/platforms`
+  ```json
+  POST
+  { "authenthication": "string" } // header
+  { // body
+    "name": "string",
+  }
+  ```
+
+  Kasowanie platformy `/api/platforms/id:number`
+  ```json
+  DELETE
+  { "authenthication": "string" } // header
+  ```
+
+  Lista userów platformy `/api/platforms/id:number/users`
+  ```json
+  GET
+  { "authenthication": "string" } // header
+  { // response
+    "users": [
+      {
+        "id": "string",
+        "login": "string",
+        "name": "string",
+        "surname": "string",
+        "email": "string",
+        "activated": "boolean",
+        "avatar": "string",
+        "createdDatetime": "number",
+      }
+    ]
+  }
+  ```
+
+  Dodawanie użytkownika do platformy `/api/platforms/id:number/users`
+  ```json
+  POST
+  { "authenthication": "string" } // header
+  { // body
+    "name": "string",
+    "surname": "string",
+    "email": "string",
+  }
+  ```
+
+  Kasowanie userów z platformy `/api/platforms/id:number/users/id:number`
+  ```json
+  DELETE
+  { "authenthication": "string" } // header
+  ```
+</details>
+
+<details>
+  <summary>Zapytania modułu grupy "/api/groups/*"</summary>
+
+  <!-- ### Zapytania modułu grupy "/api/groups/*" -->
+
+
+  Lista grup użytkownika `/api/groups`
+  ```json
+  GET
+  { "authenthication": "string" } // header
+  { // response
+    "groups": [
+      {
+        "id": "string",
+        "name": "string",
+        "createdDatetime": "number",
+        "lecturer": "User",
+      }
+    ]
+  }
+  ```
+
+  Tworzenie grupy `/api/groups`
+  ```json
+  POST
+  { "authenthication": "string" } // header
+  { // body
+    "name": "string",
+    "lecturerId": "string",
+    "platformId": "string",
+  }
+  ```
+
+  Lista grup użytkownika z danej platformy `/api/groups/platform/:platformId`
+  ```json
+  GET
+  { "authenthication": "string" } // header
+  { // response
+    "groups": [
+      "<Groups>",
+    ]
+  }
+  ```
+
+  Dodawanie usera do grupy `/api/groups/users`
+  ```json
+  POST
+  { "authenthication": "string" } // header
+  { // body
+    "groupId": "string",
+    "usersIds": [
+      "<string>",
+    ]
+  }
+  ```
+
+  Pobieranie listy użytkowników z grupy `/api/groups/:groupId/users`
+  ```json
+  GET
+  { "authenthication": "string" } // header
+  { // body
+    "users": [
+      "<User>",
+    ]
+  }
+  ```
+
+  Usuwanie usera z grupy `/api/groups/:groupId/users/:userId`
+  ```json
+  DELETE
+  { "authenthication": "string" } // header
+  ```
+
+  Kasowanie grupy `/api/groups/:groupId`
+  ```json
+  DELETE
+  { "authenthication": "string" } // header
+  ```
+
+  Pobranie wszystkich ocen użytkownika `/api/groups/notes`
+  ```json
+  GET 
+  { "authenthication": "string" } // header
+  { // response
+    "data": [
+      {
+        "platform": "Platform",
+        "groups": [
+          {
+            "group": "Group",
+            "notes": [
+              {
+                "id": "string",
+                "value": "string",
+                "description": "string",
+                "date": "number",
+                "lecturer": "User",
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+  ```
+
+  Pobranie wszystkich ocen użytkownika z danej grupy `/api/groups/:groupId/notes`
+  ```json
+  GET
+  { "authenthication": "string" } // header
+  { // response
+    "notes": [
+      "<Notes>",
+    ]
+  }
+  ```
+
+  Stworzenie oceny `/api/groups/:groupId/notes/`
+  ```json
+  POST 
+  { "authenthication": "string" } // header
+  { // body
+    "value": "string",
+    "description": "string",
+    "userId": "string",
+  }
+  ```
+
+  Skasowanie oceny `/api/groups/notes/:noteId`
+  ```json
+  DELETE 
+  { "authenthication": "string" } // header
+  ```
+
+  Edycja oceny `/api/groups/notes/:noteId`
+  ```json
+  PUT 
+  { "authenthication": "string" } // header
+  { // body
+    "value": "string",
+    "description": "string",
+  }
+  ```
+</details>
+
+<details>
+  <summary>Zapytania modułu kalendarza "/api/meets/*"</summary>
+
+  <!-- ### Zapytania modułu kalendarza "/api/meets/*" -->
+
+
+  Tworzenie spotkania `/api/meets`
+  ```json
+  POST
+  { "authenthication": "string" } // header
+  { // body
     "dateStart": "number",
     "dateEnd": "number",
     "description": "string",
-    "link": "string",
+    "externalUrl": "string",
+    "platformId": "string",
+    "groupId?": "string"
   }
-}
-```
+  ```
 
-Kasowanie spotkania `/api/meets/:meetId`
-```json
-DELETE
-{ "authenthication": "string" } // header
-```
+  Odczytywanie wszystkich spotkań `/api/meets`
+  ```json
+  GET
+  { "authenthication": "string" } // header
+  { // body
+    "meets": [
+      "<Meet>"
+    ]
+  }
+  ```
 
-Odczytywanie uczestników spotkania `/api/meets/:meetId/users`
-```json
-GET
-{ "authenthication": "string" } // header
-{ // response
-  "participants": [
-    "<User>"
-  ]
-}
-```
+  Odczytywanie wszystkich spotkań z danej grupy `/api/meets/group/:groupId`
+  ```json
+  GET
+  { "authenthication": "string" } // header
+  { // body
+    "meets": [
+      "<Meet>"
+    ]
+  }
+  ```
 
-Dodawanie uczestników do spotkania `/api/meets/:meetId/users`
-```json
-POST
-{ "authenthication": "string" } // header
-{ // body
-  "participantsIds": [
-    "<string>"
-  ]
-}
-```
+  Odczytywanie wszystkich publicznych spotkań `/api/meets/public`
+  ```json
+  GET
+  { "authenthication": "string" } // header
+  { // body
+    "meets": [
+      "<Meet>"
+    ]
+  }
+  ```
 
-Usuwanie uczestnika ze spotkania `/api/meets/:meetId/users/:userId`
-```json
-DELETE
-{ "authenthication": "string" } // header
-```
+  Odczytywanie wszystkich spotkań nieprzypisanych do grupy `/api/meets/groupless`
+  ```json
+  GET
+  { "authenthication": "string" } // header
+  { // body
+    "meets": [
+      "<Meet>"
+    ]
+  }
+  ```
 
-
-### Zapytania modułu kalendarza "/api/calendar/*"
-
-
-Kalendarz `/api/calendar`
-```json
-GET
-{ "authenthication": "string" } // header
-{ // response
-  "events": [
-    {
-      "type": "string",
-      "date": "string",
-      "elementId": "string",
+  Odczytywanie spotkania `/api/meets/:meetId`
+  ```json
+  GET
+  { "authenthication": "string" } // header
+  { // response
+    "meet": {
+      "id": "string",
+      "dateStart": "number",
+      "dateEnd": "number",
+      "description": "string",
+      "link": "string",
     }
-  ]
-}
-```
+  }
+  ```
+
+  Kasowanie spotkania `/api/meets/:meetId`
+  ```json
+  DELETE
+  { "authenthication": "string" } // header
+  ```
+
+  Odczytywanie uczestników spotkania `/api/meets/:meetId/users`
+  ```json
+  GET
+  { "authenthication": "string" } // header
+  { // response
+    "participants": [
+      "<User>"
+    ]
+  }
+  ```
+
+  Dodawanie uczestników do spotkania `/api/meets/:meetId/users`
+  ```json
+  POST
+  { "authenthication": "string" } // header
+  { // body
+    "participantsIds": [
+      "<string>"
+    ]
+  }
+  ```
+
+  Usuwanie uczestnika ze spotkania `/api/meets/:meetId/users/:userId`
+  ```json
+  DELETE
+  { "authenthication": "string" } // header
+  ```
+</details>
+
+<details>
+  <summary>Zapytania modułu kalendarza "/api/calendar/*"</summary>
+
+  <!-- ### Zapytania modułu kalendarza "/api/calendar/*" -->
+
+
+  Kalendarz `/api/calendar`
+  ```json
+  GET
+  { "authenthication": "string" } // header
+  { // response
+    "events": [
+      {
+        "type": "string",
+        "date": "string",
+        "elementId": "string",
+      }
+    ]
+  }
+  ```
+</details>
