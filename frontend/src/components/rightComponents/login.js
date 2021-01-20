@@ -9,11 +9,13 @@ import { isLoggedIn } from "../../services/auth"
 import { handleForm } from "../formsHandling.js"
 import { DEBUG, DEBUG_LOGIN_URL, BACKEND_LOGIN_URL } from "../../config.js"
 import { setToken, getToken } from "../../services/auth"
+import ERRORS from "../../services/errorList"
 import socket from "../../services/webSocket"
 
 class RightContainerLogin extends React.Component {
   state = {
     rerender: true,
+    errorJsx: null,
     login: ``,
     password: ``,
   }
@@ -25,13 +27,15 @@ class RightContainerLogin extends React.Component {
   handleSubmit = event => {
     event.preventDefault()
 
+    const { login, password } = this.state
+
     handleForm(
       DEBUG ? DEBUG_LOGIN_URL : BACKEND_LOGIN_URL,
       DEBUG ? `GET` : `POST`,
       { "Content-Type": `application/json` },
-      this.state,
-
+      { login, password },
       {
+        dataErrCb: ({ code, error }) => this.setState( { errorJsx:ERRORS[ code ] } ),
         okCb({ token }) {
           setToken(token)
 
@@ -95,8 +99,9 @@ class RightContainerLogin extends React.Component {
                     </div>
                     <input type="submit" value="Zaloguj się" />
                   </div>
-                </form>
+                </form> 
               </div>
+              <div>{this.state.errorJsx}</div>
             </div>
           </div>
         </div>
