@@ -145,6 +145,7 @@ export default class MeetModule extends Module {
 
 
   httpHandleAddUsers = async (req, res, next) => {
+
     const client = req.user
     const meetingId = req.params.meetId
     let newMembers = req.body.participantsIds
@@ -161,8 +162,7 @@ export default class MeetModule extends Module {
 
 
 
-    const platformObj = await this.requiredModules.platformModule.getPlatformFromDb(meetingObj.platformId)
-
+    const platformObj = await this.requiredModules.platformModule.getPlatform(meetingObj.platformId)
     const isLecturer = this.isUserLecturer(client.id, meetingObj)
     const isOwner = this.requiredModules.platformModule.isPlatformOwner(client.id, platformObj)
 
@@ -173,7 +173,8 @@ export default class MeetModule extends Module {
       })
 
     //take users that are members of platform.
-    const positiveIds = platformObj.membersIds.filter((id) => newMembers.some(member => id === member))
+    let positiveIds = platformObj.membersIds.filter((id) => newMembers.some(member => id === member))
+    positiveIds = positiveIds.filter(id => meetingObj.membersIds.every(member != id))
 
     // const query = { // znajdz platformę  do której należa wszyscy.
     //   $and: [
@@ -185,11 +186,12 @@ export default class MeetModule extends Module {
     //   'platforms',
     //   { platformId:meetingObj.platformId, $in:[ newMembers,membersIds ] }
     // )
-    await this.dbManager.findOneAndUpdate(
-      this.collectionName,
-      { id: { $eq: meetingId } },
-      { $push: { membersIds: { $each: positiveIds } } },
-    )
+    if (positiveIds.length > 0)
+      await this.dbManager.findOneAndUpdate(
+        this.collectionName,
+        { id: { $eq: meetingId } },
+        { $push: { membersIds: { $each: positiveIds } } },
+      )
 
     if (positiveIds.length !== newMembers.length)
       return res.json({ code: 412, success: "Not all of users was assigned to platform. Because of that added to meeting only members of platform" })
@@ -335,7 +337,7 @@ export default class MeetModule extends Module {
     const client = req.user
 
     const { dateStart, dateEnd, description, externalUrl, platformId, groupId } = req.body
-    const platfromObj = await this.requiredModules.platformModule.getPlatformFromDb(platformId)
+    const platfromObj = await this.requiredModules.platformModule.getPlatform(platformId)
     const isAssigned = await this.requiredModules.platformModule.checkUserAssigned(client.id, platformId)
 
     if (groupId != "") {
@@ -349,7 +351,7 @@ export default class MeetModule extends Module {
       return res.status(400).json({ code: 400, error: "You cant create meeting on platform, You need to be a member of platfrom." })
 
     //TODO: remove double assigmentn of user.
-    const ids = groupId ? [client.id, ...(await this.requiredModules.groupModule.getGroupObject(groupId)).membersIds] : [client.id]
+    const ids = groupId ? (await this.requiredModules.groupModule.getGroupObject(groupId)).membersIds : [client.id]
 
     const meeting = new Meet(
       client, description, platformId, ids, externalUrl,

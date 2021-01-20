@@ -1,7 +1,7 @@
 import { sameWords } from "../../src/utils.js"
 import Module from "../module.js"
 import group from '../group/index.js'
-import { ANSWERS } from "./consts.js"
+import { ANSWERS, MAX_PLATFORM_NUMBER } from "./consts.js"
 import { Platform } from "./model.js"
 import User from './../user/model.js'
 import { DEBUG } from '../../consts.js'
@@ -70,13 +70,24 @@ export default class PlatformModule extends Module {
   httpDeletePlatform = async (req, res, next) => {
     // DELETE usuwanie platformy   /api/platforms/:id
     const targetPlatformId = req.params.id
-    if (!await this.platformExist(targetPlatformId))
+    const client = req.user
+
+    const target = await this.getPlatform(targetPlatformId)
+
+    if (!target)
       return res.status(400).json({ code: 208, error: "Cannot delete not existing platform." })
 
-    if (!await this.checkUserAdmin(req.user.id, targetPlatformId))
+    if (!this.isPlatformOwner(client, target))
       return res.status(400).json({ code: 209, error: "You dont have privilages to create new users on this platform." })
 
     await this.dbManager.deleteObject(this.collectionName, { id: { $eq: targetPlatformId } })
+
+    // TODO: find all meetings with group id
+    // delete all meetings with id 
+    // TODO: find all groups with id
+    // delete all groups with id
+    
+
     return res.status(200).json({ code: 210, success: "Platform deleted successfuly." })
   }
 
@@ -145,10 +156,15 @@ export default class PlatformModule extends Module {
 
 
 
-    const processedUsers = await this.getAllUsersInPlatform(targetPlatformId)
+
+    const UserArray = await this.getAllUsersInPlatform(targetPlatformId)
       .then(ids => ids.map(id => this.requiredModules.userModule.getUserById(id)))
       .then(users => Promise.all(users))
-      .then(users => users.map(({ login, password, ...processedUser }) => processedUser))
+
+
+
+    const processedUsers = UserArray.filter(user => user != null)
+      .map(({ login, password, ...processedUser }) => processedUser)
 
     return res.status(200).json({ users: processedUsers })
   }
@@ -178,7 +194,10 @@ export default class PlatformModule extends Module {
 
 
   canCreatePlatform = async (userId) => {
-    let ownerOf = await this.dbManager.findManyObjects(this.collectionName, { 'owner.id': { $eq: userId } }).then(cursor => cursor.toArray())
+    const countPlatforms = await this.dbManager.findManyObjects(this.collectionName, { 'owner.id': { $eq: userId } }).then(cursor => cursor.count())
+    return countPlatforms < MAX_PLATFORM_NUMBER
+
+    let ownerOf = await (this.dbManager.findManyObjects(this.collectionName, { 'owner.id': { $eq: userId } })).then(cursor => cursor.toArray())
     return ownerOf.length === 0 // TODO: max count of owner platform.
   }
 
@@ -199,7 +218,7 @@ export default class PlatformModule extends Module {
   }
 
 
-  getPlatform = (platformId)  =>  this.dbManager.findObject(this.collectionName, { id: { $eq: platformId } })
+  getPlatform = (platformId) => this.dbManager.findObject(this.collectionName, { id: { $eq: platformId } })
 
 
 

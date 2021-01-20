@@ -111,6 +111,10 @@ class DatabaseManager {
     return this.#db.createCollection(collectionName)
   }
 
+  find(collectionName,query) {
+    return this.#db.collection(collectionName).find(query)
+  }
+
 
   /**
    * @param {string} collectionName  name of colleciton.

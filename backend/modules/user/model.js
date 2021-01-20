@@ -26,7 +26,7 @@ export default class User {
     this.login = login ?? name.slice(0, 2)
       + Math.random().toString().slice(2, 5)
       + surname.slice(0, 2)
-    this.password = password ?? randomString({length:10,countChars:4})
+    this.password = password ?? randomString(8,4)
 
     this.activated = activated
     this.avatar = avatar ?? `/media/image/avatarDefault.jpg`

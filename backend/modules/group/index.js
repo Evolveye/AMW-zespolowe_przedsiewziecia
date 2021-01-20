@@ -33,7 +33,7 @@ export default class GroupModule extends Module {
     // GET Lista grup usera - wszystkie do które należy. /api/groups // header { "authenthication": "string" }
     app.get(`/api/groups`, this.httpHandleMyGroups)
 
-    // GET api/groups/platform/:id -- wszystkie grupy na danej platformie.
+    // GET api/groups/platform/:id -- wszystkie grupy na danej platformie. platform.id == group.platformId, groupId.members = client.id
     app.get(`/api/groups/platform/:platformId`, this.httpHandleAllGroupsInPlatform)
 
     // get all users of group
@@ -188,12 +188,13 @@ export default class GroupModule extends Module {
   httpHandleDeleteNote = async (req, res, next) => {
     // Skasowanie oceny /api/groups/notes/:noteId
     // { "authenthication": "string" } // header
+    const params = req.param
     const noteId = req.param.noteId
     const client = req.user
 
     // admin or lecturer.
 
-    const targetNote = await this.dbManager.findObject(`groupsNotes`, { id: { $eq: noteId } })
+    const targetNote = await this.dbManager.findObject(`groupsNotes`, { id: noteId })
 
 
     if (!targetNote)
@@ -231,7 +232,7 @@ export default class GroupModule extends Module {
     // platformid= targetGroup.platformId
     const isOwner = await this.requiredModules.platformModule.checkUserAdmin(clinet.id, targetGroup.platformId)
     const isMember = this.isUserAssigned(clinet.id, targetGroup)
-    const isLecturer = this.isLecturer(clinet.id,targetGroup)
+    const isLecturer = this.isLecturer(clinet.id, targetGroup)
 
     if (!isMember && !isOwner)
       return res.status(400).json({ code: 305, error: "Only member or Platform owner can see all user" })
@@ -239,38 +240,38 @@ export default class GroupModule extends Module {
     // wszysztkie oceny które sa przypisane do grupy.
     const allNotes = await this.dbManager.findManyObjects(
       `groupsNotes`,
-      { groupId: groupId }).then(cursor=> cursor.toArray())
+      { groupId: groupId }).then(cursor => cursor.toArray())
 
 
     const users = new Map()
     const usersIds = new Set()
     const notes = allNotes.filter(
       note => isOwner || isLecturer
-      ? true
-      : note.userId === clinet.id
+        ? true
+        : note.userId === clinet.id
     )
 
-    notes.forEach( ({ userId }) => usersIds.add( userId ) )
+    notes.forEach(({ userId }) => usersIds.add(userId))
 
     for (const id of usersIds) {
       const userObj = await this.requiredModules.userModule.getUserById(id)
-      users.set(userObj.id ,userObj)
+      users.set(userObj.id, userObj)
     }
 
-    const notesWithUsers = notes.map( note => {
+    const notesWithUsers = notes.map(note => {
       const newNote = {
-        user: users.get( note.userId ),
+        user: users.get(note.userId),
         ...note
       }
 
       delete newNote.userId
 
       return newNote
-    } )
+    })
 
     //const notes = await this.getAllUserNotesInGroup(groupId, clinet.id).then(cursor => cursor.toArray())
 
-    return res.json({ notes:notesWithUsers })
+    return res.json({ notes: notesWithUsers })
   }
 
 
@@ -323,10 +324,23 @@ export default class GroupModule extends Module {
     const userPlatforms = await this.requiredModules.platformModule.getAllUserPlatforms(client.id).then(cur => cur.toArray())
     /** @type {Group[]} */
     const userGroups = await this.getAllUserGroups(client.id).then(cur => cur.toArray())
-    const userNotes = await this.getAllUserNotes(client.id).then(cur => cur.toArray())
+
+    let userNotes = await this.dbManager.find(
+      `groupsNotes`,
+      {
+        $or: [
+          { "lecturer.id": client.id },
+          { "userId": client.id }
+        ]
+      }).toArray()
+
+    // db.groupsNotes.find({ $or: [{ "lecturer.id": "1610975789753t49023839340064534r" }, { "userId": "1610975831665t5971833184986888r" }] })
+
+
+    //const userNotes = await this.getAllUserNotes(client.id).then(cur => cur.toArray())
+
 
     // zmiana nazwy db dla ocen
-
     userPlatforms.forEach(platform => groupsInPlatforms[platform.id] = {
       platform,
       groups: []
@@ -338,8 +352,15 @@ export default class GroupModule extends Module {
     })
 
     userNotes.forEach(note => notesInGroups[note.groupId].notes.push(note))
-    Object.values(notesInGroups).forEach(value =>
+
+    Object.values(notesInGroups).forEach(value => {
+      // console.log({ pID: value.group.platformId })
+      // console.log({ groupsInPlatforms })
+      // console.log({ value })
       groupsInPlatforms[value.group.platformId].groups.push(value)
+      // console.log(groupsInPlatforms[value.group.platformId])
+    }
+
     )
 
     const data = Object.values(groupsInPlatforms)
@@ -350,19 +371,33 @@ export default class GroupModule extends Module {
   httpHandleAllGroupsInPlatform = async (req, res, next) => {
     const user = req.user
 
-    console.log(req.params)
+    //console.log(req.params)
     const targetPlatform = req.params.platformId
 
-    if (!(await this.requiredModules.platformModule.platformExist(targetPlatform)))
+    const platformObj = await this.requiredModules.platformModule.getPlatform(targetPlatform)
+
+
+    if (!platformObj)
       return res.status(400).json({ code: 208, error: "Cannot create new User. Bacause target platform does not exist." })
 
-    if (!(await this.requiredModules.platformModule.checkUserAdmin(user.id, targetPlatform)))
-      return res.status(400).json({ code: 209, error: "You are not an admin, to get all groups in platform." })
+    const isOwner = this.requiredModules.platformModule.isPlatformOwner(user.id, platformObj)
 
-    const groups = await this.dbManager.findManyObjects(
-      this.collectionName,
-      { platformId: { $eq: targetPlatform } }
-    ).then(cursor => cursor.toArray())
+    const groups =
+      isOwner ? await this.getAllGroupsFromPlatform(targetPlatform)
+        : await this.getAllGroupsFromPlatformWithMemberId(user.id, targetPlatform)
+
+
+
+
+    // TODO Refactor this, handle all platforms with user assigned to a platformId
+
+    // if (!(await this.requiredModules.platformModule.checkUserAdmin(user.id, targetPlatform)))
+    //   return res.status(400).json({ code: 209, error: "You are not an admin, to get all groups in platform." })
+
+    // const groups = await this.dbManager.findManyObjects(
+    //   this.collectionName,
+    //   { platformId: { $eq: targetPlatform } }
+    // ).then(cursor => cursor.toArray())
 
     return res.json({ groups })
   }
@@ -370,15 +405,14 @@ export default class GroupModule extends Module {
 
 
   httpHandleMyGroups = async (req, res, next) => {
-    // GET Lista grup usera - wszystkie do które należy. /api/groups // header { "authenthication": "string" }
+    // GET Lista grup usera - wszystkie do które należy.
+    // /api/groups // header { "authenthication": "string" }
     const client = req.user
 
-    //BUG
     const clientGroups = await this.dbManager.findManyObjects(
       this.collectionName,
       { membersIds: { $in: [client.id] } }
     ).then(cursor => cursor.toArray())
-
 
 
     return res.json({ groups: clientGroups })
@@ -431,7 +465,7 @@ export default class GroupModule extends Module {
     if (!groupObj)
       return res.status(400).json({ code: 302, error: "Targeted group does not exist." })
 
-    const platformObj = await this.requiredModules.platformModule.getPlatformFromDb(groupObj.platformId)
+    const platformObj = await this.requiredModules.platformModule.getPlatform(groupObj.platformId)
 
     const platformOwner = platformMod.isPlatformOwner(req.user.id, platformObj)
     const groupLecturer = groupObj.lecturer.id == req.user.id
@@ -453,17 +487,18 @@ export default class GroupModule extends Module {
     // }
 
 
+    let positiveIds = usersIds.filter(id => platformObj.membersIds.some(member => member === id))
+    positiveIds = positiveIds.filter(id => groupObj.membersIds.every(memberId => memberId !== id)) // przefiltruj wszystkich którzy sa juz dopisani.
 
-    const positiveIds = platformObj.membersIds.filter((id) => usersIds.some(member => id === member))
 
+    if (positiveIds.length > 0)
+      await this.dbManager.findOneAndUpdate(
+        this.collectionName,
+        { id: { $eq: groupId } },
+        { $push: { membersIds: { $each: positiveIds } } },
+      )
 
-    await this.dbManager.findOneAndUpdate(
-      this.collectionName,
-      { id: { $eq: groupId } },
-      { $push: { membersIds: { $each: positiveIds } } },
-    )
-
-    if (positiveIds.length !== platformObj.membersIds.length)
+    if (positiveIds.length !== usersIds.length)
       return res.json({ code: 320, success: "Not all of users was assigned to group. Because not all of users are targeted platfrom member." })
 
 
@@ -532,6 +567,22 @@ export default class GroupModule extends Module {
 
 
 
+  getAllGroupsFromPlatform = (platformId) =>
+    this.dbManager.findManyObjects(
+      this.collectionName,
+      {
+        'platformId': { $eq: platformId }
+      }).then(cursor => cursor.toArray())
+
+
+  getAllGroupsFromPlatformWithMemberId = (memberId, platformId) =>
+    this.dbManager.findManyObjects(this.collectionName,
+      {
+        $and: [
+          { 'platformId': { $eq: platformId } },
+          { 'membersIds': { $in: [memberId] } }
+        ],
+      }).then(cursor => cursor.toArray())
 
 
   toString() {

@@ -4,7 +4,7 @@ import Logger from "./src/Logger.js"
 export const PORT = 3000
 export const APP_ROOT_DIR = import.meta.url.match(/(.*)\//)[1].substr(8)
 
-export const DEBUG = true
+export const DEBUG = false
 
 export const LOG_PAGES_ROUTE = true
 export const LOG_WS_EVENTS = true

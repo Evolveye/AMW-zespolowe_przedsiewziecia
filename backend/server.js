@@ -66,6 +66,7 @@ modules.forEach((mod) => {
   log(LOGGERS.server, `[fgYellow]LOADED MODULE[] ${mod.toString()}`)
   mod.configure(app)
 })
+
 app.use((_, res) => res.status( 404 ).json( { code:0, error:`Endpoint not found` } ) )
 
 wss.on(`connection`, (ws) => {
