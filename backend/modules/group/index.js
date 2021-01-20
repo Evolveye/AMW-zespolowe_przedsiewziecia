@@ -188,8 +188,7 @@ export default class GroupModule extends Module {
   httpHandleDeleteNote = async (req, res, next) => {
     // Skasowanie oceny /api/groups/notes/:noteId
     // { "authenthication": "string" } // header
-    const params = req.param
-    const noteId = req.param.noteId
+    const noteId = req.params.noteId
     const client = req.user
 
     // admin or lecturer.
@@ -205,7 +204,6 @@ export default class GroupModule extends Module {
 
     const platformId = group.platformId;
     const isAdmin = await this.requiredModules.platformModule.checkUserAdmin(client.id, platformId)
-
     if (targetNote.lecturer.id != client.id && !isAdmin)
       return res.status(400).json({ code: 308, error: "Only Lecturer or Admin can delete note." })
 
