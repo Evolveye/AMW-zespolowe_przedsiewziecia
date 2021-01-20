@@ -2,14 +2,15 @@ import React from "react"
 
 import SEO from "./seo.js"
 
-export default () => <>
-  <SEO title="Strona główna" />
+import "../utils/sanitize.css"
+import classes from "./layout.module.css"
 
-  <nav>
-    Wyloguj
-  </nav>
+export default ({ className=``, nav, children }) => (
+  <div className={classes.root}>
+    <SEO title="Strona główna" />
 
-  <main>
-    main
-  </main>
-</>
+    <nav className={classes.nav}>{nav}</nav>
+
+    <main className={`${classes.main} ${className}`}>{children}</main>
+  </div>
+)
