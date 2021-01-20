@@ -104,19 +104,20 @@ export default class NotesGroup extends React.Component {
 
     render = () => {
       const { note } = this.props
-      const { active } = this.state
+      //const { active } = this.state
       const backgroundColor = note.value in this.flooredNotesColors
         ? this.flooredNotesColors[ note.value ]
         : this.flooredNotesColors.default
 
-      return <span
+      return <button
         style={{ backgroundColor, ...this.noteStyle }}
         onPointerEnter={this.handleHoverStart}
         onPointerLeave={this.handleHoverEnd}
         onClick={this.handleClick}
+
       >
         {note.value}
-      </span>
+      </button>
     }
   }
 

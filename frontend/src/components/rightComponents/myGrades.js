@@ -50,12 +50,12 @@ class RightContainerMyGrades extends React.Component {
         return data.map((platform, index) => (
           <div className="subject" key={index}>
             <div className="subject-icon"></div>
-            <div
+            <button
               className="subject-name"
               onClick={tag => this.handlePlatformClick(tag, platform.groups)}
             >
               {platform.platform.name}
-            </div>
+            </button>
           </div>
         ))
       })

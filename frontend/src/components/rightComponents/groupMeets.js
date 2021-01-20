@@ -89,14 +89,13 @@ class GroupMakeMeets extends React.Component {
     <div className="right-container-settings">
     <div className="settings-header">
       <div className="back-main-view">
-        <span
+        <button
           onClick={this.goBack}
-          onKeyDown={this.goBack}
-          role="button"
+          onKeyDown={this.goBack} 
           tabIndex="0"
         >
           Powrót do widoku głównego
-        </span>
+        </button>
       </div>
     </div>
     <div className="platform-users">
