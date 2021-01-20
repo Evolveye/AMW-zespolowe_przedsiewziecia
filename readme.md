@@ -76,7 +76,7 @@ Niektóre elementy (w tym parametry) mogą być opcjonalne, czyli nie musza wyst
 }
 ```
 **Przykład**:  
-Aby dowiedzieć się wiecej o poniższym przykładzie zejdź do [sekcji z szablonem](###Szablon-endpointu)
+Aby dowiedzieć się wiecej o poniższym przykładzie zejdź do [sekcji z szablonem](#Szablon-endpointu)
 ```json
 GET // brak nazwy uprawnień
 { // body -- zamiast "response" oraz brak "header"
