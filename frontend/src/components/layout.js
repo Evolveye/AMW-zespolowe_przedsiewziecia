@@ -1,28 +1,15 @@
-/**
- * Layout component that queries for data
- * with Gatsby's useStaticQuery component
- *
- * See: https://www.gatsbyjs.com/docs/use-static-query/
- */
-
 import React from "react"
-import PropTypes from "prop-types"
 
+import SEO from "./seo.js"
 
-import "./layout.css"
+export default () => <>
+  <SEO title="Strona główna" />
 
-const Layout = () => {
- 
+  <nav>
+    Wyloguj
+  </nav>
 
-  return (
-    <>
-      
-    </>
-  )
-}
-
-Layout.propTypes = {
-  children: PropTypes.node.isRequired,
-}
-
-export default Layout
+  <main>
+    main
+  </main>
+</>

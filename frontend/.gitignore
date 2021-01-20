@@ -72,4 +72,8 @@ yarn-error.log
 # Zip file
 *.zip
 
+
+
+# MY EXCLUDES
 backend/*
+*_old
