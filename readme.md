@@ -16,9 +16,10 @@ root/
 
 
 
-## Wstępny Routing API
+## Opis API
 
 
+### WebSocket
 
 Do poniższych endpointów APi
 należy utworzyć także zdarzenia WS o nazwach pasujacych do szablonu
@@ -30,6 +31,7 @@ Przykład
 Wszelkie parametry idące z adresem HTTP
 powinny być umieszcozne w danych przesyłanych na serwer
 
+**Przykład**:
 ```js
 socket.emit( `api.get.groups.notes`, {
   $args: {
@@ -42,15 +44,9 @@ socket.emit( `api.post.groups`, {
 } )
 ```
 
-Dodatkowo niektóre pola moga być polami opcjonalnymi.
-Nazwy takowych pól zakończone są znakiem zapytania
 
-```json
-{
-  "nazwa_pola_obowiązkowego": "typ",
-  "nazwa_pola_oopcjonalnego?": "typ"
-}
-```
+### Prosty REST
+
 
 Prosta wersja REST API zakłada obsługę poniższych metod HTTP:
   * **GET** odpowiada za pobranie danych
@@ -68,7 +64,61 @@ Prosta wersja REST API zakłada obsługę poniższych metod HTTP:
   * **PUT** odpowiada za edycję danych
 
 
----
+### Parametry
+
+Niektóre elementy (w tym parametry) mogą być opcjonalne, czyli nie musza występować.
+
+**Przykład**:
+```json
+{
+  "nazwa_pola_obowiązkowego": "typ",
+  "nazwa_pola_oopcjonalnego?": "typ"
+}
+```
+**Przykład**:  
+Aby dowiedzieć się wiecej o poniższym przykładzie zejdź do [sekcji z szablonem](###Szablon-endpointu)
+```json
+GET // brak nazwy uprawnień
+{ // body -- zamiast "response" oraz brak "header"
+
+}
+```
+
+
+### Zależności między modułami
+
+
+Każdy moduł moze mieć zdefiniowany własny zestaw zależności wymaganych i dodatkowych.
+Moduły mogą komunikować się ze sobą jedynie poprzez tego typu zależności.
+
+**Przykład**:
+Moduł `platform` zależy obowiązkowo od moduły `user` --
+bez modułu `user` moduł `platform` nigdy by się nie stworzył i
+jego instancja nigdy by nie została utworzona na serwerze.
+
+**Przykład**:
+Moduł `platform` potrafi korzystać z modułu `group`
+(moduł `group` jest modułem dodatkowym, rozszerzajacym możliwości `platform`).
+Moduł `platform` moze odnosić się do kolekcji bazy danych oraz pól instancji modułu `group`.
+
+
+### Szablon endpointu
+
+
+&lt;nazwa endpointu&gt; `<ścieżka>`
+```json
+<metoda> [uprawnienie]
+{ "pole": "typ danych" } // header?
+{ "pole": "typ danych" } // body | response
+```
+
+Uprawnienie może odnosić się do tego konkretnego modułu (przedrostek "this."),
+lub do zależnego modułu (przedrostek będący nazwą modułu, przykłądowo "platform.").
+
+
+## Routing API
+
+
 
 <details>
   <summary>Zapytania generalne "/api/*"</summary>
@@ -192,6 +242,23 @@ Prosta wersja REST API zakłada obsługę poniższych metod HTTP:
 
   <!-- ### Zapytania modułu platformy "/api/platforms/*" -->
 
+  **Zależny obowiązkowo od**: user
+  **Zależny nieobowiązkowo od**: group
+
+  Uprawnienia i ich domyślne wartości w obrębie platformy
+  ```js
+  isOwner = false
+  isPersonel = false
+
+  canEditDetails = false
+  canManageUsers = false
+  canManageRoles = false
+  canManageGroups = false
+  canManageCalendar = false
+  canManageMeets = false
+  ```
+
+  ---
 
   Lista wszystkich platform usera `/api/platforms`
   ```json
@@ -221,7 +288,7 @@ Prosta wersja REST API zakłada obsługę poniższych metod HTTP:
 
   Kasowanie platformy `/api/platforms/:platformId`
   ```json
-  DELETE
+  DELETE this.isOwner
   { "authenthication": "string" } // header
   ```
 
@@ -247,7 +314,7 @@ Prosta wersja REST API zakłada obsługę poniższych metod HTTP:
 
   Dodawanie użytkownika do platformy `/api/platforms/:platformId/users`
   ```json
-  POST
+  POST this.canManageUsers
   { "authenthication": "string" } // header
   { // body
     "name": "string",
@@ -259,7 +326,7 @@ Prosta wersja REST API zakłada obsługę poniższych metod HTTP:
 
   Kasowanie userów z platformy `/api/platforms/:platformId/users/:userId`
   ```json
-  DELETE
+  DELETE this.canManageUsers
   { "authenthication": "string" } // header
   ```
 </details>
@@ -269,6 +336,18 @@ Prosta wersja REST API zakłada obsługę poniższych metod HTTP:
 
   <!-- ### Zapytania modułu grupy "/api/groups/*" -->
 
+  **Zależny obowiązkowo od**: user, platform
+
+  Uprawnienia i ich domyślne wartości w obrębie grupy
+  ```js
+  isOwner = false
+
+  canManageUsers = false
+  canManageNotes = false
+  canManageMeets = false
+  ```
+
+  ---
 
   Lista grup użytkownika `/api/groups`
   ```json
@@ -288,7 +367,7 @@ Prosta wersja REST API zakłada obsługę poniższych metod HTTP:
 
   Tworzenie grupy `/api/groups`
   ```json
-  POST
+  POST platform.canManageGroups
   { "authenthication": "string" } // header
   { // body
     "name": "string",
@@ -310,7 +389,7 @@ Prosta wersja REST API zakłada obsługę poniższych metod HTTP:
 
   Dodawanie usera do grupy `/api/groups/users`
   ```json
-  POST
+  POST this.canManageUsers
   { "authenthication": "string" } // header
   { // body
     "groupId": "string",
@@ -333,19 +412,19 @@ Prosta wersja REST API zakłada obsługę poniższych metod HTTP:
 
   Usuwanie usera z grupy `/api/groups/:groupId/users/:userId`
   ```json
-  DELETE
+  DELETE this.canManageUsers
   { "authenthication": "string" } // header
   ```
 
   Kasowanie grupy `/api/groups/:groupId`
   ```json
-  DELETE
+  DELETE this.isOwner
   { "authenthication": "string" } // header
   ```
 
   Pobranie wszystkich ocen użytkownika `/api/groups/notes`
-  ```json
-  GET 
+  ```json 
+  GET this.canManageNotes?
   { "authenthication": "string" } // header
   { // response
     "data": [
@@ -372,7 +451,7 @@ Prosta wersja REST API zakłada obsługę poniższych metod HTTP:
 
   Pobranie wszystkich ocen użytkownika z danej grupy `/api/groups/:groupId/notes`
   ```json
-  GET
+  GET this.canManageNotes?
   { "authenthication": "string" } // header
   { // response
     "notes": [
@@ -383,7 +462,7 @@ Prosta wersja REST API zakłada obsługę poniższych metod HTTP:
 
   Stworzenie oceny `/api/groups/:groupId/notes/`
   ```json
-  POST 
+  POST this.canManageNotes
   { "authenthication": "string" } // header
   { // body
     "value": "string",
@@ -394,13 +473,13 @@ Prosta wersja REST API zakłada obsługę poniższych metod HTTP:
 
   Skasowanie oceny `/api/groups/notes/:noteId`
   ```json
-  DELETE 
+  DELETE this.canManageNotes
   { "authenthication": "string" } // header
   ```
 
   Edycja oceny `/api/groups/notes/:noteId`
   ```json
-  PUT 
+  PUT this.canManageNotes
   { "authenthication": "string" } // header
   { // body
     "value": "string",
@@ -414,10 +493,20 @@ Prosta wersja REST API zakłada obsługę poniższych metod HTTP:
 
   <!-- ### Zapytania modułu kalendarza "/api/meets/*" -->
 
+  **Zależny obowiązkowo od**: user, platform
+  
+  Uprawnienia i ich domyślne wartości w obrębie grupy
+  ```js
+  isOwner = false
+
+  canManageUsers = false
+  ```
+
+  ---
 
   Tworzenie spotkania `/api/meets`
   ```json
-  POST
+  POST (platform.canManageMeets | group.canManageMeets)
   { "authenthication": "string" } // header
   { // body
     "dateStart": "number",
@@ -490,7 +579,7 @@ Prosta wersja REST API zakłada obsługę poniższych metod HTTP:
 
   Kasowanie spotkania `/api/meets/:meetId`
   ```json
-  DELETE
+  DELETE this.isOwner
   { "authenthication": "string" } // header
   ```
 
@@ -507,7 +596,7 @@ Prosta wersja REST API zakłada obsługę poniższych metod HTTP:
 
   Dodawanie uczestników do spotkania `/api/meets/:meetId/users`
   ```json
-  POST
+  POST this.canManageUsers
   { "authenthication": "string" } // header
   { // body
     "participantsIds": [
@@ -518,7 +607,7 @@ Prosta wersja REST API zakłada obsługę poniższych metod HTTP:
 
   Usuwanie uczestnika ze spotkania `/api/meets/:meetId/users/:userId`
   ```json
-  DELETE
+  DELETE this.canManageUsers
   { "authenthication": "string" } // header
   ```
 </details>
@@ -528,6 +617,9 @@ Prosta wersja REST API zakłada obsługę poniższych metod HTTP:
 
   <!-- ### Zapytania modułu kalendarza "/api/calendar/*" -->
 
+  **Zależny obowiązkowo od**: user
+
+  ---
 
   Kalendarz `/api/calendar`
   ```json
