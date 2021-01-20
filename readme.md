@@ -219,13 +219,13 @@ Prosta wersja REST API zakłada obsługę poniższych metod HTTP:
   }
   ```
 
-  Kasowanie platformy `/api/platforms/id:number`
+  Kasowanie platformy `/api/platforms/:platformId`
   ```json
   DELETE
   { "authenthication": "string" } // header
   ```
 
-  Lista userów platformy `/api/platforms/id:number/users`
+  Lista userów platformy `/api/platforms/:platformId/users`
   ```json
   GET
   { "authenthication": "string" } // header
@@ -245,7 +245,7 @@ Prosta wersja REST API zakłada obsługę poniższych metod HTTP:
   }
   ```
 
-  Dodawanie użytkownika do platformy `/api/platforms/id:number/users`
+  Dodawanie użytkownika do platformy `/api/platforms/:platformId/users`
   ```json
   POST
   { "authenthication": "string" } // header
@@ -253,10 +253,11 @@ Prosta wersja REST API zakłada obsługę poniższych metod HTTP:
     "name": "string",
     "surname": "string",
     "email": "string",
+    "roleName?": "string",
   }
   ```
 
-  Kasowanie userów z platformy `/api/platforms/id:number/users/id:number`
+  Kasowanie userów z platformy `/api/platforms/:platformId/users/:userId`
   ```json
   DELETE
   { "authenthication": "string" } // header
