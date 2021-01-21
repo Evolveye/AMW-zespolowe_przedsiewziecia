@@ -26,7 +26,15 @@ export default ({ className }) => (
         <Link to="/user/notes">Zebrane oceny</Link>
       </li>
       <li className={classes.item}>
-        <Link to="/logout">Wyloguj</Link>
+        <Link to="/user/logout">Wyloguj</Link>
+      </li>
+    </ul>
+
+    <hr />
+
+    <ul className={classes.list}>
+      <li className={classes.item}>
+        <Link to="/">Strona główna</Link>
       </li>
     </ul>
   </nav>

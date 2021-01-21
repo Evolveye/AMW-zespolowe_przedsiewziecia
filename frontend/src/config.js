@@ -2,6 +2,7 @@ export const HOST = "http://localhost:3000"
 
 export const BACKEND_LOGIN_URL = `${HOST}/api/login`
 export const BACKEND_REGISTER_URL = `${HOST}/api/register`
+export const BACKEND_LOGOUT_URL = `${HOST}/api/logout`
 
 export const BACKEND_REGISTER_CONFIRM = `${HOST}/api/activate/:code`
 

@@ -1,7 +1,12 @@
 import React from "react"
 import { navigate } from "gatsby"
 
-import { BACKEND_USER_ME_URL, DEBUG_USER_ME_URL, DEBUG } from "../config.js"
+import {
+  BACKEND_USER_ME_URL,
+  DEBUG_USER_ME_URL,
+  BACKEND_LOGOUT_URL,
+  DEBUG,
+} from "../config.js"
 import { isBrowser } from "./functions.js"
 
 /**
@@ -67,14 +72,13 @@ export function isLoggedIn() {
 export function logout(cb) {
   setUser(null)
 
-  cb()
-
   if (isBrowser()) {
-    fetch(`/api/logout`, {
+    fetch(BACKEND_LOGOUT_URL, {
       method: `post`,
       headers: { Authentication: `Bearer ${getToken()}` },
     })
       .then(() => window.localStorage.clear())
+      .then(() => cb && cb())
       .catch(console.error)
   }
 }

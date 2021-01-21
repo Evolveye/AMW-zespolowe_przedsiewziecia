@@ -12,3 +12,10 @@
   flex: 1;
   text-align: center;
 }
+
+.logout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}

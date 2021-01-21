@@ -33,7 +33,7 @@ export default class Login extends React.Component {
         method="POST"
         headers={{ "Content-Type": "application/json" }}
         address={BACKEND_LOGIN_URL}
-        onOk={({ token }) => {setToken( token ); navigate( `/user/profile` )}}
+        onOk={({ token }) => {setToken( token ); navigate( `/user/me` )}}
         onError={({ code }) => this.setState({ error: ERRORS[code] })}
       />
       {this.state.error && <article className={classes.errorBox}>{this.state.error}</article>}
