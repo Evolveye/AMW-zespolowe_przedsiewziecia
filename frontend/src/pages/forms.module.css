@@ -1,0 +1,14 @@
+.formWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.errorBox {
+  background-color: #cc3311;
+  padding: 20px;
+  margin: 50px;
+  color: white;
+  font-weight: bold;
+}

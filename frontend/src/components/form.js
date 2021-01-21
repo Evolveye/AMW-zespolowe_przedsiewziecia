@@ -44,24 +44,28 @@ export default class Form extends React.Component {
   handleSubmit = e => {
     e.preventDefault()
 
-    const { address, method: methodNotUppered=`GET`, headers } = this.props
+    const { address, method: methodNotUppered = `GET`, headers } = this.props
     const method = methodNotUppered.toUpperCase()
     const fields = Array.from(e.target.elements).filter(({ name }) => name)
-    const dataTosend = fields.reduce((obj,field) => ({
-      [field.name]: field.value,
-      ...obj
-    }), {} )
+    const dataTosend = fields.reduce(
+      (obj, field) => ({
+        [field.name]: field.value,
+        ...obj,
+      }),
+      {}
+    )
+    const body = [`GET`, `HEAD`].includes(method)
+      ? null
+      : JSON.stringify(dataTosend)
 
     if ([`GET`].includes(method))
       throw new Error(`Metoda nie jest jeszcze wspeirana w tym komponencie`)
 
-      console.log( JSON.stringify(dataTosend) )
+    console.log( {address,method,headers,body} )
     fetch(address, {
       method,
       headers,
-      body: [`GET`, `HEAD`].includes(method)
-        ? null
-        : JSON.stringify(dataTosend),
+      body,
     })
       .then(res => res.text())
       .then(response => {
@@ -84,10 +88,11 @@ export default class Form extends React.Component {
 
         if (json.error) {
           const { onError } = this.props
+          const error = JSON.parse(response)
 
-          console.error(`ERROR: Odpowiedź serwera:`, JSON.parse(response))
+          console.error(`ERROR: Odpowiedź serwera:`, error)
 
-          return onError ? onError(response) : null
+          return onError ? onError(error) : null
         }
 
         if (this.props.onOk) this.props.onOk(response)

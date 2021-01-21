@@ -1,15 +1,18 @@
 import React from "react"
 
 import { BACKEND_LOGIN_URL } from "../config.js"
+import ERRORS from "../utils/errorList.js"
 
 import Layout from "../components/layout.js"
 import Form from "../components/form.js"
 
-import classes from "./login.module.css"
+import classes from "./forms.module.css"
 
 export default class Login extends React.Component {
+  state = { error: null }
+
   fields = [
-    { title: `Login`, name: `lagin`, icon: `user` },
+    { title: `Login`, name: `login`, icon: `user` },
     {
       title: `Hasło`,
       name: `password`,
@@ -33,7 +36,9 @@ export default class Login extends React.Component {
         headers={{ "Content-Type": "application/json" }}
         address={BACKEND_LOGIN_URL}
         onOk={this.handleOk}
+        onError={({ code }) => this.setState({ error: ERRORS[code] })}
       />
+      {this.state.error && <article className={classes.errorBox}>{this.state.error}</article>}
     </Layout>
   )
 }
