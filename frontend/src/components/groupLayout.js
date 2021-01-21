@@ -1,12 +1,10 @@
 import React from "react"
 import { Link } from "gatsby"
 
-import { AuthorizedContent } from "../../utils/auth.js"
-import Layout from "../../components/layout.js"
+import { AuthorizedContent } from "../utils/auth.js"
+import Layout from "./layout.js"
 
-// import classes from "./platform.module.css"
-
-export default () => (
+export default ({ children }) => (
   <AuthorizedContent>
     <Layout className="main_wrapper-splited">
       <nav className="main_wrapper-splited-left_column">
@@ -14,30 +12,21 @@ export default () => (
 
         <ul className="list">
           {[
-            { urn: `settings`, name: `Ogólne` },
+            { urn: `settings`, name: `Ustawienia ogólne` },
+            { urn: `notes`, name: `Oceny` },
             { urn: `users`, name: `Użytkownicy` },
             { urn: `roles`, name: `Role` },
-            { urn: `groups`, name: `Grupy` },
+            { urn: `meets`, name: `Spotkania` },
           ].map(({ urn, name }) => (
             <li key={urn} className="list-item">
-              <Link to={`/platform/${urn}`}>{name}</Link>
+              <Link to={`/group/${urn}`}>{name}</Link>
             </li>
           ))}
-        </ul>
-
-        <hr />
-
-        <h2>Grupy</h2>
-        <ul className="list">
-          <li className="list-item">
-            <Link to={`/group/it?id=0`}>Grupa tymczasowa</Link>
-          </li>
         </ul>
       </nav>
 
       <article className="main_wrapper-splited-right_column">
-        <h1>Platforma edukacyjna</h1>
-        <div>Twoje miejsce na reklamę</div>
+        {children}
       </article>
     </Layout>
   </AuthorizedContent>
