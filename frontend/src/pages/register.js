@@ -40,7 +40,7 @@ export default class RegisterPage extends React.Component {
         method="POST"
         headers={{ "Content-Type": "application/json" }}
         address={BACKEND_REGISTER_URL}
-        onOk={() => navigate( `/` )}
+        onOk={() => navigate( `/checkMail` )}
         onError={({ code }) => this.setState({ error: ERRORS[code] })}
       />
       {this.state.error && <article className={classes.errorBox}>{this.state.error}</article>}
