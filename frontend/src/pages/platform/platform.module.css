@@ -1,0 +1,9 @@
+.leftColumn,
+.rightColumn {
+  padding: 20px;
+}
+
+.rightColumn {
+  flex: 1;
+  text-align: center;
+}

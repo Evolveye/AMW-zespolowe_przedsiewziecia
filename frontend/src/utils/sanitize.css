@@ -49,3 +49,15 @@ hr {
 .main_wrapper-splited {
   display: flex;
 }
+
+.list {
+  list-style: none;
+  margin: 0 auto;
+  margin-top: 40px;
+  padding: 0;
+  width: max-content;
+}
+.list-item {
+  font-size: 18px;
+  margin: 10px 0;
+}

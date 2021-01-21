@@ -42,18 +42,16 @@ export default class UserNav extends React.Component {
       </div>
 
       <ul className={classes.list}>
-        <li className={classes.item}>
-          <Link to="/user/me">Profil</Link>
-        </li>
-        <li className={classes.item}>
-          <Link to="/user/settings">Ustawienia</Link>
-        </li>
-        <li className={classes.item}>
-          <Link to="/user/notes">Zebrane oceny</Link>
-        </li>
-        <li className={classes.item}>
-          <Link to="/user/logout">Wyloguj</Link>
-        </li>
+          {[
+            { urn: `me`, name: `Profil` },
+            { urn: `settings`, name: `Ustawienia` },
+            { urn: `notes`, name: `Zebrane oceny` },
+            { urn: `logout`, name: `Wyloguj` },
+          ].map(({ urn, name }) => (
+            <li key={urn} className="list-item">
+              <Link to={`/user/${urn}`}>{name}</Link>
+            </li>
+          ))}
       </ul>
 
       <hr />
