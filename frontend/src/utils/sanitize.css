@@ -49,6 +49,14 @@ hr {
 .main_wrapper-splited {
   display: flex;
 }
+.main_wrapper-splited-right_column,
+.main_wrapper-splited-left_column {
+  padding: 20px;
+}
+.main_wrapper-splited-right_column {
+  flex: 1;
+  text-align: center;
+}
 
 .list {
   list-style: none;

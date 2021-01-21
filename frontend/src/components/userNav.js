@@ -41,7 +41,7 @@ export default class UserNav extends React.Component {
         <img src={defaultAvatarSrc} alt="User avatar" />
       </div>
 
-      <ul className={classes.list}>
+      <ul className="list">
           {[
             { urn: `me`, name: `Profil` },
             { urn: `settings`, name: `Ustawienia` },
@@ -56,8 +56,8 @@ export default class UserNav extends React.Component {
 
       <hr />
 
-      <ul className={classes.list}>
-        <li className={classes.item}>
+      <ul className="list">
+        <li className="list-item">
           <Link to="/">Strona główna</Link>
         </li>
       </ul>
