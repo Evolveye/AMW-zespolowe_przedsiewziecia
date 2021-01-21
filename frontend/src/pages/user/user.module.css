@@ -1,0 +1,14 @@
+.empty {
+  text-align: center;
+  font-style: italic;
+}
+
+.leftColumn,
+.rightColumn {
+  padding: 20px;
+}
+
+.rightColumn {
+  flex: 1;
+  text-align: center;
+}

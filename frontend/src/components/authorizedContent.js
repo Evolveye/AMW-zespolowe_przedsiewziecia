@@ -9,7 +9,7 @@ export default ({ children }) =>
   isLoggedIn() ? (
     children
   ) : (
-    <Layout className="centered-main">
+    <Layout className="main_wrapper">
       <Sygnet size={200} />
       <h1 className="h1">Strona niedostępna</h1>
       <small className="h1-small">

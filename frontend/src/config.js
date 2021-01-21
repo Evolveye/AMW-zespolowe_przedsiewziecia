@@ -46,7 +46,7 @@ export const DEBUG_USER_ME_URL = `http://localhost:3000${BACKEND_USER_ME_URL}`//
 
 export const WEB_SOCKET_URL = "ws://localhost:3000"
 
-export const DEBUG = false
+export const DEBUG = true
 
 export function getSocketEventFromHttp( method, httpUrl ) {
   const uri = httpUrl.match( /api\/(.*)/ )[ 1 ]
