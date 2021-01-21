@@ -4,9 +4,11 @@ import { BACKEND_LOGIN_URL } from "../config.js"
 import ERRORS from "../utils/errorList.js"
 
 import Layout from "../components/layout.js"
+import { setToken } from "../utils/auth.js"
 import Form from "../components/form.js"
 
 import classes from "./forms.module.css"
+import { navigate } from "gatsby"
 
 export default class Login extends React.Component {
   state = { error: null }
@@ -22,10 +24,6 @@ export default class Login extends React.Component {
     },
   ]
 
-  handleOk = response => {
-    console.log({ response })
-  }
-
   render = () => (
     <Layout className={classes.formWrapper}>
       <Form
@@ -35,7 +33,7 @@ export default class Login extends React.Component {
         method="POST"
         headers={{ "Content-Type": "application/json" }}
         address={BACKEND_LOGIN_URL}
-        onOk={this.handleOk}
+        onOk={({ token }) => {setToken( token ); navigate( `/profile` )}}
         onError={({ code }) => this.setState({ error: ERRORS[code] })}
       />
       {this.state.error && <article className={classes.errorBox}>{this.state.error}</article>}

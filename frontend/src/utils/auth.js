@@ -1,13 +1,8 @@
-import { BACKEND_USER_ME_URL, DEBUG_USER_ME_URL, DEBUG } from "../config.js"
-import { isBrowser } from "./functions.js";
+import React from "react"
+import { navigate } from "gatsby"
 
-/* DEBUG FETCH:
-  fetch( `/api/login`, {
-    method: `POST`,
-    headers: { "Content-Type": 'application/json' },
-    body: JSON.stringify( { login:`a`, password:`b` } ),
-  } ).then( res => res.text() ).then( console.log )
-*/
+import { BACKEND_USER_ME_URL, DEBUG_USER_ME_URL, DEBUG } from "../config.js"
+import { isBrowser } from "./functions.js"
 
 /**
  * @typedef {object} User
@@ -17,8 +12,6 @@ import { isBrowser } from "./functions.js";
  * @property {string} name
  * @property {string} surname
  */
-
-// socket.on( `not authenticated`, console.log )
 
 const STORAGE_TOKEN_NAME = `sessionToken`
 const STORAGE_USER = `gatsbyUser`
@@ -85,3 +78,6 @@ export function logout(cb) {
       .catch(console.error)
   }
 }
+
+export const AuthorizedContent = ({ children = `Unauthorized` }) =>
+  isLoggedIn() ? children : <>{navigate(`/unauthorized`)}</>
