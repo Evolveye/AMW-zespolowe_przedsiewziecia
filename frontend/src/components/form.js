@@ -61,7 +61,7 @@ export default class Form extends React.Component {
     if ([`GET`].includes(method))
       throw new Error(`Metoda nie jest jeszcze wspeirana w tym komponencie`)
 
-    console.log( {address,method,headers,body} )
+    // console.log({ address, method, headers, body })
     fetch(address, {
       method,
       headers,
@@ -95,7 +95,7 @@ export default class Form extends React.Component {
           return onError ? onError(error) : null
         }
 
-        if (this.props.onOk) this.props.onOk(response)
+        if (this.props.onOk) this.props.onOk(JSON.parse(response))
       })
       .catch(() => {})
   }

@@ -12,6 +12,7 @@ export const BACKEND_PASSWORD_RESET_URL = `${HOST}/api/password/reset`
 export const BACKEND_USER_ME_URL = `${HOST}/api/users/me`
 
 export const BACKEND_PLATFORMS_URL = `${HOST}/api/platforms`
+export const BACKEND_PLATFORMS_CREATE_URL = `${HOST}/api/platforms`
 export const BACKEND_PLATFORMS_URL_DEL = `${HOST}/api/platforms/id:number`
 export const BACKEND_USER_ME_PINNED_ADD_URL = `${HOST}/api/users/me/pinned`
 export const BACKEND_USER_ME_PINNED_DEL_URL = `${HOST}/api/users/me/pinned:elemenId`

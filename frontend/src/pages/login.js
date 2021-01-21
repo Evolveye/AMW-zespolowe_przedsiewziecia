@@ -25,7 +25,7 @@ export default class Login extends React.Component {
   ]
 
   render = () => (
-    <Layout className={classes.formWrapper}>
+    <Layout className="main_wrapper">
       <Form
         fields={this.fields}
         title="Platforma edukacyjna - logowanie"

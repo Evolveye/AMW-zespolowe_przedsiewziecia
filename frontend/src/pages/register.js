@@ -32,7 +32,7 @@ export default class RegisterPage extends React.Component {
   state = { error: null }
 
   render = () => (
-    <Layout className={classes.formWrapper}>
+    <Layout className="main_wrapper">
       <Form
         fields={fields}
         title="Platforma edukacyjna - rejestracja"
