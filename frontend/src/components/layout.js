@@ -6,11 +6,14 @@ import MainNav from "./mainNav.js"
 import "../utils/sanitize.css"
 import classes from "./layout.module.css"
 
-export default ({ className=``, nav, children }) => (
+export default ({ className=``, children }) => (
   <div className={classes.root}>
     <SEO title="Strona główna" />
 
-    <MainNav className={classes.nav}/>
+    <article className={classes.leftColumn}>
+      <MainNav className={classes.nav}/>
+      <footer className={classes.footer}>&copy; Copyright {new Date().getUTCFullYear()}</footer>
+    </article>
 
     <main className={`${classes.main} ${className}`}>{children}</main>
   </div>
