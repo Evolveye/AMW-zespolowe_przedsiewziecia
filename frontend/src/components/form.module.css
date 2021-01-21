@@ -16,13 +16,14 @@
 
 .main {
   padding: 10px;
+  text-align: center;
 }
 
 .label {
   display: block;
   position: relative;
   background-color: transparent;
-  margin: 15px auto;
+  margin: 20px auto;
   width: max-content;
   border: none;
   border-bottom: 1px solid black;
@@ -46,4 +47,10 @@
 
 .input::placeholder {
   text-align: left;
+}
+
+.submit {
+  background-color: #5f54;
+  padding: 10px 15px ;
+  font-size: 16px;
 }
