@@ -22,6 +22,15 @@ export default ({ children }) => (
             </li>
           ))}
         </ul>
+
+        <hr />
+
+        <h2>Grupy</h2>
+        <ul className="list">
+          <li className="list-item">
+            <Link to={`/group/it?id=0`}>Grupa tymczasowa</Link>
+          </li>
+        </ul>
       </nav>
 
       <article className="main_wrapper-splited-right_column">

@@ -13,24 +13,19 @@ export default ({ children }) => (
         <ul className="list">
           {[
             { urn: `settings`, name: `Ustawienia ogólne` },
-            { urn: `notes`, name: `Oceny` },
             { urn: `users`, name: `Użytkownicy` },
-            { urn: `roles`, name: `Role` },
-            { urn: `meets`, name: `Spotkania` },
           ].map(({ urn, name }) => (
             <li key={urn} className="list-item">
-              <Link to={`/group/${urn}`}>{name}</Link>
+              <Link to={`/meet/${urn}`}>{name}</Link>
             </li>
           ))}
         </ul>
 
         <hr />
 
-        <h2>Spotkania</h2>
+        <h2>Lista uczestników</h2>
         <ul className="list">
-          <li className="list-item">
-            <Link to={`/meet/it?id=0`}>Spotkanie tymczasowe</Link>
-          </li>
+          <li className="list-item">Jakiś random</li>
         </ul>
       </nav>
 
