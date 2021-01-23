@@ -40,6 +40,7 @@ hr {
 .h1-small {
   font-size: 20px;
 }
+.is-centered,
 .main_wrapper {
   display: flex;
   flex-direction: column;

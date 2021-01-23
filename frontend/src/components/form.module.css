@@ -15,7 +15,7 @@
 }
 
 .main {
-  padding: 10px;
+  padding: 50px;
   text-align: center;
 }
 
@@ -49,8 +49,22 @@
   text-align: left;
 }
 
+.button {
+  display: block;
+  padding: 10px 15px;
+  margin: 20px auto;
+}
+
+.textarea {
+  display: block;
+  padding: 10px 15px;
+  margin: 20px auto;
+  min-width: 260px;
+}
+
 .submit {
   background-color: #5f54;
-  padding: 10px 15px ;
+  padding: 10px 15px;
+  margin-top: 50px;
   font-size: 16px;
 }

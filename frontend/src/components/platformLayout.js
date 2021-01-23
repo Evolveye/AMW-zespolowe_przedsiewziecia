@@ -4,7 +4,7 @@ import { Link } from "gatsby"
 import { AuthorizedContent } from "../utils/auth.js"
 import Layout from "./layout.js"
 
-export default ({ children }) => (
+export default ({ children, className=`` }) => (
   <AuthorizedContent>
     <Layout className="main_wrapper-splited">
       <nav className="main_wrapper-splited-left_column">
@@ -33,7 +33,7 @@ export default ({ children }) => (
         </ul>
       </nav>
 
-      <article className="main_wrapper-splited-right_column">
+      <article className={`main_wrapper-splited-right_column ${className}`}>
         {children}
       </article>
     </Layout>

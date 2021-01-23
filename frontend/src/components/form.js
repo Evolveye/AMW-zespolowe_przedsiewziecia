@@ -1,12 +1,9 @@
 import React from "react"
 
 import Sygnet from "../models/sygnet.js"
+import Input from "../models/input.js"
 
 import classes from "./form.module.css"
-
-import svgUser from "../svg/user.svg"
-import svgLock from "../svg/lock.svg"
-import svgEmail from "../svg/email.svg"
 
 export default class Form extends React.Component {
   state = {
@@ -16,29 +13,9 @@ export default class Form extends React.Component {
   constructor(props) {
     super(props)
 
-    this.state.fields = props.fields
-      .map(field => {
-        const icon = Form.getIcon(field.icon)
-
-        if (icon) field.icon = icon
-        else delete field.icon
-
-        return field
-      })
-      .map(({ title = ``, type = `text`, name, icon, autoComplete = null }) => (
-        <label className={classes.label} key={name}>
-          {icon && (
-            <img className={classes.icon} src={icon} alt={title || type} />
-          )}
-          <input
-            className={classes.input}
-            type={type}
-            name={name}
-            placeholder={title}
-            autoComplete={autoComplete}
-          />
-        </label>
-      ))
+    this.state.fields = props.fields.map(inputData => (
+      <Input key={inputData.title} classes={classes} data={inputData} />
+    ))
   }
 
   handleSubmit = e => {
@@ -121,19 +98,4 @@ export default class Form extends React.Component {
       </article>
     </form>
   )
-
-  static getIcon(name) {
-    console.log(svgUser)
-    switch (name) {
-      case `user`:
-        return svgUser
-      case `lock`:
-        return svgLock
-      case `email`:
-        return svgEmail
-
-      default:
-        return null
-    }
-  }
 }

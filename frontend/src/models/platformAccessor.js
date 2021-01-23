@@ -16,8 +16,6 @@ export default class PlatformAccessor extends React.Component {
       `#${getHexPart( str[0] )}f${getHexPart( str[1] )}f${getHexPart( str[2] )}f`
     const backgroundColor = getColorFromStr(shortcut)
 
-    console.log( backgroundColor )
-
     return (
       <Link
         className={classes.accessor}

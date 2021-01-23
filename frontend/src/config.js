@@ -13,13 +13,14 @@ export const BACKEND_USER_ME_URL = `${HOST}/api/users/me`
 
 export const BACKEND_PLATFORMS_URL = `${HOST}/api/platforms`
 export const BACKEND_PLATFORMS_CREATE_URL = `${HOST}/api/platforms`
-export const BACKEND_PLATFORMS_URL_DEL = `${HOST}/api/platforms/id:number`
+export const BACKEND_PLATFORMS_URL_DEL = `${HOST}/api/platforms/:platformId`
+export const BACKEND_PLATFORMS_URL_PUT = `${HOST}/api/platforms/:platformId`
 export const BACKEND_USER_ME_PINNED_ADD_URL = `${HOST}/api/users/me/pinned`
 export const BACKEND_USER_ME_PINNED_DEL_URL = `${HOST}/api/users/me/pinned:elemenId`
 
-export const BACKEND_PLATFORMS_USERS_POST = `${HOST}/api/platforms/id:number/users`
-export const BACKEND_PLATFORMS_USERS_GET = `${HOST}/api/platforms/id:number/users`
-export const BACKEND_PLATFORMS_USERS_DEL = `${HOST}/api/platforms/id:number/users/id:number`
+export const BACKEND_PLATFORMS_USERS_POST = `${HOST}/api/platforms/:platformId/users`
+export const BACKEND_PLATFORMS_USERS_GET = `${HOST}/api/platforms/:platformId/users`
+export const BACKEND_PLATFORMS_USERS_DEL = `${HOST}/api/platforms/:platformId/users/:userId`
 
 export const BACKEND_PLATFORMS_GROUPS_GET = `${HOST}/api/groups/platform/:platformId`
 export const BACKEND_PLATFORMS_GROUPS_POST = `${HOST}/api/groups`

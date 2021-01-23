@@ -1,0 +1,9 @@
+.removeButton {
+  margin: 100px;
+  padding: 15px 50px;
+  background-color: tomato;
+  color: white;
+  font-weight: bold;
+  font-size: 20px;
+  text-shadow: 0 0 1px black, 0 0 1px black, 0 0 1px black;
+}
