@@ -8,14 +8,46 @@
   padding: 20px;
 }
 
+/* Left column */
+
+.leftColumn {
+  display: flex;
+  flex-direction: column;
+  width: 300px;
+}
+
+.noteDetails {
+  min-height: 300px;
+}
+.noNote {
+  text-align: center;
+}
+
+.platforms {
+  flex: 1;
+}
+
+/* Right column */
+
 .rightColumn {
+  display: flex;
+  flex-direction: column;
   flex: 1;
   text-align: center;
 }
 
-.logout {
+.noTable {
   display: flex;
+  flex: 1;
   align-items: center;
   justify-content: center;
-  height: 100vh;
+}
+
+.note {
+  margin: 2px;
+  background-color: #96d588;
+  font-weight: bold;
+  padding: 6px;
+  border-radius: 5px;
+  border: none;
 }
