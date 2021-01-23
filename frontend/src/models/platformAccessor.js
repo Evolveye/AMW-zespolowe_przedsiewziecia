@@ -20,7 +20,7 @@ export default class PlatformAccessor extends React.Component {
       <Link
         className={classes.accessor}
         style={{ backgroundColor }}
-        to={`/platform/it?id=${id}`}
+        to={`/platform/it?platformId=${id}`}
       >
         {shortcut}
       </Link>
