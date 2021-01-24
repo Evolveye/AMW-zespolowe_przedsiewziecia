@@ -27,7 +27,7 @@ export default () => (
           "Content-Type": "application/json",
         }}
         address={BACKEND_PLATFORMS_CREATE_URL}
-        onOk={({ platform }) => navigate( `/platform/it?id=${platform.id ?? 0}` )}
+        onOk={({ platform }) => navigate( `/platform/it?platformId=${platform.id ?? 0}` )}
         onError={({ code }) => this.setState({ error: ERRORS[code] })}
       />
       {/* {this.state.error && <article className={classes.errorBox}>{this.state.error}</article>} */}

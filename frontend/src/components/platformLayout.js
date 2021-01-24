@@ -4,13 +4,6 @@ import { Link } from "gatsby"
 import { AuthorizedContent } from "../utils/auth.js"
 import Layout from "./layout.js"
 
-// constructor( props ) {
-//   super(props)
-
-//   const query = new URLSearchParams( window.location.search )
-
-//   this.platformId = query.get( `queryId?platformId=${this.platformId}` )
-// }
 export default ({ children, className = `` }) => {
   const query = new URLSearchParams(window.location.search)
   const platformId = query.get(`platformId`)
