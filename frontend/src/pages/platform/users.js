@@ -1,6 +1,7 @@
 import React from "react"
 
 import Layout from "../../components/platformLayout.js"
+import TableForm from "../../components/tableForm.js"
 import {
   BACKEND_PLATFORMS_USERS_DEL,
   BACKEND_PLATFORMS_USERS_GET,
@@ -107,7 +108,7 @@ export default class PlatformUsers extends React.Component {
           return console.error(error)
         }
 
-        const usersList = users.forEach(this.addUserToTable)
+        users.forEach(this.addUserToTable)
       })
   }
 
@@ -115,51 +116,25 @@ export default class PlatformUsers extends React.Component {
     <Layout className="is-centered">
       <h1>Platforma edukacyjna</h1>
 
-      <article className={classes.main}>
-        <table className="table">
-          <thead className="thead">
-            <tr>
-              <td>Imię</td>
-              <td>Nazwisko</td>
-              <td>Email</td>
-              <td>Rola</td>
-              <td>Akcje</td>
-            </tr>
-          </thead>
-
-          <tbody>
-            <tr>
-              <td className="inputCell">
-                <input onChange={this.updateNewUserField} name="newUserName" />
-              </td>
-              <td className="inputCell">
-                <input
-                  onChange={this.updateNewUserField}
-                  name="newUserSurname"
-                />
-              </td>
-              <td className="inputCell">
-                <input onChange={this.updateNewUserField} name="newUserEmail" />
-              </td>
-              <td className="inputCell">
-                <input onChange={this.updateNewUserField} name="newUserRole" />
-              </td>
-              <td>
-                <button type="button" onClick={this.createUser}>
-                  Dodaj do platformy
-                </button>
-              </td>
-            </tr>
-
-            <tr className="emptyRow">
-              <td colSpan="5">{this.state.error}</td>
-            </tr>
-            <tr className="emptyRow" />
-
-            {this.state.usersList}
-          </tbody>
-        </table>
-      </article>
+      <TableForm
+        fetchGetAddress={BACKEND_PLATFORMS_USERS_GET.replace(`:platformId`, this.platformId)}
+        fetchPostAddress={BACKEND_PLATFORMS_USERS_POST.replace(`:platformId`, this.platformId)}
+        fetchDeleteAddress={BACKEND_PLATFORMS_USERS_DEL.replace(`:platformId`, this.platformId)}
+        deleteIdParameterName=":userId"
+        responseGetDataName="users"
+        responsePostDataName="user"
+        staticPostBodyData={{ platformId:this.platformId }}
+        objectsFields={[
+          `name`,
+          `surname`,
+          `email`,
+        ]}
+        titleFields={[
+          `Imię`,
+          `Nazwisko`,
+          `Email`,
+        ]}
+      />
     </Layout>
   )
 }
