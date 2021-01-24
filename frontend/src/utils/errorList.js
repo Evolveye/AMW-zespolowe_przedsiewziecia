@@ -14,6 +14,8 @@ const ERRORS = {
   117: <>To konto nie zostało jeszcze aktywowane!</>,
   118: <>Imię i nazwisko nie mogą być takie same!</>,
   121: <>Twoje imię nie spełnia naszych standardów!</>,
+
+  209: <>Nie masz permisji do dodawania użytkowników do tej platformy!</>,
 }
 
 export default new Proxy(ERRORS, {
