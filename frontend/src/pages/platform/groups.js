@@ -8,16 +8,7 @@ import {
   BACKEND_PLATFORMS_GROUPS_GET,
 } from "../../config.js"
 
-// import classes from "./platform.module.css"
-
 export default class PlatformGroups extends React.Component {
-  state = {
-    error: ``,
-    groupsList: [],
-    newGroupName: ``,
-    newGroupLecturerId: ``,
-  }
-
   constructor(props) {
     super(props)
 
