@@ -27,14 +27,16 @@ export const BACKEND_PLATFORMS_GROUPS_POST = `${HOST}/api/groups`
 export const BACKEND_PLATFORMS_GROUPS_ADD = `${HOST}/api/groups`
 export const BACKEND_PLATFORMS_GROUPS_DEL = `${HOST}/api/groups/:groupId`
 export const BACKEND_PLATFORMS_USERS_NOTES = `${HOST}/api/groups/notes`
-export const BACKEND_PLATFORMS_USERS_ADD = `${HOST}/api/groups/users`
+export const BACKEND_PLATFORMS_USERS_GROUPS_POST = `${HOST}/api/groups/users`
+export const BACKEND_PLATFORMS_USERS_GROUPS_GET = `${HOST}/api/groups/users`
 export const BACKEND_PLATFORMS_GROUP_USERS_GET = `${HOST}/api/groups/:groupId/users`
+export const BACKEND_PLATFORMS_GROUP_USERS_DELETE = `${HOST}/api/groups/:groupId/users/:userId`
 export const BACKEND_PLATFORMS_GROUPS_USER_NOTES_GET = `${HOST}/api/groups/:groupId/notes`
 export const BACKEND_PLATFORMS_GROUPS_USER_NOTES_DEL = `${HOST}/api/groups/notes/:noteId`
 export const BACKEND_PLATFORMS_GROUPS_USER_NOTES_ADD = `${HOST}/api/groups/:groupId/notes/`
 export const BACKEND_PLATFORMS_GROUPS_USER_NOTES_PUT = `${HOST}/api/groups/notes/:noteId`
 
-export const BACKEND_PLATFORMS_GROUPS_MEET_ADD = `${HOST}/api/meets`
+export const BACKEND_PLATFORMS_GROUPS_MEET_POST = `${HOST}/api/meets`
 export const BACKEND_PLATFORMS_GROUPS_MEET_GET = `${HOST}/api/meets`
 export const BACKEND_PLATFORMS_GROUPS_MEET_DEL = `${HOST}/api/meets/:meetId`
 export const BACKEND_PLATFORMS_GROUPS_MEET = `${HOST}/api/meets/group/:groupId`
@@ -58,3 +60,59 @@ export function getSocketEventFromHttp( method, httpUrl ) {
 
   return `api.${method.toLowerCase()}.${eventName}`
 }
+
+// // Base
+// export const URL_LOGIN_POST
+// export const URL_LOGOUT_POST
+// export const URL_REGISTER_POST
+// export const URL_REGISTER_CONFIRM_POST
+// export const URL_PASSWORD_REMIND_POST
+// export const URL_PASSWORD_RESET_POST
+
+// // User scope
+// export const URL_USER_ME_POST
+// export const URL_USER_ME_GET
+// export const URL_USER_ME_PUT
+// export const URL_USER_ME_PINNED_POST
+// export const URL_USER_ME_PINNED_GET
+// export const URL_USER_ME_PINNED_DELETE
+// export const URL_USER_NOTES_GET
+
+// // Platform scope
+// export const URL_PLATFORM_POST
+// export const URL_PLATFORM_GET
+// export const URL_PLATFORM$ID_PUT
+// export const URL_PLATFORM$ID_DELETE
+// export const URL_PLATFORM$ID_USERS_POST
+// export const URL_PLATFORM$ID_USERS_GET
+// export const URL_PLATFORM$ID_USERS_DELETE
+
+// // Group scope
+// export const URL_GROUP_POST
+// export const URL_GROUP_GET
+// export const URL_GROUP_PUT
+// export const URL_GROUP$ID_DELETE
+// export const URL_GROUP_PLATFORM$ID_GET
+// export const URL_GROUP$ID_USERS_POST
+// export const URL_GROUP$ID_USERS_GET
+// export const URL_GROUP$ID_USERS$ID_DELETE
+// export const URL_GROUP_NOTES_GET
+// export const URL_GROUP$ID_NOTES_POST
+// export const URL_GROUP$ID_NOTES_GET
+// export const URL_GROUP$ID_NOTES_PUT
+// export const URL_GROUP$ID_NOTES_DELETE
+
+// // Meet scope
+// export const URL_MEET_
+// export const URL_MEET_
+// export const URL_MEET_
+// export const URL_MEET_
+// export const URL_MEET_
+// export const URL_MEET_
+// export const URL_MEET_
+// export const URL_MEET_
+// export const URL_MEET_
+// export const URL_MEET_
+// export const URL_MEET_
+// export const URL_MEET_
+// export const URL_MEET_
