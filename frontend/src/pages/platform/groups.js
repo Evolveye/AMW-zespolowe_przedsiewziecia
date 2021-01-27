@@ -23,7 +23,7 @@ export default class PlatformGroups extends React.Component {
 
   render = () => (
     <Layout className="is-centered">
-      <h1>Platforma edukacyjna</h1>
+      <h1>Zarządzanie grupami platformy</h1>
 
       <TableForm
         fetchPostAddress={URL_GROUP_POST}

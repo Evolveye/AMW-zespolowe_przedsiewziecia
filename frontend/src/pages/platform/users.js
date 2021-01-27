@@ -21,7 +21,7 @@ export default class PlatformUsers extends React.Component {
 
   render = () => (
     <Layout className="is-centered">
-      <h1>Platforma edukacyjna</h1>
+      <h1>Zarządzanie użytkownikami platformy</h1>
 
       <TableForm
         fetchGetAddress={URL_PLATFORM$ID_USERS_GET.replace(`:platformId`, this.platformId)}
