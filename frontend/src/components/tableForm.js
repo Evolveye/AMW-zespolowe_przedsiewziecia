@@ -8,6 +8,7 @@ export default class TableForm extends React.Component {
   state = {
     error: ``,
     rows: [],
+    data: [],
   }
 
   componentDidMount() {
@@ -129,61 +130,76 @@ export default class TableForm extends React.Component {
       )
     })
 
-    this.setState(old => ({ rows: [...newRows, ...old.rows] }))
+    this.setState(old => ({
+      rows: [...newRows, ...old.rows],
+      data: [...itemOrItems, ...old.data],
+    }))
   }
 
-  render = () => (
-    <table className="table">
-      <thead className="thead">
-        <tr>
-          {this.props.titleFields.map(field => (
-            <td key={field}>{field}</td>
-          ))}
+  render = () => {
+    const createLis = []
 
-          <td>Akcja</td>
-        </tr>
-      </thead>
+    for (let i = 0; i < this.props.objectsFields.length; ++i) {
+      const field = this.props.objectsFields[i]
 
-      <tbody>
-        <tr>
-          {this.props.objectsFields.map((field, i) => {
-            const customInputField = this.props.inputFieldsComponents?.[
-              field.prop || field
-            ]
+      const customInputField = this.props.inputFieldsComponents?.[
+        field.prop || field
+      ]
+      const colSpan = this.props.colSpans?.[field.prop || field]
 
-            return (
-              <td key={field} className="inputCell">
-                {customInputField ? (
-                  <customInputField.component
-                    {...customInputField.props}
-                    onChange={this.updateNewField}
-                  />
-                ) : (
-                  <input
-                    onChange={this.updateNewField}
-                    name={this.props.objectsFields[i]}
-                  />
-                )}
-              </td>
-            )
-          })}
+      if (colSpan) i += colSpan
 
-          <td>
-            <button type="button" onClick={this.create}>
-              Dodaj do platformy
-            </button>
-          </td>
-        </tr>
+      createLis.push(
+        <td key={field} colSpan={colSpan} className="inputCell">
+          {customInputField ? (
+            <customInputField.component
+              {...customInputField.props}
+              onChange={this.updateNewField}
+              getTableData={() => this.state.data}
+            />
+          ) : (
+            <input
+              onChange={this.updateNewField}
+              name={this.props.objectsFields[i]}
+            />
+          )}
+        </td>
+      )
+    }
 
-        <tr className="emptyRow">
-          <td colSpan="5">{this.state.error}</td>
-        </tr>
-        <tr className="emptyRow" />
+    return (
+      <table className="table">
+        <thead className="thead">
+          <tr>
+            {this.props.titleFields.map(field => (
+              <td key={field}>{field}</td>
+            ))}
 
-        {this.state.rows}
-      </tbody>
-    </table>
-  )
+            <td>Akcja</td>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr>
+            {createLis}
+
+            <td>
+              <button type="button" onClick={this.create}>
+                Dodaj do platformy
+              </button>
+            </td>
+          </tr>
+
+          <tr className="emptyRow">
+            <td colSpan="5">{this.state.error}</td>
+          </tr>
+          <tr className="emptyRow" />
+
+          {this.state.rows}
+        </tbody>
+      </table>
+    )
+  }
 }
 
 TableForm.propTypes = {
@@ -199,4 +215,5 @@ TableForm.propTypes = {
   objectsFields: PropTypes.array.isRequired,
   titleFields: PropTypes.array.isRequired,
   inputFieldsComponents: PropTypes.object,
+  colSpans: PropTypes.object,
 }

@@ -22,8 +22,16 @@ export default class Select extends React.Component {
     })
       .then(res => res.json())
       .then(data => data[fetchGetDataName])
-      .then(arr => (fetchDataFilter ? arr.map(fetchDataFilter) : arr))
-      .then(arr => (fetchDataProcessor ? arr.map(fetchDataProcessor) : arr))
+      .then(arr =>
+        fetchDataFilter
+          ? arr.filter(field => this.props.fetchDataFilter(field))
+          : arr
+      )
+      .then(arr =>
+        fetchDataProcessor
+          ? arr.map(field => this.props.fetchDataProcessor(field))
+          : arr
+      )
       .then(arr =>
         arr.map(field =>
           typeof field === `string` ? { value: field, text: field } : field
@@ -37,7 +45,7 @@ export default class Select extends React.Component {
         ))
       )
       .then(options => this.setState({ options }))
-      .then( () => onChange && onChange(this.ref.current) )
+      .then(() => onChange && onChange(this.ref.current))
   }
 
   render = () => (
