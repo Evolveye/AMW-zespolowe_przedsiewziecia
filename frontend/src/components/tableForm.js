@@ -100,16 +100,12 @@ export default class TableForm extends React.Component {
         if (typeof field === `object`) {
           fields.push(
             <td key={field.prop}>
-              {" "}
-              {/* className={classes.field} */}
               {field.processor(obj[field.prop])}
             </td>
           )
         } else
           fields.push(
             <td key={field}>
-              {" "}
-              {/* className={classes.field} */}
               {obj[field]}
             </td>
           )
@@ -120,8 +116,6 @@ export default class TableForm extends React.Component {
           {fields}
 
           <td>
-            {" "}
-            {/* className={classes.field} */}
             <button type="button" onClick={() => this.deleteRow(obj.id)}>
               Usuń z platformy
             </button>
