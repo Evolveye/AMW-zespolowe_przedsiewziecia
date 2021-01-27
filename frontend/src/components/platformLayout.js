@@ -1,12 +1,36 @@
-import React from "react"
+import React, { useEffect, useState } from "react"
 import { Link } from "gatsby"
 
-import { AuthorizedContent } from "../utils/auth.js"
+import { URL_GROUP_FROM_PLATFORM$ID_GET } from "../config.js"
+
+import { AuthorizedContent, getToken } from "../utils/auth.js"
 import Layout from "./layout.js"
 
+const query = new URLSearchParams(window.location.search)
+const platformId = query.get(`platformId`)
+
 export default ({ children, className = `` }) => {
-  const query = new URLSearchParams(window.location.search)
-  const platformId = query.get(`platformId`)
+  const [groupsLis, setGroupsRows] = useState()
+
+  useEffect(() => {
+    fetch(URL_GROUP_FROM_PLATFORM$ID_GET.replace(`:platformId`, platformId), {
+      headers: { Authentication: `Bearer ${getToken()}` },
+    })
+      .then(res => res.json())
+      .then(({ code, error, groups }) => {
+        if (error) return console.error({ code, error })
+
+        const lis = groups.map(({ id, name }) => (
+          <li key={id} className="list-item">
+            <Link to={`/group/it?platformId=${platformId}&groupId=${id}`}>
+              {name}
+            </Link>
+          </li>
+        ))
+
+        setGroupsRows(lis)
+      })
+  }, [])
 
   return (
     <AuthorizedContent>
@@ -22,7 +46,9 @@ export default ({ children, className = `` }) => {
               { urn: `groups`, name: `Grupy` },
             ].map(({ urn, name }) => (
               <li key={urn} className="list-item">
-                <Link to={`/platform/${urn}?platformId=${platformId}`}>{name}</Link>
+                <Link to={`/platform/${urn}?platformId=${platformId}`}>
+                  {name}
+                </Link>
               </li>
             ))}
           </ul>
@@ -30,11 +56,7 @@ export default ({ children, className = `` }) => {
           <hr />
 
           <h2>Grupy</h2>
-          <ul className="list">
-            <li className="list-item">
-              <Link to={`/group/it?id=0`}>Grupa tymczasowa</Link>
-            </li>
-          </ul>
+          <ul className="list">{groupsLis}</ul>
         </nav>
 
         <article className={`main_wrapper-splited-right_column ${className}`}>
