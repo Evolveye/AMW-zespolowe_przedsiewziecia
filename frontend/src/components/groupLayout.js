@@ -5,6 +5,11 @@ import { AuthorizedContent } from "../utils/auth.js"
 import Layout from "./layout.js"
 
 export default ({ children, className = `` }) => {
+  const query = new URLSearchParams(window.location.search)
+  const platformId = query.get(`platformId`)
+  const groupId = query.get(`groupId`)
+  const platformAndGroupQuery = `platformId=${platformId}&groupId=${groupId}`
+
   return (
     <AuthorizedContent>
       <Layout className="main_wrapper-splited">
@@ -20,7 +25,7 @@ export default ({ children, className = `` }) => {
               { urn: `meets`, name: `Spotkania` },
             ].map(({ urn, name }) => (
               <li key={urn} className="list-item">
-                <Link to={`/group/${urn}`}>{name}</Link>
+                <Link to={`/group/${urn}?${platformAndGroupQuery}`}>{name}</Link>
               </li>
             ))}
           </ul>
@@ -30,7 +35,7 @@ export default ({ children, className = `` }) => {
           <h2>Spotkania</h2>
           <ul className="list">
             <li className="list-item">
-              <Link to={`/meet/it?id=0`}>Spotkanie tymczasowe</Link>
+              <Link to={`/meet/it?${platformAndGroupQuery}`}>Spotkanie tymczasowe</Link>
             </li>
           </ul>
         </nav>

@@ -6,10 +6,10 @@ import { URL_GROUP_FROM_PLATFORM$ID_GET } from "../config.js"
 import { AuthorizedContent, getToken } from "../utils/auth.js"
 import Layout from "./layout.js"
 
-const query = new URLSearchParams(window.location.search)
-const platformId = query.get(`platformId`)
-
 export default ({ children, className = `` }) => {
+  const query = new URLSearchParams(window.location.search)
+  const platformId = query.get(`platformId`)
+
   const [groupsLis, setGroupsRows] = useState()
 
   useEffect(() => {
