@@ -3,9 +3,9 @@ import React from "react"
 import Layout from "../../components/groupLayout.js"
 import TableForm from "../../components/tableForm.js"
 import {
-  BACKEND_PLATFORMS_USERS_GROUPS_POST,
-  BACKEND_PLATFORMS_GROUP_USERS_GET,
-  BACKEND_PLATFORMS_GROUP_USERS_DELETE,
+  URL_GROUP$ID_USERS_GET,
+  URL_GROUP$ID_USERS_POST,
+  URL_GROUP$ID_USERS$ID_DELETE,
 } from "../../config.js"
 
 // import classes from "./group.module.css"
@@ -23,9 +23,9 @@ export default class PlatformGroups extends React.Component {
       <h1>Grupa -- użytkownicy</h1>
 
       <TableForm
-        fetchPostAddress={BACKEND_PLATFORMS_USERS_GROUPS_POST}
-        fetchGetAddress={BACKEND_PLATFORMS_GROUP_USERS_GET.replace(`:groupId`, this.groupId)}
-        fetchDeleteAddress={BACKEND_PLATFORMS_GROUP_USERS_DELETE}
+        fetchPostAddress={URL_GROUP$ID_USERS_POST}
+        fetchGetAddress={URL_GROUP$ID_USERS_GET.replace(`:groupId`, this.groupId)}
+        fetchDeleteAddress={URL_GROUP$ID_USERS$ID_DELETE}
         deleteIdParameterName=":userId"
         responseGetDataName="users"
         responsePostDataName="user"

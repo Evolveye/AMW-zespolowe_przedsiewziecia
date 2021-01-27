@@ -1,7 +1,7 @@
 import React from "react"
 import { Link } from "gatsby"
 
-import { DEBUG, BACKEND_PLATFORMS_URL } from "../config.js"
+import { DEBUG, URL_PLATFORM_GET } from "../config.js"
 import { getToken } from "../utils/auth.js"
 import PlatformAccessor, { PlatformAdder } from "../models/platformAccessor.js"
 
@@ -17,7 +17,7 @@ export default class UserNav extends React.Component {
   }
 
   componentDidMount() {
-    fetch(BACKEND_PLATFORMS_URL, {
+    fetch(URL_PLATFORM_GET, {
       method: `GET`,
       headers: { Authentication: `Bearer ${getToken()}` },
     })

@@ -2,10 +2,8 @@ import React from "react"
 import { navigate } from "gatsby"
 
 import {
-  BACKEND_USER_ME_URL,
-  DEBUG_USER_ME_URL,
-  BACKEND_LOGOUT_URL,
-  DEBUG,
+  URL_USER_ME_GET,
+  URL_LOGOUT_POST,
 } from "../config.js"
 import { isBrowser } from "./functions.js"
 
@@ -42,14 +40,9 @@ export async function getUser() {
 
   if (!cachedToken) return null
 
-  const f = () =>
-    DEBUG
-      ? fetch(DEBUG_USER_ME_URL)
-      : fetch(BACKEND_USER_ME_URL, {
-          headers: { Authentication: `Bearer ${cachedToken}` },
-        })
-
-  return await f()
+  return fetch(URL_USER_ME_GET, {
+    headers: { Authentication: `Bearer ${cachedToken}` },
+  })
     .then(data => data.json())
     .then(({ error, user }) => {
       if (error) {
@@ -73,7 +66,7 @@ export function logout(cb) {
   setUser(null)
 
   if (isBrowser()) {
-    fetch(BACKEND_LOGOUT_URL, {
+    fetch(URL_LOGOUT_POST, {
       method: `post`,
       headers: { Authentication: `Bearer ${getToken()}` },
     })

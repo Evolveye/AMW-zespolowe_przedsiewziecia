@@ -4,10 +4,10 @@ import Layout from "../../components/platformLayout.js"
 import Select from "../../components/select.js"
 import TableForm from "../../components/tableForm.js"
 import {
-  BACKEND_PLATFORMS_GROUPS_ADD,
-  BACKEND_PLATFORMS_GROUPS_DEL,
-  BACKEND_PLATFORMS_GROUPS_GET,
-  BACKEND_PLATFORMS_USERS_GET,
+  URL_GROUP_POST,
+  URL_GROUP$ID_DELETE,
+  URL_GROUP_FROM_PLATFORM$ID_GET,
+  URL_PLATFORM$ID_USERS_GET
 } from "../../config.js"
 
 export default class PlatformGroups extends React.Component {
@@ -23,12 +23,12 @@ export default class PlatformGroups extends React.Component {
       <h1>Platforma edukacyjna</h1>
 
       <TableForm
-        fetchPostAddress={BACKEND_PLATFORMS_GROUPS_ADD}
-        fetchGetAddress={BACKEND_PLATFORMS_GROUPS_GET.replace(
+        fetchPostAddress={URL_GROUP_POST}
+        fetchGetAddress={URL_GROUP_FROM_PLATFORM$ID_GET.replace(
           `:platformId`,
           this.platformId
         )}
-        fetchDeleteAddress={BACKEND_PLATFORMS_GROUPS_DEL}
+        fetchDeleteAddress={URL_GROUP$ID_DELETE}
         deleteIdParameterName=":groupId"
         responseGetDataName="groups"
         responsePostDataName="group"
@@ -43,7 +43,7 @@ export default class PlatformGroups extends React.Component {
             component: Select,
             props: {
               name: `lecturerId`,
-              fetchDataAddress: BACKEND_PLATFORMS_USERS_GET.replace(
+              fetchDataAddress: URL_PLATFORM$ID_USERS_GET.replace(
                 `:platformId`,
                 this.platformId
               ),

@@ -3,9 +3,9 @@ import React from "react"
 import Layout from "../../components/groupLayout.js"
 import TableForm from "../../components/tableForm.js"
 import {
-  BACKEND_PLATFORMS_GROUPS_MEET_POST,
-  BACKEND_PLATFORMS_GROUPS_MEET_GET,
-  BACKEND_PLATFORMS_GROUPS_MEET_DEL,
+  URL_MEET_FROM_GROUP$ID_GET,
+  URL_MEET_POST,
+  URL_MEET$ID_DELETE
 } from "../../config.js"
 
 // import classes from "./group.module.css"
@@ -24,12 +24,12 @@ export default class PlatformGroups extends React.Component {
       <h1>Grupa -- spotkania</h1>
 
       <TableForm
-        fetchPostAddress={BACKEND_PLATFORMS_GROUPS_MEET_POST}
-        fetchGetAddress={BACKEND_PLATFORMS_GROUPS_MEET_GET.replace(
+        fetchPostAddress={URL_MEET_POST}
+        fetchGetAddress={URL_MEET_FROM_GROUP$ID_GET.replace(
           `:groupId`,
           this.groupId
         ).replace( `:platformId`, this.platformId )}
-        fetchDeleteAddress={BACKEND_PLATFORMS_GROUPS_MEET_DEL}
+        fetchDeleteAddress={URL_MEET$ID_DELETE}
         deleteIdParameterName=":meetId"
         responseGetDataName="meets"
         responsePostDataName="meet"

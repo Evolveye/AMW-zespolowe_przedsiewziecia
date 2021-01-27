@@ -1,4 +1,4 @@
-import { WEB_SOCKET_URL } from "../config.js"
+import { WS_HOST } from "../config.js"
 import { getToken } from "./auth.js"
 import { isBrowser } from "./functions.js"
 
@@ -63,7 +63,7 @@ if (isBrowser()) {
 
   const token = getToken()
 
-  ws = new WS(WEB_SOCKET_URL)
+  ws = new WS(WS_HOST)
   ws.on( `not authenticated`, console.log )
 
   if (token) ws.emit( `authenticate`, token )

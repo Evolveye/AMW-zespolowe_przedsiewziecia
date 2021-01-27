@@ -3,9 +3,9 @@ import React from "react"
 import Layout from "../../components/platformLayout.js"
 import TableForm from "../../components/tableForm.js"
 import {
-  BACKEND_PLATFORMS_USERS_DEL,
-  BACKEND_PLATFORMS_USERS_GET,
-  BACKEND_PLATFORMS_USERS_POST,
+  URL_PLATFORM$ID_USERS$ID_DELETE,
+  URL_PLATFORM$ID_USERS_GET,
+  URL_PLATFORM$ID_USERS_POST,
 } from "../../config.js"
 
 export default class PlatformUsers extends React.Component {
@@ -21,9 +21,9 @@ export default class PlatformUsers extends React.Component {
       <h1>Platforma edukacyjna</h1>
 
       <TableForm
-        fetchGetAddress={BACKEND_PLATFORMS_USERS_GET.replace(`:platformId`, this.platformId)}
-        fetchPostAddress={BACKEND_PLATFORMS_USERS_POST.replace(`:platformId`, this.platformId)}
-        fetchDeleteAddress={BACKEND_PLATFORMS_USERS_DEL.replace(`:platformId`, this.platformId)}
+        fetchGetAddress={URL_PLATFORM$ID_USERS_GET.replace(`:platformId`, this.platformId)}
+        fetchPostAddress={URL_PLATFORM$ID_USERS_POST.replace(`:platformId`, this.platformId)}
+        fetchDeleteAddress={URL_PLATFORM$ID_USERS$ID_DELETE.replace(`:platformId`, this.platformId)}
         deleteIdParameterName=":userId"
         responseGetDataName="users"
         responsePostDataName="user"

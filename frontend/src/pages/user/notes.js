@@ -1,6 +1,6 @@
 import React from "react"
 
-import { BACKEND_PLATFORMS_USERS_NOTES } from "../../config.js"
+import { URL_GROUP_NOTES_GET } from "../../config.js"
 
 import { AuthorizedContent, getToken } from "../../utils/auth.js"
 import Layout from "../../components/layout.js"
@@ -17,7 +17,7 @@ export default class Notes extends React.Component {
   }
 
   componentDidMount() {
-    fetch(BACKEND_PLATFORMS_USERS_NOTES, {
+    fetch(URL_GROUP_NOTES_GET, {
       headers: { Authentication: `Bearer ${getToken()}` },
     })
       .then(res => res.json())

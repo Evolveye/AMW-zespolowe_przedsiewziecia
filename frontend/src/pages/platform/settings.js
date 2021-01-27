@@ -1,8 +1,8 @@
 import React from "react"
 
 import {
-  BACKEND_PLATFORMS_URL_DEL,
-  BACKEND_PLATFORMS_URL_PUT,
+  URL_PLATFORM$ID_DELETE,
+  URL_PLATFORM$ID_PUT,
 } from "../../config.js"
 
 import Layout from "../../components/platformLayout.js"
@@ -26,7 +26,7 @@ export default class SettingsView extends React.Component {
   }
 
   hremovePlatform = () => {
-    fetch(BACKEND_PLATFORMS_URL_DEL.replace( `:platformId`, this.platformId ), {
+    fetch(URL_PLATFORM$ID_DELETE.replace( `:platformId`, this.platformId ), {
       method: `DELETE`,
       headers: { Authentication: `Bearer ${getToken()}` },
     }).then( res => res.json() ).then( ({ code, success, error }) => {
@@ -46,7 +46,7 @@ export default class SettingsView extends React.Component {
         submitName="Zatwierdź"
         method="POST"
         headers={{ "Content-Type": "application/json" }}
-        address={BACKEND_PLATFORMS_URL_PUT}
+        address={URL_PLATFORM$ID_PUT}
         onOk={response => {
           console.log(response)
         }}

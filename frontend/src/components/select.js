@@ -41,7 +41,7 @@ export default class Select extends React.Component {
   }
 
   render = () => (
-    <select name={this.props.name} ref={this.ref} onChange={this.props.onChange}>
+    <select name={this.props.name} ref={this.ref} onBlur={this.props.onChange}>
       {this.state.options}
     </select>
   )

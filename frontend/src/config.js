@@ -1,58 +1,6 @@
 export const HOST = "http://localhost:3000"
 
-export const BACKEND_LOGIN_URL = `${HOST}/api/login`
-export const BACKEND_REGISTER_URL = `${HOST}/api/register`
-export const BACKEND_LOGOUT_URL = `${HOST}/api/logout`
-
-export const BACKEND_REGISTER_CONFIRM = `${HOST}/api/activate/:code`
-
-export const BACKEND_PASSWORD_REMIND_URL = `${HOST}/api/password/remind`
-export const BACKEND_PASSWORD_RESET_URL = `${HOST}/api/password/reset`
-
-export const BACKEND_USER_ME_URL = `${HOST}/api/users/me`
-
-export const BACKEND_PLATFORMS_URL = `${HOST}/api/platforms`
-export const BACKEND_PLATFORMS_CREATE_URL = `${HOST}/api/platforms`
-export const BACKEND_PLATFORMS_URL_DEL = `${HOST}/api/platforms/:platformId`
-export const BACKEND_PLATFORMS_URL_PUT = `${HOST}/api/platforms/:platformId`
-export const BACKEND_USER_ME_PINNED_ADD_URL = `${HOST}/api/users/me/pinned`
-export const BACKEND_USER_ME_PINNED_DEL_URL = `${HOST}/api/users/me/pinned:elemenId`
-
-export const BACKEND_PLATFORMS_USERS_POST = `${HOST}/api/platforms/:platformId/users`
-export const BACKEND_PLATFORMS_USERS_GET = `${HOST}/api/platforms/:platformId/users`
-export const BACKEND_PLATFORMS_USERS_DEL = `${HOST}/api/platforms/:platformId/users/:userId`
-
-export const BACKEND_PLATFORMS_GROUPS_GET = `${HOST}/api/groups/platform/:platformId`
-export const BACKEND_PLATFORMS_GROUPS_POST = `${HOST}/api/groups`
-export const BACKEND_PLATFORMS_GROUPS_ADD = `${HOST}/api/groups`
-export const BACKEND_PLATFORMS_GROUPS_DEL = `${HOST}/api/groups/:groupId`
-export const BACKEND_PLATFORMS_USERS_NOTES = `${HOST}/api/groups/notes`
-export const BACKEND_PLATFORMS_USERS_GROUPS_POST = `${HOST}/api/groups/users`
-export const BACKEND_PLATFORMS_USERS_GROUPS_GET = `${HOST}/api/groups/users`
-export const BACKEND_PLATFORMS_GROUP_USERS_GET = `${HOST}/api/groups/:groupId/users`
-export const BACKEND_PLATFORMS_GROUP_USERS_DELETE = `${HOST}/api/groups/:groupId/users/:userId`
-export const BACKEND_PLATFORMS_GROUPS_USER_NOTES_GET = `${HOST}/api/groups/:groupId/notes`
-export const BACKEND_PLATFORMS_GROUPS_USER_NOTES_DEL = `${HOST}/api/groups/notes/:noteId`
-export const BACKEND_PLATFORMS_GROUPS_USER_NOTES_ADD = `${HOST}/api/groups/:groupId/notes/`
-export const BACKEND_PLATFORMS_GROUPS_USER_NOTES_PUT = `${HOST}/api/groups/notes/:noteId`
-
-export const BACKEND_PLATFORMS_GROUPS_MEET_POST = `${HOST}/api/meets`
-export const BACKEND_PLATFORMS_GROUPS_MEET_GET = `${HOST}/api/meets`
-export const BACKEND_PLATFORMS_GROUPS_MEET_DEL = `${HOST}/api/meets/:meetId`
-export const BACKEND_PLATFORMS_GROUPS_MEET = `${HOST}/api/meets/group/:groupId`
-export const BACKEND_PLATFORMS_GROUPS_MEET_ADD_USER = `${HOST}/api/meets/:meetId/users`
-export const BACKEND_PLATFORMS_GROUPS_MEET_GET_USER = `${HOST}/api/meets/:meetId/users`
-export const BACKEND_PLATFORMS_GROUPS_MEET_DEL_USER = `${HOST}/api/meets/:meetId/users/:userId`
-
-export const BACKEND_CALENDAR_URL = "/api/calendar"
-
-export const DEBUG_LOGIN_URL = `http://localhost:3000${BACKEND_LOGIN_URL}`//"https://mockend.com/evolveye/prymitywna-platforma-edukacyjna/tree/dev-frontend/tokens/1"
-export const DEBUG_USER_ME_URL = `http://localhost:3000${BACKEND_USER_ME_URL}`//"https://mockend.com/evolveye/prymitywna-platforma-edukacyjna/tree/dev-frontend/users/1"
-
-export const WEB_SOCKET_URL = "ws://localhost:3000"
-
-export const DEBUG = true
-
+export const WS_HOST = "ws://localhost:3000"
 export function getSocketEventFromHttp( method, httpUrl ) {
   const uri = httpUrl.match( /api\/(.*)/ )[ 1 ]
   const dottedUri = uri.replace( /\//g, `.` )
@@ -61,58 +9,58 @@ export function getSocketEventFromHttp( method, httpUrl ) {
   return `api.${method.toLowerCase()}.${eventName}`
 }
 
-// // Base
-// export const URL_LOGIN_POST
-// export const URL_LOGOUT_POST
-// export const URL_REGISTER_POST
-// export const URL_REGISTER_CONFIRM_POST
-// export const URL_PASSWORD_REMIND_POST
-// export const URL_PASSWORD_RESET_POST
 
-// // User scope
-// export const URL_USER_ME_POST
-// export const URL_USER_ME_GET
-// export const URL_USER_ME_PUT
-// export const URL_USER_ME_PINNED_POST
-// export const URL_USER_ME_PINNED_GET
-// export const URL_USER_ME_PINNED_DELETE
-// export const URL_USER_NOTES_GET
 
-// // Platform scope
-// export const URL_PLATFORM_POST
-// export const URL_PLATFORM_GET
-// export const URL_PLATFORM$ID_PUT
-// export const URL_PLATFORM$ID_DELETE
-// export const URL_PLATFORM$ID_USERS_POST
-// export const URL_PLATFORM$ID_USERS_GET
-// export const URL_PLATFORM$ID_USERS_DELETE
+// Base
+export const URL_LOGIN_POST = `${HOST}/api/login`
+export const URL_LOGOUT_POST = `${HOST}/api/logout`
+export const URL_REGISTER_POST = `${HOST}/api/register`
+export const URL_REGISTER_CONFIRM_POST = `${HOST}/api/activate/:code`
+export const URL_PASSWORD_REMIND_POST = `${HOST}/api/password/remind`
+export const URL_PASSWORD_RESET_POST = `${HOST}/api/password/reset`
 
-// // Group scope
-// export const URL_GROUP_POST
-// export const URL_GROUP_GET
-// export const URL_GROUP_PUT
-// export const URL_GROUP$ID_DELETE
-// export const URL_GROUP_PLATFORM$ID_GET
-// export const URL_GROUP$ID_USERS_POST
-// export const URL_GROUP$ID_USERS_GET
-// export const URL_GROUP$ID_USERS$ID_DELETE
-// export const URL_GROUP_NOTES_GET
-// export const URL_GROUP$ID_NOTES_POST
-// export const URL_GROUP$ID_NOTES_GET
-// export const URL_GROUP$ID_NOTES_PUT
-// export const URL_GROUP$ID_NOTES_DELETE
+// User scope
+export const URL_USER_ME_POST = `${HOST}/api/users/me`
+export const URL_USER_ME_GET = `${HOST}/api/users/me`
+export const URL_USER_ME_PUT = `${HOST}/api/users/me`
+export const URL_USER_ME_PINNED_POST = `${HOST}/api/users/me/pinned`
+export const URL_USER_ME_PINNED_GET = `${HOST}/api/users/me/pinned`
+export const URL_USER_ME_PINNED_DELETE = `${HOST}/api/users/me/pinned/:pinnedId`
 
-// // Meet scope
-// export const URL_MEET_
-// export const URL_MEET_
-// export const URL_MEET_
-// export const URL_MEET_
-// export const URL_MEET_
-// export const URL_MEET_
-// export const URL_MEET_
-// export const URL_MEET_
-// export const URL_MEET_
-// export const URL_MEET_
-// export const URL_MEET_
-// export const URL_MEET_
-// export const URL_MEET_
+// Platform scope
+export const URL_PLATFORM_POST = `${HOST}/api/platforms`
+export const URL_PLATFORM_GET = `${HOST}/api/platforms`
+export const URL_PLATFORM$ID_GET = `${HOST}/api/platforms/:platformId`
+export const URL_PLATFORM$ID_PUT = `${HOST}/api/platforms/:platformId`
+export const URL_PLATFORM$ID_DELETE = `${HOST}/api/platforms/:platformId`
+export const URL_PLATFORM$ID_USERS_POST = `${HOST}/api/platforms/:platformId/users`
+export const URL_PLATFORM$ID_USERS_GET = `${HOST}/api/platforms/:platformId/users`
+export const URL_PLATFORM$ID_USERS$ID_DELETE = `${HOST}/api/platforms/:platformId/users/:userId`
+
+// Group scope
+export const URL_GROUP_POST = `${HOST}/api/groups`
+export const URL_GROUP_GET = `${HOST}/api/groups`
+export const URL_GROUP_USERS_GET = `${HOST}/api/groups/users`
+export const URL_GROUP_NOTES_GET = `${HOST}/api/groups/notes`
+export const URL_GROUP_FROM_PLATFORM$ID_GET = `${HOST}/api/groups/platform/:platformId`
+export const URL_GROUP$ID_DELETE = `${HOST}/api/groups/:groupId`
+export const URL_GROUP$ID_USERS_POST = `${HOST}/api/groups/:groupId/users`
+export const URL_GROUP$ID_USERS_GET = `${HOST}/api/groups/:groupId/users`
+export const URL_GROUP$ID_USERS$ID_DELETE = `${HOST}/api/groups/:groupId/users/:userId`
+export const URL_GROUP$ID_NOTES_POST =  `${HOST}/api/groups/:groupId/notes`
+export const URL_GROUP$ID_NOTES_GET =  `${HOST}/api/groups/:groupId/notes`
+export const URL_GROUP$ID_NOTES$ID_PUT = `${HOST}/api/groups/notes/:noteId`
+export const URL_GROUP$ID_NOTES$ID_DELETE = `${HOST}/api/groups/notes/:noteId`
+
+// Meet scope
+export const URL_MEET_GET = `${HOST}/api/meets`
+export const URL_MEET_POST = `${HOST}/api/meets`
+export const URL_MEET_FROM_GROUP$ID_GET = `${HOST}/api/meets/group/:groupId`
+export const URL_MEET$ID_DELETE = `${HOST}/api/meets/:meetId`
+export const URL_MEET$ID_USERS_POST = `${HOST}/api/meets/:meetId/users`
+export const URL_MEET$ID_USERS_GET = `${HOST}/api/meets/:meetId/users`
+export const URL_MEET$ID_USERS$ID_DELETE = `${HOST}/api/meets/:meetId/users/:userId`
+
+
+
+export const DEBUG = true
