@@ -12,7 +12,9 @@
 }
 
 .accessor {
-  /* Nuff said */
+  color: white;
+  font-size: 18px;
+  text-decoration: none;
 }
 
 .adder {
