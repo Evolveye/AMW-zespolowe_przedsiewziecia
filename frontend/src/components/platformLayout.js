@@ -31,7 +31,7 @@ export default ({ children, className = `` }) => {
 
         setGroupsRows(lis)
       })
-  }, [])
+  }, [platformId])
 
   return (
     <AuthorizedContent>
