@@ -16,6 +16,9 @@ const ERRORS = {
   121: <>Twoje imię nie spełnia naszych standardów!</>,
 
   209: <>Nie masz permisji do dodawania użytkowników do tej platformy!</>,
+  222: <>Nie podałeś wszystkich niezbędnych danych!</>,
+
+  300: <>Tylko administrator moze dodawać grupy!</>,
 }
 
 export default new Proxy(ERRORS, {

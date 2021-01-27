@@ -32,7 +32,9 @@ export default class TableForm extends React.Component {
   }
 
   updateNewField = e => {
-    this.setState({ [e.target.name]: e.target.value })
+    const element = e.target || e
+
+    this.setState({ [element.name]: element.value })
   }
 
   deleteRow = id => {
@@ -96,13 +98,17 @@ export default class TableForm extends React.Component {
       for (const field of this.props.objectsFields) {
         if (typeof field === `object`) {
           fields.push(
-            <td key={field.prop}> {/* className={classes.field} */}
+            <td key={field.prop}>
+              {" "}
+              {/* className={classes.field} */}
               {field.processor(obj[field.prop])}
             </td>
           )
         } else
           fields.push(
-            <td key={field}> {/* className={classes.field} */}
+            <td key={field}>
+              {" "}
+              {/* className={classes.field} */}
               {obj[field]}
             </td>
           )
@@ -112,7 +118,9 @@ export default class TableForm extends React.Component {
         <tr key={obj.id}>
           {fields}
 
-          <td> {/* className={classes.field} */}
+          <td>
+            {" "}
+            {/* className={classes.field} */}
             <button type="button" onClick={() => this.deleteRow(obj.id)}>
               Usuń z platformy
             </button>
@@ -138,14 +146,27 @@ export default class TableForm extends React.Component {
 
       <tbody>
         <tr>
-          {this.props.titleFields.map((field, i) => (
-            <td key={field} className="inputCell">
-              <input
-                onChange={this.updateNewField}
-                name={this.props.objectsFields[i]}
-              />
-            </td>
-          ))}
+          {this.props.objectsFields.map((field, i) => {
+            const customInputField = this.props.inputFieldsComponents?.[
+              field.prop || field
+            ]
+
+            return (
+              <td key={field} className="inputCell">
+                {customInputField ? (
+                  <customInputField.component
+                    {...customInputField.props}
+                    onChange={this.updateNewField}
+                  />
+                ) : (
+                  <input
+                    onChange={this.updateNewField}
+                    name={this.props.objectsFields[i]}
+                  />
+                )}
+              </td>
+            )
+          })}
 
           <td>
             <button type="button" onClick={this.create}>
@@ -177,4 +198,5 @@ TableForm.propTypes = {
 
   objectsFields: PropTypes.array.isRequired,
   titleFields: PropTypes.array.isRequired,
+  inputFieldsComponents: PropTypes.object,
 }
