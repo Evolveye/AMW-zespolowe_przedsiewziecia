@@ -1,18 +1,21 @@
 import React from "react"
 
-import Layout from "../../components/platformLayout.js"
-import TableForm from "../../components/tableForm.js"
+import { urlSearchParams } from "../../utils/functions.js"
 import {
   URL_PLATFORM$ID_USERS$ID_DELETE,
   URL_PLATFORM$ID_USERS_GET,
   URL_PLATFORM$ID_USERS_POST,
 } from "../../config.js"
 
+import Layout from "../../components/platformLayout.js"
+import TableForm from "../../components/tableForm.js"
+
 export default class PlatformUsers extends React.Component {
   constructor(props) {
     super(props)
 
-    const query = new URLSearchParams(window.location.search)
+    const query = urlSearchParams()
+
     this.platformId = query.get(`platformId`)
   }
 

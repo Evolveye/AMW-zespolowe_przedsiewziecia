@@ -1,8 +1,6 @@
 import React from "react"
 
-import Layout from "../../components/platformLayout.js"
-import Select from "../../components/select.js"
-import TableForm from "../../components/tableForm.js"
+import { urlSearchParams } from "../../utils/functions.js"
 import {
   URL_GROUP_POST,
   URL_GROUP$ID_DELETE,
@@ -10,11 +8,16 @@ import {
   URL_PLATFORM$ID_USERS_GET
 } from "../../config.js"
 
+import Layout from "../../components/platformLayout.js"
+import Select from "../../components/select.js"
+import TableForm from "../../components/tableForm.js"
+
 export default class PlatformGroups extends React.Component {
   constructor(props) {
     super(props)
 
-    const query = new URLSearchParams(window.location.search)
+    const query = urlSearchParams()
+
     this.platformId = query.get(`platformId`)
   }
 

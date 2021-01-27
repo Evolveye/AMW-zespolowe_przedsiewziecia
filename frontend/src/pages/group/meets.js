@@ -1,12 +1,13 @@
 import React from "react"
-
-import Layout from "../../components/groupLayout.js"
-import TableForm from "../../components/tableForm.js"
+import { urlSearchParams } from "../../utils/functions.js"
 import {
   URL_MEET_FROM_GROUP$ID_GET,
   URL_MEET_POST,
   URL_MEET$ID_DELETE
 } from "../../config.js"
+
+import Layout from "../../components/groupLayout.js"
+import TableForm from "../../components/tableForm.js"
 
 // import classes from "./group.module.css"
 
@@ -14,7 +15,8 @@ export default class PlatformGroups extends React.Component {
   constructor(props) {
     super(props)
 
-    const query = new URLSearchParams(window.location.search)
+    const query = urlSearchParams()
+
     this.groupId = query.get(`groupId`)
     this.platformId = query.get(`platformId`)
   }

@@ -1,11 +1,8 @@
 import React from "react"
 import { navigate } from "gatsby"
 
-import {
-  URL_USER_ME_GET,
-  URL_LOGOUT_POST,
-} from "../config.js"
 import { isBrowser } from "./functions.js"
+import { URL_USER_ME_GET, URL_LOGOUT_POST } from "../config.js"
 
 /**
  * @typedef {object} User
@@ -77,4 +74,4 @@ export function logout(cb) {
 }
 
 export const AuthorizedContent = ({ children = `Unauthorized` }) =>
-  isLoggedIn() ? children : <>{navigate(`/unauthorized`)}</>
+  isLoggedIn() ? children : isBrowser() && <>{navigate(`/unauthorized`)}</>

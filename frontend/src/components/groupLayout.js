@@ -1,11 +1,14 @@
 import React from "react"
 import { Link } from "gatsby"
 
+import { urlSearchParams } from "../utils/functions.js"
 import { AuthorizedContent } from "../utils/auth.js"
+
 import Layout from "./layout.js"
 
 export default ({ children, className = `` }) => {
-  const query = new URLSearchParams(window.location.search)
+  const query = urlSearchParams()
+
   const platformId = query.get(`platformId`)
   const groupId = query.get(`groupId`)
   const platformAndGroupQuery = `platformId=${platformId}&groupId=${groupId}`
