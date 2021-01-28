@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react"
 import { Link } from "gatsby"
 
-import { URL_GROUP_FROM_PLATFORM$ID_GET } from "../config.js"
+import URLS from "../utils/urls.js"
 import { urlSearchParams } from "../utils/functions.js"
 import { AuthorizedContent, getToken } from "../utils/auth.js"
 
@@ -14,7 +14,7 @@ export default ({ children, className = `` }) => {
   const [groupsLis, setGroupsRows] = useState()
 
   useEffect(() => {
-    fetch(URL_GROUP_FROM_PLATFORM$ID_GET.replace(`:platformId`, platformId), {
+    fetch(URLS.GROUP_FROM_PLATFORM$ID_GET.replace(`:platformId`, platformId), {
       headers: { Authentication: `Bearer ${getToken()}` },
     })
       .then(res => res.json())

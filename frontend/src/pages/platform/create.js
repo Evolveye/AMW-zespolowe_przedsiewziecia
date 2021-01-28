@@ -1,7 +1,7 @@
 import React from "react"
 import { navigate } from "gatsby"
 
-import { URL_PLATFORM_POST } from "../../config.js"
+import URLS from "../../utils/urls.js"
 import ERRORS from "../../utils/errorList.js"
 import { AuthorizedContent, getToken } from "../../utils/auth.js"
 
@@ -26,7 +26,7 @@ export default () => (
           Authentication: `Bearer ${getToken()}`,
           "Content-Type": "application/json",
         }}
-        address={URL_PLATFORM_POST}
+        address={URLS.PLATFORM_POST}
         onOk={({ platform }) => navigate( `/platform/it?platformId=${platform.id ?? 0}` )}
         onError={({ code }) => this.setState({ error: ERRORS[code] })}
       />

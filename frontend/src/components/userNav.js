@@ -1,12 +1,13 @@
 import React from "react"
 import { Link } from "gatsby"
 
-import { DEBUG, URL_PLATFORM_GET } from "../config.js"
+import URLS from "../utils/urls.js"
 import { getToken } from "../utils/auth.js"
 import PlatformAccessor, { PlatformAdder } from "../models/platformAccessor.js"
 
 import classes from "./userNav.module.css"
 
+const DEBUG = false
 const defaultAvatarSrc = `${
   DEBUG ? `http://localhost:3000` : ``
 }/media/image/avatarDefault.jpg`
@@ -17,7 +18,7 @@ export default class UserNav extends React.Component {
   }
 
   componentDidMount() {
-    fetch(URL_PLATFORM_GET, {
+    fetch(URLS.PLATFORM_GET, {
       method: `GET`,
       headers: { Authentication: `Bearer ${getToken()}` },
     })

@@ -1,6 +1,6 @@
 import React from "react"
 
-import { URL_LOGIN_POST } from "../config.js"
+import URLS from "../utils/urls.js"
 import ERRORS from "../utils/errorList.js"
 
 import Layout from "../components/layout.js"
@@ -32,7 +32,7 @@ export default class Login extends React.Component {
         submitName="Zaloguj się"
         method="POST"
         headers={{ "Content-Type": "application/json" }}
-        address={URL_LOGIN_POST}
+        address={URLS.LOGIN_POST}
         onOk={({ token }) => {setToken( token ); navigate( `/user/me` )}}
         onError={({ code }) => this.setState({ error: ERRORS[code] })}
       />

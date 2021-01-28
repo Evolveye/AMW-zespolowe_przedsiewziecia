@@ -1,4 +1,5 @@
 import React from "react"
+import { navigate } from "gatsby"
 
 const DEFAULT_ERROR = <>Coś poszło nie tak</>
 const ERRORS = {
@@ -10,6 +11,7 @@ const ERRORS = {
   ),
   102: <>Hasła nie są identyczne!</>,
   106: <>Hasło nie spełnia standardów bezpieczeństwa!</>,
+  110: <>Sesja wygasła!</>,
   113: <>Uznaliśmy, że wprowadzony email jest niepoprawny. Zmień go!</>,
   117: <>To konto nie zostało jeszcze aktywowane!</>,
   118: <>Imię i nazwisko nie mogą być takie same!</>,
@@ -23,6 +25,7 @@ const ERRORS = {
 
 export default new Proxy(ERRORS, {
   get(ERRORS, code) {
+    if (code === 110) return navigate( `/user/logout` )
     if (code in ERRORS) return ERRORS[code]
 
     console.info(`NIEOBSŁUGIWANY KOD BŁĘDU: ${code}`)

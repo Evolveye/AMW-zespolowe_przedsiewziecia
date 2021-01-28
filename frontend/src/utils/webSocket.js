@@ -1,4 +1,4 @@
-import { WS_HOST } from "../config.js"
+import { WS_HOST } from "../utils/urls.js"
 import { getToken } from "./auth.js"
 import { isBrowser } from "./functions.js"
 

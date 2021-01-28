@@ -2,7 +2,7 @@ import React from "react"
 import { navigate } from "gatsby"
 
 import { isBrowser } from "./functions.js"
-import { URL_USER_ME_GET, URL_LOGOUT_POST } from "../config.js"
+import URLS from "./urls.js"
 
 /**
  * @typedef {object} User
@@ -37,7 +37,7 @@ export async function getUser() {
 
   if (!cachedToken) return null
 
-  return fetch(URL_USER_ME_GET, {
+  return fetch(URLS.USER_ME_GET, {
     headers: { Authentication: `Bearer ${cachedToken}` },
   })
     .then(data => data.json())
@@ -63,7 +63,7 @@ export function logout(cb) {
   setUser(null)
 
   if (isBrowser()) {
-    fetch(URL_LOGOUT_POST, {
+    fetch(URLS.LOGOUT_POST, {
       method: `post`,
       headers: { Authentication: `Bearer ${getToken()}` },
     })

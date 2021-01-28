@@ -1,7 +1,7 @@
 import React from "react"
 import { navigate } from "gatsby"
 
-import { URL_REGISTER_POST } from "../config.js"
+import URLS from "../utils/urls.js"
 import ERRORS from "../utils/errorList.js"
 
 import Layout from "../components/layout.js"
@@ -39,7 +39,7 @@ export default class RegisterPage extends React.Component {
         submitName="Zarejestruj się"
         method="POST"
         headers={{ "Content-Type": "application/json" }}
-        address={URL_REGISTER_POST}
+        address={URLS.REGISTER_POST}
         onOk={() => navigate( `/checkMail` )}
         onError={({ code }) => this.setState({ error: ERRORS[code] })}
       />

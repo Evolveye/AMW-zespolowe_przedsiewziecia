@@ -1,10 +1,7 @@
 import React from "react"
 
 import { urlSearchParams } from "../../utils/functions.js"
-import {
-  URL_PLATFORM$ID_DELETE,
-  URL_PLATFORM$ID_PUT,
-} from "../../config.js"
+import URLS from "../../utils/urls.js"
 
 import Layout from "../../components/platformLayout.js"
 import Form from "../../components/form.js"
@@ -28,7 +25,7 @@ export default class SettingsView extends React.Component {
   }
 
   hremovePlatform = () => {
-    fetch(URL_PLATFORM$ID_DELETE.replace( `:platformId`, this.platformId ), {
+    fetch(URLS.PLATFORM$ID_DELETE.replace( `:platformId`, this.platformId ), {
       method: `DELETE`,
       headers: { Authentication: `Bearer ${getToken()}` },
     }).then( res => res.json() ).then( ({ code, success, error }) => {
@@ -48,7 +45,7 @@ export default class SettingsView extends React.Component {
         submitName="Zatwierdź"
         method="POST"
         headers={{ "Content-Type": "application/json" }}
-        address={URL_PLATFORM$ID_PUT}
+        address={URLS.PLATFORM$ID_PUT}
         onOk={response => {
           console.log(response)
         }}

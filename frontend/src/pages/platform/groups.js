@@ -1,12 +1,7 @@
 import React from "react"
 
 import { urlSearchParams } from "../../utils/functions.js"
-import {
-  URL_GROUP_POST,
-  URL_GROUP$ID_DELETE,
-  URL_GROUP_FROM_PLATFORM$ID_GET,
-  URL_PLATFORM$ID_USERS_GET
-} from "../../config.js"
+import URLS from "../../utils/urls.js"
 
 import Layout from "../../components/platformLayout.js"
 import Select from "../../components/select.js"
@@ -26,12 +21,12 @@ export default class PlatformGroups extends React.Component {
       <h1>Zarządzanie grupami platformy</h1>
 
       <TableForm
-        fetchPostAddress={URL_GROUP_POST}
-        fetchGetAddress={URL_GROUP_FROM_PLATFORM$ID_GET.replace(
+        fetchPostAddress={URLS.GROUP_POST}
+        fetchGetAddress={URLS.GROUP_FROM_PLATFORM$ID_GET.replace(
           `:platformId`,
           this.platformId
         )}
-        fetchDeleteAddress={URL_GROUP$ID_DELETE}
+        fetchDeleteAddress={URLS.GROUP$ID_DELETE}
         deleteIdParameterName=":groupId"
         responseGetDataName="groups"
         responsePostDataName="group"
@@ -46,7 +41,7 @@ export default class PlatformGroups extends React.Component {
             component: Select,
             props: {
               name: `lecturerId`,
-              fetchDataAddress: URL_PLATFORM$ID_USERS_GET.replace(
+              fetchDataAddress: URLS.PLATFORM$ID_USERS_GET.replace(
                 `:platformId`,
                 this.platformId
               ),
