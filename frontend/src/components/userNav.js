@@ -66,7 +66,9 @@ export default class UserNav extends React.Component {
       {this.state.platformsAccessors.length && (
         <>
           <hr />
-          {this.state.platformsAccessors}
+          <section class={classes.platformsAccessors}>
+            {this.state.platformsAccessors}
+          </section>
         </>
       )}
     </nav>
