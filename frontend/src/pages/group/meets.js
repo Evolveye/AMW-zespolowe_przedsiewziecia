@@ -22,6 +22,7 @@ export default class PlatformGroups extends React.Component {
   render = () => (
     <Layout className="is-centered">
       <h1>Grupa -- spotkania</h1>
+      <p><strong>Ważne!</strong> Lista spotkań po lewej stronie zaktualizuje się dopiero po odświeżeniu strony</p>
 
       <TableForm
         fetchPostAddress={URLS.MEET_POST}

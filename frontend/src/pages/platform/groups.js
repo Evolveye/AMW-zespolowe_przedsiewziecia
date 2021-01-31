@@ -19,6 +19,7 @@ export default class PlatformGroups extends React.Component {
   render = () => (
     <Layout className="is-centered">
       <h1>Zarządzanie grupami platformy</h1>
+      <p><strong>Ważne!</strong> Lista grup po lewej stronie zaktualizuje się dopiero po odświeżeniu strony</p>
 
       <TableForm
         fetchPostAddress={URLS.GROUP_POST}
