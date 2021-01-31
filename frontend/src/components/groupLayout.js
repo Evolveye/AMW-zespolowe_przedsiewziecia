@@ -1,8 +1,9 @@
-import React from "react"
+import React, { useEffect, useState } from "react"
 import { Link } from "gatsby"
 
-import { urlSearchParams } from "../utils/functions.js"
-import { AuthorizedContent } from "../utils/auth.js"
+import { urlSearchParams, getDate } from "../utils/functions.js"
+import { AuthorizedContent, getToken } from "../utils/auth.js"
+import URLS from "../utils/urls.js"
 
 import Layout from "./layout.js"
 
@@ -12,6 +13,33 @@ export default ({ children, className = `` }) => {
   const platformId = query.get(`platformId`)
   const groupId = query.get(`groupId`)
   const platformAndGroupQuery = `platformId=${platformId}&groupId=${groupId}`
+
+
+  const [meetsLis, setMeetsRows] = useState()
+
+  useEffect(() => {
+    fetch(URLS.MEET_FROM_GROUP$ID_GET.replace(`:groupId`, groupId), {
+      headers: { Authentication: `Bearer ${getToken()}` },
+    })
+      .then(res => res.json())
+      .then(({ code, error, meets }) => {
+        if (error) return console.error({ code, error })
+
+        const lis = meets.map(({ id, dateStart, description }) => (
+          <li key={id} className="list-item">
+            <Link to={`/group/it?platformId=${platformId}&groupId=${groupId}&groupId=${id}`}>
+              {getDate( `YYYY.MM.DD - hh:mm`, dateStart )}
+              <br />
+              {description}
+            </Link>
+          </li>
+        ))
+
+        console.log( lis )
+
+        setMeetsRows(lis)
+      })
+  }, [platformId, groupId])
 
   return (
     <AuthorizedContent>
@@ -37,9 +65,7 @@ export default ({ children, className = `` }) => {
 
           <h2>Spotkania</h2>
           <ul className="list">
-            <li className="list-item">
-              <Link to={`/meet/it?${platformAndGroupQuery}`}>Spotkanie tymczasowe</Link>
-            </li>
+            {meetsLis}
           </ul>
         </nav>
 

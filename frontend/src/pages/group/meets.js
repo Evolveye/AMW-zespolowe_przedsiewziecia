@@ -1,11 +1,13 @@
 import React from "react"
-import { urlSearchParams } from "../../utils/functions.js"
+import { urlSearchParams, getDate } from "../../utils/functions.js"
 import URLS from "../../utils/urls.js"
 
 import Layout from "../../components/groupLayout.js"
 import TableForm from "../../components/tableForm.js"
 
 // import classes from "./group.module.css"
+
+const DateInput = () => <input type="date" />
 
 export default class PlatformGroups extends React.Component {
   constructor(props) {
@@ -35,13 +37,31 @@ export default class PlatformGroups extends React.Component {
           groupId: this.groupId,
           platformId: this.platformId,
         }}
-        objectsFields={[`dateStart`, `dateEnd`, `description`, `externalUrl`]}
+        objectsFields={[
+          {
+            prop: `dateStart`,
+            processor: ms => getDate(`YYYY:MM:DD hh:mm`, ms),
+          },
+          { prop: `dateEnd`, processor: ms => getDate(`YYYY:MM:DD hh:mm`, ms) },
+          `description`,
+          { prop: `externalUrl`, processor: url => <a href={url}>Link do spotkania</a> },
+        ]}
         titleFields={[
           `Data rozpoczęcia`,
           `Data zakończenia`,
           `Opis`,
           `Link do spotkania`,
         ]}
+        inputFieldsComponents={{
+          dateStart: {
+            component: DateInput,
+            props: {},
+          },
+          dateEnd: {
+            component: DateInput,
+            props: {},
+          },
+        }}
       />
     </Layout>
   )
