@@ -3,6 +3,7 @@ import PropTypes from "prop-types"
 
 import { getToken } from "../utils/auth.js"
 import ERRORS from "../utils/errorList.js"
+import { isBrowser } from "../utils/functions.js"
 
 export default class TableForm extends React.Component {
   state = {
@@ -66,7 +67,8 @@ export default class TableForm extends React.Component {
   }
 
   create = () => {
-    const { error, rows, ...fieldsData } = this.state
+    const { error, rows, data, ...fieldsData } = this.state
+
     fetch(this.props.fetchPostAddress, {
       method: `POST`,
       headers: {
@@ -85,7 +87,18 @@ export default class TableForm extends React.Component {
           return this.setState({ error: ERRORS[data.code] })
         }
 
-        this.addToTable(data[this.props.responsePostDataName])
+        if (data.success) {
+          //TODO get value from every cell and make new row
+          const { code, success } = data
+
+          console.info({ code, success })
+
+          return isBrowser() && window.location.reload()
+        }
+
+        if (this.props.responsePostDataName) {
+          this.addToTable(data[this.props.responsePostDataName])
+        }
       })
   }
 
@@ -203,7 +216,7 @@ TableForm.propTypes = {
 
   deleteIdParameterName: PropTypes.string.isRequired,
   responseGetDataName: PropTypes.string.isRequired,
-  responsePostDataName: PropTypes.string.isRequired,
+  responsePostDataName: PropTypes.string,
   staticPostBodyData: PropTypes.objectOf(PropTypes.string).isRequired,
 
   objectsFields: PropTypes.array.isRequired,
