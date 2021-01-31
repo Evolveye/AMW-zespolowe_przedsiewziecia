@@ -1,5 +1,5 @@
 import React from "react"
-import { navigate } from "gatsby"
+import { logout } from "./auth"
 
 const DEFAULT_ERROR = <>Coś poszło nie tak</>
 const ERRORS = {
@@ -21,11 +21,12 @@ const ERRORS = {
   222: <>Nie podałeś wszystkich niezbędnych danych!</>,
 
   300: <>Tylko administrator moze dodawać grupy!</>,
+  311: <>Nie można zidentyfikować Twojej roli! W żądaniu brakuje identyfikatora grupy</>,
 }
 
 export default new Proxy(ERRORS, {
   get(ERRORS, code) {
-    if (code === 110) return navigate( `/user/logout` )
+    if (code === 110) return logout()
     if (code in ERRORS) return ERRORS[code]
 
     console.info(`NIEOBSŁUGIWANY KOD BŁĘDU: ${code}`)
