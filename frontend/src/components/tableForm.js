@@ -157,7 +157,7 @@ export default class TableForm extends React.Component {
       if (colSpan) i += colSpan
 
       createLis.push(
-        <td key={field} colSpan={colSpan} className="inputCell">
+        <td key={field.prop || field} colSpan={colSpan} className="inputCell">
           {customInputField ? (
             <customInputField.component
               {...customInputField.props}
