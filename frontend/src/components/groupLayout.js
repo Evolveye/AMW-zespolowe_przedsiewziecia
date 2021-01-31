@@ -14,7 +14,6 @@ export default ({ children, className = `` }) => {
   const groupId = query.get(`groupId`)
   const platformAndGroupQuery = `platformId=${platformId}&groupId=${groupId}`
 
-
   const [meetsLis, setMeetsRows] = useState()
 
   useEffect(() => {
@@ -34,8 +33,6 @@ export default ({ children, className = `` }) => {
             </Link>
           </li>
         ))
-
-        console.log( lis )
 
         setMeetsRows(lis)
       })
