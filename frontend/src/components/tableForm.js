@@ -167,7 +167,7 @@ export default class TableForm extends React.Component {
           ) : (
             <input
               onChange={this.updateNewField}
-              name={this.props.objectsFields[i]}
+              name={field.prop || field}
             />
           )}
         </td>
