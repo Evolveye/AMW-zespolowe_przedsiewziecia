@@ -1,0 +1,502 @@
+[
+  // TODO Normalizacja odpowiedzi POSTów
+
+  { // GENERAL DEFINITIONS
+    "Success": { "code": "number", "success":"string" },
+    "Error": { "code": "number", "error":"string" }
+  },
+
+
+  { // USER MODULE
+
+    "REQUIRED_MODULES": [],
+    "ADDITIONAL_MODULES": [],
+    "$MODELS": {
+      "User": {
+        "id": "string",
+        "login": "string",
+        "name": "string",
+        "surname": "string",
+        "email": "string",
+        "activated": "boolean",
+        "avatar": "string",
+        "createdDatetime": "number"
+      },
+      "Token": "string"
+    },
+
+
+    "/api/register": {
+        // Rejestrowanie się w aplikacji
+        "POST": {
+          "body": {
+            "name": "string",
+            "surname": "string",
+            "email": "string",
+            "password1": "string",
+            "password2": "string",
+          },
+          "response": { "user":"User" }
+        }
+    },
+
+
+    "/api/activate/:code": {
+        // Aktywacja konta
+        "GET": { "response": "Success" }
+    },
+
+
+    "/api/password/remind": {
+        // Przypominanie hasła
+        "POST": {
+          "body": { "email":"string" },
+          "response": "Success"
+        }
+    },
+
+
+    "/api/password/reset": {
+        // Przypominanie hasła
+        "POST": {
+          "body": {
+            "password1": "string",
+            "password2": "string",
+            "code": "string",
+          },
+          "response": "Success"
+        }
+    },
+
+
+    "/api/login": {
+        // Logowanie się do aplikacji
+        "POST": {
+          "body": {
+            "login": "string",
+            "password": "string"
+          },
+          "response": { "token":"Token" }
+        }
+    },
+
+
+    "/api/users/me": {
+        // Pobranie danych o aktualnie zalogowanym użytkowniku
+        "GET": {
+          "headers": { "authenthication":"Token" },
+          "response": { "user":"User" }
+        },
+
+        // Aktualizowanie danych aktualnie zalogowanego użytkownika
+        "PUT": {
+          "headers": { "authenthication":"Token" },
+          "body": {
+            "login?": "string",
+            "name?": "string",
+            "surname?": "string",
+            "email?": "string",
+            "avatar?": "string",
+            "password?": "string",
+            "newPassword1?": "string",
+            "newPassword2?": "string",
+          },
+          "response": { "user":"User" }
+        }
+    },
+
+
+    "/api/logout": {
+        // Wylogowanie się z aplikacji
+        "POST": {
+          "headers": { "authenthication":"Token" },
+          "body": {
+            "login": "string",
+            "password": "string"
+          },
+          "response": "Success"
+        }
+    }
+
+  },
+
+
+  { // PLATFORM MODULE
+
+    "REQUIRED_MODULES": [ "user" ],
+    "ADDITIONAL_MODULES": [ "group" ],
+    "$MODELS": {
+      "Platform": {
+        "id": "string",
+        "owner": "User",
+        "created": "number",
+        "name": "string"
+      },
+      "PlatformPermissions": { // TODO Przerobić na model chierarchii i dodatkowych pól typu kolor
+        "canTeach": "boolean",
+        "canEditDetails": "boolean",
+        "canManageUsers": "boolean",
+        "canManageRoles": "boolean",
+        "canManageGroups": "boolean",
+        "canManageCalendar": "boolean",
+        "canManageMeets": "boolean"
+      }
+    },
+
+
+    "/api/platforms": {
+        // Pobranie listy wszystkich widocznych przez użytkownika platform
+        "GET": {
+          "headers": { "authenthication":"Token" },
+          "response": { "platforms":"Platform[]" }
+        },
+
+        // Tworzenie platformy
+        "POST": {
+          "headers": { "authenthication":"Token" },
+          "body": {
+            "name": "string",
+            "description?": "string"
+          },
+          "response": { "platform":"Platform" }
+        }
+    },
+
+
+    "/api/platforms/:platformId": {
+        // Pobieranie informacji o konkretnej platformie
+        "GET": {
+          "headers": { "authenthication":"Token" },
+          "response": { "platforms":"Platform" }
+        },
+
+        // Kasowanie platformy
+        "DELETE": {
+          "headers": { "authenthication":"Token" },
+          "response": "Success"
+        }
+    },
+
+
+    "/api/platforms/:platformId/users": {
+        // Pobranie listy wszystkich widocznych użytkowników platformy
+        "GET": {
+          "headers": { "authenthication":"Token" },
+          "response": { "users":"(User & { permissions:'PlatformPermissions' })[]" }
+        },
+
+        // Dodanie nowego użytkownika do platformy
+        "POST": {
+          "headers": { "authenthication":"Token" },
+          "body": {
+            "name": "string",
+            "surname": "string",
+            "email": "string",
+            "roleName?": "string"
+          },
+          "response": { "users":"User" }
+        }
+    },
+
+
+    "/api/platforms/:platformId/users/:userId": {
+        // Usunięcie użytkownika z platformy
+        "DELETE": {
+          "headers": { "authenthication":"Token" },
+          "response": "Success"
+        }
+    }
+
+  },
+
+
+  { // GROUP MODULE
+
+    "REQUIRED_MODULES": [ "user", "platform" ],
+    "ADDITIONAL_MODULES": [],
+    "$MODELS": {
+      "Group": {
+        "id": "string",
+        "name": "string",
+        "createdDatetime": "number",
+        "lecturer": "User"
+      },
+      "Note": {
+        "id": "string",
+        "value": "string",
+        "description": "string",
+        "userId": "string"
+      },
+      "GroupPermissions": { // TODO Przerobić na model chierarchii i dodatkowych pól typu kolor
+        "canManageUsers": "boolean",
+        "canManageNotes": "boolean",
+        "canManageRoles": "boolean",
+        "canManageMeets": "boolean"
+      }
+    },
+
+
+    "/api/groups": {
+        // Pobranie listy wszystkich widocznych grup
+        "GET": {
+          "headers": { "authenthication":"Token" },
+          "response": { "groups":"Group[]" }
+        },
+
+        // Utworzenie nowej grupy
+        "POST": {
+          "headers": { "authenthication":"Token" },
+          "body": {
+            "name": "string",
+            "lecturerId": "string",
+            "platformId": "string" // TODO Przenieść pod "/api/groups/platform/:platformId"
+          },
+          "response": { "group":"Group" }
+        }
+    },
+
+
+    "/api/groups/:groupId": {
+        // Skasowanie grupy
+        "DELETE": {
+          "headers": { "authenthication":"Token" },
+          "response": "Success"
+        },
+    },
+
+
+    "/api/groups/:groupId/users": {
+        // Pobranie listy wszystkich użytkowników z grupy
+        "GET": {
+          "headers": { "authenthication":"Token" },
+          "response": { "users":"(User & { permissions:'GroupPermissions' })[]" }
+        },
+
+        // Dodanie użytkownika do grupy
+        "POST": {
+          "headers": { "authenthication":"Token" },
+          "response": "Success"
+        }
+    },
+
+
+    "/api/groups/platform/:platformId": {
+        // Pobranie wszystkich grup w obrębie podanej platformy
+        "GET": {
+          "headers": { "authenthication":"Token" },
+          "response": { "groups":"Group[]" }
+        }
+    },
+
+
+    "/api/groups/notes": {
+        // Pobranie wszystkich widocznych ocen
+        "GET": {
+          "headers": { "authenthication":"Token" },
+          "response": {
+            "data": [
+
+              { // Model obiektu tablicy
+                "platform": "Platform",
+                "groups": [
+
+                  { // Model obiektu tablicy
+                    "group": "Group & { yourPermissions:'GroupPermissions' }",
+                    "users": [
+
+                      { // Model obiektu tablicy
+                        "user": "User",
+                        "notes": "Note[]"
+                      }
+
+                    ]
+                  }
+
+                ]
+              }
+
+            ]
+          }
+        }
+    },
+
+
+    "/api/groups/notes/:noteId": {
+        // Skasowanie oceny
+        "DELETE": {
+          "headers": { "authenthication":"Token" },
+          "response": "Success"
+        },
+
+        // Edytowanie oceny
+        "PUT": {
+          "headers": { "authenthication":"Token" },
+          "body": {
+            "value?": "string",
+            "description?": "string"
+          },
+          "response": "Success"
+        }
+    },
+
+
+    "/api/groups/:groupId/notes": { // TODO przenieść do query "/api/groups/notes"
+        // Pobranie listy wszystkich widocznych ocen z grupy
+        "GET": {
+          "headers": { "authenthication":"Token" },
+          "response": { "notes":"Note[]" }
+        },
+
+        // Stworzenie nowej oceny w grupie
+        "POST": {
+          "headers": { "authenthication":"Token" },
+          "body": {
+            "value": "string",
+            "description": "string",
+            "userId": "string" // TODO zastanowić się nad przeniesieniem do adresu
+          },
+          "response": "Note"
+        }
+    },
+
+
+    "/api/groups/:groupId/users/:userId": {
+        // Usunięcie użytkownika z grupy
+        "DELETE": {
+          "headers": { "authenthication":"Token" },
+          "response": "Success"
+        }
+    }
+
+  },
+
+
+  { // MEET MODULE
+
+    "REQUIRED_MODULES": [ "user", "platform" ],
+    "ADDITIONAL_MODULES": [ "group" ],
+    "$MODELS": {
+      "Meet": {
+        "id": "string",
+        "dateStart": "number",
+        "dateEnd": "number",
+        "description": "string",
+        "externalUrl": "string",
+        "platformId": "string",
+        "groupId?": "string"
+      }
+    },
+
+
+    "/api/meets": {
+        // Pobranie listy wszystkich widocznych spotkań
+        "GET": {
+          "headers": { "authenthication":"Token" },
+          "response": { "meets": "Meet[]" }
+        },
+
+        // Utworzenie nowego spotkania
+        "POST": {
+          "headers": { "authenthication":"Token" },
+          "body": {
+            "dateStart": "number",
+            "dateEnd": "number",
+            "description": "string",
+            "externalUrl": "string",
+            "platformId": "string",
+            "groupId?": "string"
+          },
+          "response": { "meet": "Meet" }
+        }
+    },
+
+
+    "/api/meets/:meetId": {
+        // Pobranie informacji na temat konkretnego spotkania
+        "GET": {
+          "headers": { "authenthication":"Token" },
+          "response": { "meet": "Meet" }
+        },
+
+        // Pobranie informacji na temat konkretnego spotkania
+        "DELETE": {
+          "headers": { "authenthication":"Token" },
+          "response": "Success"
+        },
+    },
+
+
+    "/api/meets/group/:groupId": { // TODO przenieść do query "/api/meets"
+        // Pobranie wszystkich spotkań z danej grupy
+        "GET": {
+          "headers": { "authenthication":"Token" },
+          "response": { "meets": "Meet[]" }
+        }
+    },
+
+
+    "/api/meets/public": { // TODO przenieść do query "/api/meets"
+        // Pobranie jedynie publicznych spotkań
+        "GET": {
+          "response": { "users":"Meet[]" }
+        }
+    },
+
+
+    "/api/meets/groupless": { // TODO przenieść do query "/api/meets"
+        // Pobranie jedynie spotkań bez grupy
+        "GET": {
+          "headers": { "authenthication":"Token" },
+          "response": { "users":"Meet[]" }
+        }
+    },
+
+
+    "/api/meets/:meetId/users": {
+        // Pobranie uczestników spotkania
+        "GET": {
+          "headers": { "authenthication":"Token" },
+          "response": { "users":"User[]" }
+        },
+
+        // Dodanie użytkownika do spotkania
+        "POST": {
+          "headers": { "authenthication":"Token" },
+          "response": "Success"
+        }
+    },
+
+
+    "/api/meets/:meetId/users/:userId": {
+        "DELETE": {
+          "headers": { "authenthication":"Token" },
+          "response": "Success"
+        },
+    },
+
+  },
+
+
+  { // CALENDAR MODULE
+
+    "REQUIRED_MODULES": [ "user", "meet" ],
+    "ADDITIONAL_MODULES": [],
+    "$MODELS": {
+      "Event": {
+        "type": "string",
+        "date": "string",
+        "elementId": "string",
+      }
+    },
+
+
+    "/api/calendar": {
+        // Pobranie wszystkich wydarzeń (przykładowo spotkań)
+        "GET": {
+          "headers": { "authenthication?":"Token" },
+          "response": { "events":"Event[]" }
+        }
+    }
+  }
+]
+
