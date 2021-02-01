@@ -9,7 +9,7 @@ import Layout from "../../components/meetLayout.js"
 
 export default () => {
   const query = urlSearchParams()
-  const href = `/group/it?platformId=${query.get(
+  const href = `/meet/it?platformId=${query.get(
     "platformId"
   )}&groupId=${query.get("groupId")}&meetId=${query.get("meetId")}`
 
