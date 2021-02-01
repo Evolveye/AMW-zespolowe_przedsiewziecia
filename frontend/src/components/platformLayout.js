@@ -4,6 +4,7 @@ import { Link } from "gatsby"
 import URLS from "../utils/urls.js"
 import { urlSearchParams } from "../utils/functions.js"
 import { AuthorizedContent, getToken } from "../utils/auth.js"
+import ERRORS from "../utils/errorList.js"
 
 import Layout from "./layout.js"
 
@@ -19,7 +20,9 @@ export default ({ children, className = `` }) => {
     })
       .then(res => res.json())
       .then(({ code, error, groups }) => {
-        if (error) return console.error({ code, error })
+        if (error) {
+          return console.error({ code, error, translatedErr:ERRORS[ code ] })
+        }
 
         const lis = groups.map(({ id, name }) => (
           <li key={id} className="list-item">
