@@ -1,5 +1,6 @@
 [
   // TODO Normalizacja odpowiedzi POSTów
+  // TODO Zmiana permisji na role
 
   { // GENERAL DEFINITIONS
     "Success": { "code": "number", "success":"string" },
@@ -133,6 +134,7 @@
         "name": "string"
       },
       "PlatformPermissions": { // TODO Przerobić na model chierarchii i dodatkowych pól typu kolor
+        "id": "string",
         "canTeach": "boolean",
         "canEditDetails": "boolean",
         "canManageUsers": "boolean",
@@ -171,6 +173,39 @@
         },
 
         // Kasowanie platformy
+        "DELETE": {
+          "headers": { "authenthication":"Token" },
+          "response": "Success"
+        }
+    },
+
+
+    "/api/platforms/:platformId/permissions": {
+        // Pobieranie wszystkich permisji
+        "GET": {
+          "headers": { "authenthication":"Token" },
+          "response": { "permissions":"PlatformPermissions[]" }
+        },
+
+        // Tworzenie nowej permisji
+        "POST": {
+          "headers": { "authenthication":"Token" },
+          "response": { "permissions":"PlatformPermissions" }
+        }
+    },
+
+
+    "/api/platforms/:platformId/permissions/my": {
+        // Pobranie uprawnień żądajacego użytkownika
+        "GET": {
+          "headers": { "authenthication":"Token" },
+          "response": { "permissions":"PlatformPermissions" }
+        }
+    },
+
+
+    "/api/platforms/:platformId/permissions/:permissionId": {
+        // Skasowanie uprawnień
         "DELETE": {
           "headers": { "authenthication":"Token" },
           "response": "Success"
@@ -274,6 +309,39 @@
 
         // Dodanie użytkownika do grupy
         "POST": {
+          "headers": { "authenthication":"Token" },
+          "response": "Success"
+        }
+    },
+
+
+    "/api/groups/:groupId/permissions": {
+        // Pobieranie wszystkich permisji
+        "GET": {
+          "headers": { "authenthication":"Token" },
+          "response": { "permissions":"GroupPermissions[]" }
+        },
+
+        // Tworzenie nowej permisji
+        "POST": {
+          "headers": { "authenthication":"Token" },
+          "response": { "permissions":"GroupPermissions" }
+        }
+    },
+
+
+    "/api/groups/:groupId/permissions/my": {
+        // Pobranie uprawnień żądajacego użytkownika
+        "GET": {
+          "headers": { "authenthication":"Token" },
+          "response": { "permissions":"GroupPermissions" }
+        }
+    },
+
+
+    "/api/groups/:groupId/permissions/:permissionId": {
+        // Skasowanie uprawnień
+        "DELETE": {
           "headers": { "authenthication":"Token" },
           "response": "Success"
         }
