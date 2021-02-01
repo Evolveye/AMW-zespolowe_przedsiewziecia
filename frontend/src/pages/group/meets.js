@@ -9,7 +9,7 @@ import TableForm from "../../components/tableForm.js"
 
 // import classes from "./group.module.css"
 
-const DateInput = () => <input type="date" />
+const DateInput = () => <input type="datetime-local" />
 
 export default class PlatformGroups extends React.Component {
   constructor(props) {
