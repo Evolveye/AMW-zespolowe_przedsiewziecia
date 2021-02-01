@@ -1,12 +1,26 @@
 import React from "react"
+import { Link } from "gatsby"
+
+import { urlSearchParams } from "../../utils/functions.js"
 
 import Layout from "../../components/groupLayout.js"
 
 // import classes from "./group.module.css"
 
-export default () => (
-  <Layout>
-    <h1>Grupa -- role</h1>
-    <div>Twoje miejsce na reklamę</div>
-  </Layout>
-)
+export default () => {
+  const query = urlSearchParams()
+  const href = `/group/it?platformId=${query.get(
+    "platformId"
+  )}&groupId=${query.get("groupId")}`
+
+  return (
+    <Layout className="is-centered">
+      <Link className="return_link" to={href}>
+        Powrót
+      </Link>
+
+      <h1>Grupa -- role</h1>
+      <div>Twoje miejsce na reklamę</div>
+    </Layout>
+  )
+}

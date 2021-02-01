@@ -1,4 +1,5 @@
 import React from "react"
+import { Link } from "gatsby"
 
 import { urlSearchParams } from "../../utils/functions.js"
 import URLS from "../../utils/urls.js"
@@ -15,10 +16,15 @@ export default class PlatformGroups extends React.Component {
 
     this.platformId = query.get(`platformId`)
     this.groupId = query.get(`groupId`)
+    this.href = `/group/it?platformId=${this.platformId}&groupId=${this.groupId}`
   }
 
   render = () => (
     <Layout className="is-centered">
+      <Link className="return_link" to={this.href}>
+        Powrót
+      </Link>
+
       <h1>Grupa -- użytkownicy</h1>
 
       <TableForm

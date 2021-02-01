@@ -1,4 +1,5 @@
 import React from "react"
+import { Link } from "gatsby"
 
 import { urlSearchParams } from "../../utils/functions.js"
 import URLS from "../../utils/urls.js"
@@ -18,6 +19,8 @@ export default class PlatformGroups extends React.Component {
 
   render = () => (
     <Layout className="is-centered">
+      <Link className="return_link" to={`/platform/it?platformId=${this.platformId}`}>Powrót</Link>
+
       <h1>Zarządzanie grupami platformy</h1>
       <p><strong>Ważne!</strong> Lista grup po lewej stronie zaktualizuje się dopiero po odświeżeniu strony</p>
 

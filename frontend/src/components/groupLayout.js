@@ -26,7 +26,7 @@ export default ({ children, className = `` }) => {
 
         const lis = meets.map(({ id, dateStart, description }) => (
           <li key={id} className="list-item">
-            <Link to={`/group/it?platformId=${platformId}&groupId=${groupId}&groupId=${id}`}>
+            <Link to={`/meet/it?platformId=${platformId}&groupId=${groupId}&meetId=${id}`}>
               {getDate( `YYYY.MM.DD - hh:mm`, dateStart )}
               <br />
               {description}

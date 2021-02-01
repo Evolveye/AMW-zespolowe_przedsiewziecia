@@ -1,4 +1,6 @@
 import React from "react"
+import { Link } from "gatsby"
+
 import { urlSearchParams } from "../../utils/functions.js"
 import URLS from "../../utils/urls.js"
 
@@ -13,10 +15,16 @@ export default () => {
 
   // const platformId = query.get(`platformId`)
   const groupId = query.get(`groupId`)
-  // const platformAndGroupQuery = `platformId=${platformId}&groupId=${groupId}`
+  const href = `/group/it?platformId=${query.get(
+    "platformId"
+  )}&groupId=${groupId}`
 
   return (
     <Layout className="is-centered">
+      <Link className="return_link" to={href}>
+        Powrót
+      </Link>
+
       <h1>Grupa -- Oceny</h1>
 
       <TableForm

@@ -1,4 +1,5 @@
 import React from "react"
+import { Link } from "gatsby"
 
 import { urlSearchParams } from "../../utils/functions.js"
 import URLS from "../../utils/urls.js"
@@ -39,6 +40,8 @@ export default class SettingsView extends React.Component {
 
   render = () => (
     <Layout className="is-centered">
+      <Link className="return_link" to={`/platform/it?platformId=${this.platformId}`}>Powrót</Link>
+
       <Form
         fields={fields}
         title="Ustawienia platformy"
