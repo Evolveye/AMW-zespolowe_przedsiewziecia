@@ -9,6 +9,13 @@ export default class Select extends React.Component {
   ref = React.createRef()
 
   componentDidMount() {
+    const { autoFetch, refetchSetter } = this.props
+
+    if (autoFetch === undefined || autoFetch) this.fetch()
+    if (refetchSetter) refetchSetter(this.fetch)
+  }
+
+  fetch = () => {
     const {
       fetchDataAddress,
       fetchDataFilter,
@@ -49,7 +56,12 @@ export default class Select extends React.Component {
   }
 
   render = () => (
-    <select name={this.props.name} ref={this.ref} onBlur={this.props.onChange}>
+    <select
+      name={this.props.name}
+      ref={this.ref}
+      onBlur={this.props.onChange}
+      disabled={this.props.disabled ?? false}
+    >
       {this.state.options}
     </select>
   )

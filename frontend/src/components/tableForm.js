@@ -12,6 +12,8 @@ export default class TableForm extends React.Component {
     data: [],
   }
 
+  onFillListeners = []
+
   componentDidMount() {
     fetch(this.props.fetchGetAddress, {
       method: `GET`,
@@ -30,6 +32,7 @@ export default class TableForm extends React.Component {
         }
 
         this.addToTable(data[this.props.responseGetDataName])
+        this.onFillListeners.forEach(listener => listener())
       })
   }
 
@@ -112,16 +115,9 @@ export default class TableForm extends React.Component {
       for (const field of this.props.objectsFields) {
         if (typeof field === `object`) {
           fields.push(
-            <td key={field.prop}>
-              {field.processor(obj[field.prop])}
-            </td>
+            <td key={field.prop}>{field.processor(obj[field.prop])}</td>
           )
-        } else
-          fields.push(
-            <td key={field}>
-              {obj[field]}
-            </td>
-          )
+        } else fields.push(<td key={field}>{obj[field]}</td>)
       }
 
       return (
@@ -154,22 +150,35 @@ export default class TableForm extends React.Component {
       ]
       const colSpan = this.props.colSpans?.[field.prop || field]
 
-      if (colSpan) i += colSpan
+      let element = (
+        <input onChange={this.updateNewField} name={field.prop || field} />
+      )
+
+      if (colSpan) i += colSpan - 1
+      if (customInputField) {
+        if (customInputField.onTableFillTriggerSetterName) {
+          customInputField.props[
+            customInputField.onTableFillTriggerSetterName
+          ] = f => this.onFillListeners.push(f)
+        }
+
+        element = (
+          <customInputField.component
+            {...customInputField.props}
+            onChange={this.updateNewField}
+            getTableData={() => this.state.data}
+          />
+        )
+
+        if (customInputField.props.onTableFill)
+          this.onFillListeners.push(() =>
+            customInputField.props.onTableFill.bind(element)()
+          )
+      }
 
       createLis.push(
         <td key={field.prop || field} colSpan={colSpan} className="inputCell">
-          {customInputField ? (
-            <customInputField.component
-              {...customInputField.props}
-              onChange={this.updateNewField}
-              getTableData={() => this.state.data}
-            />
-          ) : (
-            <input
-              onChange={this.updateNewField}
-              name={field.prop || field}
-            />
-          )}
+          {element}
         </td>
       )
     }

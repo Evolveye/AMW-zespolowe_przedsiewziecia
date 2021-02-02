@@ -1,7 +1,7 @@
 import React from "react"
 import { Link } from "gatsby"
 
-import { urlSearchParams } from "../../utils/functions.js"
+import { urlSearchParams, translateRole } from "../../utils/functions.js"
 import URLS from "../../utils/urls.js"
 
 import Layout from "../../components/platformLayout.js"
@@ -15,20 +15,6 @@ export default class PlatformUsers extends React.Component {
     const query = urlSearchParams()
 
     this.platformId = query.get(`platformId`)
-  }
-
-  translateRole(roleName) {
-    switch (roleName) {
-      case `owner`:
-        return `Właściciel`
-      case `lecturer`:
-        return `Prowadzący`
-      case `student`:
-        return `Student`
-
-      default:
-        return ` = nieznana = `
-    }
   }
 
   render = () => (
@@ -63,7 +49,7 @@ export default class PlatformUsers extends React.Component {
           `name`,
           `surname`,
           `email`,
-          { prop: `perms`, processor: ({ name }) => this.translateRole(name) },
+          { prop: `perms`, processor: ({ name }) => translateRole(name) },
         ]}
         titleFields={[`Imię`, `Nazwisko`, `Email`, `Rola`]}
         inputFieldsComponents={{
@@ -77,7 +63,7 @@ export default class PlatformUsers extends React.Component {
               ),
               fetchGetDataName: `permissions`,
               fetchDataFilter: ({ name }) => name !== `owner`,
-              fetchDataProcessor: ({ name }) => this.translateRole(name),
+              fetchDataProcessor: ({ name }) => translateRole(name),
             },
           },
         }}

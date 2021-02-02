@@ -30,10 +30,7 @@ export default () => {
       <TableForm
         fetchPostAddress={URLS.GROUP$ID_NOTES_POST.replace(`:groupId`, groupId)}
         fetchGetAddress={URLS.GROUP$ID_NOTES_GET.replace(`:groupId`, groupId)}
-        fetchDeleteAddress={URLS.GROUP$ID_NOTES$ID_DELETE.replace(
-          `:groupId`,
-          groupId
-        )}
+        fetchDeleteAddress={URLS.GROUP_NOTES$ID_DELETE}
         deleteIdParameterName=":noteId"
         responseGetDataName="notes"
         staticPostBodyData={{}}
@@ -46,16 +43,18 @@ export default () => {
         inputFieldsComponents={{
           user: {
             component: Select,
+            onTableFillTriggerSetterName: `refetchSetter`,
             props: {
               name: `userId`,
+              autoFetch: false,
               fetchDataAddress: URLS.GROUP$ID_USERS_GET.replace(
                 `:groupId`,
                 groupId
               ),
               fetchGetDataName: "users",
               fetchDataFilter(field) {
-                // for (const { id } of this.getTableData())
-                //   if (field.id === id) return false
+                for (const { id } of this.getTableData())
+                  if (field.id === id) return false
 
                 return true
               },

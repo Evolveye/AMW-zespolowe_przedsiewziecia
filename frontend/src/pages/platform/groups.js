@@ -43,8 +43,10 @@ export default class PlatformGroups extends React.Component {
         inputFieldsComponents={{
           lecturer: {
             component: Select,
+            onTableFillTriggerSetterName: `refetchSetter`,
             props: {
               name: `lecturerId`,
+              autoFetch: false,
               fetchDataAddress: URLS.PLATFORM$ID_USERS_GET.replace(
                 `:platformId`,
                 this.platformId

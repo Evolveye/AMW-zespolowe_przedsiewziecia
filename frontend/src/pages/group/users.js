@@ -1,7 +1,7 @@
 import React from "react"
 import { Link } from "gatsby"
 
-import { urlSearchParams } from "../../utils/functions.js"
+import { urlSearchParams, translateRole } from "../../utils/functions.js"
 import URLS from "../../utils/urls.js"
 
 import Layout from "../../components/groupLayout.js"
@@ -40,13 +40,17 @@ export default class PlatformGroups extends React.Component {
         deleteIdParameterName=":userId"
         responseGetDataName="users"
         staticPostBodyData={{ groupId: this.groupId }}
-        objectsFields={[`name`, `surname`]}
-        titleFields={[`Imię`, `Nazwisko`]}
+        objectsFields={[`name`, `surname`,
+          { prop: `perms`, processor: ({ name }) => translateRole( name ) },
+        ]}
+        titleFields={[`Imię`, `Nazwisko`, `Rola`]}
         inputFieldsComponents={{
           name: {
             component: Select,
+            onTableFillTriggerSetterName: `refetchSetter`,
             props: {
               name: `userId`,
+              autoFetch: false,
               fetchDataAddress: URLS.PLATFORM$ID_USERS_GET.replace(
                 `:platformId`,
                 this.platformId
@@ -61,6 +65,19 @@ export default class PlatformGroups extends React.Component {
               fetchDataProcessor({ id, name, surname }) {
                 return { value: id, text: `${name} ${surname}` }
               },
+            },
+          },
+          perms: {
+            component: Select,
+            props: {
+              name: `userId`,
+              disabled: true,
+              fetchDataAddress: URLS.GROUP$ID_PERMISSIONS_GET.replace(
+                `:groupId`,
+                this.groupId
+              ),
+              fetchGetDataName: "permissions",
+              fetchDataProcessor: ({ id, name }) => ({ value: id, text:name }),
             },
           },
         }}

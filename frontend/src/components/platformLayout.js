@@ -3,7 +3,7 @@ import { Link } from "gatsby"
 
 import URLS from "../utils/urls.js"
 import { urlSearchParams } from "../utils/functions.js"
-import { AuthorizedContent, getPerms, getToken } from "../utils/auth.js"
+import { AuthorizedContent, getPlatformPerms, getToken } from "../utils/auth.js"
 import ERRORS from "../utils/errorList.js"
 
 import Layout from "./layout.js"
@@ -32,7 +32,6 @@ export default ({ children, className = `` }) => {
           return console.error({ code, error, translatedErr: ERRORS[code] })
         }
 
-        const perms = await getPerms(platformId) || {}
         const groupsLis = groups.map(({ id, name }) => (
           <li key={id} className="list-item">
             <Link to={`/group/it?platformId=${platformId}&groupId=${id}`}>
@@ -41,6 +40,7 @@ export default ({ children, className = `` }) => {
           </li>
         ))
 
+        const perms = await getPlatformPerms(platformId) || {}
         const menuLis = navItems
           .filter(({ permName }) => !permName || perms[permName])
           .map(({ urn, name }) => (

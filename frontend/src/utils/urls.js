@@ -46,6 +46,7 @@ const URLS = {
   GROUP_USERS_GET: `${HOST}/api/groups/users`,
   GROUP_NOTES_GET: `${HOST}/api/groups/notes`,
   GROUP_FROM_PLATFORM$ID_GET: `${HOST}/api/groups/platform/:platformId`,
+  GROUP_NOTES$ID_DELETE: `${HOST}/api/groups/notes/:noteId`,
   GROUP$ID_DELETE: `${HOST}/api/groups/:groupId`,
   GROUP$ID_USERS_POST: `${HOST}/api/groups/:groupId/users`,
   GROUP$ID_USERS_GET: `${HOST}/api/groups/:groupId/users`,
@@ -53,7 +54,8 @@ const URLS = {
   GROUP$ID_NOTES_POST:  `${HOST}/api/groups/:groupId/notes`,
   GROUP$ID_NOTES_GET:  `${HOST}/api/groups/:groupId/notes`,
   GROUP$ID_NOTES$ID_PUT: `${HOST}/api/groups/notes/:noteId`,
-  GROUP$ID_NOTES$ID_DELETE: `${HOST}/api/groups/notes/:noteId`,
+  GROUP$ID_PERMISSIONS_GET: `${HOST}/api/groups/:groupId/permissions`,
+  GROUP$ID_PERMISSIONS_MY_GET: `${HOST}/api/groups/:groupId/permissions/my`,
 
   // Meet scope
   MEET_GET: `${HOST}/api/meets`,

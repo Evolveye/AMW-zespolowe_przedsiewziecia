@@ -17,7 +17,8 @@ import URLS from "./urls.js"
 
 const STORAGE_TOKEN_NAME = `sessionToken`
 const STORAGE_USER = `gatsbyUser`
-const STORAGE_PPERMS = `platformPerms`
+// const STORAGE_PPERMS = `platformPerms`
+// const STORAGE_GPERMS = `groupPerms`
 
 const setUser = user =>
   window.localStorage.setItem(STORAGE_USER, JSON.stringify(user))
@@ -63,14 +64,14 @@ export async function getUser() {
 
 
 /** @return {Promise<User?>} */
-export async function getPerms( platformId ) {
+async function getPerms( url ) {
   if (!isBrowser()) return
 
-  const cachedPPerms = JSON.parse(window.localStorage.getItem(STORAGE_PPERMS))
+  // const cachedPPerms = JSON.parse(window.localStorage.getItem(STORAGE_PPERMS))
 
-  if (cachedPPerms && !cachedPPerms.error) return cachedPPerms
+  // if (cachedPPerms && !cachedPPerms.error) return cachedPPerms
 
-  return fetch(URLS.PLATFORM$ID_PERMISSIONS_MY_GET.replace( `:platformId`, platformId ), {
+  return fetch(url, {
     headers: { Authentication: `Bearer ${getToken()}` },
   })
     .then(data => data.json())
@@ -91,6 +92,16 @@ export async function getPerms( platformId ) {
       } )
     })
     .catch(console.error)
+}
+
+
+export function getPlatformPerms( platformId ) {
+  return getPerms( URLS.PLATFORM$ID_PERMISSIONS_MY_GET.replace( `:platformId`, platformId ) )
+}
+
+
+export function getGroupPerms( groupId ) {
+  return getPerms( URLS.GROUP$ID_PERMISSIONS_MY_GET.replace( `:groupId`, groupId ) )
 }
 
 
