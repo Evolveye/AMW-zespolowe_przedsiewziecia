@@ -1,0 +1,74 @@
+[{
+  "_id": {
+    "$oid": "600b3235a0f0363b506b41ad"
+  },
+  "id": "1611346485917t04641621012301611r",
+  "lecturer": {
+    "id": "1611346267433t8920215355855889r",
+    "name": "ewa",
+    "surname": "wenda",
+    "email": "garbisrbyka@gmail.com",
+    "login": "ew128we",
+    "password": "<4*005e79G13",
+    "activated": true,
+    "avatar": "/media/image/avatarDefault.jpg",
+    "createdDatetime": 1611346267433
+  },
+  "created": 1611346485917,
+  "name": "SQL",
+  "platformId": "1611346231291t27635696913338736r",
+  "membersIds": [
+    "1611346267433t8920215355855889r",
+    "1611346345735t3990943330000647r",
+    "1611346448942t22187409528338353r",
+    "1611346546426t2272813917690606r"
+  ]
+},{
+  "_id": {
+    "$oid": "600b3241a0f0363b506b41ae"
+  },
+  "id": "1611346497020t08763020594319149r",
+  "lecturer": {
+    "id": "1611346328148t3934013657252309r",
+    "name": "dorota",
+    "surname": "zielinska",
+    "email": "garbisrbyka@gmail.com",
+    "login": "do334zi",
+    "password": "8EL865I28)25",
+    "activated": true,
+    "avatar": "/media/image/avatarDefault.jpg",
+    "createdDatetime": 1611346328148
+  },
+  "created": 1611346497020,
+  "name": "gospodarczosc",
+  "platformId": "1611346231291t27635696913338736r",
+  "membersIds": [
+    "1611346328148t3934013657252309r",
+    "1611346458265t12205420326085936r",
+    "1611346467529t3103009161801218r"
+  ]
+},{
+  "_id": {
+    "$oid": "600b35a8a0f0363b506b41cd"
+  },
+  "id": "1611347368072t7401955720682616r",
+  "lecturer": {
+    "id": "1611347318650t3674548059656908r",
+    "name": "basia",
+    "surname": "kasia",
+    "email": "adam.szr98@gmail.com",
+    "login": "ba494ka",
+    "password": "463t*0W34G38",
+    "activated": true,
+    "avatar": "/media/image/avatarDefault.jpg",
+    "createdDatetime": 1611347318650
+  },
+  "created": 1611347368072,
+  "name": "spawalnictwo",
+  "platformId": "1611347237143t009772595678333662r",
+  "membersIds": [
+    "1611347318650t3674548059656908r",
+    "1611347349649t5086228984102921r",
+    "1611347429759t9106623783644481r"
+  ]
+}]

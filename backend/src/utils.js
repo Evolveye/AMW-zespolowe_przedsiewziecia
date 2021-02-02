@@ -1,6 +1,7 @@
 import { LOG_PAGES_ROUTE, LOG_WS_EVENTS, CLEAR_CONSOLE } from "./../consts.js"
-import Logger, { logUnderControl as logUnderCtrl } from "./Logger.js"
+import Logger, { logUnderControl as logUnderCtrl, addNextLineToLog as addNextLn } from "./Logger.js"
 
+export const addNextLineToLog = addNextLn
 export const logUnderControl = logUnderCtrl
 
 export function stringifyObjValues(obj) {
@@ -84,13 +85,14 @@ export const validateWord = (word, { minLen, maxLen, bannedChars, bannedWords, r
 }
 
 
-export function randomString(length = 10, countChars = 5) {
+export function randomString(numbersCount = 10, chars_Count = 5) {
   const alphabet = `abcdefghijklmnouprstwxyz!@#$%^&*()<>`
   const { random, floor } = Math
   const rand = str => floor(random() * str.length)
 
-  let passwLen = length
-  let charsCount = countChars
+  //TODO: REFACTOR
+  let passwLen = numbersCount
+  let charsCount = chars_Count
   let password = ``
 
   if (passwLen < charsCount) [passwLen, charsCount] = [passwLen, charsCount]

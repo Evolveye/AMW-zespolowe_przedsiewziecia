@@ -1,0 +1,82 @@
+[{
+  "_id": {
+    "$oid": "600b3137a0f0363b506b419e"
+  },
+  "id": "1611346231291t27635696913338736r",
+  "owner": {
+    "id": "1611346038388t3552960838664303r",
+    "name": "adam",
+    "surname": "szreiber",
+    "email": "adam.brzuchowo@gmail.com",
+    "login": "adam",
+    "password": "adam",
+    "activated": true,
+    "avatar": "/media/image/avatarDefault.jpg",
+    "createdDatetime": 1611346038388
+  },
+  "created": 1611346231291,
+  "administrator": {
+    "id": "1611346038388t3552960838664303r",
+    "name": "adam",
+    "surname": "szreiber",
+    "email": "adam.brzuchowo@gmail.com",
+    "login": "adam",
+    "password": "adam",
+    "activated": true,
+    "avatar": "/media/image/avatarDefault.jpg",
+    "createdDatetime": 1611346038388
+  },
+  "name": "zslit",
+  "membersIds": [
+    "1611346038388t3552960838664303r",
+    "1611346267433t8920215355855889r",
+    "1611346328148t3934013657252309r",
+    "1611346345735t3990943330000647r",
+    "1611346448942t22187409528338353r",
+    "1611346458265t12205420326085936r",
+    "1611346467529t3103009161801218r",
+    "1611346546426t2272813917690606r"
+  ],
+  "assignedGroups": [
+    "1611346485917t04641621012301611r",
+    "1611346497020t08763020594319149r"
+  ]
+},{
+  "_id": {
+    "$oid": "600b3525a0f0363b506b41c6"
+  },
+  "id": "1611347237143t009772595678333662r",
+  "owner": {
+    "id": "1611346148104t08841307974577339r",
+    "name": "filip",
+    "surname": "szreiber",
+    "email": "garbisrbyka@gmail.com",
+    "login": "filip",
+    "password": "filip",
+    "activated": true,
+    "avatar": "/media/image/avatarDefault.jpg",
+    "createdDatetime": 1611346148104
+  },
+  "created": 1611347237143,
+  "administrator": {
+    "id": "1611346148104t08841307974577339r",
+    "name": "filip",
+    "surname": "szreiber",
+    "email": "garbisrbyka@gmail.com",
+    "login": "filip",
+    "password": "filip",
+    "activated": true,
+    "avatar": "/media/image/avatarDefault.jpg",
+    "createdDatetime": 1611346148104
+  },
+  "name": "CTU",
+  "membersIds": [
+    "1611346148104t08841307974577339r",
+    "1611347318650t3674548059656908r",
+    "1611347349649t5086228984102921r",
+    "1611347429759t9106623783644481r"
+  ],
+  "assignedGroups": [
+    "1611347368072t7401955720682616r"
+  ]
+}]

@@ -44,7 +44,7 @@ class EmailManager {
   filterExpireResetEmails = (obj) => (Date.now() - obj.SEND_DATE) < EMAIL.PASSWD_RESET_EXPIRE_TIME // nie minelo .
 
   getAllAcctivationEmails = () => this.#acctivateCollection
-  getAllResetEmails = () => this.#acctivateCollection
+  getAllResetEmails = () => this.#passwResetCollection
 
   /**
    *
@@ -71,6 +71,7 @@ class EmailManager {
 
   }
 
+
   /**
     * Checks that an account can be activated. If can the email will be deleted. otherwise false.
     *
@@ -84,12 +85,13 @@ class EmailManager {
       (obj, idx) => obj.UNIQUE_ID == uniqueId
     )
 
-    if (collObj) {
-      const idx = this.#passwResetCollection.indexOf(collObj)
-      this.#passwResetCollection.splice(idx, 1) // delete email obj in collection.
-      return collObj.EMAIL
-    }
-    return false
+    if (!collObj) return false
+
+    const idx = this.#passwResetCollection.indexOf(collObj)
+    this.#passwResetCollection.splice(idx, 1) // delete email obj in collection.
+    return collObj.EMAIL
+
+
   }
 
   findEmailById(passwResetUniqueCode) {
@@ -101,16 +103,15 @@ class EmailManager {
     this.#passwResetCollection = this.#passwResetCollection.filter(obj => obj.UNIQUE_ID != passwResetUniqueCode)
   }
 
-/**
- *
- * @param {object} param0 an email content
- * @param {string} param0.title title of email
- * @param {string} param0.body html content of email.
- * @param {string} param0.email reciver email
- */
-  sendEmail({title,body,email})
-  {
-    
+  /**
+   *
+   * @param {object} param0 an email content
+   * @param {string} param0.title title of email
+   * @param {string} param0.body html content of email.
+   * @param {string} param0.email reciver email
+   */
+  sendEmail({ title, body, email }) {
+
     const mailOptions = {
       from: EMAIL.GMAIL_USER_NAME,
       to: email,
@@ -122,7 +123,7 @@ class EmailManager {
       if (err) {
         throw err
       } else {
-        console.log(`Reset Passw send --> `, { email: emailCollObj.EMAIL_OPTIONS.to })
+        console.log(`Email to ${ mailOptions.to } has been send.`)
       }
     })
   }
@@ -151,12 +152,12 @@ class EmailManager {
       if (err) {
         console.log("Cannot send e-mail", { err })
       } else {
-        const emailCollObj = {
-          EMAIL_OPTIONS: mailOptions,
-          SEND_DATE: Date.now(),
-          UNIQUE_ID: uniqueId,
-          EMAIL: email,
-        }
+        // const emailCollObj = {
+        //   EMAIL_OPTIONS: mailOptions,
+        //   SEND_DATE: Date.now(),
+        //   UNIQUE_ID: uniqueId,
+        //   EMAIL: email,
+        // }
         console.log(`Reset Passw send --> `, { email: emailCollObj.EMAIL_OPTIONS.to })
         this.#passwResetCollection.push(emailCollObj)
       }
@@ -177,7 +178,7 @@ class EmailManager {
       subject: EMAIL.ACCTIVATE_ACCOUNT_SUBJECT,
       html: `<h1><a href="${ACTIVATE_FRONT_ADDR}?code=${userID}"> Click to acctivate your account. </a></h1> `,
     }
-    // console.log({ mailOptions })
+
     this.#transporter.sendMail(mailOptions, (err, info) => {
       if (err) {
         console.log("Cannot send e-mail", { err })

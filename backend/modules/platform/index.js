@@ -1,40 +1,146 @@
-import { sameWords } from "../../src/utils.js"
 import Module from "../module.js"
+import Permissions, { PlatformUserPermission } from './permissions.js'
+
+// TODO nie korzystamy z innych modułów wprost, tylko przez requiredModules/additionalModules
+import User from '../user/model.js'
 import group from '../group/index.js'
-import { ANSWERS, MAX_PLATFORM_NUMBER } from "./consts.js"
-import { Platform } from "./model.js"
-import User from './../user/model.js'
+
+/* TODO Nie wyciągamy nic "spod" modułu.
+    Moduły są odpowiedzialne same za siebie.
+    Wszystko czego potrzebują powinny otrzymać w momencie konstruowania */
+import { sameWords } from "../../src/utils.js"
 import { DEBUG } from '../../consts.js'
 
+import { Platform } from "./model.js"
+import { ANSWERS, MAX_PLATFORM_NUMBER } from "./consts.js"
+import * as middlewares from "./middlewares.js"
 
+/** @typedef {import('express').Express} Express */
+/** @typedef {import('express').Request} Request */
+/** @typedef {import('express').Response} Response */
+/** @typedef {import('express').NextFunction} NextFunction */
+
+/**
+ * @typedef {object} MiddlewareParameters
+ * @property {UserRequest} req
+ * @property {Response} res
+ * @property {NextFunction} next
+ * @property {PlatformModule} mod
+ */
 
 export default class PlatformModule extends Module {
   static requiredModules = [`UserModule`]
+  static additionalModules = [`GroupModule`]
 
-  constructor(...params) {
-    super(`platforms`, ...params)
-
-
-
+  subcollections = {
+    templatesPerm: `permissions`,
+    userPermissions: `permissions.users`,
   }
 
 
-  /** @param {import('express').Express} app */
-  configure(app) {
+  getApi() {
+    /** @type {import("../user/index.js").default} */
+    const userModule = this.requiredModules.userModule
+    const auth = userModule.auth
+    const m = middlewares
 
-    // console.log( this.requiredModules )
-    // GET Lista wszystkich platform usera /api/platforms
-    // POST Tworzenie platformy /api/platforms
-    // GET Lista userów platformy /api/platforms/id:number/users
-    // DELETE /api/platforms/id:number/users/id:number
+    return new Map([
+      [`platforms`, {
+        get: auth(this.runMid(m.httpGetUserPlatforms)),
+        post: auth( this.runMid( m.httpCreatePlatform))
+      }],
 
-    app.get(`/api/platforms`, this.httpGetUserPlatforms) // Lista wszystkich platform usera  "authenthication": "string"
-    app.post(`/api/platforms`, this.httpCreatePlatform) // Tworzenie platformy /api/platforms
-    app.post(`/api/platforms/:id/users`, this.httpCreateNewUser) // Tworzenie użytkownika do platformy.
-    app.get(`/api/platforms/:id/users`, this.httpGetUsersOfPlatform)  // Lista userów platformy /api/platforms/id:number/users
-    app.delete(`/api/platforms/:platformId/users/:userId`, this.httpDeleteUserFromPlatform) // Kasowanie userów z platformy /api/platforms/id:number/users/id:number
-    app.delete(`/api/platforms/:id`, this.httpDeletePlatform) // DELETE usuwanie platformy  /api/platforms/:id
+      [`/platforms/:platformId/users`, {
+        get:   auth(this.runMid(m.httpGetUsersOfPlatform)),
+        post:  auth(this.perms( this.runMid(m.httpCreateNewUser)))
+      }],
+
+      [`/platforms/:platformId/users/:userId`, {
+        delete: auth(this.perms(this.runMid(m.httpDeleteUserFromPlatform)))
+      }],
+
+      [`/platforms/:platformId`, {
+        delete:  auth(this.runMid(m.httpDeletePlatform))
+      }],
+
+      [`/platforms/:platformId/permissions`, {
+        get:  auth(this.runMid(m.httpGetPlatformsPermissions)),
+        post:  auth(this.runMid(m.httpCreatePlatformsPermissions)), // TODO this.httpCreatePlatformsPermissions
+      }],
+
+      [`/platforms/:platformId/permissions/my`, {
+        get:  auth(this.runMid(m.httpHandleMyPermission))
+      }],
+
+      [`/platforms/:platformId/permissions/:permissionId`, {
+        delete:  auth(this.perms( this.runMid(m.httpDeletePlatformPermission))), // TODO this.httpDeletePlatformPermission
+        put:  auth(this.runMid(m.httpEditPlatformPermission)), // TODO this.httpEditPlatformPermission
+      }],
+    ])
   }
+
+
+  httpDeletePlatformPermission = async ({req,res}) =>
+  { // can manage roles.
+    const {platformId,permissionId} = req.params
+    const client = req.user
+
+    if  (!client.platformPerms.isMaster)
+    return res.status(400).json({code:234,error:""}) // TODO: startpoint
+    
+  }
+
+
+  /**
+   * @param {(req:Request res:Response next:NextFunction) => void} cb
+   * @return {(req:Request res:Response next:NextFunction) => void|Response }
+   */
+  perms = cb => async (req, res, next) => {
+    const platformId = req.query.platformId || req.params.platformId || req.body.platformId
+
+    if (!this.includePermsIntoReq( req, res, platformId )) cb(req, res, next)
+  }
+
+
+  /**
+   * @param {Request} req
+   * @param {Response} res
+   * @param {string} platformId
+   */
+   async includePermsIntoReq( req, res, platformId ) {
+    if (!platformId)
+      return res.status(400).json({ code: 216, error: `Cannot assign your role in PE system, Because platformId is not provided.` })
+
+    const perms = await this.dbManager.findOne(
+      this.subcollections.userPermissions,
+      {
+        $and: [
+          { userId: { $eq: req.user.id } },
+          { referenceId: { $eq: platformId } }
+        ]
+      }
+    )
+
+    if (!perms) {
+      const platformMember = this.checkUserAssigned(req.user.id, platformId)
+
+      if (!platformMember)
+        return res.status(400).json({ code: 314, error: `You are not a member of target platform, Cannot create/assign permissions.` })
+
+      const permissions = (new Permissions(platformId, `student`)).getProxy()
+
+      req.user.platformPerms = permissions
+      req.user.platformPerms.platformId = platformId
+
+      await this.dbManager.insertObject(
+        this.subcollections.userPermissions,
+        permissions
+      )
+    } else {
+      req.user.platformPerms = (new Permissions(platformId, perms.name, perms)).getProxy()
+    }
+  }
+
 
 
   /** @param {import("socket.io").Socket} socket */
@@ -46,164 +152,91 @@ export default class PlatformModule extends Module {
   }
 
 
-  httpDeleteUserFromPlatform = async (req, res, next) => {
-    // GET Kasowanie userów z platformy /api/platforms/id:number/users/id:number
-    const { platformId, userId } = req.params
-
-    if (!await this.platformExist(platformId))
-      return res.status(400).json({ code: 208, error: "Cannot delete not existing platform." })
-
-    const client = req.user
-    const targetPlatform = await this.getPlatform(platformId)
+  getMyPermission = (userObj, platfromId) => {
+    const userAssigned = this.checkUserAssigned(userObj.id,platfromId)
+    if(!userAssigned)
+      return null
 
 
-    if (!(await this.isPlatformOwner(client.id, targetPlatform))) return res.status(405).json(ANSWERS.PLATFORM_DELETE_NOT_ADMIN)
-    if (sameWords(client.id, userId)) return res.status(400).json({ code: 204, error: "Platform owner can not delete himsef, from platform users." })
-    if (!this.isUserAssigned(userId, targetPlatform)) return res.status(400).json(ANSWERS.PLATFORM_USER_NOT_MEMBER)
-
-    await this.dbManager.updateObject(this.collectionName, { 'id': targetPlatform.id }, { $pull: { 'membersIds': userId } })
-
-    return res.status(200).send({ code: 205, success: "User has been deleted." })
+    return this.dbManager.findOne(this.subcollections.userPermissions, {
+        userId:{$eq:userObj.id},
+        referenceId:{$eq:platfromId}}
+      )
   }
 
 
-  httpDeletePlatform = async (req, res, next) => {
-    // DELETE usuwanie platformy   /api/platforms/:id
-    const targetPlatformId = req.params.id
-    const client = req.user
+  async deletePlatformCascade(platformId) {
+    // co jesli 1 konto jest przypisane do wielu platform.
+    let platform = await this.getPlatform(platformId)
 
-    const target = await this.getPlatform(targetPlatformId)
+    this.dbManager.find(
+      this.basecollectionName,
+      { id: { $eq: platformId } })
 
-    if (!target)
-      return res.status(400).json({ code: 208, error: "Cannot delete not existing platform." })
+    platform = await this.dbManager.findOneAndDelete(this.basecollectionName, { id: { $eq: platformId } })
 
-    if (!this.isPlatformOwner(client, target))
-      return res.status(400).json({ code: 209, error: "You dont have privilages to create new users on this platform." })
+    if (!platform)
+      throw new Error("Drop Platform cascade has been refused.")
 
-    await this.dbManager.deleteObject(this.collectionName, { id: { $eq: targetPlatformId } })
+    console.log({ platform })
+    const query = { platformId: { $eq: platformId } }
+    const deleteUsersTask = this.dbManager.deleteMany(`userModule`, { id: { $in: platform.membersIds } })
+    const deleteMeetingsTask = this.dbManager.deleteMany(`meetModule`, query)
+    const deleteGroupsTask = this.dbManager.deleteMany(`groupModule`, query)
+    const deleteNotesTask = this.dbManager.deleteMany(`groupModule.notes`, { groupId: { $in: platform.assignedGroups } })
+    const deletePermissions = this.dbManager.deleteMany(this.subcollections.userPermissions, query)
 
-    // TODO: find all meetings with group id
-    // delete all meetings with id 
-    // TODO: find all groups with id
-    // delete all groups with id
-    
+    return Promise.all([deleteUsersTask, deleteMeetingsTask, deleteGroupsTask, deleteNotesTask, deletePermissions])
 
-    return res.status(200).json({ code: 210, success: "Platform deleted successfuly." })
   }
 
 
-  httpGetUserPlatforms = async (req, res, next) => {
-    //  get(`/api/platforms`, this.httpGetAllPlatforms) // Lista wszystkich platform usera
-    const user = req.user
-
-    /** @type {Array} assignedPlatforms */
-    const assignedPlatforms = await this.getAllUserPlatforms(user.id).then(cursor => cursor.toArray())
-
-    if (!assignedPlatforms) return res.status(400).json({ code: 208, error: `This user dont belong to any platform.` }) // TODO: Send empty array.
-
-    return res.status(200).json({ platforms: assignedPlatforms })
+  getPermission = (permissionName, platformId) => {
+    return this.dbManager.findOne(
+      this.subcollections.templatesPerm,
+      { $and: [{ referenceId: { $eq: platformId } }, { name: { $eq: permissionName } }] }
+    )
   }
 
-
-  httpCreateNewUser = async (req, res, next) => {
-    const { name, surname, email } = req.body
-
-    const emailContnet = {
-      titleText: "Portal edukacyjny - utworzono konto dla Ciebie.",
-      bodyHtml: `<h1><a href="http://localhost:3000"> Przejdz do portalu.</a></h1>`
-    }
-
-    const user = await this.requiredModules.userModule.createUser({ name, surname, email, activated: true }, emailContnet)
-
-    if (!(user instanceof User)) // jesli nie jest userem, to jest bladem.
-      return res.status(400).json(user)
-
-    const targetPlatformId = req.params.id
-
-    //BUG: START POINT
-    const platform = this.getPlatform(targetPlatformId)
-
-
-    if (!await this.platformExist(targetPlatformId))
-      return res.status(400).json({ code: 208, error: "Cannot create new User. Bacause target platform does not exist." })
-
-    if (!await this.checkUserAdmin(req.user.id, targetPlatformId))
-      return res.status(400).json({ code: 209, error: "You dont have privilages to create new users on this platform." })
-
-    delete user.password
-
-    await this.dbManager.updateObject(this.collectionName, { id: targetPlatformId }, { $push: { membersIds: user.id } })
-    return res.status(200).json({ user })
-  }
 
   platformExist = id => {
-    return this.dbManager.findObject(this.collectionName, { id: { $eq: id } })
+    return this.dbManager.findObject(this.basecollectionName, { id: { $eq: id } })
+    // return this.dbManager.findObject(`platforms`, { id: { $eq: id } })
   }
 
 
-  httpGetUsersOfPlatform = async (req, res, next) => {
-    // GET Lista userów platformy /api/platforms/id:number/users
-    const targetPlatformId = req.params.id
-
-    // console.log({})
-    if (!(await this.platformExist(targetPlatformId)))
-      return res.status(400).json({ code: 208, error: "Cannot get all users assigned to platform. Bacause target platform does not exist." })
-
-    if (!targetPlatformId)
-      return res.status(400).json({ code: 211, error: "Please provide correct platform id." })
-    if (!this.checkUserAssigned(req.user.id, targetPlatformId))
-      return res.status(400).json({ code: 212, error: "Can not send users from platform, where u are not assigned in." })
+  createBaseRoles = (platformId, student = true, lecturer = true, owner = true) => {
+    const basePerms = []
 
 
+    if (student)
+      basePerms.push(new Permissions(platformId, `student`,{canTeach:true}))
+    if (lecturer)
+      basePerms.push(new Permissions(platformId, `lecturer`, { isPersonel: true, canTeach:true }))
+    if (owner)
+      basePerms.push(new Permissions(platformId, `owner`, { isMaster: true }))
 
 
-    const UserArray = await this.getAllUsersInPlatform(targetPlatformId)
-      .then(ids => ids.map(id => this.requiredModules.userModule.getUserById(id)))
-      .then(users => Promise.all(users))
-
-
-
-    const processedUsers = UserArray.filter(user => user != null)
-      .map(({ login, password, ...processedUser }) => processedUser)
-
-    return res.status(200).json({ users: processedUsers })
+    return this.dbManager.insetMany(this.subcollections.templatesPerm, basePerms)
   }
 
-
-  httpCreatePlatform = async (req, res, next) => {
-    // POST Tworzenie platformy /api/platforms
-    const { name } = req.body
-    // TODO: check user exits with posted email.
-
-    if (!name) return res.status(400).json({ code: 203, error: "Platform name not provided." })
-
-    if (!DEBUG)
-      if (!(await this.canCreatePlatform(req.user.id)))
-        return res.status(400).json({ code: 210, error: "You have already an your own platform." })
-
-    const newPlatform = new Platform(req.user, name)
-    await this.savePlatformInDb(newPlatform)
-
-    return res.status(200).json({ platform: newPlatform })
-  }
 
 
   getAllUserPlatforms(userId) {
-    return this.dbManager.findManyObjects(this.collectionName, { membersIds: { $eq: userId } })
+    return this.dbManager.findManyObjects(this.basecollectionName, { membersIds: { $eq: userId } })
+
   }
 
 
   canCreatePlatform = async (userId) => {
-    const countPlatforms = await this.dbManager.findManyObjects(this.collectionName, { 'owner.id': { $eq: userId } }).then(cursor => cursor.count())
+    const countPlatforms = await this.dbManager.findManyObjects(this.basecollectionName, { 'owner.id': { $eq: userId } }).then(cursor => cursor.count())
     return countPlatforms < MAX_PLATFORM_NUMBER
-
-    let ownerOf = await (this.dbManager.findManyObjects(this.collectionName, { 'owner.id': { $eq: userId } })).then(cursor => cursor.toArray())
-    return ownerOf.length === 0 // TODO: max count of owner platform.
   }
 
 
   getAllPlatformsInDb() {
-    return this.dbManager.getCollection(this.collectionName)
+    return this.dbManager.getCollection(this.basecollectionName)
+    // return this.dbManager.getCollection(this.collectionName)
   }
 
 
@@ -213,28 +246,59 @@ export default class PlatformModule extends Module {
   }
 
 
-  savePlatformInDb(platform) {
-    return this.dbManager.insertObject(this.collectionName, platform)
+  savePlatform = (platform) => {
+    return this.dbManager.insertObject(this.basecollectionName, platform)
+    //this.dbManager.insertObject(`platforms`, platform)
+  }
+
+  updatePlatform = (findSchema, newValues) =>
+    this.dbManager.updateObject(this.basecollectionName, findSchema, newValues)
+
+
+
+  saveTemplatePermission = (permisionObj) => { // TODO: Make use of it.
+    this.dbManager.insertObject(this.subcollections.templatesPerm, permisionObj)
   }
 
 
-  getPlatform = (platformId) => this.dbManager.findObject(this.collectionName, { id: { $eq: platformId } })
+  saveUserPermission = (permissionObj) => {
+    return this.dbManager.insertObject(this.subcollections.userPermissions, permissionObj)
+  }
 
 
+  getPlatform = (platformId) => {
+    return this.dbManager.findOne(this.basecollectionName, { id: { $eq: platformId } })
+  }
+
+  async checkIsOwner(userId, platformId) {
+    const result = await this.dbManager.findOne(this.basecollectionName, {
+      $and: [
+        { id: { $eq: platformId } },
+        { 'owner.id': { $eq: userId } }
+      ]
+    })
+
+    return !!result
+  }
 
   isUserAssigned(userId, platformObj) {
     const userList = platformObj.membersIds
-    // console.log({ assigned: userList.some(id => id === userId  )})
     return userList.some(id => id === userId)
   }
 
 
-  isPlatformOwner(userId, platformObj) {
-    return userId === platformObj.owner.id
-  }
+  isPlatformOwner = (userId, platformObj) => userId === platformObj.owner.id
+
+  getPlatformByGroupId = (groupId) => this.dbManager.findOne(this.basecollectionName, { assignedGroups: groupId })
+
+  updatePlatformPermissions = (findShema,newValues) =>  dbManager.findOneAndUpdate(
+    this.subcollections.userPermissions,
+    findShema,
+    newValues,
+    )
 
 
-  async checkUserAdmin(userId, platformId) {
+  async checkUserOwner(userId, platformId) {
     const platform = await this.getPlatform(platformId)
     return platform.owner.id === userId
   }
@@ -248,6 +312,8 @@ export default class PlatformModule extends Module {
     return platform.membersIds.some(id => id === userId)
   }
 
+  getAllTemplatePerms = (platformId) => this.dbManager.findManyObjects(this.subcollections.templatesPerm,{referenceId:{$eq:platformId}})
+  getPermissions = (platformId, userId) => this.dbManager.findOne(this.subcollections.userPermissions, { $and: [{ referenceId: platformId }, { userId: userId }] })
 
   toString = () => this.constructor.toString()
   static toString = () => "PlatformModule"

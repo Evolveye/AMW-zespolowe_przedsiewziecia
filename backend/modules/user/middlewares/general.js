@@ -5,43 +5,51 @@ import User from "../model.js"
 import { PASSWORD_RESTRICTIONS, NAMES_RESTRICTIONS, REGISTER_RESTRICTION } from "../consts.js"
 import { validateWord, sameWords } from '../../../src/utils.js'
 import { DEBUG } from "./../../../consts.js"
+import emailManager from "./../mails.js"
 
 /** path /login
  *  @param {MiddlewareParameters} param0
  */
-export async function loginMiddleware({ collectionName,refreshToken, dbManager, logger, req, res, next }) {
-
+export async function loginMiddleware({ mod, req, res, next }) {
     const { login, password } = stringifyObjValues(req.body)
 
-    if (!login || !password) { //TODO why and, should be ||
-        return res.status(400).json( ANSWERS.USER_NOT_EXIST )
+    if (!(login && password)) {
+        return res.status(400).json(ANSWERS.USER_NOT_EXIST)
     }
 
 
-    logger(`REQUEST LOG-IN CREDENTIALS\n${JSON.stringify({ user: { login, password } })}`)
+    mod.logger(`REQUEST LOG-IN CREDENTIALS\n${JSON.stringify({ user: { login, password } })}`)
 
     /**@type {User} userObj */
-    const userObj = await dbManager.findObject(collectionName, { login, password })
+    // console.log({ "basecollectionName ": basecollectionName, "subcollection ": subcollections })
+
+    let userObj = await mod.dbManager.findOne(mod.basecollectionName, { login: { $eq: login }, password: { $eq: password } })
+
+   // userObj = await dbManager.findOne(`users`, { login: { $eq: login }, password: { $eq: password } })
 
 
-
-    if (!userObj) return res.status(401).json( ANSWERS.USER_NOT_EXIST )
-    if (!userObj.activated) res.status(401).json( ANSWERS.ACCOUNT_NOT_ACTIVATED )
+    if (!userObj) return res.status(401).json(ANSWERS.USER_NOT_EXIST)
+    if (!userObj.activated) return res.status(401).json(ANSWERS.ACCOUNT_NOT_ACTIVATED)
 
     const query = {
-            userId:userObj.id
+        userId: userObj.id
     }
 
-    const activeUserSession = await dbManager.findObject('usersSessions', query)
+    console.log(mod.subcollections)
+    let activeUserSession = await mod.dbManager.findObject(
+        mod.subcollections.sessions,
+        query)
+
+    //activeUserSession = await mod.dbManager.findObject('usersSessions', query)
 
     if (activeUserSession) {
-        logger("WELCOME AGAIN:" + JSON.stringify({ user: { "name": userObj.name, "surname": userObj.surname } }))
+        mod.logger("WELCOME AGAIN:" + JSON.stringify({ user: { "name": userObj.name, "surname": userObj.surname } }))
         await refreshToken(activeUserSession.token)
         return res.status(200).json({ token: activeUserSession.token })
     }
 
     const token = Math.random().toString()
-    logger("LOGGED IN => " + JSON.stringify({ token }))
+    mod.logger("LOGGED IN => " + JSON.stringify({ token }))
 
     const activeSession = { //TODO: refactor, not user but an user._id
         lastActivity: Date.now(),
@@ -49,17 +57,21 @@ export async function loginMiddleware({ collectionName,refreshToken, dbManager, 
         token,
     }
 
-    await dbManager.insertObject('usersSessions', activeSession)
+    await mod.dbManager.insertObject(
+        mod.subcollections.sessions,
+        activeSession)
 
-    res.json({ token })
+  //  await mod.dbManager.insertObject(subcollections.sessions, activeSession)
+
+   return res.json({ token })
 }
 
 
 /** path /api/logout
  *  @param {MiddlewareParameters} param0
  */
-export async function logoutMiddleware({ deleteSessionByToken, tokenExist, getTokenFromRequest, req, res }) {
-    await deleteSessionByToken(req.token)
+export async function logoutMiddleware({ mod, req, res }) {
+    await mod.deleteSessionByToken(req.token)
     return res.status(200).json(ANSWERS.LOGOUT_SUCCESS)
 }
 
@@ -68,35 +80,38 @@ export async function logoutMiddleware({ deleteSessionByToken, tokenExist, getTo
 /** path /api/register
  *  @param {MiddlewareParameters} param0
  */
-export async function registerMiddleware({ saveUserInDb, emailsManager, logger, req, res }) {
-    logger(`REQUEST REGISTER ${JSON.stringify(req.body)}`)
+export async function registerMiddleware({ mod, req, res }) {
+    mod.logger(`REQUEST REGISTER ${JSON.stringify(req.body)}`)
 
     const { name, surname, email, password1, password2 } = stringifyObjValues(req.body)
 
-    if(!sameWords(password1,password2))
-        res.status(200).json(ANSWERS.PASSWD_NOT_SAME)
+    if (!(name && surname && email && password1 && password2))
+        return res.status(400).json(ANSWERS.REGISTER_CREDENTIAL_NOT_PROVIDED)
+
+    if (!sameWords(password1, password2))
+        return res.status(200).json(ANSWERS.PASSWD_NOT_SAME)
 
     /**@type {User} */
-    const user = new User(name, surname, email, { password:password1 })
+    const user = new User(name, surname, email, { password: password1 })
 
     if (!DEBUG) {
         let mess = user.validEmail()
-        if(mess) return res.status(400).json(mess)
+        if (mess) return res.status(400).json(mess)
 
         mess = user.validNames()
-        if(mess)return res.status(400).json(mess)
+        if (mess) return res.status(400).json(mess)
 
         mess = user.validPasswords()
-        if(mess) return res.status(400).json(mess)
+        if (mess) return res.status(400).json(mess)
     }
 
-    await saveUserInDb(user)
+    await mod.saveUserInDb(user)
 
-    emailsManager.sendAcctivationEmail(user.name, user.email, user.login)
+    emailManager.sendAcctivationEmail(user.name, user.email, user.login)
 
     delete user.password
 
-    res.json({ user })
+   return res.json({ user })
 }
 
 
@@ -105,7 +120,7 @@ export async function registerMiddleware({ saveUserInDb, emailsManager, logger, 
 /** path /api/create/user
  *  @param {MiddlewareParameters} param0
  * */
-export async function createUserMiddleware({ saveUserInDb, req, res }) {
+export async function createUserMiddleware({ req, res }) {
     const { name, surname, email } = req.body
 
     if (!(name && surname && email)) return res.status(400).json(ANSWERS.CREATE_CREDENTIAL_NOT_PROVIDED)
@@ -121,7 +136,7 @@ export async function createUserMiddleware({ saveUserInDb, req, res }) {
 
     const newUser = new User(name, surname, email, { activated: true })
 
-    await saveUserInDb(newUser)
+    await mod.saveUserInDb(newUser)
 
     delete newUser.password
     return res.status(200).json({ user: newUser })
@@ -132,25 +147,35 @@ export async function createUserMiddleware({ saveUserInDb, req, res }) {
 /** Accepted path /api/activate/:code
  * @param {MiddlewareParameters} param0
  */
-export async function acctivateAccountMiddleware({ collectionName,logger, dbManager, emailsManager, req, res }) {
+export async function acctivateAccountMiddleware({ mod, req, res }) {
     const accLogin = req.params.code
-   // console.log({ LOGIN: accLogin })
+    // console.log({ LOGIN: accLogin })
+    // TODO:REFACTOR -> Login jest zbyt słaby do aktywacji konta.
 
-    if (!emailsManager.isActiveActivationEmail(accLogin)) res.status(200).json(ANSWERS.EMAIL_ACTIVATE_EXPIRED)
+    if (!emailManager.isActiveActivationEmail(accLogin)) return res.status(200).json(ANSWERS.EMAIL_ACTIVATE_EXPIRED)
 
     /** @type {User} */
-    const targetUser = await dbManager.findObject(collectionName,
+    let targetUser = await mod.dbManager.findObject(mod.basecollectionName,
+        { login: accLogin }
+    )
+
+    targetUser = await mod.dbManager.findObject(mod.basecollectionName,
         { login: accLogin }
     )
 
     if (targetUser.activated === true) return res.status(200).json(ANSWERS.ACCOUNT_ALREADY_ACTIVATED)
 
-    await dbManager.updateObject(collectionName,
+    await mod.dbManager.updateObject(mod.basecollectionName,
         { login: targetUser.login, },
         { $set: { activated: true } }
     )
 
-    logger(`ACTIVATE USER: ${targetUser.name} ${targetUser.surname}`)
-    return res.status(200).json( ANSWERS.ACCOUNT_ACTIVATION_SUCCESS)
+    // await dbManager.updateObject(mod.basecollectionName,
+    //     { login: targetUser.login, },
+    //     { $set: { activated: true } }
+    // )
+
+    mod.logger(`ACTIVATE USER: ${targetUser.name} ${targetUser.surname}`)
+    return res.status(200).json(ANSWERS.ACCOUNT_ACTIVATION_SUCCESS)
 }
 

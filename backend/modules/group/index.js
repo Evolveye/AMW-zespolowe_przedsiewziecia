@@ -2,148 +2,166 @@ import Module from '../module.js'
 import Group from './model.js'
 import Grade from './../grade/model.js'
 import { DEBUG } from '../../consts.js'
+import GroupPermission, { GroupUserPermission } from './permissions.js'
+import UserModule from '../user/index.js'
 
+import * as middlewares from "./middlewares.js"
+
+
+/**
+ * @typedef {object} MiddlewareParameters
+ * @property {UserRequest} req
+ * @property {Response} res
+ * @property {NextFunction} next
+ * @property {GroupModule} mod
+ */
 
 export default class GroupModule extends Module {
   static requiredModules = [`UserModule`, `PlatformModule`]
-
-  constructor(...params) {
-    super(`groups`, ...params)
-
-    const myCollections = [`${this.collectionName}Notes`]
-
-    new Promise(async res => {
-      myCollections.forEach(async collectionName => {
-        if (!(await this.dbManager.collectionExist(collectionName)))
-          await this.dbManager.createCollection(collectionName)
-      })
-      res()
-    })
-
+  subcollections = {
+    notes: `notes`,
+    templatePermissions: `permissions`,
+    userPermissions: `permissions.users`,
   }
 
   /** @param {import("socket.io").Socket} socket */
   socketConfigurator(socket) {
 
   }
+  getApi() {
+    /** @type {import("../user/index.js").default} */
+    const userModule = this.requiredModules.userModule
+    const auth = userModule.auth
+    const pPerms = this.requiredModules.platformModule.perms
+    const m = middlewares
 
+    return new Map([
+      [`/groups`, {
+        get: auth(this.runMid(m.httpHandleMyGroups)),
+        post: auth(pPerms(this.runMid(m.httpCreateGroup)))
+      }],
+      [`/groups/notes`, {
+        get: auth(this.runMid(m.httpGetAllMyNotes))
+      }],
+      [`/groups/platform/:platformId`, {
+        get: auth(pPerms(this.runMid(m.httpHandleAllGroupsInPlatform)))
+      }],
 
-  configure(app) {
+      [`/groups/:groupId/users`, {
+        get: auth(pPerms(this.perms(this.runMid(m.httpHandleAllUsersInGroup)))),
+        post: auth(pPerms(this.perms(this.runMid(m.httpAddGroupMember))))
+      }],
 
-    // GET Lista grup usera - wszystkie do które należy. /api/groups // header { "authenthication": "string" }
-    app.get(`/api/groups`, this.httpHandleMyGroups)
+      [`/groups/:groupId/users/:userId`, {
+        delete: auth(this.perms(this.runMid(m.httpHandleDeleteUserFromGroup)))
+      }],
 
-    // GET api/groups/platform/:id -- wszystkie grupy na danej platformie. platform.id == group.platformId, groupId.members = client.id
-    app.get(`/api/groups/platform/:platformId`, this.httpHandleAllGroupsInPlatform)
+      [`/api/groups/:groupId`, {
+        delete: auth(pPerms( this.perms(this.runMid(m.httpDeleteGroup))))
+      }],
 
-    // get all users of group
-    // Pobieranie listy użytkowników z grupy /api/groups/:groupId/users
-    // GET // header   { "authenthication": "string"}  // body { "users": [  "<User>", ] }
-    app.get(`/api/groups/:groupId/users`, this.httpHandleAllUsersInGroup)
+      [`/groups/:groupId/notes`, {
+        get: auth(this.perms(this.runMid(m.httpHandleNotesFromGroup))),
+        post: auth(pPerms(this.perms(this.runMid(m.httpCreateNote))))
+      }],
 
-    // kto moze tworzyc grupy, all? or owner
-    app.post(`/api/groups`, this.httpCreateGroup)
+      [`/groups/notes/:noteId`, {
+        delete: auth(this.perms(this.runMid(m.httpHandleDeleteNote))),
+        put: auth(this.perms(this.runMid(m.httpHandleNoteUpdate)))
+      }],
 
-    //POST Dodawanie usera do grupy /api/groups/users // header { "authenthication": "string" } //body "usersIds": [ "string"  ]
-    app.post(`/api/groups/users`, this.httpAddGroupMember)
+      [`/groups/permissions`, {
+        get: auth(this.runMid(m.httpHandleGroupPerms)),
+      }],
 
-    // DELETE Kasowanie grupy /api/groups/:groupId   { "authenthication": "string" } // header
-    app.delete(`/api/groups/:groupId`, this.httpDeleteGroup)
-    // kasowanie grupy możliwe tylko przez owner platformy.
+      [`/groups/:groupId/permissions`, {
+        get:  auth( this.perms(this.runMid(m.httpGetTemplatePermissions))),
+        post:  auth(this.runMid(m.httpCreatePermissions)), // TODO this.httpCreatePermissions
+      }],
 
-    // kasowanie usera z grupy api/groups/:groupId/users/:userId
-    // delete auth
-    app.delete(`/api/groups/:groupId/users/:userId`, this.httpHandleDeleteUserFromGroup)
+      [`/groups/:groupId/permissions/my`, {
+        get:  auth(this.runMid(m.httpHandleMyPermission))
+      }],
 
-
-
-    // ##############################################################################
-
-
-    // GET Pobranie WSZYSTKICH ocen użytkownika
-    // { "authenthication": "string" } // header
-    // /api/groups/notes { "authenthication": "string" } // header
-    app.get(`/api/groups/notes`, this.httpGetAllMyNotes)
-
-    // GET Pobranie wszystkich ocen użytkownika z DANEJ GRUPY
-    // { "authenthication": "string" } // header
-    // /api/groups/:groupId/notes
-    app.get(`/api/groups/:groupId/notes`, this.httpHandleNotesFromGroup)
-
-    // Stworzenie oceny /api/groups/notes/
-    // POST { "authenthication": "string" } // header
-    // { "value": "string","description": "string" }
-    app.post(`/api/groups/:groupId/notes/`, this.httpCreateNote)
-
-    // Edycja oceny /api/groups/notes/:noteId
-    // PUT { "authenthication": "string" } // header
-    //{ // body  "value": "string",  "description": "string",}
-    app.put(`/api/groups/notes/:noteId`, this.httpHandleNoteUpdate)
-
-    // Skasowanie oceny /api/groups/notes/:noteId
-    // { "authenthication": "string" } // header
-    app.delete(`/api/groups/notes/:noteId`, this.httpHandleDeleteNote)
-
+      [`/groups/:groupId/permissions/:permissionId`, {
+        delete:  auth(this.runMid(m.httpDeletePermission)), // TODO this.httpDeletePermission
+        put:  auth(this.runMid(m.httpEditPermission)), // TODO this.httpEditPermission
+      }],
+    ])
   }
 
-  httpHandleAllUsersInGroup = async (req, res, next) => {
-    // get all users of group
-    // Pobieranie listy użytkowników z grupy /api/groups/:groupId/users
-    // GET // header { "authenthication": "string"}  // body { "users": [  "<User>", ] }
-    const groupId = req.params.groupId
-    const client = req.user
-    const targetGroup = await this.getGroupObject(groupId)
-
-    if (!targetGroup)
-      return res.status(400).json({ code: 302, error: "Targeted group does not exist." })
-
-    const isMember = this.isUserAssigned(client.id, targetGroup)
-    const isAdmin = await this.requiredModules.platformModule.checkUserAdmin(client.id, targetGroup.platformId)
-
-    if (!isMember && !isAdmin)
-      return res.status(400).json({ code: 302, error: "Only member or platform admin can look at userlist of group." })
-
-    const tasks = targetGroup.membersIds.map((id) => this.requiredModules.userModule.getUserById(id))
-    const users = await Promise.all(tasks)
-
-    res.json({ users })
+  getGroupPermissions =  (userId,groupId) =>
+  {
+   return this.dbManager.findOne(
+      this.subcollections.userPermissions,
+      {referenceId:{$eq:groupId}, userId:{$eq:userId}})
   }
 
 
-  httpHandleDeleteUserFromGroup = async (req, res, next) => {
-    // // kasowanie usera z grupy api/groups/:groupId/users/:userId
-    // // delete auth
 
-    const { groupId, userId } = req.params
-    const groupObj = await this.getGroupObject(groupId)
-    const client = req.user
+  perms = cb => async (req, res, next) => {
+    const groupId = (req.query.groupId || req.params.groupId || req.body.groupId) ?? null
 
-    if (!groupObj)
-      return res.status(400).json({ code: 302, error: "Targeted group does not exist." })
+    // if (scopes.includes(`group`)) {  // BUG. brak dostepu dla admina. nie jest w grupie.
+    if (!groupId)
+      return res.status(400).json({ code: 311, error: `Cannot assign your role in PE system, because groupId is not provided.` })
 
-    if (!this.isUserAssigned(userId, groupObj))
-      return res.status(400).json({ code: 305, error: "User is not a member of this group." })
 
-    const platformId = groupObj.platformId;
-    const isAdmin = await this.requiredModules.platformModule.checkUserAdmin(client.id, platformId)
-
-    if (groupObj.lecturer.id != client.id && !isAdmin)
-      return res.status(400).json({ code: 309, error: "Only Lecturer or Admin can delete a member of group" })
-
-    await this.dbManager.updateObject(
-      this.collectionName,
-      { id: { $eq: groupId } },
-      { $pull: { membersIds: userId } }
+    const perms = await this.dbManager.findOne(
+      this.subcollections.userPermissions,
+      {
+        $and: [
+          { userId: { $eq: req.user.id } },
+          { referenceId: { $eq: groupId } }
+        ]
+      }
     )
 
-    return res.json({ code: 310, success: "User has been deleted from group successfully" })
+    if (!perms) {
+      const groupMember = await this.checkIsUserAssigned(req.user.id, groupId)
+
+      let isPlatformOwner = false
+      if (!groupMember) // pobrac permisje ownera z platformy tej grupy.
+      {
+        const plat = await this.requiredModules.platformModule.getPlatformByGroupId(groupId)
+
+        if (plat.owner.id == req.user.id)
+          isPlatformOwner = true
+        else
+          return res.status(400).json({ code: 314, error: `You are not a member of target group, Cannot create/assign permissions.` })
+      }
+
+      // TODO: FIX, double position in
+      const permissions = isPlatformOwner
+        ? (new GroupPermission(groupId, `lecturer`, { isMaster: true })).getProxy()
+        : (new GroupPermission(groupId, `student`,)).getProxy()
+
+
+      req.user.groupPerms = permissions
+      req.user.groupPerms.groupId = groupId
+      const obj = permissions.target
+
+      if (!isPlatformOwner) // fix?
+        await this.dbManager.insertObject(
+          this.subcollections.userPermissions,
+          obj
+        )
+
+    } else {
+      req.user.groupPerms = (new GroupPermission(groupId, perms.name, perms)).getProxy()
+    }
+
+
+    cb(req, res, next)
   }
 
 
   httpHandleNoteUpdate = async (req, res, next) => {
     // Edycja oceny /api/groups/notes/:noteId
-    // PUT { "authenthication": "string" } // header
-    //{ // body  "value": "string",  "description": "string",}
+
+
+    if (!req.user.groupPerms.canManageNotes || !req.user.platformPerms.isMaster)
+      return req.status(400).json({ code: 321, error: `Your role dont allow you to delete user from group.` })
 
     const noteId = req.params.noteId
     const { value, description } = req.body
@@ -152,7 +170,7 @@ export default class GroupModule extends Module {
     if (!value)
       return res.status(200).json({ code: 307, error: `To update an note, you have to provide value.` })
 
-    const targetNote = await this.dbManager.findObject(`groupsNotes`, { id: { $eq: noteId } })
+    const targetNote = await this.dbManager.findObject(this.subcollections.notes, { id: { $eq: noteId } })
 
 
     if (!targetNote)
@@ -162,7 +180,7 @@ export default class GroupModule extends Module {
     const group = await this.getGroupObject(targetNote.groupId)
 
     const platformId = group.platformId;
-    const isAdmin = await this.requiredModules.platformModule.checkUserAdmin(client.id, platformId)
+    const isAdmin = await this.requiredModules.platformModule.checkUserOwner(client.id, platformId)
 
     if (targetNote.lecturer.id != client.id && !isAdmin)
       return res.status(400).json({ code: 308, error: "Only Lecturer or Admin can update note." })
@@ -170,12 +188,12 @@ export default class GroupModule extends Module {
 
     if (!description)
       await this.dbManager.updateObject(
-        `groupsNotes`,
+        this.subcollections.notes,
         { id: { $eq: noteId } },
         { value: value })
     else
       await this.dbManager.updateObject(
-        `groupsNotes`,
+        this.subcollections.notes,
         { id: { $eq: noteId } },
         { $set: { value: value, description: description } }
       )
@@ -184,403 +202,83 @@ export default class GroupModule extends Module {
   }
 
 
-
-  httpHandleDeleteNote = async (req, res, next) => {
-    // Skasowanie oceny /api/groups/notes/:noteId
-    // { "authenthication": "string" } // header
-    const noteId = req.params.noteId
-    const client = req.user
-
-    // admin or lecturer.
-
-    const targetNote = await this.dbManager.findObject(`groupsNotes`, { id: noteId })
-
-
-    if (!targetNote)
-      return res.status(400).json({ code: 306, error: "Target note does not exists." })
-
-
-    const group = await this.getGroupObject(targetNote.groupId)
-
-    const platformId = group.platformId;
-    const isAdmin = await this.requiredModules.platformModule.checkUserAdmin(client.id, platformId)
-    if (targetNote.lecturer.id != client.id && !isAdmin)
-      return res.status(400).json({ code: 308, error: "Only Lecturer or Admin can delete note." })
-
-    this.dbManager.deleteObject(`groupsNotes`, { id: { $eq: noteId } })
-
-    res.json({ code: 307, success: "Note has been deleted successfully." })
-  }
-
-
-
-  httpHandleNotesFromGroup = async (req, res, next) => { // Pobranie wszystkich ocen użytkownika z DANEJ GRUPY
-
-    // GET Pobranie wszystkich ocen użytkownika z DANEJ GRUPY
-    // { "authenthication": "string" } // header
-    // /api/groups/:groupId/notes
-
-    const clinet = req.user
-    const groupId = req.params.groupId
-    const targetGroup = await this.getGroupObject(groupId)
-
-    if (!targetGroup)
-      return res.status(400).json({ code: 302, error: "Targeted group does not exist." })
-
-    // platformid= targetGroup.platformId
-    const isOwner = await this.requiredModules.platformModule.checkUserAdmin(clinet.id, targetGroup.platformId)
-    const isMember = this.isUserAssigned(clinet.id, targetGroup)
-    const isLecturer = this.isLecturer(clinet.id, targetGroup)
-
-    if (!isMember && !isOwner)
-      return res.status(400).json({ code: 305, error: "Only member or Platform owner can see all user" })
-
-    // wszysztkie oceny które sa przypisane do grupy.
-    const allNotes = await this.dbManager.findManyObjects(
-      `groupsNotes`,
-      { groupId: groupId }).then(cursor => cursor.toArray())
-
-
-    const users = new Map()
-    const usersIds = new Set()
-    const notes = allNotes.filter(
-      note => isOwner || isLecturer
-        ? true
-        : note.userId === clinet.id
-    )
-
-    notes.forEach(({ userId }) => usersIds.add(userId))
-
-    for (const id of usersIds) {
-      const userObj = await this.requiredModules.userModule.getUserById(id)
-      users.set(userObj.id, userObj)
-    }
-
-    const notesWithUsers = notes.map(note => {
-      const newNote = {
-        user: users.get(note.userId),
-        ...note
-      }
-
-      delete newNote.userId
-
-      return newNote
-    })
-
-    //const notes = await this.getAllUserNotesInGroup(groupId, clinet.id).then(cursor => cursor.toArray())
-
-    return res.json({ notes: notesWithUsers })
-  }
-
-
-
-
-  httpCreateNote = async (req, res, next) => { // Stworzenie oceny /api/groups/:groupId/notes/
-    // POST { "authenthication": "string" } // header
-    // { "value": "string","description": "string" }
-    const groupId = req.params.groupId
-    const { value, description, userId } = req.body
-    const lecturer = req.user
-
-    /**@type {Grade} */
-    const note = new Grade(userId, lecturer, value, groupId, { description })
-
-    const targetGroup = await this.getGroupObject(groupId)
-
-    if (!targetGroup)
-      return res.status(400).json({ code: 302, error: "Targeted group does not exist." })
-
-    if (!this.isUserAssigned(userId, targetGroup))
-      return res.status(400).json({ code: 305, error: "User is not a member of this group." })
-
-    const isAdmin = await this.requiredModules.platformModule.checkUserAdmin(lecturer.id, targetGroup.platformId)
-
-    if (!(this.isLecturer(lecturer.id, targetGroup) || isAdmin))
-      return res.status(400).json({ code: 304, error: "Only lecturer or Admin can create an new notes." })
-
-    await this.saveNote(note)
-
-    return res.json({ note })
-  }
-
-
-
-
-
-
-  httpGetAllMyNotes = async (req, res, next) => {
-    // GET Pobranie WSZYSTKICH ocen użytkownika
-    // { "authenthication": "string" } // header
-    // /api/groups/notes { "authenthication": "string" } // header
-
-    const client = req.user
-
-
-    const groupsInPlatforms = {}
-    const notesInGroups = {}
-
-    const userPlatforms = await this.requiredModules.platformModule.getAllUserPlatforms(client.id).then(cur => cur.toArray())
-    /** @type {Group[]} */
-    const userGroups = await this.getAllUserGroups(client.id).then(cur => cur.toArray())
-
-    let userNotes = await this.dbManager.find(
-      `groupsNotes`,
-      {
-        $or: [
-          { "lecturer.id": client.id },
-          { "userId": client.id }
-        ]
-      }).toArray()
-
-    // db.groupsNotes.find({ $or: [{ "lecturer.id": "1610975789753t49023839340064534r" }, { "userId": "1610975831665t5971833184986888r" }] })
-
-
-    //const userNotes = await this.getAllUserNotes(client.id).then(cur => cur.toArray())
-
-
-    // zmiana nazwy db dla ocen
-    userPlatforms.forEach(platform => groupsInPlatforms[platform.id] = {
-      platform,
-      groups: []
-    })
-
-    userGroups.forEach(group => notesInGroups[group.id] = {
-      group,
-      notes: []
-    })
-
-    userNotes.forEach(note => notesInGroups[note.groupId].notes.push(note))
-
-    Object.values(notesInGroups).forEach(value => {
-      // console.log({ pID: value.group.platformId })
-      // console.log({ groupsInPlatforms })
-      // console.log({ value })
-      groupsInPlatforms[value.group.platformId].groups.push(value)
-      // console.log(groupsInPlatforms[value.group.platformId])
-    }
-
-    )
-
-    const data = Object.values(groupsInPlatforms)
-
-    return res.json({ data })
-  }
-
-  httpHandleAllGroupsInPlatform = async (req, res, next) => {
-    const user = req.user
-
-    //console.log(req.params)
-    const targetPlatform = req.params.platformId
-
-    const platformObj = await this.requiredModules.platformModule.getPlatform(targetPlatform)
-
-
-    if (!platformObj)
-      return res.status(400).json({ code: 208, error: "Cannot create new User. Bacause target platform does not exist." })
-
-    const isOwner = this.requiredModules.platformModule.isPlatformOwner(user.id, platformObj)
-
-    const groups =
-      isOwner ? await this.getAllGroupsFromPlatform(targetPlatform)
-        : await this.getAllGroupsFromPlatformWithMemberId(user.id, targetPlatform)
-
-
-
-
-    // TODO Refactor this, handle all platforms with user assigned to a platformId
-
-    // if (!(await this.requiredModules.platformModule.checkUserAdmin(user.id, targetPlatform)))
-    //   return res.status(400).json({ code: 209, error: "You are not an admin, to get all groups in platform." })
-
-    // const groups = await this.dbManager.findManyObjects(
-    //   this.collectionName,
-    //   { platformId: { $eq: targetPlatform } }
-    // ).then(cursor => cursor.toArray())
-
-    return res.json({ groups })
-  }
-
-
-
   httpHandleMyGroups = async (req, res, next) => {
     // GET Lista grup usera - wszystkie do które należy.
-    // /api/groups // header { "authenthication": "string" }
+    // /api/groups  // header { "authenthication": "string" }
     const client = req.user
 
     const clientGroups = await this.dbManager.findManyObjects(
-      this.collectionName,
-      { membersIds: { $in: [client.id] } }
-    ).then(cursor => cursor.toArray())
+      this.basecollectionName,
+      { membersIds: client.id }
+    )
 
 
     return res.json({ groups: clientGroups })
   }
 
 
-  httpDeleteGroup = async (req, res, next) => {
-    // DELETE Kasowanie grupy /api/groups/:groupId   { "authenthication": "string" } // header
-
-    /** @type {import("../user/index.js").default} */
-    const userMod = this.requiredModules.userModule
-    /** @type {import("../platform/index.js").default} */
-    const platformMod = this.requiredModules.platformModule
-
-    const { groupId } = req.body
-
-    if (!(await this.groupExist(groupId)))
-      return res.status(400).json({ code: 302, error: "Targeted group does not exist." })
-
-    if (!(await platformMod.checkUserAdmin(req.user.id, platformId)))
-      return res.status(400).json({ code: 300, error: "Only platform admin can create a group." })
-
-    await this.dbManager.deleteObject(this.collectionName, { id: { $eq: groupId } })
-
-    return res.json({ code: 303, success: "Group has been deleted sucessfuly." })
+  saveGroupPermissionsArr = (arrayOfPerms) => {
+    const tasks = []
+    arrayOfPerms.forEach(permission => {
+      tasks.push(this.saveGroupPermissions(permission))
+    });
+    return Promise.all(tasks)
   }
 
 
-  httpAddGroupMember = async (req, res, next) => {
-    /** @type {import("../user/index.js").default} */
-    const userMod = this.requiredModules.userModule
-    /** @type {import("../platform/index.js").default} */
-    const platformMod = this.requiredModules.platformModule
-
-
-    const { groupId } = req.body
-    let usersIds = req.body.usersIds
-    if (!Array.isArray(usersIds)) // TODO: TEST this function.
-      usersIds = [usersIds]
-
-
-
-    // poobrac objekt grupy.
-    //  grupa.platformId
-    const groupObj = await this.dbManager.findObject(
-      this.collectionName,
-      { id: { $eq: groupId } }
-    )
-
-    if (!groupObj)
-      return res.status(400).json({ code: 302, error: "Targeted group does not exist." })
-
-    const platformObj = await this.requiredModules.platformModule.getPlatform(groupObj.platformId)
-
-    const platformOwner = platformMod.isPlatformOwner(req.user.id, platformObj)
-    const groupLecturer = groupObj.lecturer.id == req.user.id
-    if (!platformOwner && !groupLecturer)
-      return res.status(400).json({ code: 300, error: "Only Lecturer or Platform owner can assign new members to group." })
-
-    // if (!DEBUG) {
-    //   // BUG: PAWEŁ
-    //   const result = await Promise.all(usersIds.map(userId => userMod.userExist(userId)))
-    //   console.log({ result })
-    //   if (!result.every(Boolean))
-    //     return res.status(400).json({ code: 301, error: "You are trying to assign non existing user." })
-
-    //   // TODO: check list if exist, filter existing members, and add them, return to client partly bad. with notAdded : [ids]
-    //   // findOneAndUpdate(
-    //   //   <filter>,
-    //   //   <update document or aggregation pipeline>,
-    //   //  { $push: { <field1>: { <modifier1>: <value1>, ... }, ... } }
-    // }
-
-
-    let positiveIds = usersIds.filter(id => platformObj.membersIds.some(member => member === id))
-    positiveIds = positiveIds.filter(id => groupObj.membersIds.every(memberId => memberId !== id)) // przefiltruj wszystkich którzy sa juz dopisani.
-
-
-    if (positiveIds.length > 0)
-      await this.dbManager.findOneAndUpdate(
-        this.collectionName,
-        { id: { $eq: groupId } },
-        { $push: { membersIds: { $each: positiveIds } } },
-      )
-
-    if (positiveIds.length !== usersIds.length)
-      return res.json({ code: 320, success: "Not all of users was assigned to group. Because not all of users are targeted platfrom member." })
-
-
-    return res.json({ code: 302, success: "Succesfully assigned users to group." })
+  saveGroupPermissions = (perm) => {
+    if (perm instanceof GroupUserPermission)
+      return this.dbManager.insertObject(this.subcollections.userPermissions, perm)
+    else if (perm instanceof GroupPermission)
+      return this.dbManager.insertObject(this.subcollections.templatePermissions, perm)
+    else
+      throw new Error(`permission save refused.`)
   }
+  saveGroup = (group) => this.dbManager.insertObject(this.basecollectionName, group)
+  saveNote = (note) => this.dbManager.insertObject(this.subcollections.notes, note)
 
-
-
-  httpCreateGroup = async (req, res, next) => {
-    // header { "authenthication": "string" }
-    // body:{"name": "string", "lecturer": "string", "platformId":"string"}
-
-    /** @type {import("../user/index.js").default} */
-    const userMod = this.requiredModules.userModule
-    /** @type {import("../platform/index.js").default} */
-    const platformMod = this.requiredModules.platformModule
-
-    const { name, lecturer, platformId } = req.body
-    const client = req.user
-
-    if (!(await platformMod.platformExist(platformId)))
-      return res.status(400).json({ code: 207, error: "Platform does not exist" })
-
-    if (!(await platformMod.checkUserAdmin(client.id, platformId)))
-      return res.status(400).json({ code: 300, error: "Only platform admin can create a group." })
-
-
-    const lecturerObj = await userMod.getUserById(lecturer)
-
-
-    let group = new Group(name, lecturerObj, platformId)
-    group.membersIds.push(lecturerObj.id)
-    await this.saveGroup(group)
-
-    await this.dbManager.updateObject(
-      `platforms`,
-      { id: { $eq: platformId } },
-      { $push: { assignedGroups: group.id } }
-    )
-
-
-
-    return res.status(200).json(group)
-  }
-
-  saveGroup = (group) => this.dbManager.insertObject(this.collectionName, group)
-  saveNote = (note) => this.dbManager.insertObject(`groupsNotes`, note)
-
-  groupExist = (groupId) => this.dbManager.objectExist(this.collectionName, { id: { $eq: groupId } })
+  groupExist = (groupId) => this.dbManager.objectExist(this.basecollectionName, { id: { $eq: groupId } })
 
   isLecturer = (userId, groupObj) => groupObj.lecturer.id === userId
 
-  getAllUserGroups = (userId) => this.dbManager.findManyObjects('groups', { membersIds: { $in: [userId] } })
+  getAllUserGroups = (userId) => this.dbManager.findManyObjects(this.basecollectionName, { membersIds: { $in: [userId] } })
 
   getGroupObject = (groupId) =>
-    this.dbManager.findObject(this.collectionName, { id: { $eq: groupId } })
+    this.dbManager.findObject(this.basecollectionName, { id: { $eq: groupId } })
 
-  getAllPlatformGroups = (platformId) => this.dbManager.findManyObjects(this.collectionName, { platformId: { $eq: platformId } })
+  getAllPlatformGroups = (platformId) => this.dbManager.findManyObjects(this.basecollectionName, { platformId: { $eq: platformId } })
   getAllUserNotes = (userId) =>
-    this.dbManager.findManyObjects('groupsNotes', { userId: { $eq: userId } })
+    this.dbManager.findManyObjects(this.subcollections.notes, { userId: { $eq: userId } })
   getAllUserNotesInGroup = (groupId, userId) =>
-    this.dbManager.findManyObjects('groupsNotes', { userId: { $eq: userId }, groupId: { $eq: groupId } })
+    this.dbManager.findManyObjects(this.subcollections.notes, { userId: { $eq: userId }, groupId: { $eq: groupId } })
 
   isUserAssigned = (userId, groupObj) =>
     groupObj.membersIds.some(id => id === userId)
 
+  checkIsUserAssigned = async (userId, groupId) => {
+    const groupObj = await this.getGroupObject(groupId)
+    return this.isUserAssigned(userId, groupObj)
+  }
 
+  getAllTemplatePerms = (groupId) =>
+   this.dbManager.findManyObjects(this.subcollections.templatePermissions,{referenceId:{$eq:groupId}})
 
-  getAllGroupsFromPlatform = (platformId) =>
-    this.dbManager.findManyObjects(
-      this.collectionName,
+  getAllGroupsFromPlatform = async (platformId) =>
+    await this.dbManager.findManyObjects(
+      this.basecollectionName,
       {
         'platformId': { $eq: platformId }
-      }).then(cursor => cursor.toArray())
+      })
 
 
-  getAllGroupsFromPlatformWithMemberId = (memberId, platformId) =>
-    this.dbManager.findManyObjects(this.collectionName,
+  getAllGroupsFromPlatformWithMemberId = async (memberId, platformId) =>
+    await this.dbManager.findManyObjects(this.basecollectionName,
       {
         $and: [
           { 'platformId': { $eq: platformId } },
           { 'membersIds': { $in: [memberId] } }
         ],
-      }).then(cursor => cursor.toArray())
+      })
 
 
   toString() {
@@ -590,7 +288,6 @@ export default class GroupModule extends Module {
   static toString() {
     return "GroupModule"
   }
-
 
 
 }

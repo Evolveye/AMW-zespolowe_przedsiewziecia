@@ -9,26 +9,11 @@ import {
 
 import { DEBUG } from "./../../consts.js"
 
-import {
-  loginMiddleware,
-  logoutMiddleware,
-  registerMiddleware,
-  createUserMiddleware,
-  acctivateAccountMiddleware,
-} from "./middlewares/general.js"
+import * as generalMiddlewares from "./middlewares/general.js"
+import * as loggedUserMiddlewares from "./middlewares/users.js"
+import * as passwordMiddlewares from "./middlewares/password.js"
 
-import {
-  getAllUsers,
-  httpAmIMiddleware,
-  updateUserSettings,
-} from "./middlewares/users.js"
-
-import {
-  passwordResetMiddleware,
-  passwordRemindMiddleware,
-} from "./middlewares/password.js"
-
-
+const midds = { ...generalMiddlewares, ...loggedUserMiddlewares, ...passwordMiddlewares }
 
 /**
  * @typedef {object} RequestAddition
@@ -55,60 +40,34 @@ import {
  */
 
 /**
- * @typedef {object} ExpressMiddlewareParams
+ * @typedef {object} MiddlewareParameters
  * @property {UserRequest} req
  * @property {Response} res
  * @property {NextFunction} next
+ * @property {UserModule} mod
  */
 
-/** @typedef {ExpressMiddlewareParams & MiddlewareUtils} MiddlewareParameters */
-
-class MiddlewareUtils {
-  /** @param {UserModule} userModule */
-  constructor(userModule) {
-    this.dbManager = userModule.dbManager
-
-    this.saveUserInDb = userModule.saveUserInDb
-    this.handleWhoAmI = userModule.handleWhoAmI
-
-    this.getSessionByToken = userModule.getSessionByToken
-    this.getUserByToken = userModule.getUserByToken
-    this.deleteSessionByToken = userModule.deleteSessionByToken
-    this.tokenExist = userModule.tokenExist
-    this.refreshToken = userModule.refreshToken
-    this.getTokenFromRequest = userModule.getTokenFromRequest
-
-    this.passwordsSame = userModule.passwordsSame
-    this.isNameCorrect = UserModule.isNameCorrect
-    this.isPasswordCorrect = UserModule.isPasswordCorrect
-    this.isEmailCorrect = UserModule.isEmailCorrect
-
-    this.emailsManager = emailsManager //CORRECT ?
-    this.logger = userModule.logger
-    this.collectionName = userModule.collectionName
-
-  }
-}
-
 export default class UserModule extends Module {
+  subcollections = {
+    sessions: `sessions`
+  }
+
   constructor(...params) {
-    super(`users`, ...params)
+    super(...params)
 
-    const myCollections = [`${this.collectionName}Sessions`]
-
-    new Promise(async res => {
-      myCollections.forEach(async collectionName => {
-        if (!(await this.dbManager.collectionExist(collectionName)))
-          await this.dbManager.createCollection(collectionName)
-      })
-
-      res()
-    })
 
     setInterval(async () => {
       this.logger("DELETE EXPIRED TOKEN MECHANISM.")
 
-      await this.dbManager.deleteObjectsInCollection('usersSessions', {
+      await this.dbManager.deleteObjectsInCollection(
+        this.subcollections.sessions,
+        {
+          lastActivity: {
+            "$lt": Date.now() - TOKEN_EXPIRE_TIME_IN_MINUTES
+          }
+        })
+
+      await this.dbManager.deleteObjectsInCollection(this.basecollectionName, {
         lastActivity: {// wszystko co nie spelnia warunku zostaje usuniete
           "$lt": Date.now() - TOKEN_EXPIRE_TIME_IN_MINUTES /* to ms */
         }
@@ -116,56 +75,125 @@ export default class UserModule extends Module {
     }, REFRESHING_INTERVAL_TIME_IN_MINUTES)
   }
 
+
+  getApi = () => new Map([
+    [`/register`, {
+      post: this.runMid(midds.registerMiddleware)
+    }],
+
+    [`/create/user`, {
+      post: this.runMid(midds.createUserMiddleware),
+    }],
+
+    [`/login`, {
+      post: this.runMid(midds.loginMiddleware)
+    }],
+
+    [`/logout`, {
+      post: this.auth(this.runMid(midds.logoutMiddleware)),
+    }],
+
+    [`/activate/:code`, {
+      get: this.runMid(midds.acctivateAccountMiddleware)
+    }],
+
+    [`/users/me`, {
+      get: this.auth(this.runMid(midds.httpAmIMiddleware)),
+      put: this.auth(this.runMid(midds.updateUserSettings)),
+    }],
+
+    [`/users`, {
+      get: this.auth(this.runMid(midds.getAllUser)),
+    }],
+
+    [`/password/remind`, {
+      post: this.runMid(midds.passwordRemindMiddleware),
+    }],
+
+    [`/password/reset`, {
+      post: this.runMid(midds.passwordResetMiddleware),
+    }],
+  ])
+
+
+  /**
+   * @param {(req:Request res:Response next:NextFunction) => void} cb
+   * @return {(req:Request res:Response next:NextFunction) => void|Response }
+   */
+  auth = cb => async (req, res, next) => {
+    const authenticationToken = this.getTokenFromRequest(req)
+    // const var2= authenticationToken.search(`.`)
+
+    if (!authenticationToken || authenticationToken == `null`)
+      return res.status(400).json(ANSWERS.TOKEN_NOT_PROVIDED)
+
+    const tokenExists = await this.tokenExist(authenticationToken)
+    if (!tokenExists)
+      return res.status(400).json(ANSWERS.TOKEN_NOT_EXIST)
+
+    req.token = authenticationToken
+    req.user = await this.getUserByToken(authenticationToken)
+
+    cb(req, res, next)
+  }
+
+
   /** @param {Express} app */
   configure(app) {
-    const utils = new MiddlewareUtils(this)
+    // const utils = new MiddlewareUtils(this)
     //TODO: Rename with prefix ws or http
 
 
     app.get("/test", this.test)
 
-    app.post("/api/login", (req, res, next) => loginMiddleware({ req, res, next, ...utils }))
-    app.post("/api/register", (req, res, next) => registerMiddleware({ req, res, next, ...utils }))
-    app.post("/api/password/remind", (req, res, next) => passwordRemindMiddleware({ req, res, next, ...utils }))
-    app.post("/api/password/reset", (req, res, next) => passwordResetMiddleware({ req, res, next, ...utils })) // update passw in db
-    app.get("/api/activate/:code", (req, res, next) => acctivateAccountMiddleware({ req, res, next, ...utils }))
+    app.post("/api/login", (req, res, next) => loginMiddleware({ req, res, next, ...this }))
+    app.post("/api/register", (req, res, next) => registerMiddleware({ req, res, next, ...this }))
+    app.post("/api/password/remind", (req, res, next) => passwordRemindMiddleware({ req, res, next, ...this }))
+    app.post("/api/password/reset", (req, res, next) => passwordResetMiddleware({ req, res, next, ...this })) // update passw in db
+    app.get("/api/activate/:code", (req, res, next) => acctivateAccountMiddleware({ req, res, next, ...this }))
 
     app.use(this.authorizeMiddleware)
     app.use(this.tokenRefreshMiddleware)
 
-    app.post("/api/logout", (req, res, next) => logoutMiddleware({ req, res, next, ...utils }))
+    app.post("/api/logout", (req, res, next) => logoutMiddleware({ req, res, next, ...this }))
 
 
     //users.js
-    app.get("/api/users/me", (req, res, next) => httpAmIMiddleware({ req, res, next, ...utils }))
-    app.get("/api/users", (req, res, next) => getAllUsers({ req, res, next, ...utils })) // TODO: AUTH ONLY restiction.  tutaj wywalam nawet password
-    app.put("/api/users/me", (req, res, next) => updateUserSettings({ req, res, next, ...utils }))
+    app.get("/api/users/me", (req, res, next) => httpAmIMiddleware({ req, res, next, ...this }))
+    app.get("/api/users", (req, res, next) => getAllUsers({ req, res, next, ...this }))
+    app.put("/api/users/me", (req, res, next) => updateUserSettings({ req, res, next, ...this }))
 
   }
 
   /**
    * @param {Request} req
-   * @param {Response} req
+   * @param {Response} res
    * @param {NextFunction} next
    */
   authorizeMiddleware = async (req, res, next) => {
-    if (!req.path.startsWith( `/api` )) return next()
-
     const authenticationToken = this.getTokenFromRequest(req)
+    //const var2= authenticationToken.search(`.`)
 
-    if (!authenticationToken) return res.status(400).json(ANSWERS.TOKEN_NOT_PROVIDED)
+    if (!authenticationToken || authenticationToken == `null`)
+      return res.status(400).json(ANSWERS.TOKEN_NOT_PROVIDED)
 
-    if (!await this.tokenExist(authenticationToken))
+    const tokenExists = await this.tokenExist(authenticationToken)
+    if (!tokenExists)
       return res.status(400).json(ANSWERS.TOKEN_NOT_EXIST)
 
     req.token = authenticationToken
     req.user = await this.getUserByToken(authenticationToken)
+
     next()
   }
 
 
   /** @param {User} user new user to save. */
-  saveUserInDb = async (user) => await this.dbManager.insertObject(this.collectionName, user)
+  saveUserInDb = async (user) => {
+
+    await this.dbManager.insertObject(this.basecollectionName, user)
+    // await this.dbManager.insertObject(`users`, user)
+  }
 
 
   /** @param {WS} socket */
@@ -201,11 +229,7 @@ export default class UserModule extends Module {
   async authorizedSocket(socket, cb) {
     const { token } = socket.userScope
 
-    //console.log("TOKEN 1234 -> ", token)
     const tokenExist = await this.tokenExist(token)
-    //console.log("EXIST Token 4567 =>", tokenExist)
-    // console.log(`[WS] Authorization ${token}
-    // Token exists ${JSON.stringify(tokenExist)} `)
 
     if (DEBUG || tokenExist) cb(token)  // TODO po co debug tutaj ?
     else socket.emit(`not authenticated`)
@@ -215,17 +239,22 @@ export default class UserModule extends Module {
   /** @param {string} token */
   deleteSessionByToken = token => {
     // console.log({ UserLogout: token })
-    this.dbManager.deleteObject('usersSessions', { token: token })
+    return this.dbManager.deleteObject(this.subcollections.sessions, { token: token })
+    //this.dbManager.deleteObject('usersSessions', { token: token })
   }
 
 
   /** @param {string} token */
-  tokenExist = token => this.dbManager.findObject('usersSessions', { token: token })
-
+  tokenExist = token => {
+    return this.dbManager.findObject(this.subcollections.sessions, { token: token })
+    //  t= this.dbManager.findObject('usersSessions', { token: token })
+  }
 
   /** @param {string} token */
   refreshToken = (token) => {
-    this.dbManager.updateObject('usersSessions', { token: token }, { $set: { lastActivity: Date.now() } })
+    return this.dbManager.updateObject(this.subcollections.sessions, { token: token }, { $set: { lastActivity: Date.now() } })
+    // this.dbManager.updateObject('usersSessions', { token: token }, { $set: { lastActivity: Date.now() } })
+
   }
 
 
@@ -245,11 +274,11 @@ export default class UserModule extends Module {
    * @param {NextFunction} next
    */
   test = async (req, res, next) => {
+    console.log(`TEST ROUTE`)
 
-
-   return res.status(200).json(
+    return res.status(200).json(
       {
-        ActiveSessions: await this.dbManager.getCollection('usersSessions'),
+        ActiveSessions: await this.dbManager.getCollection(this.subcollections.sessions),
         AcctivationEmailsCollection: emailsManager.getAllAcctivationEmails(),
         ResetEmailCollection: emailsManager.getAllResetEmails(),
       }
@@ -263,6 +292,7 @@ export default class UserModule extends Module {
    * @param {NextFunction} next
    */
   tokenRefreshMiddleware = async (req, res, next) => {
+
     const authenticationToken = this.getTokenFromRequest(req)
     if (authenticationToken)
       if (await this.tokenExist(authenticationToken)) { // found a authentication header.
@@ -282,17 +312,25 @@ export default class UserModule extends Module {
     return user
   }
 
-  userExist = (userId) => this.dbManager.objectExist(this.collectionName,{id:{ $eq: userId}})
-
+  userExist = (userId) => {
+    let exist = this.dbManager.objectExist(this.basecollectionName, { id: { $eq: userId } })
+    // exist = this.dbManager.objectExist(`users`, { id: { $eq: userId } })
+    return exist
+  }
 
   /** @param {string} token */
   getSessionByToken = async (token) => {
-    return await this.dbManager.findObject('usersSessions', { token: token })
+    let session = await this.dbManager.findObject(this.subcollections.sessions, { token: token })
+    // session = await this.dbManager.findObject('usersSessions', { token: token })
+    return session
   }
 
 
-  getUserById = async (user_id) => await this.dbManager.findObject('users', { id: user_id })
-
+  getUserById = async (user_id) => {
+    let userObj = await this.dbManager.findObject(this.basecollectionName, { id: user_id })
+    //  userObj = await this.dbManager.findObject('users', { id: user_id })
+    return userObj
+  }
 
   /** @param {string} token */
   getUserByToken = async (token) => {
@@ -300,12 +338,15 @@ export default class UserModule extends Module {
     // next take user id. find user by id and return.
 
     const sessionObj = await this.getSessionByToken(token)
+    if (!sessionObj)
+      return false
+
     const userObj = this.getUserById(sessionObj.userId)
     return userObj
   }
 
 
-  //TODO: emails
+
   /**
    *
    * @param {object} param0 an field required to create new user.
@@ -316,7 +357,10 @@ export default class UserModule extends Module {
    */
   async createUser({ name, surname, email, ...restOfUser }, mailContent = null) {
     // name, surname, email, {  password = null, login = null, activated = false, avatar = null } = {}
-    // BUG: wyslac login i hasło userowi.
+    // BUG: wyslac login i hasło userowi
+    if (!(name && surname && email))
+      return false
+
     const user = new User(name, surname, email, restOfUser)
     let notValid = null
 
@@ -330,7 +374,7 @@ export default class UserModule extends Module {
       if ((notValid = user.validNames()) !== undefined)
         return notValid
     }
-    await this.dbManager.insertObject(this.collectionName, user)
+    await this.dbManager.insertObject(this.basecollectionName, user)
 
     mailContent.bodyHtml += `</br> Dane do zalogowania ==> Login: ${user.login}  Hasło: ${user.password}`
 

@@ -51,7 +51,7 @@ export default class Logger {
   }
 
   /** @type {Color} */
-  static defaultColor = `white`
+  static defaultColor = `fgWhite`
   static defaultBackground = ``
   static colorsReg = new RegExp( `\\[(?<color>${Object.keys( this.colors ).join( `|` )})](?<data>.*?)\\[]`, `gs` )
 
@@ -158,7 +158,7 @@ export default class Logger {
    * @param {Number} lineLength
    * @param {Number} firstLineLength
    */
-  static split( string, lineLength, { firstSplitLen=lineLength, separateBreakBlock=false } ) {
+  static split( string, lineLength, { firstSplitLen=lineLength, separateBreakBlock=false }={} ) {
     const lBrReg = /[- ,:;.]/
     const fL = separateBreakBlock ? lineLength : firstSplitLen
     const l = lineLength
@@ -229,4 +229,16 @@ export function logUnderControl( logger, ...data ) {
 
   lastLogger = logger
   logger.log( ...data )
+}
+
+export function addNextLineToLog( string=`` ) {
+  const defaultColor = Logger.colors[ Logger.defaultColor ]
+  const coloredString = Logger.split( string ).replace( Logger.colorsReg, (...match) => {
+    const { color, data } = match[ match.length - 1 ]
+    const text = data.replace( /\n     \| /g, `\n     ${defaultColor}| ${Logger.colors[ color ]}` )
+
+    return `${Logger.colors[ color ]}${text}${defaultColor}`
+  } )
+
+  console.log( `  - ${coloredString}` )
 }
