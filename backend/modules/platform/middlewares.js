@@ -1,3 +1,5 @@
+import { CREATE_USER_EMAIL_CONTENT,ANSWERS} from './consts.js'
+
 /** @typedef {import("./index.js").MiddlewareParameters} MiddlewareParameters */
 
 /** @param {MiddlewareParameters} param0 */
@@ -9,7 +11,7 @@ export async function httpGetUserPlatforms({ req, res, mod }) {
     /** @type {Array} assignedPlatforms */
     const assignedPlatforms = await mod.getAllUserPlatforms(user.id)
 
-    if (!assignedPlatforms) return res.status(400).json({ code: 208, error: `This user dont belong to any platform.` }) // TODO: Send empty array.
+    if (!assignedPlatforms) return res.status(400).json(ANSWERS.USER_WITHOUT_PLATFORMS) // TODO: Send empty array.
 
     return res.status(200).json({ platforms: assignedPlatforms })
 }
@@ -20,26 +22,21 @@ export async function httpCreateNewUser({mod, req, res}) {
     const { name, surname, email, roleName } = req.body
 
     if (!client.platformPerms.canManageUsers && !client.platformPerms.isMaster)
-      return res.status(400).json({ code: 231, error: `Your privilages dont allows you to create new platform account.` })
+      return res.status(400).json(ANSWERS.NOT_ALLOWED_TO_CREATE_USER)
 
-    const emailContnet = {
-      titleText: "Portal edukacyjny - utworzono konto dla Ciebie.",
-      bodyHtml: `<h1><a href="http://localhost:3000"> Przejdz do portalu.</a></h1>`
-    }
-
-    const user = await mod.requiredModules.userModule.createUser({ name, surname, email, activated: true }, emailContnet)
+    const user = await mod.requiredModules.userModule.createUser({ name, surname, email, activated: true }, CREATE_USER_EMAIL_CONTENT)
 
     if (!(user instanceof User)) // jesli nie jest userem, to jest bladem.
       return res.status(400).json(user)
 
     const targetPlatformId = req.params.platformId
     if (!targetPlatformId)
-      return res.status(400).json({ code: 230, error: "Not provided data - platformId" })
+      return res.status(400).json(ANSWERS.CREATE_USER_NOT_PLATFORM_ID)
 
 
     const platform = await mod.getPlatform(targetPlatformId)
     if (!platform)
-      return res.status(400).json({ code: 208, error: "Cannot create new User. Bacause target platform does not exist." })
+      return res.status(400).json(ANSWERS.CREATE_USER_PLATFORM_NOT_EXIST)
 
     // req.user.permission.isowner.
     // if (!this.isPlatformOwner(client.id, platform))
@@ -51,7 +48,7 @@ export async function httpCreateNewUser({mod, req, res}) {
     const permission = await mod.getPermission(roleName ?? baseRole, targetPlatformId)
 
     if (!permission)
-      return res.status(400).json({ code: 213, error: "Permission not found, please create permission on your platform, then assign to user." })
+      return res.status(400).json(ANSWERS.CREATE_USER_NO_PERMS_IN_REQ)
 
 
     permission.userId = user.id;
@@ -78,7 +75,7 @@ export async function httpGetPlatformsPermissions({mod,req,res}) {
 
   const member = await mod.checkUserAssigned(req.user.id,platformId)
   if(!member)
-  return res.status(400).json({code:233,error:"You are not a member of target platform, cannot get permissions from specifed pe."})
+  return res.status(400).json(ANSWERS.GET_PERMS_NOT_MEMBER)
 
   const permsTemplatesAll = await mod.getAllTemplatePerms(platformId)
 
@@ -90,7 +87,7 @@ export async function httpHandleMyPermission({mod,req,res}) {
   const platformId =  req.params.platformId || req.body.platformId || req.query.platformId
   const returnValue = await mod.getMyPermission(req.user,platformId)
   if(!returnValue)
-    return res.status(400).send({code:299,error:"Provided userId is not assign to platform. Privilages not found."})
+    return res.status(400).send(ANSWERS.GET_MY_PERMS_NO_FOUND)
 
   delete returnValue[`_id`]
   const value = {permissions:returnValue}
@@ -106,14 +103,14 @@ export async function httpDeleteUserFromPlatform({mod,req, res}) {
     return res.status(405).json(ANSWERS.PLATFORM_DELETE_NOT_ADMIN)
 
   if (!await mod.platformExist(platformId))
-    return res.status(400).json({ code: 208, error: "Cannot delete not existing platform." })
+    return res.status(400).json(ANSWERS.PLATFORM_DELETE_PLATFORM_NOT_EXIST)
 
   const client = req.user
   const targetPlatform = await mod.getPlatform(platformId)
 
 
   if (!(await mod.isPlatformOwner(client.id, targetPlatform))) return res.status(405).json(ANSWERS.PLATFORM_DELETE_NOT_ADMIN)
-  if (sameWords(client.id, userId)) return res.status(400).json({ code: 204, error: "Platform owner can not delete himsef, from platform users." })
+  if (sameWords(client.id, userId)) return res.status(400).json(ANSWERS.USER_DELETE_DELETE_OWNER)
   if (!mod.isUserAssigned(userId, targetPlatform)) return res.status(400).json(ANSWERS.PLATFORM_USER_NOT_MEMBER)
 
   // await this.dbManager.updateObject(

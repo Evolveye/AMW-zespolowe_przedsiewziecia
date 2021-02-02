@@ -40,15 +40,17 @@ export default class GroupModule extends Module {
         get: auth(this.runMid(m.httpHandleMyGroups)),
         post: auth(pPerms(this.runMid(m.httpCreateGroup)))
       }],
+      
       [`/groups/notes`, {
         get: auth(this.runMid(m.httpGetAllMyNotes))
       }],
+
       [`/groups/platform/:platformId`, {
         get: auth(pPerms(this.runMid(m.httpHandleAllGroupsInPlatform)))
       }],
 
       [`/groups/:groupId/users`, {
-        get: auth(pPerms(this.perms(this.runMid(m.httpHandleAllUsersInGroup)))),
+        get: auth(this.perms(this.runMid(m.httpHandleAllUsersInGroup))),
         post: auth(pPerms(this.perms(this.runMid(m.httpAddGroupMember))))
       }],
 

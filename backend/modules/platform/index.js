@@ -109,7 +109,7 @@ export default class PlatformModule extends Module {
    */
    async includePermsIntoReq( req, res, platformId ) {
     if (!platformId)
-      return res.status(400).json({ code: 216, error: `Cannot assign your role in PE system, Because platformId is not provided.` })
+      return res.status(400).json(ANSWERS.PLATFORM_PERMS_PE_ID_MISS)
 
     const perms = await this.dbManager.findOne(
       this.subcollections.userPermissions,
@@ -125,7 +125,7 @@ export default class PlatformModule extends Module {
       const platformMember = this.checkUserAssigned(req.user.id, platformId)
 
       if (!platformMember)
-        return res.status(400).json({ code: 314, error: `You are not a member of target platform, Cannot create/assign permissions.` })
+        return res.status(400).json(ANSWERS.PLATFORM_PERMS_NOT_MEMBER)
 
       const permissions = (new Permissions(platformId, `student`)).getProxy()
 

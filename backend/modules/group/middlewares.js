@@ -60,16 +60,48 @@ export async function httpHandleAllUsersInGroup({mod, req, res }) {
     return res.status(400).json({ code: 302, error: "Targeted group does not exist." })
 
   const isMember = mod.isUserAssigned(client.id, targetGroup)
+  
+  // // await this.requiredModules.platformModule.checkIsOwner(client.id, targetGroup.platformId)
+  await mod.requiredModules.platformModule.includePermsIntoReq(
+    req,
+    res,
+    targetGroup.platformId
+  )
   const isAdmin = client.platformPerms.target.isMaster
-  // await this.requiredModules.platformModule.checkIsOwner(client.id, targetGroup.platformId)
 
   if (!isMember && !isAdmin)
     return res.status(400).json({ code: 302, error: "Only member or platform admin can look at userlist of group." })
 
-  const tasks = targetGroup.membersIds.map((id) => mod.requiredModules.userModule.getUserById(id))
-  const users = await Promise.all(tasks)
+  
 
-  res.json({ users })
+  // const allUsersPerms = await mod.dbManager.aggregate(
+  //   `groupModule.permissions.users`,
+  //   {
+  //     pipeline: [
+  //       { $match: { userId: { $in: targetGroup.membersIds } } },
+  //       { $lookup: { from: "userModule", localField: "userId", foreignField: "id", as: "perms" } },
+  //       { $unwind: { path: "$perms", preserveNullAndEmptyArrays: true } },
+  //       { $unset: ["_id", "perms._id"] }
+  //     ]
+  //   },
+  // ).toArray()
+
+  const allUsersPerms = await mod.dbManager.aggregate(
+    `userModule`,
+    {
+      pipeline: [
+        { $match: { id: { $in: targetGroup.membersIds } } },
+        { $lookup: { from: "groupModule.permissions.users", localField: "id", foreignField: "userId", as: "perms" } },
+        { $unwind: { path: "$perms", preserveNullAndEmptyArrays: true } },
+        { $unset: ["_id", "perms._id"] }
+      ]
+    },
+  ).toArray()
+     
+  // const tasks = targetGroup.membersIds.map((id) => mod.requiredModules.userModule.getUserById(id))
+  // const users = await Promise.all(tasks)
+
+  res.json({ users:allUsersPerms})
 }
 
 
