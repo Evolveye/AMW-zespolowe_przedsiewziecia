@@ -7,9 +7,7 @@ import URLS from "../../utils/urls.js"
 import Layout from "../../components/groupLayout.js"
 import TableForm from "../../components/tableForm.js"
 
-// import classes from "./group.module.css"
-
-const DateInput = () => <input type="datetime-local" />
+const DateInput = (props) => <input type="datetime-local" {...props} />
 
 export default class PlatformGroups extends React.Component {
   constructor(props) {

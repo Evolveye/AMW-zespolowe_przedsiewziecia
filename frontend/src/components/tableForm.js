@@ -164,6 +164,7 @@ export default class TableForm extends React.Component {
 
         element = (
           <customInputField.component
+            name={field.prop || field}
             {...customInputField.props}
             onChange={this.updateNewField}
             getTableData={() => this.state.data}
