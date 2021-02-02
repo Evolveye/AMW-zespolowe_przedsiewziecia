@@ -483,8 +483,7 @@ export async function httpCreateGroup({ mod,req, res }) {
 
   // req.user.groupPerms
   // req.user.platformParams
-
-
+  console.log(123)
   if (!req.user.platformPerms.canManageGroups)
     return res.status(400).json({
       code: 312,

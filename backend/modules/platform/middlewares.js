@@ -15,7 +15,7 @@ export async function httpGetUserPlatforms({ req, res, mod }) {
 }
 
 
-export async function httpCreateNewUser({mod,req, res}) {
+export async function httpCreateNewUser({mod, req, res}) {
     const client = req.user
     const { name, surname, email, roleName } = req.body
 

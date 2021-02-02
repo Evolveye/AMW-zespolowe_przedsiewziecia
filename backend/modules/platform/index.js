@@ -98,7 +98,7 @@ export default class PlatformModule extends Module {
   perms = cb => async (req, res, next) => {
     const platformId = req.query.platformId || req.params.platformId || req.body.platformId
 
-    if (!this.includePermsIntoReq( req, res, platformId )) cb(req, res, next)
+    if (!await this.includePermsIntoReq( req, res, platformId )) cb(req, res, next)
   }
 
 
