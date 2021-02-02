@@ -4,6 +4,7 @@ import { navigate } from "gatsby"
 import { isBrowser } from "./functions.js"
 import URLS from "./urls.js"
 
+
 /**
  * @typedef {object} User
  * @property {string} login
@@ -13,17 +14,22 @@ import URLS from "./urls.js"
  * @property {string} surname
  */
 
+
 const STORAGE_TOKEN_NAME = `sessionToken`
 const STORAGE_USER = `gatsbyUser`
+const STORAGE_PPERMS = `platformPerms`
 
-export const getToken = () =>
-  isBrowser() ? window.localStorage.getItem(STORAGE_TOKEN_NAME) : null
+const setUser = user =>
+  window.localStorage.setItem(STORAGE_USER, JSON.stringify(user))
+
 
 export const setToken = token =>
   isBrowser() && window.localStorage.setItem(STORAGE_TOKEN_NAME, token)
 
-const setUser = user =>
-  window.localStorage.setItem(STORAGE_USER, JSON.stringify(user))
+
+export const getToken = () =>
+  isBrowser() ? window.localStorage.getItem(STORAGE_TOKEN_NAME) : null
+
 
 /** @return {Promise<User?>} */
 export async function getUser() {
@@ -55,9 +61,43 @@ export async function getUser() {
     .catch(console.error)
 }
 
+
+/** @return {Promise<User?>} */
+export async function getPerms( platformId ) {
+  if (!isBrowser()) return
+
+  const cachedPPerms = JSON.parse(window.localStorage.getItem(STORAGE_PPERMS))
+
+  if (cachedPPerms && !cachedPPerms.error) return cachedPPerms
+
+  return fetch(URLS.PLATFORM$ID_PERMISSIONS_MY_GET.replace( `:platformId`, platformId ), {
+    headers: { Authentication: `Bearer ${getToken()}` },
+  })
+    .then(data => data.json())
+    .then(({ error, permissions }) => {
+      if (error) {
+        console.error(error)
+
+        return null
+      }
+
+      return new Proxy( permissions, {
+        get(perm, key) {
+          if (!(key in perm)) return null
+          if (perm.isMaster) return true
+
+          return perm[key] || false
+        }
+      } )
+    })
+    .catch(console.error)
+}
+
+
 export function isLoggedIn() {
   if (isBrowser()) return !!getToken()
 }
+
 
 export function logout(cb) {
   setUser(null)
@@ -72,6 +112,7 @@ export function logout(cb) {
       .catch(console.error)
   }
 }
+
 
 export const AuthorizedContent = ({ children = `Unauthorized` }) =>
   isLoggedIn() ? children : isBrowser() && <>{navigate(`/unauthorized`)}</>
