@@ -7,7 +7,7 @@ import URLS from "../../utils/urls.js"
 import Layout from "../../components/groupLayout.js"
 import TableForm from "../../components/tableForm.js"
 
-const DateInput = (props) => <input type="datetime-local" {...props} />
+const DateInput = props => <input type="datetime-local" {...props} />
 
 export default class PlatformGroups extends React.Component {
   constructor(props) {
@@ -66,14 +66,8 @@ export default class PlatformGroups extends React.Component {
           `Link do spotkania`,
         ]}
         inputFieldsComponents={{
-          dateStart: {
-            component: DateInput,
-            props: {},
-          },
-          dateEnd: {
-            component: DateInput,
-            props: {},
-          },
+          dateStart: { component: DateInput },
+          dateEnd: { component: DateInput },
         }}
       />
     </Layout>

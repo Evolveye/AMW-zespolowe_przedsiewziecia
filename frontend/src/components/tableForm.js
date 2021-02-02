@@ -156,13 +156,22 @@ export default class TableForm extends React.Component {
 
       if (colSpan) i += colSpan - 1
       if (customInputField) {
+        if (!(`props` in customInputField)) customInputField.props = {}
+        if (typeof element.type !== `string`)
+
         if (customInputField.onTableFillTriggerSetterName) {
           customInputField.props[
             customInputField.onTableFillTriggerSetterName
           ] = f => this.onFillListeners.push(f)
         }
 
-        element = (
+        element = typeof element.type === `string` ? (
+          <customInputField.component
+            name={field.prop || field}
+            {...customInputField.props}
+            onChange={this.updateNewField}
+          />
+        ) : (
           <customInputField.component
             name={field.prop || field}
             {...customInputField.props}
