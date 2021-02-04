@@ -2,18 +2,36 @@ import React, { useEffect, useState } from "react"
 import { Link } from "gatsby"
 
 import { urlSearchParams, getDate } from "../utils/functions.js"
-import { AuthorizedContent, getToken, getGroupPerms } from "../utils/auth.js"
+import { AuthorizedContent, authFetch, getGroupPerms } from "../utils/auth.js"
 import URLS from "../utils/urls.js"
 
 import Layout from "./layout.js"
 
 const menyItems = [
   // { urn: `settings`, name: `Ustawienia ogólne`, permName:`isMaster` },
-  { urn: `notes`, name: `Oceny`, permName:`isMaster` },
-  { urn: `users`, name: `Użytkownicy`, permName:`isMaster` },
+  { urn: `notes`, name: `Oceny`, permName: `isMaster` },
+  { urn: `users`, name: `Użytkownicy`, permName: `isMaster` },
   // { urn: `roles`, name: `Role`, permName:`isMaster` },
-  { urn: `meets`, name: `Spotkania`, permName:`isMaster` },
+  { urn: `meets`, name: `Spotkania`, permName: `isMaster` },
 ]
+
+const meetsLisMap = ({ id, dateStart, description }, platformAndGroupQuery) => (
+  <li key={id} className="list-item">
+    <Link to={`/meet/it?${platformAndGroupQuery}&meetId=${id}`}>
+      {getDate(`YYYY.MM.DD - hh:mm`, dateStart)}
+      <br />
+      {description}
+    </Link>
+  </li>
+)
+const menuLisBuilder = (perms, platformAndGroupQuery) =>
+  menyItems
+    .filter(({ permName }) => !permName || perms[permName])
+    .map(({ urn, name }) => (
+      <li key={urn} className="list-item">
+        <Link to={`/group/${urn}?${platformAndGroupQuery}`}>{name}</Link>
+      </li>
+    ))
 
 export default ({ children, className = `` }) => {
   const query = urlSearchParams()
@@ -21,43 +39,32 @@ export default ({ children, className = `` }) => {
   const platformId = query.get(`platformId`)
   const groupId = query.get(`groupId`)
   const platformAndGroupQuery = `platformId=${platformId}&groupId=${groupId}`
+  const url = URLS.MEET_FROM_GROUP$ID_GET.replace(`:groupId`, groupId)
 
-  const [meetsLis, setMeetsRows] = useState([])
-  const [menuLis, setMenuRows] = useState([])
+  const [meetsLis, setMeetsRows] = useState(
+    (authFetch({ url }) || { meets: [] }).meets.map(meet =>
+      meetsLisMap(meet, platformAndGroupQuery)
+    )
+  )
+  const [menuLis, setMenuRows] = useState(
+    menuLisBuilder(getGroupPerms(groupId) || {}, platformAndGroupQuery)
+  )
 
   useEffect(() => {
-    fetch(URLS.MEET_FROM_GROUP$ID_GET.replace(`:groupId`, groupId), {
-      headers: { Authentication: `Bearer ${getToken()}` },
+    authFetch({
+      url,
+      cb: ({ meets }) =>
+        setMeetsRows(
+          meets.map(meet => meetsLisMap(meet, platformAndGroupQuery))
+        ),
     })
-      .then(res => res.json())
-      .then( async ({ code, error, meets }) => {
-        if (error) return console.error({ code, error })
+  }, [url, platformAndGroupQuery])
 
-        const meetsLis = meets.map(({ id, dateStart, description }) => (
-          <li key={id} className="list-item">
-            <Link
-              to={`/meet/it?platformId=${platformId}&groupId=${groupId}&meetId=${id}`}
-            >
-              {getDate(`YYYY.MM.DD - hh:mm`, dateStart)}
-              <br />
-              {description}
-            </Link>
-          </li>
-        ))
-
-        const perms = await getGroupPerms(platformId) || {}
-        const menuLis = menyItems
-          .filter(({ permName }) => !permName || perms[permName])
-          .map(({ urn, name }) => (
-            <li key={urn} className="list-item">
-              <Link to={`/group/${urn}?${platformAndGroupQuery}`}>{name}</Link>
-            </li>
-          ))
-
-        setMeetsRows(meetsLis)
-        setMenuRows(menuLis)
-      })
-  }, [platformId, groupId, platformAndGroupQuery])
+  useEffect(() => {
+    getGroupPerms(groupId, perms => {
+      setMenuRows(menuLisBuilder(perms || {}, platformAndGroupQuery))
+    })
+  }, [groupId, platformAndGroupQuery])
 
   return (
     <AuthorizedContent>

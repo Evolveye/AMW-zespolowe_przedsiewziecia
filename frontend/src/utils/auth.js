@@ -1,9 +1,8 @@
 import React from "react"
 import { navigate } from "gatsby"
 
-import { isBrowser } from "./functions.js"
+import { isBrowser, memoizedFetch } from "./functions.js"
 import URLS from "./urls.js"
-
 
 /**
  * @typedef {object} User
@@ -14,7 +13,6 @@ import URLS from "./urls.js"
  * @property {string} surname
  */
 
-
 const STORAGE_TOKEN_NAME = `sessionToken`
 const STORAGE_USER = `gatsbyUser`
 // const STORAGE_PPERMS = `platformPerms`
@@ -23,14 +21,16 @@ const STORAGE_USER = `gatsbyUser`
 const setUser = user =>
   window.localStorage.setItem(STORAGE_USER, JSON.stringify(user))
 
+const addAuthoirizationHeader = init =>
+  `headers` in init
+    ? (init.headers["Authentication"] = `Bearer ${getToken()}`)
+    : (init.headers = { Authentication: `Bearer ${getToken()}` })
 
 export const setToken = token =>
   isBrowser() && window.localStorage.setItem(STORAGE_TOKEN_NAME, token)
 
-
 export const getToken = () =>
   isBrowser() ? window.localStorage.getItem(STORAGE_TOKEN_NAME) : null
-
 
 /** @return {Promise<User?>} */
 export async function getUser() {
@@ -62,53 +62,57 @@ export async function getUser() {
     .catch(console.error)
 }
 
-
 /** @return {Promise<User?>} */
-async function getPerms( url ) {
-  if (!isBrowser()) return
+function getPerms(url, cb) {
+  const init = {}
+  const getPermsProxy = perms =>
+    new Proxy(perms, {
+      get(perm, key) {
+        if (!(key in perm)) return null
+        if (perm.isMaster) return true
 
-  // const cachedPPerms = JSON.parse(window.localStorage.getItem(STORAGE_PPERMS))
-
-  // if (cachedPPerms && !cachedPPerms.error) return cachedPPerms
-
-  return fetch(url, {
-    headers: { Authentication: `Bearer ${getToken()}` },
-  })
-    .then(data => data.json())
-    .then(({ error, permissions }) => {
-      if (error) {
-        console.error(error)
-
-        return null
-      }
-
-      return new Proxy( permissions, {
-        get(perm, key) {
-          if (!(key in perm)) return null
-          if (perm.isMaster) return true
-
-          return perm[key] || false
-        }
-      } )
+        return perm[key] || false
+      },
     })
-    .catch(console.error)
+
+  addAuthoirizationHeader(init)
+
+  const cachedPerms = memoizedFetch({
+    url,
+    init,
+    cb: !cb ? null : ({ permissions }) => cb(getPermsProxy(permissions)),
+  })
+
+  if (cachedPerms) return getPermsProxy(cachedPerms.permissions)
 }
 
-
-export function getPlatformPerms( platformId ) {
-  return getPerms( URLS.PLATFORM$ID_PERMISSIONS_MY_GET.replace( `:platformId`, platformId ) )
+export function getPlatformPerms(platformId, cb) {
+  const url = URLS.PLATFORM$ID_PERMISSIONS_MY_GET.replace(
+    `:platformId`,
+    platformId
+  )
+  return getPerms(url, cb)
 }
 
+export function getGroupPerms(groupId, cb) {
+  const url = URLS.GROUP$ID_PERMISSIONS_MY_GET.replace(`:groupId`, groupId)
 
-export function getGroupPerms( groupId ) {
-  return getPerms( URLS.GROUP$ID_PERMISSIONS_MY_GET.replace( `:groupId`, groupId ) )
+  return getPerms(url, cb)
 }
 
+export function getMeetPerms(meetId, cb) {
+  return new Proxy({}, {
+    get(perm, key) {
+      if (perm.isMaster) return true
+
+      return perm[key] || false
+    },
+  })
+}
 
 export function isLoggedIn() {
   if (isBrowser()) return !!getToken()
 }
-
 
 export function logout(cb) {
   setUser(null)
@@ -124,6 +128,17 @@ export function logout(cb) {
   }
 }
 
-
 export const AuthorizedContent = ({ children = `Unauthorized` }) =>
   isLoggedIn() ? children : isBrowser() && <>{navigate(`/unauthorized`)}</>
+
+/**
+ * @param {object} param0
+ * @param {RequestInfo} param0.url
+ * @param {RequestInit} param0.init
+ * @param {boolean} param0.runOnlyCbWhenUpdate
+ * @param {(res:any) => void} param0.cb
+ */
+export function authFetch({ url, init = {}, runOnlyCbWhenUpdate = true, cb }) {
+  addAuthoirizationHeader(init)
+  return memoizedFetch({ url, init, runOnlyCbWhenUpdate, cb })
+}

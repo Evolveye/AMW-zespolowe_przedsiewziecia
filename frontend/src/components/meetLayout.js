@@ -1,10 +1,24 @@
-import React from "react"
+import React, { useEffect, useState } from "react"
 import { Link } from "gatsby"
 
-import { AuthorizedContent } from "../utils/auth.js"
+import { AuthorizedContent, getMeetPerms } from "../utils/auth.js"
 import { urlSearchParams } from "../utils/functions.js"
 
 import Layout from "./layout.js"
+
+const menyItems = [
+  { urn: `settings`, name: `Ustawienia ogólne` },
+  { urn: `users`, name: `Użytkownicy` },
+]
+
+const menuLisBuilder = (perms, meetQuery) =>
+  menyItems
+    .filter(({ permName }) => !permName || perms[permName])
+    .map(({ urn, name }) => (
+      <li key={urn} className="list-item">
+        <Link to={`/meet/${urn}?${meetQuery}`}>{name}</Link>
+      </li>
+    ))
 
 export default ({ children, className = `` }) => {
   const query = urlSearchParams()
@@ -12,7 +26,17 @@ export default ({ children, className = `` }) => {
   const platformId = query.get(`platformId`)
   const groupId = query.get(`groupId`)
   const meetId = query.get(`meetId`)
-  const platformAndGroupQuery = `platformId=${platformId}&groupId=${groupId}&meetId=${meetId}`
+  const meetQuery = `platformId=${platformId}&groupId=${groupId}&meetId=${meetId}`
+
+  const [menuLis, setMenuRows] = useState(
+    menuLisBuilder(getMeetPerms(meetId) || {}, meetQuery)
+  )
+
+  useEffect(() => {
+    getMeetPerms(meetId, perms => {
+      setMenuRows(menuLisBuilder(perms || {}, meetQuery))
+    })
+  }, [meetId, meetQuery])
 
   return (
     <AuthorizedContent>
@@ -21,14 +45,7 @@ export default ({ children, className = `` }) => {
           <h2>Panel ustawień</h2>
 
           <ul className="list">
-            {[
-              { urn: `settings`, name: `Ustawienia ogólne` },
-              { urn: `users`, name: `Użytkownicy` },
-            ].map(({ urn, name }) => (
-              <li key={urn} className="list-item">
-                <Link to={`/meet/${urn}?${platformAndGroupQuery}`}>{name}</Link>
-              </li>
-            ))}
+            {menuLis}
           </ul>
 
           <hr />
