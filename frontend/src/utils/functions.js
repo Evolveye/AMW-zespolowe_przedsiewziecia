@@ -44,6 +44,8 @@ export function translateRole(roleName) {
  * @param {(res:any) => void} param0.cb
  */
 export function memoizedFetch({ url, init = {}, runOnlyCbWhenUpdate=true, cb }) {
+  if (!isBrowser()) return
+
   const cached = sessionStorage.getItem(url)
 
   if (!cb) return JSON.parse(cached)
