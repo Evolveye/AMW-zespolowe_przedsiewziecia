@@ -49,7 +49,7 @@ export default class PlatformUsers extends React.Component {
           `name`,
           `surname`,
           `email`,
-          { prop: `perms`, processor: ({ name }) => translateRole(name) },
+          { prop: `perms`, processor: (perm={}) => translateRole(perm.name, `Student`) },
         ]}
         titleFields={[`Imię`, `Nazwisko`, `Email`, `Rola`]}
         inputFieldsComponents={{
@@ -57,13 +57,17 @@ export default class PlatformUsers extends React.Component {
             component: Select,
             props: {
               name: `roleName`,
+              disabled: true,
               fetchDataAddress: URLS.PLATFORM$ID_PERMISSIONS_GET.replace(
                 `:platformId`,
                 this.platformId
               ),
               fetchGetDataName: `permissions`,
               fetchDataFilter: ({ name }) => name !== `owner`,
-              fetchDataProcessor: ({ name }) => translateRole(name),
+              fetchDataProcessor: ({ name }) => ({
+                value: name,
+                text: translateRole(name),
+              }),
             },
           },
         }}
