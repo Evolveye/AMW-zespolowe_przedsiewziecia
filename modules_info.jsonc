@@ -181,13 +181,13 @@
 
 
     "/api/platforms/:platformId/permissions": {
-        // Pobieranie wszystkich permisji
+        // Pobranie wszystkich szablonów permisji
         "GET": {
           "headers": { "authenthication":"Token" },
           "response": { "permissions":"PlatformPermissions[]" }
         },
 
-        // Tworzenie nowej permisji
+        // Tworzenie nowego szablonu permisji
         "POST": {
           "headers": { "authenthication":"Token" },
           "response": { "permissions":"PlatformPermissions" }
@@ -205,7 +205,7 @@
 
 
     "/api/platforms/:platformId/permissions/:permissionId": {
-        // Skasowanie uprawnień
+        // Skasowanie szablonu uprawnienia (i zdegradowanie posiadaczy)
         "DELETE": {
           "headers": { "authenthication":"Token" },
           "response": "Success"
@@ -316,13 +316,13 @@
 
 
     "/api/groups/:groupId/permissions": {
-        // Pobieranie wszystkich permisji
+        // Pobieranie wszystkich szablonów permisji
         "GET": {
           "headers": { "authenthication":"Token" },
           "response": { "permissions":"GroupPermissions[]" }
         },
 
-        // Tworzenie nowej permisji
+        // Tworzenie nowego szablonu permisji
         "POST": {
           "headers": { "authenthication":"Token" },
           "response": { "permissions":"GroupPermissions" }
@@ -340,7 +340,7 @@
 
 
     "/api/groups/:groupId/permissions/:permissionId": {
-        // Skasowanie uprawnień
+        // Skasowanie szablonu uprawnienia (i zdegradowanie posiadaczy)
         "DELETE": {
           "headers": { "authenthication":"Token" },
           "response": "Success"
@@ -524,7 +524,7 @@
 
 
     "/api/meets/:meetId/permissions": {
-        // Pobieranie wszystkich permisji
+        // Pobieranie wszystkich szablonów permisji
         "GET": {
           "headers": { "authenthication":"Token" },
           "response": { "permissions":"MeetPermissions[]" }
@@ -533,7 +533,7 @@
 
 
     "/api/meets/:meetId/permissions/my": {
-        // Pobieranie wszystkich permisji
+        // Pobieranie permisji żądajacego
         "GET": {
           "headers": { "authenthication":"Token" },
           "response": { "permissions":"MeetPermissions" }
