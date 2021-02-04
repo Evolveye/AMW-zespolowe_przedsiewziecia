@@ -37,27 +37,19 @@ export default () => {
         objectsFields={[
           `value`,
           `description`,
-          { prop: `user`, processor: obj => `${obj.name} ${obj.surname}` },
+          { name: `user`, processor: obj => `${obj.name} ${obj.surname}` },
         ]}
         titleFields={[`Wartość`, `Opis`, `Student`]}
         inputFieldsComponents={{
           user: {
             component: Select,
-            onTableFillTriggerSetterName: `refetchSetter`,
             props: {
               name: `userId`,
-              autoFetch: false,
               fetchDataAddress: URLS.GROUP$ID_USERS_GET.replace(
                 `:groupId`,
                 groupId
               ),
               fetchGetDataName: "users",
-              fetchDataFilter(field) {
-                for (const { id } of this.getTableData())
-                  if (field.id === id) return false
-
-                return true
-              },
               fetchDataProcessor({ id, name, surname }) {
                 return { value: id, text: `${name} ${surname}` }
               },

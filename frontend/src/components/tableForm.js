@@ -13,6 +13,7 @@ export default class TableForm extends React.Component {
   }
 
   onFillListeners = []
+  creatingLis = []
 
   componentDidMount() {
     fetch(this.props.fetchGetAddress, {
@@ -32,7 +33,7 @@ export default class TableForm extends React.Component {
         }
 
         this.addToTable(data[this.props.responseGetDataName])
-        this.onFillListeners.forEach(listener => listener())
+        this.onFillListeners.forEach(({ ref, field }) => ref.current[ field ]() )
       })
   }
 
@@ -64,12 +65,14 @@ export default class TableForm extends React.Component {
             rows: old.rows.filter(({ key }) => key !== id),
           }))
 
+          this.onFillListeners.forEach(({ ref, field }) => ref.current[ field ]() )
+
           return console.info({ code, success })
         }
       })
   }
 
-  create = () => {
+  sendCreationData = () => {
     const { error, rows, data, ...fieldsData } = this.state
 
     fetch(this.props.fetchPostAddress, {
@@ -115,7 +118,7 @@ export default class TableForm extends React.Component {
       for (const field of this.props.objectsFields) {
         if (typeof field === `object`) {
           fields.push(
-            <td key={field.prop}>{field.processor(obj[field.prop])}</td>
+            <td key={field.name}>{field.processor(obj[field.name])}</td>
           )
         } else fields.push(<td key={field}>{obj[field]}</td>)
       }
@@ -139,59 +142,63 @@ export default class TableForm extends React.Component {
     }))
   }
 
-  render = () => {
-    const createLis = []
-
+  configureBeforeRender() {
     for (let i = 0; i < this.props.objectsFields.length; ++i) {
-      const field = this.props.objectsFields[i]
+      const objectField = this.props.objectsFields[i]
+      const objectFieldName = objectField.name || objectField
 
-      const customInputField = this.props.inputFieldsComponents?.[
-        field.prop || field
-      ]
-      const colSpan = this.props.colSpans?.[field.prop || field]
+      const customInputField = this.props.inputFieldsComponents?.[objectFieldName]
+      const colSpan = this.props.colSpans?.[objectFieldName]
 
-      let element = (
-        <input onChange={this.updateNewField} name={field.prop || field} />
-      )
+      let element = <input onChange={this.updateNewField} name={objectFieldName} />
 
       if (colSpan) i += colSpan - 1
       if (customInputField) {
         if (!(`props` in customInputField)) customInputField.props = {}
-        if (typeof element.type !== `string`)
-
-        if (customInputField.onTableFillTriggerSetterName) {
-          customInputField.props[
-            customInputField.onTableFillTriggerSetterName
-          ] = f => this.onFillListeners.push(f)
-        }
-
-        element = typeof element.type === `string` ? (
-          <customInputField.component
-            name={field.prop || field}
-            {...customInputField.props}
-            onChange={this.updateNewField}
-          />
-        ) : (
-          <customInputField.component
-            name={field.prop || field}
-            {...customInputField.props}
-            onChange={this.updateNewField}
-            getTableData={() => this.state.data}
-          />
-        )
-
-        if (customInputField.props.onTableFill)
-          this.onFillListeners.push(() =>
-            customInputField.props.onTableFill.bind(element)()
+        if (typeof customInputField.component === `string`) {
+          element = (
+            <customInputField.component
+              name={objectFieldName}
+              {...customInputField.props}
+              onChange={this.updateNewField}
+            />
           )
+        } else {
+          const ref = React.createRef()
+
+          element = (
+            <customInputField.component
+              name={objectFieldName}
+              {...customInputField.props}
+              onChange={this.updateNewField}
+              getTableData={() => this.state.data}
+              ref={ref}
+            />
+          )
+
+          if (customInputField.onTableFillTrigger) {
+            this.onFillListeners.push({
+              ref,
+              field: customInputField.onTableFillTrigger,
+            })
+          }
+        }
       }
 
-      createLis.push(
-        <td key={field.prop || field} colSpan={colSpan} className="inputCell">
+      this.creatingLis.push(
+        <td
+          key={objectFieldName}
+          colSpan={colSpan}
+          className="inputCell"
+        >
           {element}
         </td>
       )
     }
+  }
+
+  render = () => {
+    if (!this.creatingLis.length) this.configureBeforeRender()
 
     return (
       <table className="table">
@@ -207,10 +214,10 @@ export default class TableForm extends React.Component {
 
         <tbody>
           <tr>
-            {createLis}
+            {this.creatingLis}
 
             <td>
-              <button type="button" onClick={this.create}>
+              <button type="button" onClick={this.sendCreationData}>
                 Dodaj do platformy
               </button>
             </td>

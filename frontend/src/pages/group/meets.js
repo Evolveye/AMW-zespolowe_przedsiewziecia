@@ -49,16 +49,16 @@ export default class PlatformGroups extends React.Component {
         }}
         objectsFields={[
           {
-            prop: `dateStart`,
+            name: `dateStart`,
             processor: dateTime => getDate(`YYYY:MM:DD hh:mm`, dateTime),
           },
           {
-            prop: `dateEnd`,
+            name: `dateEnd`,
             processor: dateTime => getDate(`YYYY:MM:DD hh:mm`, dateTime),
           },
           `description`,
           {
-            prop: `externalUrl`,
+            name: `externalUrl`,
             processor: url => <a href={url}>Link do spotkania</a>,
           },
         ]}

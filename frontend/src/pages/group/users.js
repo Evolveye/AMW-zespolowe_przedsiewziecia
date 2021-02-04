@@ -41,13 +41,13 @@ export default class PlatformGroups extends React.Component {
         responseGetDataName="users"
         staticPostBodyData={{ groupId: this.groupId }}
         objectsFields={[`name`, `surname`,
-          { prop: `perms`, processor: ({ name }) => translateRole( name ) },
+          { name: `perms`, processor: ({ name }) => translateRole( name ) },
         ]}
         titleFields={[`Imię`, `Nazwisko`, `Rola`]}
         inputFieldsComponents={{
           name: {
             component: Select,
-            onTableFillTriggerSetterName: `refetchSetter`,
+            onTableFillTrigger: `fetch`,
             props: {
               name: `userId`,
               autoFetch: false,

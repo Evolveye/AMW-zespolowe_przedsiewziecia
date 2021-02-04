@@ -49,7 +49,7 @@ export default class PlatformUsers extends React.Component {
           `name`,
           `surname`,
           `email`,
-          { prop: `perms`, processor: (perm={}) => translateRole(perm.name, `Student`) },
+          { name: `perms`, processor: (perm={}) => translateRole(perm.name, `Student`) },
         ]}
         titleFields={[`Imię`, `Nazwisko`, `Email`, `Rola`]}
         inputFieldsComponents={{

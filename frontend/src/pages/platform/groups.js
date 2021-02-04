@@ -37,7 +37,7 @@ export default class PlatformGroups extends React.Component {
         staticPostBodyData={{ platformId: this.platformId }}
         objectsFields={[
           `name`,
-          { prop: `lecturer`, processor: obj => `${obj.name} ${obj.surname}` },
+          { name: `lecturer`, processor: obj => `${obj.name} ${obj.surname}` },
         ]}
         titleFields={[`Nazwa grupy`, `Prowadzący`]}
         inputFieldsComponents={{

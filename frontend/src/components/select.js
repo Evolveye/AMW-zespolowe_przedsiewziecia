@@ -9,10 +9,9 @@ export default class Select extends React.Component {
   ref = React.createRef()
 
   componentDidMount() {
-    const { autoFetch, refetchSetter } = this.props
+    const { autoFetch } = this.props
 
     if (autoFetch === undefined || autoFetch) this.fetch()
-    if (refetchSetter) refetchSetter(this.fetch)
   }
 
   fetch = () => {
