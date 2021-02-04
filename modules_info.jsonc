@@ -452,6 +452,9 @@
         "externalUrl": "string",
         "platformId": "string",
         "groupId?": "string"
+      },
+      "MeetPermissions": {
+        "canManageUsers": "boolean",
       }
     },
 
@@ -517,6 +520,24 @@
           "headers": { "authenthication":"Token" },
           "response": { "users":"Meet[]" }
         }
+    },
+
+
+    "/api/meets/:meetId/permissions": {
+        // Pobieranie wszystkich permisji
+        "GET": {
+          "headers": { "authenthication":"Token" },
+          "response": { "permissions":"MeetPermissions[]" }
+        },
+    },
+
+
+    "/api/meets/:meetId/permissions/my": {
+        // Pobieranie wszystkich permisji
+        "GET": {
+          "headers": { "authenthication":"Token" },
+          "response": { "permissions":"MeetPermissions" }
+        },
     },
 
 
