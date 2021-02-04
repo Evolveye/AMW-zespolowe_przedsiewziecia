@@ -50,9 +50,12 @@ export default class PlatformGroups extends React.Component {
         objectsFields={[
           {
             prop: `dateStart`,
-            processor: ms => getDate(`YYYY:MM:DD hh:mm`, ms),
+            processor: dateTime => getDate(`YYYY:MM:DD hh:mm`, dateTime),
           },
-          { prop: `dateEnd`, processor: ms => getDate(`YYYY:MM:DD hh:mm`, ms) },
+          {
+            prop: `dateEnd`,
+            processor: dateTime => getDate(`YYYY:MM:DD hh:mm`, dateTime),
+          },
           `description`,
           {
             prop: `externalUrl`,
