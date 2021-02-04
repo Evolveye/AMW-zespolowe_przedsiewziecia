@@ -545,7 +545,7 @@
         // Pobranie uczestników spotkania
         "GET": {
           "headers": { "authenthication":"Token" },
-          "response": { "users":"User[]" }
+          "response": { "users":"(User & { permissions:'MeetPermissions' })[]" }
         },
 
         // Dodanie użytkownika do spotkania
