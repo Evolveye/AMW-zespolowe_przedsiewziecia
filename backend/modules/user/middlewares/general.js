@@ -44,7 +44,7 @@ export async function loginMiddleware({ mod, req, res, next }) {
 
     if (activeUserSession) {
         mod.logger("WELCOME AGAIN:" + JSON.stringify({ user: { "name": userObj.name, "surname": userObj.surname } }))
-        await refreshToken(activeUserSession.token)
+        await mod.refreshToken(activeUserSession.token)
         return res.status(200).json({ token: activeUserSession.token })
     }
 

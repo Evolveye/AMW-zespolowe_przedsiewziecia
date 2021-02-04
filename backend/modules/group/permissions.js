@@ -54,8 +54,6 @@ export class GroupUserPermission extends GroupPermission {
 
 
   static createOwnerPerm(groupId, userId) {
-   
-
     return new GroupUserPermission(
       groupId, 
       userId, 

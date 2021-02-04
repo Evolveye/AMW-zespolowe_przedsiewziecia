@@ -1,7 +1,7 @@
-import Meet from './model.js'
-import Module from '../module.js'
-import { sameWords } from '../../src/utils.js'
-
+import Meet from "./model.js";
+import Module from "../module.js";
+import { sameWords } from "../../src/utils.js";
+import { MeetUserPermission, MeetPermission } from "./permissions.js";
 
 /**
  * @typedef {object} MiddlewareParameters
@@ -12,228 +12,310 @@ import { sameWords } from '../../src/utils.js'
  */
 
 export default class MeetModule extends Module {
-  static requiredModules = [`UserModule`, `PlatformModule`]
-  static additionalModules = [`GroupModule`]
+  static requiredModules = [`UserModule`, `PlatformModule`];
+  static additionalModules = [`GroupModule`];
 
+  subcollections = {
+    templatesPerm: `permissions`,
+    userPermissions: `permissions.users`,
+  };
 
   constructor(...params) {
-    super(...params)
+    super(...params);
   }
-
 
   getApi() {
-    const userModule = this.requiredModules.userModule
-    const platformModule = this.requiredModules.platformModule
-    const groupModule = this.addAdditionalModule.groupModule
-    const gPerms = groupModule?.perms || (cb => cb)
-    const pPerms = platformModule.perms
-    const auth = userModule.auth
-
+    const userModule = this.requiredModules.userModule;
+    const platformModule = this.requiredModules.platformModule;
+    const groupModule = this.addAdditionalModule.groupModule;
+    const gPerms = groupModule?.perms || ((cb) => cb);
+    const pPerms = platformModule.perms;
+    const auth = userModule.auth;
 
     return new Map([
+      [
+        `/meets`,
+        {
+          get: auth(this.runMid(this.httpHandleGetAllMeets)),
+          post: auth(pPerms(gPerms(this.runMid(this.httpHandleCreateMeet)))),
+        },
+      ],
 
-      [`/meets`, {
-        get: auth(this.runMid(this.httpHandleGetAllMeets)),
-        post: auth(pPerms(gPerms(this.runMid(this.httpHandleCreateMeet))))
-      }],
+      [
+        `/meets/:meetId/permissions`,
+        {
+          get: auth(this.runMid(this.httpHandleMeetPerms)), // TODO templates
+        },
+      ],
 
-      [`/meets/:meetId`, {
-        get: auth(this.runMid(this.httpHandleMeetInfo)),
-        delete: auth(this.runMid(this.httpHandleDeleteMeet))
-      }],
+      [
+        `/meets/:meetId/permissions/my`,
+        {
+          get: auth(this.runMid(this.httpHandleMyMeetPermissions)), // TODO 1 perm of client
+        },
+      ],
 
+      [
+        `/meets/:meetId`,
+        {
+          get: auth(this.runMid(this.httpHandleMeetInfo)),
+          delete: auth(this.runMid(this.httpHandleDeleteMeet)),
+        },
+      ],
 
-      [`/meets/group/:groupId`, {
-        get: auth(pPerms(this.runMid(this.httpHandleGetAllMeetingFromGroup)))
-      }],
+      [
+        `/meets/group/:groupId`,
+        {
+          get: auth(pPerms(this.runMid(this.httpHandleGetAllMeetingFromGroup))),
+        },
+      ],
 
+      [
+        `/meets/:meetId/users`,
+        {
+          get: auth(pPerms(this.runMid(this.handleGetAllMeetingMembers))), // TODO: dolaczyc permsy
+          post: auth(pPerms(gPerms(this.runMid(this.httpHandleAddUsers)))),
+        },
+      ],
 
-      [`/meets/:meetId/users`, {
-        get: auth(pPerms(this.runMid(this.handleGetAllMeetingMembers))),
-        post: auth(pPerms(gPerms(this.runMid(this.httpHandleAddUsers))))
-      }],
+      [
+        `/meets/public`,
+        {
+          get: auth(this.runMid(this.httpHandlePublicMeets)),
+        },
+      ],
 
+      [
+        `/meets/groupless`,
+        {
+          get: auth(this.runMid(this.httpHandleGrouplessMeetings)),
+        },
+      ],
 
-      [`/meets/public`, {
-        get: auth(this.runMid(this.httpHandlePublicMeets))
-      }],
-
-
-      [`/meets/groupless`, {
-        get: auth(this.runMid(this.httpHandleGrouplessMeetings))
-      }],
-
-
-      [`/meets/:meetId/users/:userId`, {
-        delete: auth(this.runMid(this.httpHandleDeleteUserFromMeeting))
-      }],
-    ])
+      [
+        `/meets/:meetId/users/:userId`,
+        {
+          delete: auth(this.runMid(this.httpHandleDeleteUserFromMeeting)),
+        },
+      ],
+    ]);
   }
+
+  httpHandleMeetPerms = async ({ req, res, mod }) => {
+    const meetId = req.params.meetId;
+    const client = req.user;
+
+    if (!meetId)
+      return res.status(400).json({
+        code: 499,
+        error:
+          "Cannot get templates permissions, because meetId is not provided.",
+      });
+
+    const templates = await this.getTemplatePermissions(meetId);
+
+    return res.json({ permissions: templates });
+  };
+
+  httpHandleMyMeetPermissions = async ({ req, res, mod }) => {
+    const client = req.user;
+    const meetId = req.params.meetId;
+
+    if (!meetId)
+      return res.status(400).json({
+        code: 499,
+        error:
+          "Cannot get templates permissions, because meetId is not provided.",
+      });
+
+    // if (!(await this.checkIsMeetingMember))
+    //   return res
+    //     .status(400)
+    //     .json({
+    //       code: 498,
+    //       error:
+    //         "Cannot get permissions, because you are not member of this meeting",
+    //     });
+
+    const perms = await this.getUserPermissions(client.id, meetId).toArray();
+
+    return res.json({ permissions: perms });
+  };
 
   /** @param {import("socket.io").Socket} socket */
-  socketConfigurator(socket) {
-
-  }
+  socketConfigurator(socket) {}
 
   configure(app) {
     // Tworzenie spotkania /api/meets
-    app.post(`/api/meets`, this.httpHandleCreateMeet)
+    app.post(`/api/meets`, this.httpHandleCreateMeet);
 
     // Odczytywanie wszystkich spotkań /api/meets
-    app.get(`/api/meets`, this.httpHandleGetAllMeets)
+    app.get(`/api/meets`, this.httpHandleGetAllMeets);
 
     //GET {{host}}/api/meets/:meetId
-    app.get(`/api/meets/:meetId`, this.httpHandleMeetInfo)
+    app.get(`/api/meets/:meetId`, this.httpHandleMeetInfo);
 
     // Odczytywanie wszystkich spotkań z danej grupy /api/meets/group/:groupId
     // GET{ "authenthication": "string" } // header{ // body  "meets": [    "<Meet>"  ]}
-    app.get(`/api/meets/group/:groupId`, this.httpHandleGetAllMeetingFromGroup)
+    app.get(`/api/meets/group/:groupId`, this.httpHandleGetAllMeetingFromGroup);
 
     // Odczytywanie uczestników spotkania /api/meets/:meetId/users
     // GET // header { "authenthication": "string" }
     //  / response  { / "participants": [    "<User>"  ]}
-    app.get(`/api/meets/:meetId/users`, this.handleGetAllMeetingMembers)
-
+    app.get(`/api/meets/:meetId/users`, this.handleGetAllMeetingMembers);
 
     // Odczytywanie wszystkich publicznych spotkań /api/meets/public
     // GET // header { "authenthication": "string" } // body {   "meets": [    "<Meet>"  ]}
     //  wszystkie meet.public === true
     //  WSZYSCY - nie ważne od zapytania.
-    app.get(`/api/meets/public`, this.httpHandlePublicMeets)
-
+    app.get(`/api/meets/public`, this.httpHandlePublicMeets);
 
     // Odczytywanie wszystkich spotkań nieprzypisanych do grupy /api/meets/groupless
     // GET // header  { "authenthication": "string" } // body { "meets": [ "<Meet>" ] }
     // memersIds => contain user
     // admin widzi.
-    app.get(`/api/meets/groupless`, this.httpHandleGrouplessMeetings)
+    app.get(`/api/meets/groupless`, this.httpHandleGrouplessMeetings);
 
     // //Dodawanie uczestników do spotkania /api/meets/:meetId/users
     // // // header POST{ "authenthication": "string" }
     // // // body {   "participantsIds": [    "<string>"  ]}
-    app.post(`/api/meets/:meetId/users`, this.httpHandleAddUsers)
+    app.post(`/api/meets/:meetId/users`, this.httpHandleAddUsers);
 
     // // Usuwanie uczestnika ze spotkania
     // // DELETE{ "authenthication": "string" } // header
-    app.delete(`/api/meets/:meetId/users/:userId`, this.httpHandleDeleteUserFromMeeting)
+    app.delete(
+      `/api/meets/:meetId/users/:userId`,
+      this.httpHandleDeleteUserFromMeeting
+    );
 
     // //Kasowanie spotkania /api/meets/:meetId
     // //DELETE { "authenthication": "string" } // header
-    app.delete(`/api/meets/:meetId`, this.httpHandleDeleteMeet)
+    app.delete(`/api/meets/:meetId`, this.httpHandleDeleteMeet);
   }
 
-  httpHandleGrouplessMeetings = async (req, res, next) => {
+  httpHandleGrouplessMeetings = async ({ req, res }) => {
     // Odczytywanie wszystkich spotkań nieprzypisanych do grupy /api/meets/groupless
     // GET // header  { "authenthication": "string" } // body { "meets": [ "<Meet>" ] }
     // memersIds => contain user
     // admin widzi.
 
-
-    const client = req.user
+    const client = req.user;
 
     const meetings = await this.dbManager.findManyObjects(
       this.basecollectionName,
       { membersIds: client.id, groupId: "" }
-    )
+    );
 
-
-    return res.json({ meets: meetings })
-  }
-
+    return res.json({ meets: meetings });
+  };
 
   httpHandlePublicMeets = async (req, res, next) => {
     const meets = await this.dbManager.findManyObjects(
       this.basecollectionName,
       { public: true }
-    )
+    );
 
-    return res.json({ meets })
-  }
+    return res.json({ meets });
+  };
 
-  httpHandleDeleteUserFromMeeting = async (req, res, next) => {
+  httpHandleDeleteUserFromMeeting = async ({ req, res }) => {
     // Usuwanie uczestnika ze spotkania
     // DELETE{ "authenthication": "string" } // header
     /// api/meets/:meetId/users/:userId
-    const client = req.user
-    const { meetId, userId } = req.params
+    const client = req.user;
+    const { meetId, userId } = req.params;
 
-    const meetingObj = await this.getMeetingById(meetId)
+    const meetingObj = await this.getMeetingById(meetId);
     if (!meetingObj)
       return res.status(400).json({
         code: 404,
-        error: "Can not find meeting. Make sure that meeting id is correct."
-      })
+        error: "Can not find meeting. Make sure that meeting id is correct.",
+      });
 
-
-    const isLecturer = this.isUserLecturer(client.id, meetingObj)
-    const isOwner = await this.requiredModules.platformModule.checkUserOwner(client.id, meetingObj.platformId)
+    const isLecturer = this.isUserLecturer(client.id, meetingObj);
+    const isOwner = await this.requiredModules.platformModule.checkUserOwner(
+      client.id,
+      meetingObj.platformId
+    );
     if (!isLecturer && !isOwner)
       return res.status(400).json({
         code: 408,
-        error: "Only lecturer or Platform owner, have access to add members to meeting."
-      })
+        error:
+          "Only lecturer or Platform owner, have access to add members to meeting.",
+      });
 
-    const isMember = this.isMeetingMember(userId, meetingObj)
+    const isMember = this.isMeetingMember(userId, meetingObj);
     if (!isMember)
       return res.status(400).json({
         code: 410,
-        error: "Targeted user isn't a member of specified group"
-      })
+        error: "Targeted user isn't a member of specified group",
+      });
 
-    if (sameWords(client.id, userId)
-      || sameWords(client.id, meetingObj.lecturer.id))
+    if (
+      sameWords(client.id, userId) ||
+      sameWords(client.id, meetingObj.lecturer.id)
+    )
       return res.status(400).json({
         code: 411,
-        error: "As lecturer or PlatOwner - PO - You can not delete himself from meeting members."
-      })
+        error:
+          "As lecturer or PlatOwner - PO - You can not delete himself from meeting members.",
+      });
 
     if (sameWords(userId, meetingObj.lecturer.id))
       return res.status(400).json({
         code: 413,
-        error: "Cannot delete lecturer from meeting, you can only update a lecturer."
-      })
+        error:
+          "Cannot delete lecturer from meeting, you can only update a lecturer.",
+      });
 
     await this.dbManager.updateObject(
       this.basecollectionName,
       { id: { $eq: meetingObj.id } },
       { $pull: { membersIds: userId } }
-    )
-    return res.json({ code: 412, success: "User has been deleted from user list of meeting" })
-  }
+    );
+    return res.json({
+      code: 412,
+      success: "User has been deleted from user list of meeting",
+    });
+  };
 
+  httpHandleAddUsers = async ({ req, res }) => {
+    const client = req.user;
+    const meetingId = req.params.meetId;
+    let newMembers = req.body.participantsIds;
 
-  httpHandleAddUsers = async (req, res, next) => {
+    if (!Array.isArray(newMembers)) newMembers = [newMembers];
 
-    const client = req.user
-    const meetingId = req.params.meetId
-    let newMembers = req.body.participantsIds
-
-    //BUG: groupid jako char[]
-
-
-    if (!Array.isArray(newMembers))
-      newMembers = [newMembers]
-
-    const meetingObj = await this.getMeetingById(meetingId)
+    const meetingObj = await this.getMeetingById(meetingId);
     if (!meetingObj)
       return res.status(400).json({
         code: 404,
-        error: "Can not find meeting. Make sure that meeting id is correct."
-      })
+        error: "Can not find meeting. Make sure that meeting id is correct.",
+      });
 
-    const platformObj = await this.requiredModules.platformModule.getPlatform(meetingObj.platformId)
-    const isLecturer = this.isUserLecturer(client.id, meetingObj)
-    const isOwner = this.requiredModules.platformModule.isPlatformOwner(client.id, platformObj)
+    const platformObj = await this.requiredModules.platformModule.getPlatform(
+      meetingObj.platformId
+    );
+    const isLecturer = this.isUserLecturer(client.id, meetingObj);
+    const isOwner = this.requiredModules.platformModule.isPlatformOwner(
+      client.id,
+      platformObj
+    );
 
     if (!isLecturer && !isOwner)
       return res.status(400).json({
         code: 408,
-        error: "Only lecturer or Platform owner, have access to add members to meeting."
-      })
+        error:
+          "Only lecturer or Platform owner, have access to add members to meeting.",
+      });
 
     //take users that are members of platform.
-    let positiveIds = platformObj.membersIds.filter((id) => newMembers.some(member => id === member))
-    positiveIds = positiveIds.filter(id => meetingObj.membersIds.every(member != id))
+    let positiveIds = platformObj.membersIds.filter((id) =>
+      newMembers.some((member) => id === member)
+    );
+    positiveIds = positiveIds.filter((id) =>
+      meetingObj.membersIds.every(member != id)
+    );
 
     // const query = { // znajdz platformę  do której należa wszyscy.
     //   $and: [
@@ -249,195 +331,327 @@ export default class MeetModule extends Module {
       await this.dbManager.findOneAndUpdate(
         this.basecollectionName,
         { id: { $eq: meetingId } },
-        { $push: { membersIds: { $each: positiveIds } } },
-      )
+        { $push: { membersIds: { $each: positiveIds } } }
+      );
 
     if (positiveIds.length !== newMembers.length)
-      return res.json({ code: 412, success: "Not all of users was assigned to platform. Because of that added to meeting only members of platform" })
+      return res.json({
+        code: 412,
+        success:
+          "Not all of users was assigned to platform. Because of that added to meeting only members of platform",
+      });
 
-    return res.json({ code: 409, success: "All new parcipants has been assigned to meeting" })
-  }
+    return res.json({
+      code: 409,
+      success: "All new parcipants has been assigned to meeting",
+    });
+  };
 
+  handleGetAllMeetingMembers = async ({ req, res }) => {
+    const client = req.user;
+    const meetingId = req.params.meetId;
 
-  handleGetAllMeetingMembers = async (req, res, next) => {
-    const client = req.user
-    const meetingId = req.params.meetId
-
-    const meetingObj = await this.getMeetingById(meetingId)
+    const meetingObj = await this.getMeetingById(meetingId);
     if (!meetingObj)
       return res.status(400).json({
         code: 404,
-        error: "Can not find meeting. Make sure that meeting id is correct."
-      })
+        error: "Can not find meeting. Make sure that meeting id is correct.",
+      });
     // const isLecturer = this.isUserLecturer(client.id, meetingObj)
     // jest dopisywany do membersów.
 
-    const isOwner = await this.requiredModules.platformModule.checkUserOwner(client.id, meetingObj.platformId)
-    const isMember = this.isMeetingMember(client.id, meetingObj)
+    const isOwner = await this.requiredModules.platformModule.checkUserOwner(
+      client.id,
+      meetingObj.platformId
+    );
+    const isMember = this.isMeetingMember(client.id, meetingObj);
 
     if (!isOwner && !isMember)
       return res.status(400).json({
         code: 407,
-        error: "Only meeting members or Platform owner, have access to display users of specyfic meeting"
-      })
+        error:
+          "Only meeting members or Platform owner, have access to display users of specyfic meeting",
+      });
 
-    const idsInMeeting = meetingObj.membersIds
+    const idsInMeeting = meetingObj.membersIds;
 
-    const tasks = idsInMeeting.map(userId => this.requiredModules.userModule.getUserById(userId))
+    const tasks = idsInMeeting.map((userId) =>
+      this.requiredModules.userModule.getUserById(userId)
+    );
 
-    const usersArr = await Promise.all(tasks)
+    const usersArr = await Promise.all(tasks);
 
-    return res.json({ participants: usersArr })
-  }
+    return res.json({ participants: usersArr });
+  };
 
-  httpHandleDeleteMeet = async ({req, res}) => {
+  httpHandleDeleteMeet = async ({ req, res }) => {
     //Kasowanie spotkania /api/meets/:meetId
     //DELETE { "authenthication": "string" } // header
-    const client = req.user
-    const meetingId = req.params.meetId
+    const client = req.user;
+    const meetingId = req.params.meetId;
 
-    const meetingObj = await this.getMeetingById(meetingId)
+    const meetingObj = await this.getMeetingById(meetingId);
     if (!meetingObj)
       return res.status(400).json({
         code: 404,
-        error: "Can not find meeting. Make sure that meeting id is correct."
-      })
-    const isLecturer = this.isUserLecturer(client.id, meetingObj)
+        error: "Can not find meeting. Make sure that meeting id is correct.",
+      });
+    const isLecturer = this.isUserLecturer(client.id, meetingObj);
 
-    const isOwner = await this.requiredModules.platformModule.checkUserOwner(client.id, meetingObj.platformId)
+    const isOwner = await this.requiredModules.platformModule.checkUserOwner(
+      client.id,
+      meetingObj.platformId
+    );
 
     if (!isLecturer && !isOwner)
       return res.status(400).json({
         code: 405,
-        error: "Only Lecturer of meeting or platform Owner can delete an meeting"
-      })
+        error:
+          "Only Lecturer of meeting or platform Owner can delete an meeting",
+      });
 
-    await this.deleteMeetingById(meetingObj.id)
+    await this.deleteMeetingById(meetingObj.id);
 
-    return res.json({ code: 406, success: "Meeting has been deleted succesfully." })
-  }
+    return res.json({
+      code: 406,
+      success: "Meeting has been deleted succesfully.",
+    });
+  };
 
+  deleteUserPermissionsByGroupId = (groupId) =>
+    this.dbManager.deleteMany(this.subcollections.userPermissions, {
+      referenceId: { $eq: groupId },
+    });
+
+  deleteTemplatePermissionsByGroupId = (groupId) =>
+    this.dbManager.deleteMany(this.subcollections.templatesPerm, {
+      referenceId: { $eq: groupId },
+    });
 
   httpHandleGetAllMeetingFromGroup = async ({ req, res }) => {
-    const client = req.user
-    const groupId = req.params.groupId
+    const client = req.user;
+    const groupId = req.params.groupId;
 
-    const groupObj = await this.additionalModules.groupModule.getGroupObject(groupId)
+    const groupObj = await this.additionalModules.groupModule.getGroupObject(
+      groupId
+    );
 
     if (!groupObj)
       return res.status(400).json({
         code: 403,
-        error: "Can not find specyfied group. Make sure you passed correct groupId"
-      })
+        error:
+          "Can not find specyfied group. Make sure you passed correct groupId",
+      });
 
-    const isMember = this.additionalModules.groupModule.isUserAssigned(client.id, groupObj)
-    const isOwner = await this.requiredModules.platformModule.checkIsOwner(client.id, groupObj.platformId)
+    const isMember = this.additionalModules.groupModule.isUserAssigned(
+      client.id,
+      groupObj
+    );
+    const isOwner = await this.requiredModules.platformModule.checkIsOwner(
+      client.id,
+      groupObj.platformId
+    );
 
     if (!isMember && !isOwner)
       return res.status(400).json({
         code: 402,
-        error: "Only meeting members or platform owner has access to see meeting of the specyfied group."
-      })
+        error:
+          "Only meeting members or platform owner has access to see meeting of the specyfied group.",
+      });
 
-    const meetingList = await this.getMeetingsByGroupId(groupId)
+    const meetingList = await this.getMeetingsByGroupId(groupId);
 
-    return res.json({ meets: meetingList })
-  }
+    return res.json({ meets: meetingList });
+  };
 
+  httpHandleMeetInfo = async ({ req, res }) => {
+    const meetId = req.params.meetId;
+    const client = req.user;
 
-  httpHandleMeetInfo = async (req, res, next) => {
-    const meetId = req.params.meetId
-    const client = req.user
+    if (!/\d/.test(meetId)) return next();
 
-    if (! /\d/.test(meetId))
-      return next()
-
-    const meetingObj = await this.getMeetingById(meetId)
+    const meetingObj = await this.getMeetingById(meetId);
     if (!meetingObj)
-      return res.status(400).json({ code: 403, error: "Can not find meeting with provided id." })
+      return res
+        .status(400)
+        .json({ code: 403, error: "Can not find meeting with provided id." });
 
-    const isOwner = await this.requiredModules.platformModule.checkUserOwner(client.id, meetingObj.platformId)
-
+    const isOwner = await this.requiredModules.platformModule.checkUserOwner(
+      client.id,
+      meetingObj.platformId
+    );
 
     // members or owner
-    const member = meetingObj.membersIds.some(id => id === client.id)
+    const member = meetingObj.membersIds.some((id) => id === client.id);
     if (!member && !isOwner)
-      return res.status(400).json({ code: 402, error: "Only meeting members or platform owner can see meeting information." })
+      return res.status(400).json({
+        code: 402,
+        error:
+          "Only meeting members or platform owner can see meeting information.",
+      });
 
-    return res.json({ meet: meetingObj })
-  }
+    return res.json({ meet: meetingObj });
+  };
 
   httpHandleGetAllMeets = async ({ req, res }) => {
     // "meets": [
     //     "<Meet>"
     //   ]
-    const client = req.user
+    const client = req.user;
 
-    const meets = await this.getAllMeets(client.id)
+    const meets = await this.getAllMeets(client.id);
 
-    return res.json({ meets })
-  }
-
+    return res.json({ meets });
+  };
 
   httpHandleCreateMeet = async ({ req, res }) => {
     // Tworzenie spotkania /api/meets
 
-    const client = req.user
+    const client = req.user;
 
-    const { dateStart, dateEnd, description, externalUrl, platformId, groupId } = req.body
-    if( !dateStart || !dateEnd || !description || !externalUrl || !platformId )
-    return res.status(400).json({code:409,error:"required more data, to create an meeting. Please fill in all fields."})
+    let { dateStart, dateEnd } = req.body;
+    const { description, externalUrl, platformId, groupId } = req.body;
 
-    const platfromObj = await this.requiredModules.platformModule.getPlatform(platformId)
-    const isAssigned = await this.requiredModules.platformModule.checkUserAssigned(client.id, platformId)
+    if (!dateStart || !dateEnd || !description || !externalUrl || !platformId)
+      return res.status(400).json({
+        code: 409,
+        error:
+          "required more data, to create an meeting. Please fill in all fields.",
+      });
 
+    dateStart = new Date(dateStart).getTime();
+    dateEnd = new Date(dateEnd).getTime();
+
+    const platfromObj = await this.requiredModules.platformModule.getPlatform(
+      platformId
+    );
+    // const isAssigned = await this.requiredModules.platformModule.checkUserAssigned(
+    //   client.id,
+    //   platformId
+    // );
 
     if (!groupId)
-      return res.status(400).json({ code: 416, error: "Create group not possible, groupId not provided." })
+      return res.status(400).json({
+        code: 416,
+        error: "Create group not possible, groupId not provided.",
+      });
 
     if (groupId != "") {
-      const isGroupAssignedToPlatform = platfromObj.assignedGroups.some(id => id === groupId)
+      const isGroupAssignedToPlatform = platfromObj.assignedGroups.some(
+        (id) => id === groupId
+      );
 
       if (!isGroupAssignedToPlatform)
-        return res.status(400).json({ code: 415, error: "Can not create meeting for this group, because group is not assigned to targeted platform." })
+        return res.status(400).json({
+          code: 415,
+          error:
+            "Can not create meeting for this group, because group is not assigned to targeted platform.",
+        });
     }
 
-
     if (!client.platformPerms.isPersonel)
-      return res.status(400).json({ code: 400, error: "You cant create meeting on platform, You need to have 'personel' status to make this operation." })
+      return res.status(400).json({
+        code: 400,
+        error:
+          "You cant create meeting on platform, You need to have 'personel' status to make this operation.",
+      });
 
-    const ids = groupId
-      ? (await this.additionalModules.groupModule.getGroupObject(groupId)).membersIds
-      : [client.id]
+    let ids = groupId
+      ? (await this.additionalModules.groupModule.getGroupObject(groupId))
+          .membersIds
+      : [client.id];
 
+    if (!ids.some((id) => id === client.id)) ids = ids.concat(client.id);
 
-    let meeting = new Meet(
-      client, description, platformId, ids, externalUrl,
-      { dateStart: dateStart, dateEnd: dateEnd, groupId: groupId }
-    )
+    let meeting = new Meet(client, description, platformId, ids, externalUrl, {
+      dateStart: dateStart,
+      dateEnd: dateEnd,
+      groupId: groupId,
+    });
 
     if (!meeting.validate())
-      return res.status(400).json({ code: 401, error: "Date is not correct." })
+      return res.status(400).json({ code: 401, error: "Date is not correct." });
 
-    await this.saveMeetingInDb(meeting)
+    const userPermsList = ids.map((value) =>
+      value != client.id
+        ? MeetUserPermission.createStudentPerms(value, meeting.id)
+        : MeetUserPermission.createOwnerPerms(value, meeting.id)
+    );
 
-    return res.json({ meet: meeting })
-  }
+    const templatePermsList = [
+      MeetPermission.createOwnerTemplate(meeting.id),
+      MeetPermission.createStudentTemplate(meeting.id),
+    ];
 
+    await this.saveMeetingInDb(meeting);
+    await this.saveTemplatePermissions(templatePermsList);
+    await this.saveUserPermissions(userPermsList);
+
+    return res.json({ meet: meeting });
+  };
 
   getAllMeets = (memberId) =>
-    this.dbManager.findManyObjects(this.basecollectionName, { membersIds: memberId })
+    this.dbManager.findManyObjects(this.basecollectionName, {
+      membersIds: memberId,
+    });
 
-  saveMeetingInDb = (meet) => this.dbManager.insertObject(this.basecollectionName, meet)
-  getMeetingById = (meetId) => this.dbManager.findObject(this.basecollectionName, { id: { $eq: meetId } })
-  getMeetingsByGroupId = (groupId) => this.dbManager.findManyObjects(this.basecollectionName, { groupId: { $eq: groupId } })
-  isUserLecturer = (userId, meetObj) => meetObj.lecturer.id === userId
-  deleteMeetingById = (meetingId) => this.dbManager.deleteObject(this.basecollectionName, { id: { $eq: meetingId } })
-  isMeetingMember = (userId, meetingObj) => meetingObj.membersIds.some(id => id === userId)
+  /**
+   *
+   * @param {string} meetId
+   * @returns {Array<MeetPermission>}
+   */
+  getTemplatePermissions = (meetId) =>
+    this.dbManager.findManyObjects(this.subcollections.templatesPerm, {
+      referenceId: { $eq: meetId },
+    });
+
+  getUserPermissions = (userId, meetId) =>
+    this.dbManager.aggregate(this.subcollections.userPermissions, {
+      pipeline: [
+        { $match: { $and: [{ referenceId: meetId }, { userId: userId }] } },
+        { $project: { _id: false } },
+      ],
+    });
+
+  saveTemplatePermissions = (perms) =>
+    Array.isArray(perms)
+      ? this.dbManager.insetMany(this.subcollections.templatesPerm, perms)
+      : this.dbManager.insertObject(this.subcollections.templatesPerm, perms);
+
+  saveUserPermissions = (perms) =>
+    Array.isArray(perms)
+      ? this.dbManager.insetMany(this.subcollections.userPermissions, perms)
+      : this.dbManager.insertObject(this.subcollections.userPermissions, perms);
+
+  saveMeetingInDb = (meet) =>
+    this.dbManager.insertObject(this.basecollectionName, meet);
+
+  getMeetingById = (meetId) =>
+    this.dbManager.findObject(this.basecollectionName, { id: { $eq: meetId } });
+
+  getMeetingsByGroupId = (groupId) =>
+    this.dbManager.findManyObjects(this.basecollectionName, {
+      groupId: { $eq: groupId },
+    });
+
+  isUserLecturer = (userId, meetObj) => meetObj.lecturer.id === userId;
+
+  deleteMeetingById = (meetingId) =>
+    this.dbManager.deleteObject(this.basecollectionName, {
+      id: { $eq: meetingId },
+    });
+
+  isMeetingMember = (userId, meetingObj) =>
+    meetingObj.membersIds.some((id) => id === userId);
+
+  checkIsMeetingMember = (userId, meetingId) =>
+    this.dbManager.find(this.basecollectionName, {
+      $and: [{ id: { $eq: { meetingId } } }, { membersIds: { $in: [userId] } }],
+    });
 
   /**@returns {string}  Name of class */
-  toString = () => this.constructor.toString()
+  toString = () => this.constructor.toString();
 
   /**@returns {string}  Name of class */
-  static toString = () => "MeetModule"
+  static toString = () => "MeetModule";
 }

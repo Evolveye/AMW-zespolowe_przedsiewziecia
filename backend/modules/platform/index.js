@@ -1,17 +1,6 @@
 import Module from "../module.js"
-import Permissions, { PlatformUserPermission } from './permissions.js'
+import Permissions from './permissions.js'
 
-// TODO nie korzystamy z innych modułów wprost, tylko przez requiredModules/additionalModules
-import User from '../user/model.js'
-import group from '../group/index.js'
-
-/* TODO Nie wyciągamy nic "spod" modułu.
-    Moduły są odpowiedzialne same za siebie.
-    Wszystko czego potrzebują powinny otrzymać w momencie konstruowania */
-import { sameWords } from "../../src/utils.js"
-import { DEBUG } from '../../consts.js'
-
-import { Platform } from "./model.js"
 import { ANSWERS, MAX_PLATFORM_NUMBER } from "./consts.js"
 import * as middlewares from "./middlewares.js"
 

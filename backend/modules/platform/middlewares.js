@@ -26,7 +26,7 @@ export async function httpCreateNewUser({mod, req, res}) {
 
     const user = await mod.requiredModules.userModule.createUser({ name, surname, email, activated: true }, CREATE_USER_EMAIL_CONTENT)
 
-    if (!(user instanceof User)) // jesli nie jest userem, to jest bladem.
+    if (`error` in user) // jesli nie jest userem, to jest bladem.
       return res.status(400).json(user)
 
     const targetPlatformId = req.params.platformId
@@ -124,7 +124,7 @@ export async function httpDeleteUserFromPlatform({mod,req, res}) {
     { $pull: { 'membersIds': userId } }
   )
 
-  return res.status(200).send({ code: 205, success: "User has been deleted." })
+  return res.status(200).send(ANSWERS.USER_DELETE_SUCCESS)
 }
 
 
@@ -133,15 +133,15 @@ export async function httpGetUsersOfPlatform({mod, req, res }) {
   const targetPlatformId = req.params.platformId
   const user = req.user
   if (!targetPlatformId)
-    return res.status(400).json({ code: 211, error: "Please provide correct platform id." })
+    return res.status(400).json(ANSWERS.USERS_OF_PLATFORM_BAD_PLATFORM_ID)
 
   const platform = await mod.getPlatform(targetPlatformId)
   if (!platform)
-    return res.status(400).json({ code: 208, error: "Cannot get all users assigned to platform. Bacause target platform does not exist." })
+    return res.status(400).json(ANSWERS.USERS_OF_PLATFORM_PLATFORM_NOT_EXISTS)
 
 
   if (!mod.checkUserAssigned(req.user.id, targetPlatformId))
-    return res.status(400).json({ code: 212, error: "Can not send users from platform, where u are not assigned in." })
+    return res.status(400).json(ANSWERS.USERS_OF_PLATFORM_NOT_MEMBER)
 
 
   // if (`groupModule` in this.additionalModules) { // BUG: CZEMU TAKIE CACKO TUTAJ WSTAWIONE JEST
@@ -220,11 +220,11 @@ export async function httpCreatePlatform({mod,req, res}) {
 
   const { name } = req.body
 
-  if (!name) return res.status(400).json({ code: 203, error: "Platform name not provided." })
+  if (!name) return res.status(400).json(ANSWERS.CREATE_PLATFORM_NOT_NAME)
 
   if (!DEBUG)
     if (!(await mod.canCreatePlatform(req.user.id)))
-      return res.status(400).json({ code: 210, error: "You have already an your own platform." })
+      return res.status(400).json(ANSWERS.CREATE_PLATFORM_LIMIT)
 
 
   const newPlatform = new Platform(req.user, name)
@@ -253,13 +253,13 @@ export async function httpDeletePlatform({ mod, req, res}) {
   const target = await mod.getPlatform(targetPlatformId)
 
   if (!target)
-    return res.status(400).json({ code: 208, error: "Cannot delete not existing platform." })
+    return res.status(400).json(ANSWERS.DELETE_PLATFORM_PLATFORM_NOT_EXISTS)
 
   if (!client.platformPerms.isMaster)
-    return res.status(400).json({ code: 209, error: "You dont have privilages to create new users on mod platform." })
+    return res.status(400).json(ANSWERS.DELETE_PLATFORM_NOT_ALLOWED)
 
-  if (!mod.isPlatformOwner(client.id, target))
-    return res.status(400).json({ code: 209, error: "You dont have privilages to create new users on mod platform." })
+  // if (!mod.isPlatformOwner(client.id, target))
+  //   return res.status(400).json({ code: 209, error: "You dont have privilages to create new users on mod platform." })
 
   //await mod.deletePlatformCascade(targetPlatformId)
 
@@ -298,5 +298,5 @@ export async function httpDeletePlatform({ mod, req, res}) {
   // await mod.dbManager.deleteObject(mod.collectionName, { id: { $eq: targetPlatformId } })
 
 
-  return res.status(200).json({ code: 210, success: "Platform deleted successfuly." })
+  return res.status(200).json(ANSWERS.DELETE_PLATFORM_SUCCESS)
 }
