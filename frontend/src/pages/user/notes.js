@@ -48,7 +48,7 @@ export default class Notes extends React.Component {
           </thead>
           <tbody>
             {groups.map(({ group, notes }) => {
-              const average =
+              const average = notes.length === 0 ? ` - ` :
                 notes.reduce((sum, { value }) => sum + Number(value), 0) /
                 notes.length
 
