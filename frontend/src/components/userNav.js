@@ -6,11 +6,9 @@ import { authFetch } from "../utils/auth.js"
 import PlatformAccessor, { PlatformAdder } from "../models/platformAccessor.js"
 
 import classes from "./userNav.module.css"
+import { processUrn } from "../utils/functions.js"
 
-const DEBUG = false
-const defaultAvatarSrc = `${
-  DEBUG ? `http://localhost:3000` : ``
-}/media/image/avatarDefault.jpg`
+const defaultAvatarSrc = processUrn( `/media/image/avatarDefault.jpg` )
 
 const accessorsMap = platform => (
   <PlatformAccessor key={platform.id} platform={platform} />

@@ -71,3 +71,10 @@ export function memoizedFetch({ url, init = {}, runOnlyCbWhenUpdate=true, cb }) 
       cb(data)
     })
 }
+
+
+export function processUrn( urn ) {
+  const url = `http://localhost:3000`
+
+  return url + urn
+}

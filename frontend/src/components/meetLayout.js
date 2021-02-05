@@ -1,15 +1,23 @@
 import React, { useEffect, useState } from "react"
 import { Link } from "gatsby"
 
-import { AuthorizedContent, getMeetPerms } from "../utils/auth.js"
-import { urlSearchParams } from "../utils/functions.js"
+import { authFetch, AuthorizedContent, getMeetPerms } from "../utils/auth.js"
+import { processUrn, urlSearchParams } from "../utils/functions.js"
 
 import Layout from "./layout.js"
+import URLS from "../utils/urls.js"
 
 const menyItems = [
   { urn: `settings`, name: `Ustawienia ogólne` },
   { urn: `users`, name: `Użytkownicy` },
 ]
+
+const participantsLisMap = ({ id, name, surname, avatar }) => (
+  <li key={id}>
+    <img src={processUrn( avatar )} alt={`${name}'s avatar`} />
+    <span>{name} {surname}</span>
+  </li>
+)
 
 const menuLisBuilder = (perms, meetQuery) =>
   menyItems
@@ -27,14 +35,27 @@ export default ({ children, className = `` }) => {
   const groupId = query.get(`groupId`)
   const meetId = query.get(`meetId`)
   const meetQuery = `platformId=${platformId}&groupId=${groupId}&meetId=${meetId}`
+  const url = URLS.MEET$ID_USERS_GET.replace(`:meetId`, meetId)
 
   const [menuLis, setMenuRows] = useState(
     menuLisBuilder(getMeetPerms(meetId) || {}, meetQuery)
+  )
+  const [participantsLis, setParticipantsLis] = useState(
+    (authFetch({ url }) || { participants: [] }).participants.map(
+      participantsLisMap
+    )
   )
 
   useEffect(() => {
     getMeetPerms(meetId, perms => {
       setMenuRows(menuLisBuilder(perms || {}, meetQuery))
+    })
+
+    authFetch({
+      url: URLS.MEET$ID_USERS_GET.replace(`:meetId`, meetId),
+      runOnlyCbWhenUpdate: false,
+      cb: ({ participants }) => console.log( participants )
+        // setParticipantsLis(participants.map(participantsLisMap)),
     })
   }, [meetId, meetQuery])
 
@@ -44,15 +65,14 @@ export default ({ children, className = `` }) => {
         <nav className="main_wrapper-splited-left_column">
           <h2>Panel ustawień</h2>
 
-          <ul className="list">
-            {menuLis}
-          </ul>
+          <ul className="list">{menuLis}</ul>
 
           <hr />
 
           <h2>Lista uczestników</h2>
           <ul className="list">
-            <li className="list-item">Jakiś random</li>
+            {participantsLis}
+            {/* <li className="list-item">Jakiś random</li> */}
           </ul>
         </nav>
 
