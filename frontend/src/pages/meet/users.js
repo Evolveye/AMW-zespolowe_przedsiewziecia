@@ -16,7 +16,7 @@ export default () => {
   return (
     <Layout className="is-centered">
       <Link className="return_link" to={href}>
-        Powrót
+        Powrót do widoku spotkania
       </Link>
 
       <h1>Spotkanie -- uczestnicy</h1>

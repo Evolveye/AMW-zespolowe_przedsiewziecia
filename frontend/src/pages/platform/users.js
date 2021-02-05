@@ -23,7 +23,7 @@ export default class PlatformUsers extends React.Component {
         className="return_link"
         to={`/platform/it?platformId=${this.platformId}`}
       >
-        Powrót
+        Powrót do widoku platformy
       </Link>
 
       <h1>Zarządzanie użytkownikami platformy</h1>

@@ -16,7 +16,7 @@ export default () => {
   return (
     <Layout className="is-centered">
       <Link className="return_link" to={href}>
-        Powrót
+        Powrót do widoku grupy
       </Link>
 
       <h1>Grupa -- ustawienia ogólne</h1>

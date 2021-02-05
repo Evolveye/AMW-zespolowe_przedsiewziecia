@@ -19,10 +19,18 @@ export default class PlatformGroups extends React.Component {
 
   render = () => (
     <Layout className="is-centered">
-      <Link className="return_link" to={`/platform/it?platformId=${this.platformId}`}>Powrót</Link>
+      <Link
+        className="return_link"
+        to={`/platform/it?platformId=${this.platformId}`}
+      >
+        Powrót do widoku platformy
+      </Link>
 
       <h1>Zarządzanie grupami platformy</h1>
-      <p><strong>Ważne!</strong> Lista grup po lewej stronie zaktualizuje się dopiero po odświeżeniu strony</p>
+      <p>
+        <strong>Ważne!</strong> Lista grup po lewej stronie zaktualizuje się
+        dopiero po odświeżeniu strony
+      </p>
 
       <TableForm
         fetchPostAddress={URLS.GROUP_POST}
@@ -49,12 +57,12 @@ export default class PlatformGroups extends React.Component {
                 `:platformId`,
                 this.platformId
               ),
-              fetchGetDataName:"users",
-              fetchDataFilter( field ) {
+              fetchGetDataName: "users",
+              fetchDataFilter(field) {
                 return field
               },
-              fetchDataProcessor( { id, name, surname } ) {
-                return { value:id, text:`${name} ${surname}` }
+              fetchDataProcessor({ id, name, surname }) {
+                return { value: id, text: `${name} ${surname}` }
               },
             },
           },

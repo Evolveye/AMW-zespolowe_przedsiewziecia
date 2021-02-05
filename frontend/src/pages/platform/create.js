@@ -25,7 +25,7 @@ export default () => {
           className="return_link"
           to={`/platform/it?platformId=${platformId}`}
         >
-          Powrót
+          Powrót do widoku platformy
         </Link>
 
         <Form

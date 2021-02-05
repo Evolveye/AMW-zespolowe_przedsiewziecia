@@ -24,7 +24,7 @@ export default class PlatformGroups extends React.Component {
   render = () => (
     <Layout className="is-centered">
       <Link className="return_link" to={this.href}>
-        Powrót
+        Powrót do widoku grupy
       </Link>
 
       <h1>Grupa -- spotkania</h1>

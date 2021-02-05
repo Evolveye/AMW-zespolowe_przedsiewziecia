@@ -26,21 +26,28 @@ export default class SettingsView extends React.Component {
   }
 
   hremovePlatform = () => {
-    fetch(URLS.PLATFORM$ID_DELETE.replace( `:platformId`, this.platformId ), {
+    fetch(URLS.PLATFORM$ID_DELETE.replace(`:platformId`, this.platformId), {
       method: `DELETE`,
       headers: { Authentication: `Bearer ${getToken()}` },
-    }).then( res => res.json() ).then( ({ code, success, error }) => {
-      if (error) {
-        return console.error( error )
-      }
+    })
+      .then(res => res.json())
+      .then(({ code, success, error }) => {
+        if (error) {
+          return console.error(error)
+        }
 
-      navigate( `/user/me` )
-    } )
+        navigate(`/user/me`)
+      })
   }
 
   render = () => (
     <Layout className="is-centered">
-      <Link className="return_link" to={`/platform/it?platformId=${this.platformId}`}>Powrót</Link>
+      <Link
+        className="return_link"
+        to={`/platform/it?platformId=${this.platformId}`}
+      >
+        Powrót do widoku platformy
+      </Link>
 
       <Form
         fields={fields}

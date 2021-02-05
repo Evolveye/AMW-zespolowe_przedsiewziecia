@@ -16,7 +16,7 @@ export default () => {
         className="return_link"
         to={`/platform/it?platformId=${platformId}`}
       >
-        Powrót
+        Powrót do widoku platformy
       </Link>
 
       <h1>Platforma edukacyjna</h1>
