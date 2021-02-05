@@ -61,6 +61,7 @@ const URLS = {
   MEET_GET: `${HOST}/api/meets`,
   MEET_POST: `${HOST}/api/meets`,
   MEET_FROM_GROUP$ID_GET: `${HOST}/api/meets/group/:groupId`,
+  MEET$ID_GET: `${HOST}/api/meets/:meetId`,
   MEET$ID_DELETE: `${HOST}/api/meets/:meetId`,
   MEET$ID_USERS_POST: `${HOST}/api/meets/:meetId/users`,
   MEET$ID_USERS_GET: `${HOST}/api/meets/:meetId/users`,

@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useEffect, useState } from "react"
 import { Link } from "gatsby"
 
 import Layout from "../../components/meetLayout.js"
@@ -13,6 +13,18 @@ export default () => {
   const href = `/group/it?platformId=${query.get(
     "platformId"
   )}&groupId=${query.get("groupId")}`
+  const url = URLS.MEET$ID_GET.replace(`:meetId`, query.get(`meetId`))
+
+  const [link, setLink] = useState(
+    (authFetch({ url }) || { meet: {} }).meet.externalUrl
+  )
+
+  useEffect(() => {
+    authFetch({
+      url,
+      cb: ({ meet }) => setLink(meet.externalUrl),
+    })
+  }, [url])
 
   return (
     <Layout className="is-centered">
@@ -21,7 +33,7 @@ export default () => {
       </Link>
 
       <h1>Spotkanie</h1>
-      <div>Twoje miejsce na reklamę</div>
+      <div><a href={link} target="_blank">Link do spotkania</a></div>
     </Layout>
   )
 }
