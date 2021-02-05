@@ -33,6 +33,7 @@ export default () => {
         fetchDeleteAddress={URLS.GROUP_NOTES$ID_DELETE}
         deleteIdParameterName=":noteId"
         responseGetDataName="notes"
+        responsePostDataName="note"
         staticPostBodyData={{}}
         objectsFields={[
           `value`,
