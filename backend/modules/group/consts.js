@@ -32,7 +32,7 @@ export default {
     CREATE_NOTE_NOT_ALLOWED:{ code: 322, error: `Only group member with canManageNotes privilages can create new notes.` },
     CREATE_NOTE_GROUP_NOT_EXISTS:{ code: 302, error: "Targeted group does not exist." },
     CREATE_NOTE_NOT_MEMBER:{ code: 305, error: "User is not a member of this group." },
-    CREATE_NOTE_CANT_FOR_TEACHER:{code:313,error: "Teacher cannot assign note to yourself."},
+    CREATE_NOTE_CANT_FOR_TEACHER:{code:313,error: "This user cannot get grades in group where he is an lecturer."},
 
     GET_ALL_PLATFORM_GROUPS_PLATFORM_NOT_EXISTS:{ code: 208, error: "Cannot find target platform, Unable to send all groups of target platform" },
     GET_ALL_PLATFORM_GROUPS_NOT_ALLOWED:{ code: 217, error: `You cannot see all of groups in platform, You dont have privilages to do int.` },

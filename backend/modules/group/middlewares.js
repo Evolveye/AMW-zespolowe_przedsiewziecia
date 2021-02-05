@@ -1,5 +1,5 @@
 /** @typedef {import("./index.js").MiddlewareParameters} MiddlewareParameters */
-
+import {Grade,Group} from "./model.js";
 import dbManager from "../../src/dbManager.js";
 import ANSWERS from "./consts.js";
 import GroupPermission, { GroupUserPermission } from "./permissions.js";
@@ -103,7 +103,7 @@ export async function httpHandleGroupPerms({ mod, req, res }) {
   if (!groupId)
     return res.status(400).send(ANSWERS.GET_GROUP_PERMS_NO_GROUP_ID);
 
-  //TODO: check is admin.
+
   const platformOwnerOfGroup = (
     await dbManager.findOne(
       mod.requiredModules.platformModule.basecollectionName,
@@ -200,7 +200,7 @@ export async function httpHandleAllUsersInGroup({ mod, req, res }) {
 export async function httpHandleDeleteUserFromGroup({ mod, req, res }) {
   // // kasowanie usera z grupy api/groups/:groupId/users/:userId
   // // delete auth
-  // TODO: this.canManageUsers
+
   if (!req.user.groupPerms.canManageUsers)
     return res.status(400).json(ANSWERS.DELETE_USER_NOT_ALLOWED);
 
@@ -295,7 +295,7 @@ async function httpHandleNotesFromGroupPrivilagesVersion({ mod, req, res }) {
 
 export async function httpHandleNotesFromGroup({ mod, req, res }) {
   // Pobranie wszystkich ocen użytkownika z DANEJ GRUPY
-  // TODO: this.canManageNotes?
+  //  this.canManageNotes?
   // jesli takn wszystkie noty wszyskitch userów z tej grupy.
   // jenis nie otrzmyna swoje oceny.
   // GET Pobranie wszystkich ocen użytkownika z DANEJ GRUPY
@@ -396,13 +396,13 @@ export async function httpCreateNote({ mod, req, res }) {
 
   const groupId = req.params.groupId;
   const { value, description, userId } = req.body;
-  const lecturer = req.user;
+  const client = req.user;
 
-  delete lecturer.groupPerms;
-  delete lecturer.platformPerms;
+  delete client.groupPerms;
+  delete client.platformPerms;
 
   /**@type {Grade} */
-  const note = new Grade(userId, lecturer, value, groupId, { description });
+  const note = new Grade(userId, client, value, groupId, { description });
 
   const targetGroup = await mod.getGroupObject(groupId);
 
@@ -412,10 +412,12 @@ export async function httpCreateNote({ mod, req, res }) {
   if (!mod.isUserAssigned(userId, targetGroup))
     return res.status(400).json(ANSWERS.CREATE_NOTE_NOT_MEMBER);
 
+  
   // const isAdmin = await this.requiredModules.platformModule.checkUserOwner(lecturer.id, targetGroup.platformId)
 
   // if (!(this.isLecturer(lecturer.id, targetGroup) || isAdmin))
   //   return res.status(400).json({ code: 304, error: "Only lecturer or Admin can create an new notes." })
+  
   if (targetGroup.lecturer.id === userId)
     return res.status(400).json(ANSWERS.CREATE_NOTE_CANT_FOR_TEACHER);
 
@@ -425,7 +427,7 @@ export async function httpCreateNote({ mod, req, res }) {
 }
 
 export async function httpGetAllMyNotes({ mod, req, res }) {
-  //TODO   this.canManageNotes?
+  // TODO this.canManageNotes?
   // GET Pobranie WSZYSTKICH ocen użytkownika
   // { "authenthication": "string" } // header
   // /api/groups/notes { "authenthication": "string" } // header
@@ -529,7 +531,7 @@ export async function httpHandleAllGroupsInPlatform({ mod, req, res }) {
 
 export async function httpDeleteGroup({ mod, req, res }) {
   // DELETE Kasowanie grupy /api/groups/:groupId   { "authenthication": "string" } // header
-  // TODO this.isOwner ! of platform or what
+
   // oceny, spotkania ,permisje template/users
 
   if (!req.user.platformPerms.canManageGroups)

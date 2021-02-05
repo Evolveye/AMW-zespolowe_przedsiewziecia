@@ -1,9 +1,6 @@
 import Module from "../module.js";
-import Group from "./model.js";
-import Grade from "../grade/model.js";
-import { DEBUG } from "../../consts.js";
+
 import GroupPermission, { GroupUserPermission } from "./permissions.js";
-import UserModule from "../user/index.js";
 
 import * as middlewares from "./middlewares.js";
 
@@ -134,7 +131,6 @@ export default class GroupModule extends Module {
     const groupId =
       (req.query.groupId || req.params.groupId || req.body.groupId) ?? null;
 
-    // if (scopes.includes(`group`)) {  // BUG. brak dostepu dla admina. nie jest w grupie.
     if (!groupId)
       return res
         .status(400)

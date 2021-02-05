@@ -60,6 +60,9 @@ export default class MeetModule extends Module {
         {
           get: auth(this.runMid(this.httpHandleMeetInfo)),
           delete: auth(this.runMid(this.httpHandleDeleteMeet)),
+          // TODO: put, date start,end, link, desc,link, public
+          // canManageDetails.
+
         },
       ],
 
@@ -348,6 +351,8 @@ export default class MeetModule extends Module {
   };
 
   handleGetAllMeetingMembers = async ({ req, res }) => {
+    // TODO: doklejać meeting perms. for each.
+
     const client = req.user;
     const meetingId = req.params.meetId;
 
@@ -518,6 +523,13 @@ export default class MeetModule extends Module {
         error:
           "required more data, to create an meeting. Please fill in all fields.",
       });
+    
+    if(!externalUrl.startsWith(`http`) ||  !externalUrl.startsWith(`https`))
+    return res.status(400).json({
+      code: 410,
+      error:
+        "Incorrect link, external link should starts with http/https prefix",
+    });
 
     dateStart = new Date(dateStart).getTime();
     dateEnd = new Date(dateEnd).getTime();
