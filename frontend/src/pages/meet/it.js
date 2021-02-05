@@ -33,7 +33,7 @@ export default () => {
       </Link>
 
       <h1>Spotkanie</h1>
-      <div><a href={link} target="_blank">Link do spotkania</a></div>
+      <div><a href={link} target="_blank" rel="noreferrer">Link do spotkania</a></div>
     </Layout>
   )
 }

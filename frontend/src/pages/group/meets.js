@@ -59,7 +59,7 @@ export default class PlatformGroups extends React.Component {
           `description`,
           {
             name: `externalUrl`,
-            processor: url => <a href={url} target="_blank">Link do spotkania</a>,
+            processor: url => <a href={url} target="_blank" rel="noreferrer">Link do spotkania</a>,
           },
         ]}
         titleFields={[
