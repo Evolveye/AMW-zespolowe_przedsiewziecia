@@ -27,7 +27,6 @@ export default class Select extends React.Component {
     fetchWithStatusProcessing(fetchDataAddress, {
       headers: { Authentication: `Bearer ${getToken()}` },
     })
-      .then(res => res.json())
       .then(data => data[fetchGetDataName])
       .then(arr =>
         fetchDataFilter
