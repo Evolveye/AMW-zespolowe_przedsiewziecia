@@ -26,7 +26,7 @@ const ERRORS = {
 
 export default new Proxy(ERRORS, {
   get(ERRORS, code) {
-    if (Number( code ) === 110) return logout()
+    if (Number( code ) === 110) return logout() || null
     if (code in ERRORS) return ERRORS[code]
 
     console.info(`NIEOBSŁUGIWANY KOD BŁĘDU: ${code}`)

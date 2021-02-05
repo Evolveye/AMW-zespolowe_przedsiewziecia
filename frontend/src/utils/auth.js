@@ -1,7 +1,7 @@
 import React from "react"
 import { navigate } from "gatsby"
 
-import { isBrowser, memoizedFetch } from "./functions.js"
+import { isBrowser, memoizedFetch, fetchWithStatusProcessing } from "./functions.js"
 import URLS from "./urls.js"
 
 /**
@@ -117,14 +117,22 @@ export function isLoggedIn() {
 export function logout(cb) {
   setUser(null)
 
-  if (isBrowser()) {
-    fetch(URLS.LOGOUT_POST, {
+  if (isBrowser() && isLoggedIn()) {
+    const token = getToken()
+
+    window.localStorage.clear()
+    window.sessionStorage.clear()
+
+    fetchWithStatusProcessing(URLS.LOGOUT_POST, {
       method: `post`,
-      headers: { Authentication: `Bearer ${getToken()}` },
+      headers: { Authentication: `Bearer ${token}` },
     })
-      .then(() => window.localStorage.clear())
-      .then(() => cb && cb())
       .catch(console.error)
+      .then(({ code }) => {
+        if (code === 110) console.log( `✅ Logged out properly` )
+        if (cb) cb()
+        else navigate( `/unauthorized` )
+      } )
   }
 }
 

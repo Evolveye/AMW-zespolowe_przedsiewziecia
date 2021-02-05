@@ -3,7 +3,7 @@ import PropTypes from "prop-types"
 
 import { getToken } from "../utils/auth.js"
 import ERRORS from "../utils/errorList.js"
-import { isBrowser } from "../utils/functions.js"
+import { isBrowser, fetchWithStatusProcessing } from "../utils/functions.js"
 
 export default class TableForm extends React.Component {
   state = {
@@ -16,11 +16,10 @@ export default class TableForm extends React.Component {
   creatingLis = []
 
   componentDidMount() {
-    fetch(this.props.fetchGetAddress, {
+    fetchWithStatusProcessing(this.props.fetchGetAddress, {
       method: `GET`,
       headers: { Authentication: `Bearer ${getToken()}` },
     })
-      .then(res => res.json())
       .then(data => {
         if (data.error) {
           const { code, error } = data
@@ -44,7 +43,7 @@ export default class TableForm extends React.Component {
   }
 
   deleteRow = id => {
-    fetch(
+    fetchWithStatusProcessing(
       this.props.fetchDeleteAddress.replace(
         this.props.deleteIdParameterName,
         id
@@ -54,7 +53,6 @@ export default class TableForm extends React.Component {
         headers: { Authentication: `Bearer ${getToken()}` },
       }
     )
-      .then(res => res.json())
       .then(({ code, error, success }) => {
         if (error) {
           return console.error({ code, error })
@@ -75,7 +73,7 @@ export default class TableForm extends React.Component {
   sendCreationData = () => {
     const { error, rows, data, ...fieldsData } = this.state
 
-    fetch(this.props.fetchPostAddress, {
+    fetchWithStatusProcessing(this.props.fetchPostAddress, {
       method: `POST`,
       headers: {
         Authentication: `Bearer ${getToken()}`,
@@ -83,7 +81,6 @@ export default class TableForm extends React.Component {
       },
       body: JSON.stringify({ ...fieldsData, ...this.props.staticPostBodyData }),
     })
-      .then(res => res.json())
       .then(data => {
         if (data.error) {
           const { code, error } = data

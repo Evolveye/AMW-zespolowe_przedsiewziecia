@@ -1,5 +1,6 @@
 import React from "react"
-import { getToken } from "../utils/auth"
+import { getToken } from "../utils/auth.js"
+import { fetchWithStatusProcessing } from "../utils/functions.js"
 
 export default class Select extends React.Component {
   state = {
@@ -23,7 +24,7 @@ export default class Select extends React.Component {
       onChange,
     } = this.props
 
-    fetch(fetchDataAddress, {
+    fetchWithStatusProcessing(fetchDataAddress, {
       headers: { Authentication: `Bearer ${getToken()}` },
     })
       .then(res => res.json())
