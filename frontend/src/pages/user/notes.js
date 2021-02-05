@@ -21,8 +21,10 @@ export default class Notes extends React.Component {
       headers: { Authentication: `Bearer ${getToken()}` },
     })
       .then(res => res.json())
-      .then(({ error, data }) => {
-        if (error) return console.error(`Nieobsługiwany błąd pobierania ocen`)
+      .then(({ code, error, data }) => {
+        if (error) {
+          return console.error({ code, error })
+        }
 
         const platformsList = data.map(({ platform, groups }) => (
           <button key={platform.id} onClick={() => this.showNotesTable(groups)}>
