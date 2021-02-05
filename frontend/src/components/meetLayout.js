@@ -3,9 +3,10 @@ import { Link } from "gatsby"
 
 import { authFetch, AuthorizedContent, getMeetPerms } from "../utils/auth.js"
 import { processUrn, urlSearchParams } from "../utils/functions.js"
+import URLS from "../utils/urls.js"
 
 import Layout from "./layout.js"
-import URLS from "../utils/urls.js"
+import FlatTile from "../models/flatTile.js"
 
 const menyItems = [
   { urn: `settings`, name: `Ustawienia ogólne` },
@@ -14,8 +15,12 @@ const menyItems = [
 
 const participantsLisMap = ({ id, name, surname, avatar }) => (
   <li key={id}>
-    <img src={processUrn( avatar )} alt={`${name}'s avatar`} />
-    <span>{name} {surname}</span>
+    <FlatTile
+      src={processUrn(avatar)}
+      alt={`${name}'s avatar`}
+      title={`${name} ${surname}`}
+      color={`#3e8bff`}
+    />
   </li>
 )
 
@@ -53,9 +58,8 @@ export default ({ children, className = `` }) => {
 
     authFetch({
       url: URLS.MEET$ID_USERS_GET.replace(`:meetId`, meetId),
-      runOnlyCbWhenUpdate: false,
-      cb: ({ participants }) => console.log( participants )
-        // setParticipantsLis(participants.map(participantsLisMap)),
+      cb: ({ participants }) =>
+        setParticipantsLis(participants.map(participantsLisMap)),
     })
   }, [meetId, meetQuery])
 

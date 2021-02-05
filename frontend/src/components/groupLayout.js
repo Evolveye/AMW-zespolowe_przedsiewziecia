@@ -7,6 +7,8 @@ import URLS from "../utils/urls.js"
 
 import Layout from "./layout.js"
 
+import FlatTile from "../models/flatTile.js"
+
 const menyItems = [
   // { urn: `settings`, name: `Ustawienia ogólne`, permName:`isMaster` },
   { urn: `notes`, name: `Oceny`, permName: `isMaster` },
@@ -16,12 +18,13 @@ const menyItems = [
 ]
 
 const meetsLisMap = ({ id, dateStart, description }, platformAndGroupQuery) => (
-  <li key={id} className="list-item">
-    <Link to={`/meet/it?${platformAndGroupQuery}&meetId=${id}`}>
-      {getDate(`YYYY.MM.DD - hh:mm`, dateStart)}
-      <br />
-      {description}
-    </Link>
+  <li key={id}>
+    <FlatTile
+      title={getDate(`YYYY.MM.DD - hh:mm`, dateStart)}
+      description={description}
+      color={`#3e8bff`}
+      linkAddress={`/meet/it?${platformAndGroupQuery}&meetId=${id}`}
+    />
   </li>
 )
 const menuLisBuilder = (perms, platformAndGroupQuery) =>

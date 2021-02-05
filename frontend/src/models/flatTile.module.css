@@ -1,0 +1,45 @@
+
+.tile {
+  display: flex;
+  margin: 10px;
+  padding: 10px;
+  width: max-content;
+  min-width: 200px;
+  background-color: #00000009;
+}
+
+.icon {
+  width: 50px;
+}
+
+.data {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  margin-left: 10px;
+}
+
+.title {
+  display: block;
+  width: 100%;
+  font-weight: bold;
+  font-size: 18px;
+  color: var( --white );
+}
+
+.description {
+  display: block;
+  width: 100%;
+  font-size: 14px;
+  font-family: monospace;
+  color: var( --grey );
+}
+
+.link {
+  position: relative;
+  transition: transform 0.1s;
+}
+
+.link:hover {
+  transform: translateX( 10px );
+}

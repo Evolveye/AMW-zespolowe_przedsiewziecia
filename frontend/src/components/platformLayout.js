@@ -11,6 +11,8 @@ import {
 
 import Layout from "./layout.js"
 
+import FlatTile from "../models/flatTile.js"
+
 const navItems = [
   { urn: `settings`, name: `Ogólne`, permName: `isMaster` },
   { urn: `users`, name: `Użytkownicy`, permName: `isMaster` },
@@ -19,8 +21,12 @@ const navItems = [
 ]
 
 const groupsLisMap = ({ id, name }, platformId) => (
-  <li key={id} className="list-item">
-    <Link to={`/group/it?platformId=${platformId}&groupId=${id}`}>{name}</Link>
+  <li key={id}>
+    <FlatTile
+      title={name}
+      color={`#3e8bff`}
+      linkAddress={`/group/it?platformId=${platformId}&groupId=${id}`}
+    />
   </li>
 )
 
