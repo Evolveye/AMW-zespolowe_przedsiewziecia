@@ -41,7 +41,7 @@ export default class GroupModule extends Module {
       [
         `/groups/notes`,
         {
-          get: auth( this.perms(this.runMid(m.httpGetAllMyNotes))),
+          get: auth(this.runMid(m.httpGetAllMyNotes)),
         },
       ],
 
@@ -181,7 +181,6 @@ export default class GroupModule extends Module {
       const obj = permissions.target;
 
       if (!isPlatformOwner)
-        // fix?
         await this.dbManager.insertObject(
           this.subcollections.userPermissions,
           obj
@@ -275,6 +274,12 @@ export default class GroupModule extends Module {
     const groupObj = await this.getGroupObject(groupId);
     return this.isUserAssigned(userId, groupObj);
   };
+
+  checkIsGroupDuplicate =async (platformId,groupName)=>
+  {
+   const groups= await this.getAllGroupsFromPlatform(platformId)
+   return groups.some(group => group.name === groupName)
+  }
 
   getAllTemplatePerms = (groupId) =>
     this.dbManager.findManyObjects(this.subcollections.templatePermissions, {

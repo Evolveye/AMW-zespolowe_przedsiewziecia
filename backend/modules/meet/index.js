@@ -131,16 +131,11 @@ export default class MeetModule extends Module {
           "Cannot get templates permissions, because meetId is not provided.",
       });
 
-    // if (!(await this.checkIsMeetingMember))
-    //   return res
-    //     .status(400)
-    //     .json({
-    //       code: 498,
-    //       error:
-    //         "Cannot get permissions, because you are not member of this meeting",
-    //     });
-
-    const perms = await this.getUserPermissions(client.id, meetId).toArray();
+    const perms =await mod.dbManager.findOne(`meetModule.permissions.users`,
+     { $and: [{ referenceId: meetId }, { userId: client.id }]  }
+    )
+    delete perms['_id']
+    //await this.getUserPermissions(client.id, meetId).toArray();
 
     return res.json({ permissions: perms });
   };
@@ -524,11 +519,11 @@ export default class MeetModule extends Module {
           "required more data, to create an meeting. Please fill in all fields.",
       });
     
-    if(!externalUrl.startsWith(`http`) ||  !externalUrl.startsWith(`https`))
+    if(!externalUrl.startsWith(`http`) && !externalUrl.startsWith(`https`))
     return res.status(400).json({
       code: 410,
       error:
-        "Incorrect link, external link should starts with http/https prefix",
+        "Incorrect link, external link should starts with ['http','https'] prefix",
     });
 
     dateStart = new Date(dateStart).getTime();

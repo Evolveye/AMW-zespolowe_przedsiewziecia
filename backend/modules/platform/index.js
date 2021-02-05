@@ -323,7 +323,7 @@ export default class PlatformModule extends Module {
     });
 
   updatePlatformPermissions = (findShema, newValues) =>
-    dbManager.findOneAndUpdate(
+    this.dbManager.findOneAndUpdate(
       this.subcollections.userPermissions,
       findShema,
       newValues
