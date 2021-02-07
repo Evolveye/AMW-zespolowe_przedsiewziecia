@@ -1,4 +1,8 @@
-export default {
+
+export const MAX_LEN_GROUP_NAME = 32
+export const MAX_LEN_NOTE_DESCRIPTION = 255
+
+export const ANSWERS = {
     MY_PERMISSIONS_NOT_GROUP_ID:{code:397,error:"Cannot get permissions without prividing groupId"},
     MY_PERMISSIONS_NOT_MEMBER : {code:396,error:"Cannot get permmisions from group that u are not assigned in."},
     MY_PERMISSIONS_NOT_FOUND:{code:395,error:"Group permissions not found."},
@@ -35,6 +39,7 @@ export default {
     CREATE_NOTE_GROUP_NOT_EXISTS:{ code: 302, error: "Targeted group does not exist." },
     CREATE_NOTE_NOT_MEMBER:{ code: 305, error: "User is not a member of this group." },
     CREATE_NOTE_CANT_FOR_TEACHER:{code:313,error: "This user cannot get grades in group where he is an lecturer."},
+    CREATE_NOTE_BAD_DESCRIPTION_LEN:{code:327,error:`Cannot create note, because max length of note description is ${MAX_LEN_NOTE_DESCRIPTION} chars.`}
 
     GET_ALL_PLATFORM_GROUPS_PLATFORM_NOT_EXISTS:{ code: 208, error: "Cannot find target platform, Unable to send all groups of target platform" },
     GET_ALL_PLATFORM_GROUPS_NOT_ALLOWED:{ code: 217, error: `You cannot see all of groups in platform, You dont have privilages to do int.` },
@@ -55,13 +60,13 @@ export default {
     GET_NOTES_FROM_GROUP_MISS_GROUP_ID: { code: 395, error: "groupId not privided in params." },
 
     CREATE_GROUP_NOT_ALLOWED:{ code: 312, error: `Your role in platform dont allow you to create groups.` },
-    CREATE_GROUP_DATA_MISS:{ code: 222, error: "Can not create platform, not   all credentials are provided."  },
-    CREATE_GROUP_PLATFROM_NOT_EXISTS:{ code: 207, error: "Platform does not exist" },
+    CREATE_GROUP_DATA_MISS:{ code: 322, error: "Can not create platform, not   all credentials are provided."  },
+    CREATE_GROUP_PLATFROM_NOT_EXISTS:{ code: 332, error: "Platform does not exist" },
     CREATE_GROUP_DUPLICATE:{ code: 355, error: "Group name duplicate - cannot create group with name that already is used."},
+    CREATE_GROUP_BAD_NAME_LEN:{code:356,error:`Length of group name must be less then ${MAX_LEN_GROUP_NAME}`},
 
     GET_TEMPLATE_PERMS_MISS_GROUP_ID:{ code: 334, error: "Cannot find groupId in request params." },
     GET_TEMPLATE_PERMS_NOT_ALLOWED:{ code: 333, erorr: "can not get list of group perms, because u are not  -> PE master or group member." }
     
-
-
 }
+

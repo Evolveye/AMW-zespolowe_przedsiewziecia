@@ -1,8 +1,9 @@
 /** @typedef {import("./index.js").MiddlewareParameters} MiddlewareParameters */
 import { Grade, Group } from "./models.js";
 import dbManager from "../../src/dbManager.js";
-import ANSWERS from "./consts.js";
+import {ANSWERS,MAX_LEN_GROUP_NAME, MAX_LEN_NOTE_DESCRIPTION} from "./consts.js";
 import GroupPermission, { GroupUserPermission } from "./permissions.js";
+
 
 
 export async function httpHandleMyPermission({ mod, req, res }) {
@@ -382,6 +383,9 @@ export async function httpCreateNote({ mod, req, res }) {
   if (!value || !userId)
     return res.status(400).json(ANSWERS.CREATE_NOTE_DATA_NOT_PROVIDED)
 
+  if(description>MAX_LEN_NOTE_DESCRIPTION)
+  return res.status(400).json(ANSWERS.CREATE_NOTE_BAD_DESCRIPTION_LEN)
+
   if (isNaN(Number(value)))
     return res.status(400).json(ANSWERS.CREATE_NOTE_VALUE_NOT_NUMBER)
 
@@ -645,6 +649,9 @@ export async function httpCreateGroup({ mod, req, res }) {
 
   if (!name || !lecturerId || !platformId)
     return res.status(400).json(ANSWERS.CREATE_GROUP_DATA_MISS);
+  
+  if(name.length > MAX_LEN_GROUP_NAME)
+  return res.status(400).json(ANSWERS.CREATE_GROUP_BAD_NAME_LEN)
 
   if (!(await platformMod.platformExist(platformId)))
     return res

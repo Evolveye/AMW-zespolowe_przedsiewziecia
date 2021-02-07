@@ -4,6 +4,8 @@ import Logger from "./src/Logger.js"
 export const PORT = 3000
 export const APP_ROOT_DIR = import.meta.url.match(/(.*)\//)[1].substr(8)
 
+export const MAX_INPUT_LEN = 255
+
 export const DEBUG = false
 export const PASSWORD_HASH = true
 

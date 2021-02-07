@@ -35,7 +35,7 @@ export async function loginMiddleware({ mod, req, res, next }) {
         userId: userObj.id
     }
 
-    console.log(mod.subcollections)
+    //console.log(mod.subcollections)
     let activeUserSession = await mod.dbManager.findObject(
         mod.subcollections.sessions,
         query)
