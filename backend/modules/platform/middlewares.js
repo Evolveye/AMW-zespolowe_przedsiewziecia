@@ -23,13 +23,13 @@ export async function httpCreateNewUser({ mod, req, res }) {
   const client = req.user;
   const { name, surname, email, roleName } = req.body;
 
- 
-  if(!isEmailValid(email))
-  return res.status(400).json(ANSWERS.CREATE_USER_BAD_EMAIL);
+
+  if (!isEmailValid(email))
+    return res.status(400).json(ANSWERS.CREATE_USER_BAD_EMAIL);
 
   if ([name, surname].some(str => str.includes(' ')))
     return res.status(400).json(ANSWERS.CREATE_USER_NAMES_WITH_SPACE)
-    
+
   const targetPlatformId = req.params.platformId;
   if (!targetPlatformId)
     return res.status(400).json(ANSWERS.CREATE_USER_NOT_PLATFORM_ID);
@@ -46,14 +46,22 @@ export async function httpCreateNewUser({ mod, req, res }) {
     surname,
     email
   );
+  const userByEmail = await mod.requiredModules.userModule.getUserByEmail(email)
+
+  if (alreadyExistUser && userByEmail) {
+    const userByEmail = await mod.requiredModules.userModule.getUserByEmail(email)
+    const userSame =
+      alreadyExistUser.name == userByEmail.name &&
+      alreadyExistUser.surname == userByEmail.surname &&
+      alreadyExistUser.email == userByEmail.email
+    if (!userSame)
+      return res.status(400).json(ANSWERS.CREATE_USER_EMAIL_IN_USE)
+  }
 
   if (alreadyExistUser) {
     const alreadyAssigned = await mod.checkUserAssigned(alreadyExistUser.id, req.params.platformId)
     if (alreadyAssigned)
-      return res.status(400).json({
-        code: 255,
-        error: "Cannot create user that already is signed to platform.",
-      });
+      return res.status(400).json(ANSWERS.CREATE_USER_ALREADY_ASSIGNED);
   }
 
   const user = // TODO: Zmienic to na fazy 

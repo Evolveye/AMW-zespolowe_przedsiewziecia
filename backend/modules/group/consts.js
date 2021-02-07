@@ -39,7 +39,7 @@ export const ANSWERS = {
     CREATE_NOTE_GROUP_NOT_EXISTS:{ code: 302, error: "Targeted group does not exist." },
     CREATE_NOTE_NOT_MEMBER:{ code: 305, error: "User is not a member of this group." },
     CREATE_NOTE_CANT_FOR_TEACHER:{code:313,error: "This user cannot get grades in group where he is an lecturer."},
-    CREATE_NOTE_BAD_DESCRIPTION_LEN:{code:327,error:`Cannot create note, because max length of note description is ${MAX_LEN_NOTE_DESCRIPTION} chars.`}
+    CREATE_NOTE_BAD_DESCRIPTION_LEN:{code:327,error:`Cannot create note, because max length of note description is ${MAX_LEN_NOTE_DESCRIPTION} chars.`},
 
     GET_ALL_PLATFORM_GROUPS_PLATFORM_NOT_EXISTS:{ code: 208, error: "Cannot find target platform, Unable to send all groups of target platform" },
     GET_ALL_PLATFORM_GROUPS_NOT_ALLOWED:{ code: 217, error: `You cannot see all of groups in platform, You dont have privilages to do int.` },

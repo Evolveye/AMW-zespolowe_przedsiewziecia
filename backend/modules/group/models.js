@@ -18,8 +18,6 @@ export class Group {
 }
 
 
-
-
 /**
  * @typedef {Grade}
  * @property {string} userId
@@ -30,8 +28,6 @@ export class Group {
  * @property {string} groupId
  *
  */
-
-
 export class Grade {
     constructor( userId, lecturer, value,groupId, { date = null, description ='' })
     {

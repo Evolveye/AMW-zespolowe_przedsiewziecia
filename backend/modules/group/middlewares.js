@@ -490,6 +490,7 @@ export async function httpGetAllMyNotes({ mod, req, res }) {
   });
 
   data = Object.values(groupsInPlatforms);
+  data.userId = client.id
 
   return res.json({ data });
 }

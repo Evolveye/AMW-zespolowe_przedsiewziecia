@@ -1,4 +1,4 @@
-import { sameWords, validateWord,randomString } from './../../src/utils.js'
+import { sameWords, validateWord,randomString, isEmailValid} from './../../src/utils.js'
 import {
   ANSWERS,
   REGISTER_RESTRICTION,
@@ -32,8 +32,6 @@ export default class User {
     this.avatar = avatar ?? `/media/image/avatarDefault.jpg`
     this.createdDatetime = Date.now()
 
-
-
   }
 
 
@@ -42,7 +40,7 @@ export default class User {
 
 
 validEmail() {
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email))
+  if (!isEmailValid(this.email))
     return ANSWERS.EMAIL_NOT_CORRECT
 }
 
@@ -56,7 +54,8 @@ validPasswords() {
     if (sameWords(this.surname, this.password))
       return ANSWERS.REGISTER_SAME_SURNAME_PASSWORD
 
-  if (!validateWord(this.password, PASSWORD_RESTRICTIONS))
+  const isOk= validateWord(this.password, PASSWORD_RESTRICTIONS)
+  if (!isOk)
     return ANSWERS.PASSWD_POLICES_ERR
 
 }

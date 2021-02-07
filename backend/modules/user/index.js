@@ -161,7 +161,7 @@ export default class UserModule extends Module {
     if (!tokenExists) return res.status(400).json(ANSWERS.TOKEN_NOT_EXIST);
 
     req.token = authenticationToken;
-    const {login,password, ...user} = await this.getUserByToken(authenticationToken);
+    const { login, password, ...user } = await this.getUserByToken(authenticationToken);
     req.user = user
 
     cb(req, res, next);
@@ -459,6 +459,11 @@ export default class UserModule extends Module {
 
     return user;
   }
+
+
+  getUserByEmail = (email) => this.dbManager.findOne(this.basecollectionName, {
+    email: { $eq: email }
+  })
 
   /**@returns {string}  Name of class */
   toString = () => this.constructor.toString();

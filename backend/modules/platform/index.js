@@ -259,7 +259,7 @@ export default class PlatformModule extends Module {
   canCreatePlatform = async (userId) => {
     const countPlatforms = await this.dbManager
       .findManyObjects(this.basecollectionName, { "owner.id": { $eq: userId } })
-      .then((cursor) => cursor.count());
+      .then(cursor => cursor.length);
     return countPlatforms < MAX_PLATFORM_NUMBER;
   };
 

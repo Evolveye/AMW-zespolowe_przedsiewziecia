@@ -43,7 +43,7 @@ export const isEveryDigit = (n) => n.split('').every(char => isDigit(char))
 export const isEveryUpper = (n) => n.split('').every(char => char === char.toUpperCase())
 export const isEveryLowwer = (n) => n.split('').every(char => char === char.toLowerCase())
 export const notContainDigit = (n) => n.split('').every(char => !isDigit(char))
-export const isEmailValid = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+export const isEmailValid = (email) => /[a-z]\w+@[a-z]\w+\.[a-z]{2,}/i.test(email)
 
 
 
@@ -89,7 +89,9 @@ export const validateWord = (word, { minLen, maxLen, bannedChars, bannedWords, r
 
 
 export function randomString(numbersCount = 10, chars_Count = 5) {
-  const alphabet = `abcdefghijklmnouprstwxyz!@#$%&`
+  const alphabet = `abcdefghijklmnouprstwxyz!@#$%^&*-+<>`
+  const specChars = `!@#$%^&*-+<>`
+
   const { random, floor } = Math
   const rand = str => floor(random() * str.length)
 
@@ -109,7 +111,23 @@ export function randomString(numbersCount = 10, chars_Count = 5) {
 
     password = password.slice(0, index) + char + password.slice(index)
   }
+
+  const passwContainSpecChar = password.split('').some(char => specChars.split('').some(spec => spec === char))
+  if (!passwContainSpecChar)
+    password = changeCharInString(
+      password,
+      Math.random().toString()[4],
+      specChars[Math.random().toString()[4]]
+    )
+
   return password
+}
+
+export function changeCharInString(string, index, newChar) {
+  let str = string.split('');
+  str[index] = newChar;
+  str = str.join('');
+  return str
 }
 
 export function random(min = 0, max = 9) {
