@@ -81,7 +81,7 @@ export default ({ children, className = `` }) => {
 
           <h2>Grupy</h2>
           <ul className="list">
-            {groupsLis.length ? groupsLis : "Nie należysz do zadnej grupy"}
+            {groupsLis.length ? groupsLis : "Nie należysz do żadnej grupy"}
           </ul>
         </nav>
 
