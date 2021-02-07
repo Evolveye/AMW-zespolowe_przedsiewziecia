@@ -25,7 +25,7 @@ export async function loginMiddleware({ mod, req, res, next }) {
 
     let userObj = await mod.dbManager.findOne(mod.basecollectionName, { login: { $eq: login }, password: { $eq: password } })
 
-   // userObj = await dbManager.findOne(`users`, { login: { $eq: login }, password: { $eq: password } })
+    // userObj = await dbManager.findOne(`users`, { login: { $eq: login }, password: { $eq: password } })
 
 
     if (!userObj) return res.status(401).json(ANSWERS.USER_NOT_EXIST)
@@ -61,9 +61,9 @@ export async function loginMiddleware({ mod, req, res, next }) {
         mod.subcollections.sessions,
         activeSession)
 
-  //  await mod.dbManager.insertObject(subcollections.sessions, activeSession)
+    //  await mod.dbManager.insertObject(subcollections.sessions, activeSession)
 
-   return res.json({ token })
+    return res.json({ token })
 }
 
 
@@ -105,12 +105,17 @@ export async function registerMiddleware({ mod, req, res }) {
         if (mess) return res.status(400).json(mess)
     }
 
+    const userByEmail = mod.getUserByEmail(email)
+
+    if (userByEmail)
+        return res.status(400).json(ANSWERS.REGISTER_EMAIL_IN_USE)
+
     await mod.saveUserInDb(user)
     emailManager.sendAcctivationEmail(user)
 
     delete user.password
 
-   return res.json({ user })
+    return res.json({ user })
 }
 
 
@@ -124,7 +129,7 @@ export async function createUserMiddleware({ req, res }) {
 
 
     if ([name, surname].some(str => str.includes(' ')))
-    return res.status(400).json(ANSWERS.CREATE_USER_NAMES_WITH_SPACE)
+        return res.status(400).json(ANSWERS.CREATE_USER_NAMES_WITH_SPACE)
 
 
     if (!(name && surname && email)) return res.status(400).json(ANSWERS.CREATE_CREDENTIAL_NOT_PROVIDED)

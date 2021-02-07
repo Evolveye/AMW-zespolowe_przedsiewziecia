@@ -341,6 +341,9 @@ export default class PlatformModule extends Module {
     return platform.membersIds.some((id) => id === userId);
   }
 
+  getPlatfromByName=(name)=>
+  this.dbManager.findOne(this.basecollectionName,{name:{$eq:name}})
+
   getAllTemplatePerms = (platformId) =>
     this.dbManager.findManyObjects(this.subcollections.templatesPerm, {
       referenceId: { $eq: platformId },

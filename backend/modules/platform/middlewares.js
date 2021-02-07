@@ -257,6 +257,10 @@ export async function httpCreatePlatform({ mod, req, res }) {
 
   if (!name) return res.status(400).json(ANSWERS.CREATE_PLATFORM_NOT_NAME);
 
+  const platfromByName= await mod.getPlatfromByName(name)
+  if(platfromByName)
+  return res.status(400).json(ANSWERS.CREATE_PLATFROM_NAME_DUPLICATE);
+
   if (!DEBUG)
     if (!(await mod.canCreatePlatform(req.user.id)))
       return res.status(400).json(ANSWERS.CREATE_PLATFORM_LIMIT);

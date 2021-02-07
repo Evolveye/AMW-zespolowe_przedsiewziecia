@@ -1,4 +1,4 @@
-export const MAX_PLATFORM_NUMBER = 1
+export const MAX_PLATFORM_NUMBER = 2
 
 export const CREATE_USER_EMAIL_CONTENT = {
     titleText: "Portal edukacyjny - utworzono dla Ciebie konto.",
@@ -43,7 +43,7 @@ export const ANSWERS = {
 
     CREATE_PLATFORM_NOT_NAME: { code: 203, error: "Platform name not provided." },
     CREATE_PLATFORM_LIMIT: { code: 210, error: "You have already an your own platform." },
-
+    CREATE_PLATFROM_NAME_DUPLICATE:{code:219,error:"Platfrom name already is assigned, please choose diffrent name for your platform."},
 
     DELETE_PLATFORM_PLATFORM_NOT_EXISTS: { code: 208, error: "Cannot delete not existing platform." },
     DELETE_PLATFORM_NOT_ALLOWED: { code: 209, error: "You dont have privilages to create new users on mod platform." },

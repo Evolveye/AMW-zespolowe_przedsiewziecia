@@ -33,6 +33,7 @@ export const ANSWERS = { // error - success
     REGISTER_SAME_SURNAME_PASSWORD:  { code:120, error:"Password and surname can not be the same" },
     REGISTER_NAMES_POLICES_ERR:      { code:121, error:"Provided name or surname dont mach restrictions." },
     REGISTER_CREDENTIAL_NOT_PROVIDED:{ code:122, error:`Registeration process failed, Missing data in request. Provide fully correct data set. `},
+    REGISTER_EMAIL_IN_USE:           { code:124, error:"User with provided email already exists in PE. Click remind password to restore your account."},
 
     CREATE_CREDENTIAL_NOT_PROVIDED:  { code:123, error:"Name surname or email is empty." },
 }
