@@ -21,13 +21,13 @@ export default class Notes extends React.Component {
       headers: { Authentication: `Bearer ${getToken()}` },
     })
       .then(res => res.json())
-      .then(({ code, error, data }) => {
+      .then(({ code, error, data, userId }) => {
         if (error) {
           return console.error({ code, error })
         }
 
         const platformsList = data.map(({ platform, groups }) => (
-          <button key={platform.id} onClick={() => this.showNotesTable(groups)}>
+          <button key={platform.id} onClick={() => this.showNotesTable(groups, userId)}>
             {platform.name}
           </button>
         ))
@@ -36,10 +36,23 @@ export default class Notes extends React.Component {
       })
   }
 
-  showNotesTable = groups => {
+  showNotesTable = (groups, myId) => {
+    const myNotes = groups.filter( ({ notes }) => {
+      for (const { user } of notes)
+        if (user.id != myId) return false
+
+      return true
+    } )
+    // const studentsNotes = groups.filter( ({ notes }) => {
+    //   for (const { lecturer } of notes)
+    //     if (lecturer.id != myId) return false
+
+    //   return true
+    // } )
+
     this.setState({
       notesTable: (
-        <table>
+        <table className="table">
           <thead className="thead">
             <tr>
               <td>Nazwa grupy</td>
@@ -49,7 +62,7 @@ export default class Notes extends React.Component {
             </tr>
           </thead>
           <tbody>
-            {groups.map(({ group, notes }) => {
+            {myNotes.map(({ group, notes }) => {
               const average = notes.length === 0 ? ` - ` :
                 notes.reduce((sum, { value }) => sum + Number(value), 0) /
                 notes.length
