@@ -15,14 +15,14 @@ export default () => {
   )}&groupId=${query.get("groupId")}`
   const url = URLS.MEET$ID_GET.replace(`:meetId`, query.get(`meetId`))
 
-  const [link, setLink] = useState(
-    (authFetch({ url }) || { meet: {} }).meet.externalUrl
+  const [meet, setMeet] = useState(
+    (authFetch({ url }) || { meet: {} }).meet
   )
 
   useEffect(() => {
     authFetch({
       url,
-      cb: ({ meet }) => setLink(meet.externalUrl),
+      cb: ({ meet }) => setMeet(meet),
     })
   }, [url])
 
@@ -33,7 +33,8 @@ export default () => {
       </Link>
 
       <h1>Spotkanie</h1>
-      <div><a href={link} target="_blank" rel="noreferrer">Link do spotkania</a></div>
+      <div><a href={meet.externalUrl} target="_blank" rel="noreferrer">Link do spotkania</a></div>
+      <p>{meet.description}</p>
     </Layout>
   )
 }
