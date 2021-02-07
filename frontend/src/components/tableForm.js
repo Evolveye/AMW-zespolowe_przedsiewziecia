@@ -171,9 +171,7 @@ export default class TableForm extends React.Component {
       if (colSpan) i += colSpan - 1
       if (customInputField) {
         if (!(`props` in customInputField)) customInputField.props = {}
-        if (
-          [`string`, `function`].includes(typeof customInputField.component)
-        ) {
+        if (typeof customInputField.component == `string`) {
           element = (
             <customInputField.component
               name={objectFieldName}
