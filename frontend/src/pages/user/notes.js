@@ -39,7 +39,7 @@ export default class Notes extends React.Component {
   showNotesTable = (groups, myId) => {
     const myNotes = groups.filter( ({ notes }) => {
       for (const { user } of notes)
-        if (user.id != myId) return false
+        if (user.id !== myId) return false
 
       return true
     } )
