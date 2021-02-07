@@ -94,7 +94,7 @@ export function memoizedFetch({
       if (data.error) {
         const { code, error } = data
 
-        if (ERRORS[code] === undefined) console.error({ code, error })
+        if (ERRORS[code] === undefined) console.error(error)
 
         return
       }

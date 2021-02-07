@@ -9,8 +9,8 @@ import Layout from "./layout.js"
 import FlatTile from "../models/flatTile.js"
 
 const menyItems = [
-  { urn: `settings`, name: `Ustawienia ogólne` },
-  { urn: `users`, name: `Użytkownicy` },
+  { urn: `settings`, name: `Ustawienia ogólne`, permName:`canEditDetails` },
+  { urn: `users`, name: `Użytkownicy`, permName:`canManageUsers` },
 ]
 
 const participantsLisMap = ({ id, name, surname, avatar }) => (
@@ -67,16 +67,19 @@ export default ({ children, className = `` }) => {
     <AuthorizedContent>
       <Layout className="main_wrapper-splited">
         <nav className="main_wrapper-splited-left_column">
-          <h2>Panel ustawień</h2>
-
-          <ul className="list">{menuLis}</ul>
-
-          <hr />
+          {
+            menuLis.length ? (
+              <>
+              <h2>Panel ustawień</h2>
+              <ul className="list">{menuLis}</ul>
+              <hr />
+              </>
+            ) : null
+          }
 
           <h2>Lista uczestników</h2>
           <ul className="list">
             {participantsLis}
-            {/* <li className="list-item">Jakiś random</li> */}
           </ul>
         </nav>
 

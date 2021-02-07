@@ -66,7 +66,8 @@ const URLS = {
   MEET$ID_USERS_POST: `${HOST}/api/meets/:meetId/users`,
   MEET$ID_USERS_GET: `${HOST}/api/meets/:meetId/users`,
   MEET$ID_USERS$ID_DELETE: `${HOST}/api/meets/:meetId/users/:userId`,
-
+  MEET$ID_PERMISSIONS_GET: `${HOST}/api/meets/:meetId/permissions`,
+  MEET$ID_PERMISSIONS_MY_GET: `${HOST}/api/meets/:meetId/permissions/my`,
 }
 
 export default new Proxy( URLS, {

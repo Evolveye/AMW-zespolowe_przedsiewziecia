@@ -73,10 +73,13 @@ export default ({ children, className = `` }) => {
     <AuthorizedContent>
       <Layout className="main_wrapper-splited">
         <nav className="main_wrapper-splited-left_column">
-          <h2>Panel ustawień</h2>
-          <ul className="list">{menuLis}</ul>
-
-          <hr />
+          {menuLis.length ? (
+            <>
+              <h2>Panel ustawień</h2>
+              <ul className="list">{menuLis}</ul>
+              <hr />
+            </>
+          ) : null}
 
           <h2>Spotkania</h2>
           <ul className="list">{meetsLis}</ul>

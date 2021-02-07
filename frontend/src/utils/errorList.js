@@ -1,7 +1,8 @@
 import React from "react"
 import { logout } from "./auth"
 
-const DEFAULT_ERROR = <>Coś poszło nie tak</>
+export const DEFAULT_ERROR = <>Coś poszło nie tak</>
+
 const ERRORS = {
   100: (
     <>
@@ -30,7 +31,5 @@ export default new Proxy(ERRORS, {
     if (code in ERRORS) return ERRORS[code]
 
     console.info(`NIEOBSŁUGIWANY KOD BŁĘDU: ${code}`)
-
-    return DEFAULT_ERROR
   },
 })

@@ -101,13 +101,9 @@ export function getGroupPerms(groupId, cb) {
 }
 
 export function getMeetPerms(meetId, cb) {
-  return new Proxy({}, {
-    get(perm, key) {
-      if (perm.isMaster) return true
+  const url = URLS.MEET$ID_PERMISSIONS_MY_GET.replace(`:meetId`, meetId)
 
-      return perm[key] || false
-    },
-  })
+  return getPerms(url, cb)
 }
 
 export function isLoggedIn() {
