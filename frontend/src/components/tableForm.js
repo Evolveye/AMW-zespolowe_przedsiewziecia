@@ -5,35 +5,38 @@ import { getToken } from "../utils/auth.js"
 import ERRORS from "../utils/errorList.js"
 import { isBrowser, fetchWithStatusProcessing } from "../utils/functions.js"
 
+// TODO cały komponent do przerobienia
 export default class TableForm extends React.Component {
   state = {
     error: ``,
     rows: [],
     data: [],
+    creatingLis: [],
+    creationAllowed: true,
   }
 
   onFillListeners = []
-  creatingLis = []
 
   componentDidMount() {
+    this.setCreatingElements()
+
     fetchWithStatusProcessing(this.props.fetchGetAddress, {
       method: `GET`,
       headers: { Authentication: `Bearer ${getToken()}` },
+    }).then(data => {
+      if (data.error) {
+        const { code, error } = data
+        return console.error({ code, error })
+      }
+
+      if (data.success) {
+        const { code, success } = data
+        return console.info({ code, success })
+      }
+
+      this.addToTable(data[this.props.responseGetDataName])
+      this.onFillListeners.forEach(({ ref, field }) => ref.current[field]())
     })
-      .then(data => {
-        if (data.error) {
-          const { code, error } = data
-          return console.error({ code, error })
-        }
-
-        if (data.success) {
-          const { code, success } = data
-          return console.info({ code, success })
-        }
-
-        this.addToTable(data[this.props.responseGetDataName])
-        this.onFillListeners.forEach(({ ref, field }) => ref.current[ field ]() )
-      })
   }
 
   updateNewField = e => {
@@ -52,26 +55,28 @@ export default class TableForm extends React.Component {
         method: `DELETE`,
         headers: { Authentication: `Bearer ${getToken()}` },
       }
-    )
-      .then(({ code, error, success }) => {
-        if (error) {
-          return console.error({ code, error })
-        }
+    ).then(({ code, error, success }) => {
+      if (error) {
+        return console.error({ code, error })
+      }
 
-        if (success) {
-          this.setState(old => ({
-            rows: old.rows.filter(({ key }) => key !== id),
-          }))
+      if (success) {
+        this.setState(old => ({
+          rows: old.rows.filter(({ key }) => key !== id),
+        }))
 
-          this.onFillListeners.forEach(({ ref, field }) => ref.current[ field ]() )
+        this.onFillListeners.forEach(({ ref, field }) => ref.current[field]())
 
-          return console.info({ code, success })
-        }
-      })
+        return console.info({ code, success })
+      }
+    })
   }
 
   sendCreationData = () => {
-    const { error, rows, data, ...fieldsData } = this.state
+    const { error, rows, data, creatingLis, creationAllowed, ...fieldsData } = this.state
+
+    this.setCreatingElements()
+    this.setState({ creationAllowed:false })
 
     fetchWithStatusProcessing(this.props.fetchPostAddress, {
       method: `POST`,
@@ -80,29 +85,30 @@ export default class TableForm extends React.Component {
         "Content-Type": `application/json`,
       },
       body: JSON.stringify({ ...fieldsData, ...this.props.staticPostBodyData }),
+    }).then(data => {
+      this.setState({ creationAllowed:true })
+
+      if (data.error) {
+        const { code, error } = data
+
+        console.error({ code, error })
+
+        return this.setState({ error: ERRORS[data.code] })
+      }
+
+      if (data.success) {
+        //TODO get value from every cell and make new row
+        const { code, success } = data
+
+        console.info({ code, success })
+
+        return isBrowser() && window.location.reload()
+      }
+
+      if (this.props.responsePostDataName) {
+        this.addToTable(data[this.props.responsePostDataName])
+      }
     })
-      .then(data => {
-        if (data.error) {
-          const { code, error } = data
-
-          console.error({ code, error })
-
-          return this.setState({ error: ERRORS[data.code] })
-        }
-
-        if (data.success) {
-          //TODO get value from every cell and make new row
-          const { code, success } = data
-
-          console.info({ code, success })
-
-          return isBrowser() && window.location.reload()
-        }
-
-        if (this.props.responsePostDataName) {
-          this.addToTable(data[this.props.responsePostDataName])
-        }
-      })
   }
 
   /** @param {object[]} itemOrItems */
@@ -139,15 +145,21 @@ export default class TableForm extends React.Component {
     }))
   }
 
-  configureBeforeRender() {
+  setCreatingElements = () => {
+    const creatingLis = []
+
     for (let i = 0; i < this.props.objectsFields.length; ++i) {
       const objectField = this.props.objectsFields[i]
       const objectFieldName = objectField.name || objectField
 
-      const customInputField = this.props.inputFieldsComponents?.[objectFieldName]
+      const customInputField = this.props.inputFieldsComponents?.[
+        objectFieldName
+      ]
       const colSpan = this.props.colSpans?.[objectFieldName]
 
-      let element = <input onChange={this.updateNewField} name={objectFieldName} />
+      let element = (
+        <input onChange={this.updateNewField} name={objectFieldName} />
+      )
 
       if (colSpan) i += colSpan - 1
       if (customInputField) {
@@ -182,9 +194,9 @@ export default class TableForm extends React.Component {
         }
       }
 
-      this.creatingLis.push(
+      creatingLis.push(
         <td
-          key={objectFieldName}
+          key={`${Date.now()}.${Math.random()}`}
           colSpan={colSpan}
           className="inputCell"
         >
@@ -192,44 +204,42 @@ export default class TableForm extends React.Component {
         </td>
       )
     }
+
+    this.setState({ creatingLis })
   }
 
-  render = () => {
-    if (!this.creatingLis.length) this.configureBeforeRender()
+  render = () => (
+    <table className="table">
+      <thead className="thead">
+        <tr>
+          {this.props.titleFields.map(field => (
+            <td key={field}>{field}</td>
+          ))}
 
-    return (
-      <table className="table">
-        <thead className="thead">
-          <tr>
-            {this.props.titleFields.map(field => (
-              <td key={field}>{field}</td>
-            ))}
+          <td>Akcja</td>
+        </tr>
+      </thead>
 
-            <td>Akcja</td>
-          </tr>
-        </thead>
+      <tbody>
+        <tr>
+          {this.state.creatingLis}
 
-        <tbody>
-          <tr>
-            {this.creatingLis}
+          <td>
+            <button type="button" onClick={this.sendCreationData} disabled={!this.state.creationAllowed}>
+              Dodaj do platformy
+            </button>
+          </td>
+        </tr>
 
-            <td>
-              <button type="button" onClick={this.sendCreationData}>
-                Dodaj do platformy
-              </button>
-            </td>
-          </tr>
+        <tr className="emptyRow">
+          <td colSpan="5">{this.state.error}</td>
+        </tr>
+        <tr className="emptyRow" />
 
-          <tr className="emptyRow">
-            <td colSpan="5">{this.state.error}</td>
-          </tr>
-          <tr className="emptyRow" />
-
-          {this.state.rows}
-        </tbody>
-      </table>
-    )
-  }
+        {this.state.rows}
+      </tbody>
+    </table>
+  )
 }
 
 TableForm.propTypes = {
