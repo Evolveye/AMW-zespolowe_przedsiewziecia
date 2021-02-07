@@ -3,8 +3,15 @@ import { getToken } from "../utils/auth.js"
 import { fetchWithStatusProcessing } from "../utils/functions.js"
 
 export default class Select extends React.Component {
+  emptyOption = (
+    <option key="empty" value="">
+      {" "}
+      -- brak opcji --{" "}
+    </option>
+  )
+
   state = {
-    options: [<option key="empty">empty</option>],
+    options: [this.emptyOption],
   }
 
   ref = React.createRef()
@@ -49,6 +56,9 @@ export default class Select extends React.Component {
             {text}
           </option>
         ))
+      )
+      .then(options =>
+        options.length ? options : options.concat([this.emptyOption])
       )
       .then(options => this.setState({ options }))
       .then(() => onChange && onChange(this.ref.current))
