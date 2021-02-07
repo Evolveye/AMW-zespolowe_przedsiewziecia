@@ -73,10 +73,17 @@ export default class TableForm extends React.Component {
   }
 
   sendCreationData = () => {
-    const { error, rows, data, creatingLis, creationAllowed, ...fieldsData } = this.state
+    const {
+      error,
+      rows,
+      data,
+      creatingLis,
+      creationAllowed,
+      ...fieldsData
+    } = this.state
 
     this.setCreatingElements()
-    this.setState({ creationAllowed:false })
+    this.setState({ creationAllowed: false })
 
     fetchWithStatusProcessing(this.props.fetchPostAddress, {
       method: `POST`,
@@ -86,7 +93,7 @@ export default class TableForm extends React.Component {
       },
       body: JSON.stringify({ ...fieldsData, ...this.props.staticPostBodyData }),
     }).then(data => {
-      this.setState({ creationAllowed:true })
+      this.setState({ creationAllowed: true })
 
       if (data.error) {
         const { code, error } = data
@@ -164,7 +171,9 @@ export default class TableForm extends React.Component {
       if (colSpan) i += colSpan - 1
       if (customInputField) {
         if (!(`props` in customInputField)) customInputField.props = {}
-        if (typeof customInputField.component === `string`) {
+        if (
+          [`string`, `function`].includes(typeof customInputField.component)
+        ) {
           element = (
             <customInputField.component
               name={objectFieldName}
@@ -225,7 +234,11 @@ export default class TableForm extends React.Component {
           {this.state.creatingLis}
 
           <td>
-            <button type="button" onClick={this.sendCreationData} disabled={!this.state.creationAllowed}>
+            <button
+              type="button"
+              onClick={this.sendCreationData}
+              disabled={!this.state.creationAllowed}
+            >
               Dodaj do platformy
             </button>
           </td>
