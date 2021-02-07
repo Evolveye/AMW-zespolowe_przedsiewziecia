@@ -44,6 +44,8 @@ export default class PlatformUsers extends React.Component {
         deleteIdParameterName=":userId"
         responseGetDataName="users"
         responsePostDataName="user"
+        buttonAdd="Dodaj do platformy"
+        buttonDelete="Usuń z platformy"
         staticPostBodyData={{ platformId: this.platformId }}
         objectsFields={[
           `name`,

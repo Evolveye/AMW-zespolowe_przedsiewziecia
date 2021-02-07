@@ -39,6 +39,8 @@ export default class PlatformGroups extends React.Component {
         fetchDeleteAddress={URLS.GROUP$ID_USERS$ID_DELETE}
         deleteIdParameterName=":userId"
         responseGetDataName="users"
+        buttonAdd="Dodaj do grupy"
+        buttonDelete="Usuń z grupy"
         staticPostBodyData={{ groupId: this.groupId }}
         objectsFields={[`name`, `surname`,
           { name: `perms`, processor: ({ name }) => translateRole( name ) },

@@ -34,13 +34,15 @@ export default () => {
         deleteIdParameterName=":noteId"
         responseGetDataName="notes"
         responsePostDataName="note"
+        buttonAdd="Dodaj ocenę"
+        buttonDelete="Usuń ocenę"
         staticPostBodyData={{}}
         objectsFields={[
           `value`,
           `description`,
           { name: `user`, processor: obj => `${obj.name} ${obj.surname}` },
         ]}
-        titleFields={[`Wartość`, `Opis`, `Student`]}
+        titleFields={[`Wartość całkowita`, `Opis`, `Student`]}
         inputFieldsComponents={{
           user: {
             component: Select,

@@ -42,6 +42,8 @@ export default class PlatformGroups extends React.Component {
         deleteIdParameterName=":groupId"
         responseGetDataName="groups"
         responsePostDataName="group"
+        buttonAdd="Dodaj do platformy"
+        buttonDelete="Usuń z platformy"
         staticPostBodyData={{ platformId: this.platformId }}
         objectsFields={[
           `name`,

@@ -139,7 +139,7 @@ export default class TableForm extends React.Component {
 
           <td>
             <button type="button" onClick={() => this.deleteRow(obj.id)}>
-              Usuń z platformy
+              {this.props.buttonDelete}
             </button>
           </td>
         </tr>
@@ -239,7 +239,7 @@ export default class TableForm extends React.Component {
               onClick={this.sendCreationData}
               disabled={!this.state.creationAllowed}
             >
-              Dodaj do platformy
+              {this.props.buttonAdd}
             </button>
           </td>
         </tr>
@@ -264,6 +264,9 @@ TableForm.propTypes = {
   responseGetDataName: PropTypes.string.isRequired,
   responsePostDataName: PropTypes.string,
   staticPostBodyData: PropTypes.objectOf(PropTypes.string).isRequired,
+
+  buttonAdd: PropTypes.string.isRequired,
+  buttonDelete: PropTypes.string.isRequired,
 
   objectsFields: PropTypes.array.isRequired,
   titleFields: PropTypes.array.isRequired,
