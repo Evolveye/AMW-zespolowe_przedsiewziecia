@@ -1,8 +1,11 @@
 export const MAX_PLATFORM_NUMBER = 1
 
 export const CREATE_USER_EMAIL_CONTENT = {
-    emailTitleText:"Portal edukacyjny - utworzono konto dla Ciebie.",
-    emailHtmlText: `<h1><a href="http://localhost:3000"> Przejdz do portalu.</a></h1>`
+    titleText:"Portal edukacyjny - utworzono dla Ciebie konto.",
+    bodyHtml: `
+    W serwisie Platforma Edukacyjna, ktoś dodał Ciebie do listy członków swojej oragnizacji.</br>
+    Aby zalogować się na nowo utworzone konto, zaloguj się <a href="http://localhost:3000">tutaj</a>, korzystając z poniższych danych:</br>
+    `
 }
 
 export const ANSWERS = {
@@ -22,6 +25,8 @@ export const ANSWERS = {
     CREATE_USER_NOT_PLATFORM_ID : { code: 230, error: "Not provided data - platformId" },
     CREATE_USER_PLATFORM_NOT_EXIST: { code: 208, error: "Cannot create new User. Bacause target platform does not exist." },
     CREATE_USER_NO_PERMS_IN_REQ : { code: 213, error: "Permission not found, please create permission on your platform, then assign to user." },
+    CREATE_USER_NAMES_WITH_SPACE : { code: 214, error: "User name or surname contain space, char(0x32). Please insert correct data." },
+    CREATE_USER_BAD_EMAIL:{code:215,error:"Provided email is not valid. Please provide a correct email."},
     
     GET_PERMS_NOT_MEMBER:{code:233,error:"You are not a member of target platform, cannot get permissions from specifed pe."},
     GET_MY_PERMS_NO_FOUND : {code:299,error:"Provided userId is not assign to platform. Privilages not found."},

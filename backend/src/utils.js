@@ -43,6 +43,9 @@ export const isEveryDigit = (n) => n.split('').every(char => isDigit(char))
 export const isEveryUpper = (n) => n.split('').every(char => char === char.toUpperCase())
 export const isEveryLowwer = (n) => n.split('').every(char => char === char.toLowerCase())
 export const notContainDigit = (n) => n.split('').every(char => !isDigit(char))
+export const isEmailValid = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+
+
 
 /**
  * @param {string} word1
@@ -86,7 +89,7 @@ export const validateWord = (word, { minLen, maxLen, bannedChars, bannedWords, r
 
 
 export function randomString(numbersCount = 10, chars_Count = 5) {
-  const alphabet = `abcdefghijklmnouprstwxyz!@#$%^&*()<>`
+  const alphabet = `abcdefghijklmnouprstwxyz!@#$%&`
   const { random, floor } = Math
   const rand = str => floor(random() * str.length)
 
@@ -113,7 +116,7 @@ export function random(min = 0, max = 9) {
   return Math.floor(Math.random() * (max - min + 1)) + min
 }
 
-export function validateDate(date,maxYearsAhead) {
+export function validateDate(date, maxYearsAhead) {
   const now = Date.now()
   const year = 1000 * 60 * 60 * 24 * 365
 

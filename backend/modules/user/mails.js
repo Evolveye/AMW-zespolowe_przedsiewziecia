@@ -1,5 +1,5 @@
 import nodemail from "nodemailer"
-
+// import {EMAIL} from './consts.js'
 // TODO, potrzebuje sprawdzac w db, czy user juz zostal aktywowany.
 
 import {
@@ -9,6 +9,7 @@ import {
   EMAIL,
   REFRESHING_INTERVAL_TIME_IN_MINUTES,
   PASSW_RESET_FRONT_ADDR,
+  ONE_MINUTE,
 } from "./consts.js"
 
 class EmailManager {
@@ -139,7 +140,11 @@ class EmailManager {
       from: EMAIL.GMAIL_USER_NAME,
       to: email,
       subject: EMAIL.PASSWORD_RESET_SUBJECT,
-      html: `<h1><a href="${PASSW_RESET_FRONT_ADDR}?code=${uniqueId}"> Click to reset your password. </a></h1> `,
+      html: `
+      <h1>
+      <a href="${PASSW_RESET_FRONT_ADDR}?code=${uniqueId}"> Kliknij aby zrezetować hasło. </a>
+      </h1> 
+      `,
     }
     const emailCollObj = {
       EMAIL_OPTIONS: mailOptions,
@@ -171,12 +176,19 @@ class EmailManager {
    * @param {string} email User personal e-mail.
    * @param {number} userID User login.
    */
-  sendAcctivationEmail(name, email, userID) {
+  sendAcctivationEmail(userObj) {
     const mailOptions = {
       from: EMAIL.GMAIL_USER_NAME,
-      to: email,
+      to: userObj.email,
       subject: EMAIL.ACCTIVATE_ACCOUNT_SUBJECT,
-      html: `<h1><a href="${ACTIVATE_FRONT_ADDR}?code=${userID}"> Click to acctivate your account. </a></h1> `,
+      html: `
+      <h2>Twój login do platformy: ${userObj.login}</h2>
+      <p>Na aktywację konta masz ${(EMAIL.ACTIVATION_EXPIRE_TIME)/ONE_MINUTE} minut
+      (do ${new Date(new Date().getTime() +EMAIL.ACTIVATION_EXPIRE_TIME ).toLocaleTimeString('pl-PL').slice(0,5)}).</p>
+      <p>Kilknij <a href="${ACTIVATE_FRONT_ADDR}?code=${userObj.id}">TUTAJ</a> aby aktywować konto. </p>
+      <br/><br/>
+      <small>Jeśli nie zakładałeś konta na portalu edukacyjnym, zignoruj tego e-mail.</small>
+      `,
     }
 
     this.#transporter.sendMail(mailOptions, (err, info) => {
@@ -186,10 +198,10 @@ class EmailManager {
         const emailCollObj = {
           EMAIL_OPTIONS: mailOptions,
           SEND_DATE: Date.now(),
-          USER_ID: userID,
+          USER_ID: userObj.id,
         }
         this.#acctivateCollection.push(emailCollObj)
-        console.log(`Email succesfully. USER LOGIN ${userID} E-MAIL ${emailCollObj.EMAIL_OPTIONS.to}`)
+        console.log(`Email succesfully. USER LOGIN ${userObj.login} E-MAIL ${userObj.email}`)
       }
     })
   }

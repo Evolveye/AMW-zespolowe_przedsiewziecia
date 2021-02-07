@@ -29,6 +29,8 @@ export default {
     GET_GROUP_NOTES_GROUP_NOT_EXISTS:{ code: 302, error: "Targeted group does not exist." },
     GET_GROUP_NOTES_NOT_ASSIGNED:{ code: 305, error: "Only member or Platform owner can see all notes" },
     
+    CREATE_NOTE_DATA_NOT_PROVIDED:{code:323,error:"Cannot create note, because value/userId is not provided."},
+    CREATE_NOTE_VALUE_NOT_NUMBER:{code:324,error:"Cannot create note, because value is not a intiger."},
     CREATE_NOTE_NOT_ALLOWED:{ code: 322, error: `Only group member with canManageNotes privilages can create new notes.` },
     CREATE_NOTE_GROUP_NOT_EXISTS:{ code: 302, error: "Targeted group does not exist." },
     CREATE_NOTE_NOT_MEMBER:{ code: 305, error: "User is not a member of this group." },
@@ -47,5 +49,19 @@ export default {
     ADD_GROUP_MEMBER_ALREADY_ADDED:{ code: 321, success: `All selected users are already assigned in group.` },
     ADD_GROUP_MEMBER_PARTLY_SUCCESS:{ code: 320, success: "Not all of users was assigned to group. Because not all of users are targeted platfrom member." },
     ADD_GROUP_MEMBER_SUCCESS:{ code: 302, success: "Succesfully assigned users to group." },
+
+    GET_NOTES_FROM_GROUP_VER_PRIVILAGES_BAD_GROUP_ID: { code: 389, error: "cannot find group or groupId, check that groupId is correct" },
+
+    GET_NOTES_FROM_GROUP_MISS_GROUP_ID: { code: 395, error: "groupId not privided in params." },
+
+    CREATE_GROUP_NOT_ALLOWED:{ code: 312, error: `Your role in platform dont allow you to create groups.` },
+    CREATE_GROUP_DATA_MISS:{ code: 222, error: "Can not create platform, not   all credentials are provided."  },
+    CREATE_GROUP_PLATFROM_NOT_EXISTS:{ code: 207, error: "Platform does not exist" },
+    CREATE_GROUP_DUPLICATE:{ code: 355, error: "Group name duplicate - cannot create group with name that already is used."},
+
+    GET_TEMPLATE_PERMS_MISS_GROUP_ID:{ code: 334, error: "Cannot find groupId in request params." },
+    GET_TEMPLATE_PERMS_NOT_ALLOWED:{ code: 333, erorr: "can not get list of group perms, because u are not  -> PE master or group member." }
     
+
+
 }

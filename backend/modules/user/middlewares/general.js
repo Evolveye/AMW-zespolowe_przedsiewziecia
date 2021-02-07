@@ -106,8 +106,7 @@ export async function registerMiddleware({ mod, req, res }) {
     }
 
     await mod.saveUserInDb(user)
-
-    emailManager.sendAcctivationEmail(user.name, user.email, user.login)
+    emailManager.sendAcctivationEmail(user)
 
     delete user.password
 
@@ -122,6 +121,11 @@ export async function registerMiddleware({ mod, req, res }) {
  * */
 export async function createUserMiddleware({ req, res }) {
     const { name, surname, email } = req.body
+
+
+    if ([name, surname].some(str => str.includes(' ')))
+    return res.status(400).json(ANSWERS.CREATE_USER_NAMES_WITH_SPACE)
+
 
     if (!(name && surname && email)) return res.status(400).json(ANSWERS.CREATE_CREDENTIAL_NOT_PROVIDED)
 
@@ -170,10 +174,6 @@ export async function acctivateAccountMiddleware({ mod, req, res }) {
         { $set: { activated: true } }
     )
 
-    // await dbManager.updateObject(mod.basecollectionName,
-    //     { login: targetUser.login, },
-    //     { $set: { activated: true } }
-    // )
 
     mod.logger(`ACTIVATE USER: ${targetUser.name} ${targetUser.surname}`)
     return res.status(200).json(ANSWERS.ACCOUNT_ACTIVATION_SUCCESS)

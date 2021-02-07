@@ -59,7 +59,7 @@ export default class PlatformModule extends Module {
       [
         `/platforms/:platformId`,
         {
-          delete: auth(this.runMid(m.httpDeletePlatform)),
+          delete: auth(this.perms(this.runMid(m.httpDeletePlatform))),
         },
       ],
 

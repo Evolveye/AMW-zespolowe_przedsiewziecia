@@ -164,7 +164,7 @@ export async function httpHandleAllUsersInGroup({ mod, req, res }) {
   let allUsers = await mod.dbManager.findManyObjects(`userModule`, {
     id: { $in: targetGroup.membersIds },
   });
-  allUsers.map(user =>{ delete user['password']})
+  allUsers.map(user => { delete user['password'] })
 
   const allPerms = await mod.dbManager.findManyObjects(
     `groupModule.permissions.users`,
@@ -175,10 +175,10 @@ export async function httpHandleAllUsersInGroup({ mod, req, res }) {
       ],
     }
   );
-  
 
-  allUsers.forEach(user => user.perms = allPerms.find(perm=> perm.userId === user.id))
-  
+
+  allUsers.forEach(user => user.perms = allPerms.find(perm => perm.userId === user.id))
+
   return res.json({ users: allUsers });
 }
 
@@ -252,10 +252,7 @@ async function httpHandleNotesFromGroupPrivilagesVersion({ mod, req, res }) {
   const targetGroup = await mod.getGroupObject(groupId);
 
   if (!targetGroup)
-    return res.status(400).json({
-      code: 389,
-      error: "cannot find group or groupId, check that groupId is correct",
-    });
+    return res.status(400).json(ANSWERS.GET_NOTES_FROM_GROUP_VER_PRIVILAGES_BAD_GROUP_ID);
 
   const allNotesFromGroup = await mod.dbManager
     .aggregate(mod.subcollections.notes, {
@@ -293,7 +290,7 @@ export async function httpHandleNotesFromGroup({ mod, req, res }) {
   if (!groupId)
     return res
       .status(400)
-      .json({ code: 395, error: "groupId not privided in params." });
+      .json(ANSWERS.GET_NOTES_FROM_GROUP_MISS_GROUP_IDe);
 
   if (req.user.groupPerms.canManageNotes)
     return await httpHandleNotesFromGroupPrivilagesVersion({ mod, req, res });
@@ -381,6 +378,15 @@ export async function httpCreateNote({ mod, req, res }) {
 
   const groupId = req.params.groupId;
   const { value, description, userId } = req.body;
+
+  if (!value || !userId)
+    return res.status(400).json(ANSWERS.CREATE_NOTE_DATA_NOT_PROVIDED)
+
+  if (isNaN(Number(value)))
+    return res.status(400).json(ANSWERS.CREATE_NOTE_VALUE_NOT_NUMBER)
+
+
+
   const client = req.user;
 
   delete client.groupPerms;
@@ -454,18 +460,18 @@ export async function httpGetAllMyNotes({ mod, req, res }) {
 
   userPlatforms.forEach(
     (platform) =>
-      (groupsInPlatforms[platform.id] = {
-        platform,
-        groups: [],
-      })
+    (groupsInPlatforms[platform.id] = {
+      platform,
+      groups: [],
+    })
   );
 
   userGroups.forEach(
     (group) =>
-      (notesInGroups[group.id] = {
-        group,
-        notes: [],
-      })
+    (notesInGroups[group.id] = {
+      group,
+      notes: [],
+    })
   );
 
   for (const note of userNotes) {
@@ -550,7 +556,7 @@ export async function httpDeleteGroup({ mod, req, res }) {
     referenceId: { $eq: groupId },
   });
 
-  return res.json({ code: 303, success: "Group has been deleted sucessfuly." });
+  return res.json(ANSWERS.DELETE_GROUP_SUCCESS);
 }
 
 export async function httpAddGroupMember({ mod, req, res }) {
@@ -627,10 +633,7 @@ export async function httpAddGroupMember({ mod, req, res }) {
 
 export async function httpCreateGroup({ mod, req, res }) {
   if (!req.user.platformPerms.canManageGroups)
-    return res.status(400).json({
-      code: 312,
-      error: `Your role in platform dont allow you to create groups.`,
-    });
+    return res.status(400).json(ANSWERS.CREATE_GROUP_NOT_ALLOWED);
 
   /** @type {import("../user/index.js").default} */
   const userMod = mod.requiredModules.userModule;
@@ -641,24 +644,18 @@ export async function httpCreateGroup({ mod, req, res }) {
   const client = req.user;
 
   if (!name || !lecturerId || !platformId)
-    return res.status(400).json({
-      code: 222,
-      error: "Can not create platform, not   all credentials are provided.",
-    });
+    return res.status(400).json(ANSWERS.CREATE_GROUP_DATA_MISS);
 
   if (!(await platformMod.platformExist(platformId)))
     return res
       .status(400)
-      .json({ code: 207, error: "Platform does not exist" });
+      .json(ANSWERS.CREATE_GROUP_PLATFROM_NOT_EXISTS);
 
   if (await mod.checkIsGroupDuplicate(platformId, name))
-    return res.status(400).json({
-      code: 355,
-      error:
-        "Group name duplicate - cannot create group with name that already is used.",
-    });
+    return res.status(400).json(ANSWERS.CREATE_GROUP_DUPLICATE);
 
-  const lecturerObj = await userMod.getUserById(lecturerId);
+  const { password, login, activated, avatar, createdDatetime, ...lecturerObj } = await userMod.getUserById(lecturerId);
+
 
   const oldPerms = await platformMod.getPermissions(platformId, lecturerId);
   if (oldPerms.name === `student`) {
@@ -714,7 +711,7 @@ export async function httpGetTemplatePermissions({ mod, req, res }) {
   if (!groupId)
     return res
       .status(400)
-      .json({ code: 334, error: "Cannot find groupId in request params." });
+      .json(ANSWERS.GET_TEMPLATE_PERMS_MISS_GROUP_ID);
 
   const groupObj = await mod.getGroupObject(groupId);
   const member = mod.isUserAssigned(client.id, groupObj);
@@ -729,11 +726,7 @@ export async function httpGetTemplatePermissions({ mod, req, res }) {
   //await mod.requiredModules.platformModule.perms( req, res ,"group id" )
 
   if (!client.platformPerms.isMaster && !member)
-    return res.status(400).json({
-      code: 333,
-      erorr:
-        "can not get list of group perms, because u are not  -> PE master or group member.",
-    });
+    return res.status(400).json(ANSWERS.GET_TEMPLATE_PERMS_NOT_ALLOWED);
 
   const permissionList = await mod.getAllTemplatePerms(groupId);
 

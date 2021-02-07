@@ -1,8 +1,8 @@
 import { CREATE_USER_EMAIL_CONTENT, ANSWERS } from "./consts.js";
-import { sameWords } from "./../../src/utils.js";
- import {DEBUG} from "./../../consts.js"
- import {Platform} from "./model.js"
- import {PlatformUserPermission} from './permissions.js'
+import { isEmailValid, sameWords } from "./../../src/utils.js";
+import { DEBUG } from "./../../consts.js"
+import { Platform } from "./model.js"
+import { PlatformUserPermission } from './permissions.js'
 /** @typedef {import("./index.js").MiddlewareParameters} MiddlewareParameters */
 
 /** @param {MiddlewareParameters} param0 */
@@ -23,6 +23,13 @@ export async function httpCreateNewUser({ mod, req, res }) {
   const client = req.user;
   const { name, surname, email, roleName } = req.body;
 
+ 
+  if(!isEmailValid(email))
+  return res.status(400).json(ANSWERS.CREATE_USER_BAD_EMAIL);
+
+  if ([name, surname].some(str => str.includes(' ')))
+    return res.status(400).json(ANSWERS.CREATE_USER_NAMES_WITH_SPACE)
+    
   const targetPlatformId = req.params.platformId;
   if (!targetPlatformId)
     return res.status(400).json(ANSWERS.CREATE_USER_NOT_PLATFORM_ID);
@@ -49,12 +56,12 @@ export async function httpCreateNewUser({ mod, req, res }) {
       });
   }
 
-  const user =
+  const user = // TODO: Zmienic to na fazy 
     alreadyExistUser
-      ?? await mod.requiredModules.userModule.createUser(
-          { name, surname, email, activated: true },
-          CREATE_USER_EMAIL_CONTENT
-        )
+    ?? await mod.requiredModules.userModule.createUser(
+      { name, surname, email, activated: true },
+      CREATE_USER_EMAIL_CONTENT
+    )
 
   if (`error` in user)
     // jesli nie jest userem, to jest bladem.

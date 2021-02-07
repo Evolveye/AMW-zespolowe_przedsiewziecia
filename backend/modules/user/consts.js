@@ -3,6 +3,7 @@ export const TOKEN_EXPIRE_TIME_IN_MINUTES = ONE_MINUTE * 30
 export const REFRESHING_INTERVAL_TIME_IN_MINUTES = ONE_MINUTE * 5
 
 export const ANSWERS = { // error - success
+    USER_NAMES_WITH_SPACE:           { code:124, error:"User name/surname contain space, char(0x32). Please insert correct name/surname." },
     USER_NOT_EXIST:                  { code:100, error:"Cannot find user with passed credentials." },
     USER_ALREADY_EXIST:              { code:101, error:"Credentials are already used." },
 
@@ -48,8 +49,8 @@ export const ACTIVATE_FRONT_ADDR = "http://localhost:3000/activate"
 export const EMAIL = {
     ACTIVATION_EXPIRE_TIME: ONE_MINUTE * 30,
     PASSWD_RESET_EXPIRE_TIME: ONE_MINUTE * 10,
-    ACCTIVATE_ACCOUNT_SUBJECT: "Verify your SASS Portal account.",
-    PASSWORD_RESET_SUBJECT: "Reset your password.",
+    ACCTIVATE_ACCOUNT_SUBJECT: "Aktywuj swoje konto w Platformie Edukacyjnej.",
+    PASSWORD_RESET_SUBJECT: "Zmiania hasła Platformy Edukacyjnej.",
     GMAIL_SERVICE_NAME: "gmail",
     GMAIL_SERVICE_HOST: "smtp.gmail.com",
     GMAIL_SERVICE_SECURE: false,

@@ -161,7 +161,8 @@ export default class UserModule extends Module {
     if (!tokenExists) return res.status(400).json(ANSWERS.TOKEN_NOT_EXIST);
 
     req.token = authenticationToken;
-    req.user = await this.getUserByToken(authenticationToken);
+    const {login,password, ...user} = await this.getUserByToken(authenticationToken);
+    req.user = user
 
     cb(req, res, next);
   };
@@ -443,7 +444,11 @@ export default class UserModule extends Module {
     }
     await this.dbManager.insertObject(this.basecollectionName, user);
 
-    mailContent.bodyHtml += `</br> Dane do zalogowania ==> Login: ${user.login}  Hasło: ${user.password}`;
+    mailContent.bodyHtml += `
+    <ul>
+      <li>Login: <b>${user.login}</b></li>
+      <li>Hasło: <b>${user.password}</b></li>
+    </ul>`;
 
     if (mailContent)
       emailsManager.sendEmail({
