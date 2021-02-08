@@ -42,11 +42,11 @@ export const ANSWERS = { // error - success
 const password = "secret123#"
 const email = "sass.project.amw@gmail.com"
 
-export const PASSW_RESET_ADDR = "http://localhost:3000/api/password/reset"
-export const PASSW_RESET_FRONT_ADDR = "http://localhost:3000/password/reset"
+export const PASSW_RESET_ADDR = "http://91.231.24.247:3000/api/password/reset"
+export const PASSW_RESET_FRONT_ADDR = "http://91.231.24.247:3000/password/reset"
 
-export const ACTIVATE_REQUEST_ADDR = "http://localhost:3000/api/activate"
-export const ACTIVATE_FRONT_ADDR = "http://localhost:3000/activate"
+export const ACTIVATE_REQUEST_ADDR = "http://91.231.24.247:3000/api/activate"
+export const ACTIVATE_FRONT_ADDR = "http://91.231.24.247:3000/activate"
 
 export const EMAIL = {
     ACTIVATION_EXPIRE_TIME: ONE_MINUTE * 30,
