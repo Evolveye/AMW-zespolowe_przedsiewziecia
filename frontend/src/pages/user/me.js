@@ -9,7 +9,7 @@ export default () => (
   <AuthorizedContent>
     <Layout className="main_wrapper-splited">
       <article className={classes.leftColumn}>
-        <h2>Przypęte przedmioty</h2>
+        <h2>Przypięte przedmioty</h2>
         <p className={classes.empty}>Brak</p>
       </article>
 

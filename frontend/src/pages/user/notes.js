@@ -125,7 +125,7 @@ export default class Notes extends React.Component {
           <h1>Twoje oceny</h1>
           {this.state.notesTable || (
             <div className={classes.noTable}>
-              Wybierz platformę z lewej kolumny aby zobaczyć zdobyte na niej
+              Wybierz platformę z lewej kolumny, aby zobaczyć zdobyte na niej
               oceny
             </div>
           )}
