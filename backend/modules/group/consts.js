@@ -60,7 +60,7 @@ export const ANSWERS = {
     GET_NOTES_FROM_GROUP_MISS_GROUP_ID: { code: 395, error: "groupId not privided in params." },
 
     CREATE_GROUP_NOT_ALLOWED:{ code: 312, error: `Your role in platform dont allow you to create groups.` },
-    CREATE_GROUP_DATA_MISS:{ code: 322, error: "Can not create platform, not   all credentials are provided."  },
+    CREATE_GROUP_DATA_MISS:{ code: 326, error: "Can not create group, not all credentials are provided."  },
     CREATE_GROUP_PLATFROM_NOT_EXISTS:{ code: 332, error: "Platform does not exist" },
     CREATE_GROUP_DUPLICATE:{ code: 355, error: "Group name duplicate - cannot create group with name that already is used."},
     CREATE_GROUP_BAD_NAME_LEN:{code:356,error:`Length of group name must be less then ${MAX_LEN_GROUP_NAME}`},

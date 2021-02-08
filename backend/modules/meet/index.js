@@ -2,7 +2,7 @@ import Meet from "./model.js";
 import Module from "../module.js";
 import { sameWords } from "../../src/utils.js";
 import { MeetUserPermission, MeetPermission } from "./permissions.js";
-import { ANSWERS } from "./consts.js";
+import { ANSWERS, MAX_LEN_MEETING_DESCRIPTION } from "./consts.js";
 
 /**
  * @typedef {object} MiddlewareParameters
@@ -133,7 +133,7 @@ export default class MeetModule extends Module {
   };
 
   /** @param {import("socket.io").Socket} socket */
-  socketConfigurator(socket) {}
+  socketConfigurator(socket) { }
 
   configure(app) {
     // Tworzenie spotkania /api/meets
@@ -454,6 +454,10 @@ export default class MeetModule extends Module {
     if (!dateStart || !dateEnd || !description || !externalUrl || !platformId)
       return res.status(400).json(ANSWERS.CREATE_MEETING_MISSING_DATA);
 
+
+    if (description.length > MAX_LEN_MEETING_DESCRIPTION)
+      return res.status(400).json(ANSWERS.CREATE_MEETING_BAD_DESCRIPTION_LEN)
+
     if (!externalUrl.startsWith(`http`) && !externalUrl.startsWith(`https`))
       return res.status(400).json(ANSWERS.CREATE_MEETING_BAD_LINK);
 
@@ -485,12 +489,12 @@ export default class MeetModule extends Module {
 
     let ids = groupId
       ? (await this.additionalModules.groupModule.getGroupObject(groupId))
-          .membersIds
+        .membersIds
       : [client.id];
 
     if (!ids.some((id) => id === client.id)) ids = ids.concat(client.id);
 
-    const {platformPerms,avatar,createdDatetime,activated,...lector} = client
+    const { platformPerms, avatar, createdDatetime, activated, ...lector } = client
     let meeting = new Meet(lector, description, platformId, ids, externalUrl, {
       dateStart: dateStart,
       dateEnd: dateEnd,

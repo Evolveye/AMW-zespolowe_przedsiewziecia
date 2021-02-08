@@ -1,5 +1,5 @@
-import { CREATE_USER_EMAIL_CONTENT, ANSWERS } from "./consts.js";
-import { isEmailValid, sameWords } from "./../../src/utils.js";
+import { CREATE_USER_EMAIL_CONTENT, ANSWERS, MAX_LEN_PLATFORM_NAME } from "./consts.js";
+import { isEmailValid, isEveryChar, sameWords } from "./../../src/utils.js";
 import { DEBUG } from "./../../consts.js"
 import { Platform } from "./model.js"
 import { PlatformUserPermission } from './permissions.js'
@@ -23,6 +23,8 @@ export async function httpCreateNewUser({ mod, req, res }) {
   const client = req.user;
   const { name, surname, email, roleName } = req.body;
 
+  if (!isEveryChar(name) || !isEveryChar(surname))
+    return res.status(400).json(ANSWERS.CREATE_USER_NAMES_NOT_CHARS_ONLY)
 
   if (!isEmailValid(email))
     return res.status(400).json(ANSWERS.CREATE_USER_BAD_EMAIL);
@@ -41,31 +43,24 @@ export async function httpCreateNewUser({ mod, req, res }) {
   if (!client.platformPerms.canManageUsers && !client.platformPerms.isMaster)
     return res.status(400).json(ANSWERS.NOT_ALLOWED_TO_CREATE_USER);
 
-  const alreadyExistUser = await mod.requiredModules.userModule.getUserByUserData(
-    name,
-    surname,
-    email
-  );
   const userByEmail = await mod.requiredModules.userModule.getUserByEmail(email)
 
-  if (alreadyExistUser && userByEmail) {
-    const userByEmail = await mod.requiredModules.userModule.getUserByEmail(email)
-    const userSame =
-      alreadyExistUser.name == userByEmail.name &&
-      alreadyExistUser.surname == userByEmail.surname &&
-      alreadyExistUser.email == userByEmail.email
-    if (!userSame)
+  if (userByEmail) {
+    const alreadyExistUser = await mod.requiredModules.userModule.getUserByUserData(
+      name,
+      surname,
+      email
+    );
+
+    if (!alreadyExistUser)// email jest ale, imie i nazwisko inne w systemie niz podane.
       return res.status(400).json(ANSWERS.CREATE_USER_EMAIL_IN_USE)
+
+    if(platform.membersIds.includes( userByEmail.id ))
+      return res.status(400).json(ANSWERS.CREATE_USER_ALREADY_ASSIGNED)
   }
 
-  if (alreadyExistUser) {
-    const alreadyAssigned = await mod.checkUserAssigned(alreadyExistUser.id, req.params.platformId)
-    if (alreadyAssigned)
-      return res.status(400).json(ANSWERS.CREATE_USER_ALREADY_ASSIGNED);
-  }
-
-  const user = // TODO: Zmienic to na fazy 
-    alreadyExistUser
+  const user = // TODO: Zmienic to na fazy
+    userByEmail
     ?? await mod.requiredModules.userModule.createUser(
       { name, surname, email, activated: true },
       CREATE_USER_EMAIL_CONTENT
@@ -165,7 +160,7 @@ export async function httpDeleteUserFromPlatform({ mod, req, res }) {
 export async function httpGetUsersOfPlatform({ mod, req, res }) {
   // GET Lista userów platformy /api/platforms/id:number/users
   const targetPlatformId = req.params.platformId;
-  const user = req.user;
+  const client = req.user;
   if (!targetPlatformId)
     return res.status(400).json(ANSWERS.USERS_OF_PLATFORM_BAD_PLATFORM_ID);
 
@@ -229,25 +224,79 @@ export async function httpGetUsersOfPlatform({ mod, req, res }) {
   //   },
   // ).toArray()
 
-  const allUsersPerms = await mod.dbManager
-    .aggregate(`userModule`, {
-      pipeline: [
-        { $match: { id: { $in: platform.membersIds } } },
-        {
-          $lookup: {
-            from: "platformModule.permissions.users",
-            localField: "id",
-            foreignField: "userId",
-            as: "perms",
-          },
-        },
-        { $unwind: { path: "$perms", preserveNullAndEmptyArrays: true } },
-        { $unset: ["_id", "perms._id"] },
-      ],
-    })
-    .toArray();
 
-  return res.status(200).json({ users: allUsersPerms });
+
+  // const allUsersPerms = await mod.dbManager
+  //   .aggregate(`userModule`, {
+  //     pipeline: [
+  //       { $match: { id: { $in: platform.membersIds } } },
+  //       {
+  //         $lookup: {
+  //           from: "platformModule.permissions.users",
+  //           pipeline: [
+  //             {
+  //               $match: {
+  //                 $expr: {
+  //                   $and: [
+  //                     { referenceId: platform.id },
+  //                     { userId: user.id }
+  //                   ]
+  //                 }
+  //               }
+  //             }
+  //           ],
+  //           // localField: "id",
+  //           // foreignField: "userId",
+  //           as: "perms",
+  //         },
+  //       },
+  //       { $unwind: { path: "$perms", preserveNullAndEmptyArrays: true } },
+  //       { $unset: ["_id", "perms._id"] },
+  //     ],
+  //   })
+  //   .toArray();
+
+  //targetPlatformId
+  //client
+  //
+
+
+  // let allUsers = await mod.dbManager.finOne(`platformModule`, {
+  //   id: targetPlatformId,
+  // });
+
+
+  let users = await Promise.all(
+    platform.membersIds.map(id => mod.requiredModules.userModule.getUserById(id))
+    )
+
+  users.forEach(user => {
+    delete user['password']
+    delete user['login']
+  });
+
+  let perms = await Promise.all(  users.map( member=> mod.getPermissions(platform.id,member.id)))
+
+  perms.forEach(perm => {
+    delete perm['_id']
+  });
+
+  // const allPerms = await mod.dbManager.findManyObjects(
+  //   `groupModule.permissions.users`,
+  //   {
+  //     $and: [
+  //       { referenceId: { $eq: groupId } },
+  //       { userId: { $in: targetGroup.membersIds } },
+  //     ],
+  //   }
+  // );
+
+
+  users.forEach(user => user.perms = perms.find(perm => perm.userId === user.id))
+
+  // return res.json({ users: allUsers });
+
+  return res.status(200).json({ users });
 }
 
 export async function httpCreatePlatform({ mod, req, res }) {
@@ -257,9 +306,12 @@ export async function httpCreatePlatform({ mod, req, res }) {
 
   if (!name) return res.status(400).json(ANSWERS.CREATE_PLATFORM_NOT_NAME);
 
-  const platfromByName= await mod.getPlatfromByName(name)
-  if(platfromByName)
-  return res.status(400).json(ANSWERS.CREATE_PLATFROM_NAME_DUPLICATE);
+  const platfromByName = await mod.getPlatfromByName(name)
+  if (platfromByName)
+    return res.status(400).json(ANSWERS.CREATE_PLATFROM_NAME_DUPLICATE);
+
+  if (name.length > MAX_LEN_PLATFORM_NAME)
+    return res.status(400).json(ANSWERS.CREATE_PLATFORM_BAD_NAME_LEN)
 
   if (!DEBUG)
     if (!(await mod.canCreatePlatform(req.user.id)))

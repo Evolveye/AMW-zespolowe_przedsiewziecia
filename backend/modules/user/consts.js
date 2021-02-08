@@ -3,9 +3,10 @@ export const TOKEN_EXPIRE_TIME_IN_MINUTES = ONE_MINUTE * 30
 export const REFRESHING_INTERVAL_TIME_IN_MINUTES = ONE_MINUTE * 5
 
 export const ANSWERS = { // error - success
-    USER_NAMES_WITH_SPACE:           { code:124, error:"User name/surname contain space, char(0x32). Please insert correct name/surname." },
+    USER_NAMES_WITH_SPACE:           { code:125, error:"User name/surname contain space, char(0x32). Please insert correct name/surname." },
     USER_NOT_EXIST:                  { code:100, error:"Cannot find user with passed credentials." },
     USER_ALREADY_EXIST:              { code:101, error:"Credentials are already used." },
+    NAMES_NOT_CHARS_ONLY:            { code:126, error:"name and surname cannot contain any special characters ( Like _,.(*_=-0+ )"},
 
     PASSWD_NOT_SAME:                 { code:102, error:"Password's are not the same." },
     PASSWD_CHANGE_SUCCESS:           { code:103, success:"Your password has been changed sucessfuly." },
@@ -67,6 +68,8 @@ export const PASSWORD_RESTRICTIONS = {
     bannedWords: ['password'],
     requireSpacialChar: true,
     specialChars: `!@#$%^&*-+<>`,
+    minUpperCase: 1,
+    minLowerCase: 1,
 }
 
 export const NAMES_RESTRICTIONS = {
@@ -76,6 +79,6 @@ export const NAMES_RESTRICTIONS = {
 
 export const REGISTER_RESTRICTION = {
     canNamePasswordSame: false,
-    canNameSurnameSame: false,
+    canNameSurnameSame: true,
     canSurnamePasswordSame: false,
 }

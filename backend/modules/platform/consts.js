@@ -1,4 +1,5 @@
 export const MAX_PLATFORM_NUMBER = 2
+export const MAX_LEN_PLATFORM_NAME = 255
 
 export const CREATE_USER_EMAIL_CONTENT = {
     titleText: "Portal edukacyjny - utworzono dla Ciebie konto.",
@@ -29,7 +30,7 @@ export const ANSWERS = {
     CREATE_USER_BAD_EMAIL: { code: 215, error: "Provided email is not valid. Please provide a correct email." },
     CREATE_USER_EMAIL_IN_USE: { code: 255, error: "User with provided email exist in system. But cannot assign user to your platform, because name/surname does not match existing user." },
     CREATE_USER_ALREADY_ASSIGNED: { code: 255, error: "Cannot create user that already is signed to platform." },
-
+    CREATE_USER_NAMES_NOT_CHARS_ONLY:{code:256,error:"name and surname can contain only characters, (NOT digits | math chars)"},
 
     GET_PERMS_NOT_MEMBER: { code: 233, error: "You are not a member of target platform, cannot get permissions from specifed pe." },
     GET_MY_PERMS_NO_FOUND: { code: 299, error: "Provided userId is not assign to platform. Privilages not found." },
@@ -44,6 +45,8 @@ export const ANSWERS = {
     CREATE_PLATFORM_NOT_NAME: { code: 203, error: "Platform name not provided." },
     CREATE_PLATFORM_LIMIT: { code: 210, error: "You have already an your own platform." },
     CREATE_PLATFROM_NAME_DUPLICATE:{code:219,error:"Platfrom name already is assigned, please choose diffrent name for your platform."},
+    CREATE_PLATFORM_BAD_NAME_LEN:{code:276,error:`Lenght of platform name can not me more then ${MAX_LEN_PLATFORM_NAME} characters.`},
+
 
     DELETE_PLATFORM_PLATFORM_NOT_EXISTS: { code: 208, error: "Cannot delete not existing platform." },
     DELETE_PLATFORM_NOT_ALLOWED: { code: 209, error: "You dont have privilages to create new users on mod platform." },

@@ -1,4 +1,5 @@
 export const MEETING_DATE_MAX_YEARS_AHEAD  = 10
+export const MAX_LEN_MEETING_DESCRIPTION  = 255
 
 export const ANSWERS = {
     GET_PERMS_MISS_MEET_ID:{ code: 499, error:"Cannot get templates permissions, because meetId is not provided." },
@@ -36,6 +37,7 @@ export const ANSWERS = {
     CREATE_MEETING_MISSING_GROUP_IN_PLATFORM:{code: 415,error:"Can not create meeting for this group, because group is not assigned to targeted platform."},
     CREATE_MEETING_NOT_ALLOWED:{code: 400,error:"You cant create meeting on platform, You need to have 'personel' status to make this operation."},
     CREATE_MEETING_BAD_DATE:{ code: 401, error: "Date is not correct." },
-
+    CREATE_MEETING_BAD_DESCRIPTION_LEN:{ code: 456, error: `Maximum length of meet description is ${MAX_LEN_MEETING_DESCRIPTION} characters.` },
+    
 
 }

@@ -151,6 +151,7 @@ export default class UserModule extends Module {
    * @return {(req:Request res:Response next:NextFunction) => void|Response }
    */
   auth = (cb) => async (req, res, next) => {
+    this.tokenRefreshMiddleware( req, res )
     const authenticationToken = this.getTokenFromRequest(req);
     // const var2= authenticationToken.search(`.`)
 
@@ -336,6 +337,7 @@ export default class UserModule extends Module {
    */
   tokenRefreshMiddleware = async (req, res, next) => {
     const authenticationToken = this.getTokenFromRequest(req);
+
     if (authenticationToken)
       if (await this.tokenExist(authenticationToken)) {
         // found a authentication header.
@@ -343,7 +345,7 @@ export default class UserModule extends Module {
       }
 
     // NOT found a authentication header.
-    next();
+    //next();
   };
 
   /** @param {string} token */
@@ -445,10 +447,10 @@ export default class UserModule extends Module {
     await this.dbManager.insertObject(this.basecollectionName, user);
 
     mailContent.bodyHtml += `
-    <ul>
-      <li>Login: <b>${user.login}</b></li>
-      <li>Hasło: <b>${user.password}</b></li>
-    </ul>`;
+      <ul>
+        <li>Login: <b>${user.login}</b></li>
+        <li>Hasło: <b>${user.password}</b></li>
+      </ul>`;
 
     if (mailContent)
       emailsManager.sendEmail({

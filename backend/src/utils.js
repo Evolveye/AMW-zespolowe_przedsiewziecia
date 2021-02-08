@@ -43,8 +43,8 @@ export const isEveryDigit = (n) => n.split('').every(char => isDigit(char))
 export const isEveryUpper = (n) => n.split('').every(char => char === char.toUpperCase())
 export const isEveryLowwer = (n) => n.split('').every(char => char === char.toLowerCase())
 export const notContainDigit = (n) => n.split('').every(char => !isDigit(char))
-export const isEmailValid = (email) => /[a-z]\w+@[a-z]\w+\.[a-z]{2,}/i.test(email)
-
+export const isEmailValid = (email) => /\w+@\w+\.[a-z]{2,}/i.test(email)
+export const isEveryChar = (n) => !/[\s`0-9~!@#$%^&*()_+\-=[\]\\{}|;':",./<>?]/.test(n)
 
 
 /**
@@ -68,7 +68,7 @@ export const sameWords = (word1, word2) => word1 === word2
  * @param {string} word An word to check validation.
  * @param {Restriction} param1  Restriction.
  */
-export const validateWord = (word, { minLen, maxLen, bannedChars, bannedWords, requireSpacialChar, specialChars }) => {
+export const validateWord = (word, { minLen, maxLen, bannedChars, bannedWords, requireSpacialChar, specialChars, minUpperCase, minLowerCase }) => {
   const mnlen = minLen ? word.length >= minLen : true
   const mxlen = maxLen ? word.length <= maxLen : true
   const notBannedChars = bannedChars ? !word.split('').some((char) => bannedChars.includes(char)) : true
@@ -84,12 +84,18 @@ export const validateWord = (word, { minLen, maxLen, bannedChars, bannedWords, r
     noWords = wordsArrayCorrect ? bannedWords.every((banned) => banned != word) : false
   }
 
+  if (minUpperCase && !/[A-Z]/.test( word ))
+    return false
+
+  if (minLowerCase && !/[a-z]/.test( word ))
+    return false
+
   return mnlen && mxlen && notBannedChars && specChars && noWords
 }
 
 
-export function randomString(numbersCount = 10, chars_Count = 5) {
-  const alphabet = `abcdefghijklmnouprstwxyz!@#$%^&*-+<>`
+export function randomString(numbersCount = 10, charsCount = 6, upperCase=2, specialChar=2) {
+  const alphabet = `abcdefghijklmnouprstwxyz`
   const specChars = `!@#$%^&*-+<>`
 
   const { random, floor } = Math
@@ -97,19 +103,26 @@ export function randomString(numbersCount = 10, chars_Count = 5) {
 
   //TODO: REFACTOR
   let passwLen = numbersCount
-  let charsCount = chars_Count
+  let charactersCount = charsCount
   let password = ``
 
-  if (passwLen < charsCount) [passwLen, charsCount] = [passwLen, charsCount]
+  if (passwLen < charactersCount) [passwLen, charactersCount] = [passwLen, charactersCount]
 
   for (let i = 0; i < passwLen; ++i) password += floor(random() * 10)
 
-  for (let i = 0; i < charsCount; ++i) {
+  for (let i = 0; i < charactersCount; ++i) {
     const index = rand(password)
     let char = alphabet[rand(alphabet)]
-    if (random() > .5) char = char.toUpperCase()
+
+    if (upperCase--) char = char.toUpperCase()
 
     password = password.slice(0, index) + char + password.slice(index)
+  }
+
+  for (let i = 0; i < specialChar; ++i) {
+    const index = rand(password)
+
+    password = password.slice(0, index) + rand(specChars) + password.slice(index)
   }
 
   const passwContainSpecChar = password.split('').some(char => specChars.split('').some(spec => spec === char))
@@ -120,6 +133,7 @@ export function randomString(numbersCount = 10, chars_Count = 5) {
       specChars[Math.random().toString()[4]]
     )
 
+  console.log( { password } )
   return password
 }
 

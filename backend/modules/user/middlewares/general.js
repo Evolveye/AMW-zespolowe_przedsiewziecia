@@ -3,7 +3,7 @@ import { ANSWERS } from "../consts.js"
 import { stringifyObjValues } from "../../../src/utils.js "
 import User from "../model.js"
 import { PASSWORD_RESTRICTIONS, NAMES_RESTRICTIONS, REGISTER_RESTRICTION } from "../consts.js"
-import { validateWord, sameWords } from '../../../src/utils.js'
+import { validateWord, sameWords, isEveryChar } from '../../../src/utils.js'
 import { DEBUG } from "./../../../consts.js"
 import emailManager from "./../mails.js"
 
@@ -88,6 +88,9 @@ export async function registerMiddleware({ mod, req, res }) {
     if (!(name && surname && email && password1 && password2))
         return res.status(400).json(ANSWERS.REGISTER_CREDENTIAL_NOT_PROVIDED)
 
+    if(!isEveryChar(name) || !isEveryChar(surname))
+    return res.status(400).json(ANSWERS.NAMES_NOT_CHARS_ONLY)
+
     if (!sameWords(password1, password2))
         return res.status(200).json(ANSWERS.PASSWD_NOT_SAME)
 
@@ -105,7 +108,7 @@ export async function registerMiddleware({ mod, req, res }) {
         if (mess) return res.status(400).json(mess)
     }
 
-    const userByEmail = mod.getUserByEmail(email)
+    const userByEmail =await mod.getUserByEmail(email)
 
     if (userByEmail)
         return res.status(400).json(ANSWERS.REGISTER_EMAIL_IN_USE)
@@ -157,20 +160,20 @@ export async function createUserMiddleware({ req, res }) {
  * @param {MiddlewareParameters} param0
  */
 export async function acctivateAccountMiddleware({ mod, req, res }) {
-    const accLogin = req.params.code
+    const accId = req.params.code
     // console.log({ LOGIN: accLogin })
     // TODO:REFACTOR -> Login jest zbyt słaby do aktywacji konta.
 
-    if (!emailManager.isActiveActivationEmail(accLogin)) return res.status(200).json(ANSWERS.EMAIL_ACTIVATE_EXPIRED)
+    if (!emailManager.isActiveActivationEmail(accId)) return res.status(200).json(ANSWERS.EMAIL_ACTIVATE_EXPIRED)
 
     /** @type {User} */
     let targetUser = await mod.dbManager.findObject(mod.basecollectionName,
-        { login: accLogin }
+        { id: accId }
     )
 
-    targetUser = await mod.dbManager.findObject(mod.basecollectionName,
-        { login: accLogin }
-    )
+    // targetUser = await mod.dbManager.findObject(mod.basecollectionName,
+    //     { login: accLogin }
+    // )
 
     if (targetUser.activated === true) return res.status(200).json(ANSWERS.ACCOUNT_ALREADY_ACTIVATED)
 
