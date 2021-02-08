@@ -1,0 +1,28 @@
+{
+  "Token": {
+    "token": "string"
+  },
+  "User": {
+    "avatarSrc": "string",
+    "login": "string",
+    "email": "string",
+    "name": "string",
+    "surname": "string"
+  },
+  "Group":{
+    "name":"string",
+    "lider": "User"
+  },
+  "Grade":{
+    "groupId": "string",
+    "evaluator": "User",
+    "grade": "number",
+    "description": "string",
+    "date": "date",
+    "owner": "User"
+  },
+  "GradesRow":{
+    "group":"Group",
+    "grades":"Grade[]"
+  }
+}

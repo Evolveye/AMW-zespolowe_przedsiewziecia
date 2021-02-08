@@ -1,0 +1,70 @@
+.form {
+  display: block;
+  border: 2px solid black;
+}
+
+.header {
+  display: flex;
+  justify-content: center;
+  padding: 10px;
+  border-bottom: 2px solid black;
+}
+
+.title {
+  margin-left: 10px;
+}
+
+.main {
+  padding: 50px;
+  text-align: center;
+}
+
+.label {
+  display: block;
+  position: relative;
+  background-color: transparent;
+  margin: 20px auto;
+  width: max-content;
+  border: none;
+  border-bottom: 1px solid black;
+}
+
+.icon {
+  position: absolute;
+  left: 13px;
+  top: 13px;
+  width: 25px;
+  height: 25px;
+}
+
+.input {
+  background-color: transparent;
+  border: none;
+  padding: 15px;
+  padding-left: 50px;
+  font-size: 16px;
+}
+
+.input::placeholder {
+  text-align: left;
+}
+
+.button {
+  display: block;
+  padding: 10px 15px;
+  margin: 20px auto;
+}
+
+.textarea {
+  display: block;
+  padding: 10px 15px;
+  margin: 20px auto;
+  min-width: 260px;
+}
+
+.submit {
+  background-color: #5f54;
+  padding: 10px 15px;
+  margin-top: 50px;
+  font-size: 16px;
+}
