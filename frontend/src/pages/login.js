@@ -1,13 +1,12 @@
 import React from "react"
 
 import URLS from "../utils/urls.js"
-import ERRORS from "../utils/errorList.js"
+import ERRORS, { DEFAULT_ERROR } from "../utils/errorList.js"
 
 import Layout from "../components/layout.js"
 import { setToken } from "../utils/auth.js"
 import Form from "../components/form.js"
 
-import classes from "./forms.module.css"
 import { navigate } from "gatsby"
 
 export default class Login extends React.Component {
@@ -33,10 +32,17 @@ export default class Login extends React.Component {
         method="POST"
         headers={{ "Content-Type": "application/json" }}
         address={URLS.LOGIN_POST}
-        onOk={({ token }) => {setToken( token ); navigate( `/user/me` )}}
-        onError={({ code }) => this.setState({ error: ERRORS[code] })}
+        onOk={({ token }) => {
+          setToken(token)
+          navigate(`/user/me`)
+        }}
+        onError={({ code }) =>
+          this.setState({ error: ERRORS[code] || DEFAULT_ERROR })
+        }
       />
-      {this.state.error && <article className={classes.errorBox}>{this.state.error}</article>}
+      {this.state.error && (
+        <article className="errorBox">{this.state.error}</article>
+      )}
     </Layout>
   )
 }

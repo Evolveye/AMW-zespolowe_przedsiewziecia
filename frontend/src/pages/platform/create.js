@@ -1,8 +1,8 @@
-import React from "react"
+import React, { useState } from "react"
 import { navigate, Link } from "gatsby"
 
 import URLS from "../../utils/urls.js"
-import ERRORS from "../../utils/errorList.js"
+import ERRORS, { DEFAULT_ERROR } from "../../utils/errorList.js"
 import { AuthorizedContent, getToken } from "../../utils/auth.js"
 import { urlSearchParams } from "../../utils/functions.js"
 
@@ -16,7 +16,8 @@ const fields = [
 ]
 
 export default () => {
-  const platformId = urlSearchParams().get( `platformId` )
+  const platformId = urlSearchParams().get(`platformId`)
+  const [error, setError] = useState(null)
 
   return (
     <AuthorizedContent>
@@ -41,9 +42,9 @@ export default () => {
           onOk={({ platform }) =>
             navigate(`/platform/it?platformId=${platform.id ?? 0}`)
           }
-          onError={({ code }) => this.setState({ error: ERRORS[code] })}
+          onError={({ code }) => setError(ERRORS[code] || DEFAULT_ERROR)}
         />
-        {/* {this.state.error && <article className={classes.errorBox}>{this.state.error}</article>} */}
+        {error && <article className="errorBox">{error}</article>}
       </Layout>
     </AuthorizedContent>
   )

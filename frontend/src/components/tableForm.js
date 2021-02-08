@@ -103,6 +103,8 @@ export default class TableForm extends React.Component {
         return this.setState({ error: ERRORS[data.code] })
       }
 
+      this.setState({ error: `` })
+
       if (data.success) {
         //TODO get value from every cell and make new row
         const { code, success } = data

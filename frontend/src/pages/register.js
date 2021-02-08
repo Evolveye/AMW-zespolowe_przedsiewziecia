@@ -7,8 +7,6 @@ import ERRORS from "../utils/errorList.js"
 import Layout from "../components/layout.js"
 import Form from "../components/form.js"
 
-import classes from "./forms.module.css"
-
 const fields = [
   { title: `Imię`, name: `name`, icon: `user` },
   { title: `Nazwisko`, name: `surname` },
@@ -43,7 +41,7 @@ export default class RegisterPage extends React.Component {
         onOk={() => navigate( `/checkMail` )}
         onError={({ code }) => this.setState({ error: ERRORS[code] })}
       />
-      {this.state.error && <article className={classes.errorBox}>{this.state.error}</article>}
+      {this.state.error && <article className="errorBox">{this.state.error}</article>}
     </Layout>
   )
 }

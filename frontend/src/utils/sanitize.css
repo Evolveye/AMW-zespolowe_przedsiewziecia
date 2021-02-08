@@ -129,3 +129,11 @@ hr {
   text-decoration: none;
   color: inherit;
 }
+
+.errorBox {
+  background-color: #cc3311;
+  padding: 20px;
+  margin: 50px;
+  color: white;
+  font-weight: bold;
+}
