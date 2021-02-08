@@ -20,7 +20,6 @@ export default () => {
       </Link>
 
       <h1>Spotkanie -- ustawienia</h1>
-      <div>Twoje miejsce na reklamę</div>
     </Layout>
   )
 }

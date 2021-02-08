@@ -7,7 +7,6 @@ export default () => (
   <AuthorizedContent>
     <Layout className="main_wrapper">
       <h1>Ustawienia</h1>
-      <div>Twoje miejsce na reklamę</div>
     </Layout>
   </AuthorizedContent>
 )

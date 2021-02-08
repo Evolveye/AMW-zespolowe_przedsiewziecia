@@ -9,8 +9,8 @@ import Layout from "./layout.js"
 import FlatTile from "../models/flatTile.js"
 
 const menyItems = [
-  { urn: `settings`, name: `Ustawienia ogólne`, permName:`canEditDetails` },
-  { urn: `users`, name: `Użytkownicy`, permName:`canManageUsers` },
+  // { urn: `settings`, name: `Ustawienia ogólne`, permName:`canEditDetails` },
+  // { urn: `users`, name: `Użytkownicy`, permName:`canManageUsers` },
 ]
 
 const participantsLisMap = ({ id, name, surname, avatar }) => (

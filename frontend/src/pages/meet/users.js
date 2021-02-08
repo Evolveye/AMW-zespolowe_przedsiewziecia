@@ -20,7 +20,6 @@ export default () => {
       </Link>
 
       <h1>Spotkanie -- uczestnicy</h1>
-      <div>Twoje miejsce na reklamę</div>
     </Layout>
   )
 }

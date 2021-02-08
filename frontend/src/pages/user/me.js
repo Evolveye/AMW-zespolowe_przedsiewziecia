@@ -15,7 +15,6 @@ export default () => (
 
       <article className={classes.rightColumn}>
         <h1>Twój profil</h1>
-        <div>Twoje miejsce na reklamę</div>
       </article>
     </Layout>
   </AuthorizedContent>

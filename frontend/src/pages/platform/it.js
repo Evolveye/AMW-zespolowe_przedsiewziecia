@@ -7,6 +7,5 @@ import Layout from "../../components/platformLayout.js"
 export default () => (
   <Layout>
     <h1>Platforma edukacyjna</h1>
-    <div>Twoje miejsce na reklamę</div>
   </Layout>
 )
