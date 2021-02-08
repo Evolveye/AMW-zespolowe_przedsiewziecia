@@ -1,0 +1,2 @@
+(window.webpackJsonp=window.webpackJsonp||[]).push([[31],{gTre:function(e,a,n){"use strict";n.r(a);var t=n("q1tI"),r=n.n(t),l=n("X4fA"),c=n("Bl7J");a.default=function(){return r.a.createElement(l.a,null,r.a.createElement(c.a,{className:"main_wrapper"},r.a.createElement("h1",null,"Ustawienia")))}}}]);
+//# sourceMappingURL=component---src-pages-user-settings-js-8b5685affad6c24b813c.js.map
