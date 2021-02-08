@@ -110,7 +110,7 @@ export function memoizedFetch({
 }
 
 export function processUrn(urn) {
-  const url = `http://localhost:3000`
+  const url = `/`
 
   return url + urn
 }

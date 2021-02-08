@@ -104,7 +104,7 @@ export default class Notes extends React.Component {
       <Layout className="main_wrapper-splited">
         <article className={classes.leftColumn}>
           <section className={classes.noteDetails}>
-            <h2>Szcegóły oceny</h2>
+            <h2>Szczegóły oceny</h2>
             {this.state.noteDetailsHover || this.state.noteDetails || (
               <p className={classes.noNote}>Brak aktywnej oceny</p>
             )}

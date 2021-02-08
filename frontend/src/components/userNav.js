@@ -42,7 +42,7 @@ export default ({ className }) => {
       <ul className="list">
         {[
           { urn: `me`, name: `Profil` },
-          { urn: `settings`, name: `Ustawienia` },
+          // { urn: `settings`, name: `Ustawienia` },
           { urn: `notes`, name: `Zebrane oceny` },
           { urn: `logout`, name: `Wyloguj` },
         ].map(({ urn, name }) => (

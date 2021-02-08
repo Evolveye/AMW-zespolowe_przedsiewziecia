@@ -1,6 +1,6 @@
 import { urlSearchParams } from "./functions.js"
 
-export const HOST = "http://localhost:3000"
+export const HOST = "/"
 
 export const WS_HOST = "ws://localhost:3000"
 export function getSocketEventFromHttp( method, httpUrl ) {
