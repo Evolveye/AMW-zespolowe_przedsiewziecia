@@ -5,34 +5,24 @@
   "description": "sass backend node edition",
   "main": "server.js",
   "scripts": {
-<<<<<<< HEAD
-    "test": "echo \"Error: no test specified\" && exit 1",
-=======
     "test": "node ./node_modules/mocha/bin/mocha ./server.test.js",
->>>>>>> origin/dev-backend-node
     "start": "node server.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.19.0",
-<<<<<<< HEAD
-=======
     "chai": "^4.2.0",
->>>>>>> origin/dev-backend-node
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "mongodb": "^3.6.3",
     "nodemailer": "^6.4.17",
     "socket.io": "^3.0.4",
     "ws": "^7.4.2"
-<<<<<<< HEAD
-=======
   },
   "devDependencies": {
     "mocha": "^8.2.1",
     "node-fetch": "^2.6.1",
     "request": "^2.88.2"
->>>>>>> origin/dev-backend-node
   }
 }

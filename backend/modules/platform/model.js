@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-// lecturer or admin platformy.
-=======
->>>>>>> origin/dev-backend-node
 
 /**
  * @typedef {Object} platform
@@ -9,19 +5,6 @@
  * @property {string} owner
  * @property {string} created
  * @property {string} administrator
-<<<<<<< HEAD
- * @property {string} organisationName
- */
-
-export default class Platform {
-    constructor(name,ownerId,organisationName = '') {
-        this.name = name
-        this.owner = ownerId // TODO: type =  User.
-        this.created = Date.now()
-        this.administrator = ownerId // TODO: type =  User.
-        this.organisationName = organisationName
-
-=======
  * @property {string} platformName
  */
 
@@ -34,6 +17,5 @@ export class Platform {
         this.name = platformName //
         this.membersIds = [owner.id]
         this.assignedGroups = []
->>>>>>> origin/dev-backend-node
     }
 }

@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-import { json } from "express"
-=======
->>>>>>> origin/dev-backend-node
 import WebSocket from "ws"
 
 export default class WebSocketServer extends WebSocket.Server {
@@ -25,10 +21,7 @@ export default class WebSocketServer extends WebSocket.Server {
 export class WS {
   #id = `${Date.now()}#${Math.random().toString().slice( 2 )}`
   #commands = new Map()
-<<<<<<< HEAD
-=======
   #middlewares = []
->>>>>>> origin/dev-backend-node
   #defaultListener = () => {}
 
   /**@type {WebSocketServer} */
@@ -57,11 +50,7 @@ export class WS {
     const msg = data ? { event, data } : event
     const send = () => this.ws.send( JSON.stringify( msg ) )
 
-<<<<<<< HEAD
-    // console.log( `TEST`, this.#id, this.ws.readyState, msg )
-=======
    // console.log( `TEST`, this.#id, this.ws.readyState, msg )
->>>>>>> origin/dev-backend-node
 
     if (this.ws.readyState !== 1) {
       this.ws.addEventListener( `open`, send )
@@ -111,14 +100,6 @@ export class WS {
     if (typeof jsonData === `object` && `event` in jsonData && `data` in jsonData) {
       const { event, data } = jsonData
 
-<<<<<<< HEAD
-     
-      if (this.#commands.has( event )) this.#commands.get( event )( data )
-      else console.warn( `Unhandled event: ${event}` )
-    } else if (typeof jsonData === `string` && this.#commands.has( jsonData )) {
-      this.#commands.get( jsonData )( jsonData )
-    } else this.#defaultListener( jsonData )
-=======
       this.#middlewares.forEach( fn => fn( event, data ) )
 
       if (this.#commands.has( event )) this.#commands.get( event )( data )
@@ -130,7 +111,6 @@ export class WS {
       this.#middlewares.forEach( fn => fn( jsonData, jsonData ) )
       this.#defaultListener( jsonData )
     }
->>>>>>> origin/dev-backend-node
   }
 
   setDefaultListener( listener ) {
@@ -138,11 +118,8 @@ export class WS {
 
     this.#defaultListener = listener
   }
-<<<<<<< HEAD
-=======
 
   addMiddleware( fn ) {
     this.#middlewares.push( fn )
   }
->>>>>>> origin/dev-backend-node
 }

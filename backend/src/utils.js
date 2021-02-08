@@ -1,15 +1,3 @@
-<<<<<<< HEAD
-import { LOG_ONLY_PAGES_ROUTE } from "./constants/serverConsts.js"
-import Logger, { logUnderControl as logUnderCtrl } from "./Logger.js"
-
-export const logUnderControl = logUnderCtrl
-
-
-
-export function stringifyObjValues( obj ) {
-  Object.entries( obj )
-    .forEach( ([key, value]) => obj[ key ] = value.toString() )
-=======
 import { LOG_PAGES_ROUTE, LOG_WS_EVENTS, CLEAR_CONSOLE } from "./../consts.js"
 import Logger, { logUnderControl as logUnderCtrl, addNextLineToLog as addNextLn } from "./Logger.js"
 
@@ -19,34 +7,10 @@ export const logUnderControl = logUnderCtrl
 export function stringifyObjValues(obj) {
   Object.entries(obj)
     .forEach(([key, value]) => obj[key] = value.toString())
->>>>>>> origin/dev-backend-node
 
   return obj
 }
 
-<<<<<<< HEAD
-
-
-/** @param {import("express").Request} req */
-export const isRequestPageRoute = req => !req.url.match( /\.[^\.]+$/ )
-/** @param {import("express").Request} req */
-export const doRequestLogShouldBePrinted = req =>
-  LOG_ONLY_PAGES_ROUTE ? isRequestPageRoute( req ) : true
-
-
-
-export const assertLogger = new Logger( [
-  { align:`center`,  color:`white`,  value:`[ ` },
-  { align:`center`,  color:`white` },
-  { align:`center`,  color:`white`,  value:` ] ` },
-  { align:`right`,   color:`blue`,   length:25 },
-  { align:`center`,  color:`white`,  value:`:  ` },
-  { align:`right`,   color:`white`,  length:10 },
-  { align:`center`,  color:`yellow`, value:`  ===  ` },
-  { align:`left`,    color:`white` },
-] )
-export function assert( name, a, b ) {
-=======
 /** @param {import("express").Request} req */
 export const isRequestPageRoute = req => !req.url.match(/\.[^\.]+$/)
 /** @param {import("express").Request} req */
@@ -67,15 +31,10 @@ export const assertLogger = new Logger([
 ])
 
 export function assert(name, a, b) {
->>>>>>> origin/dev-backend-node
   const result = a === b
   const color = result ? `fgGreen` : `fgRed`
   const resultName = result ? `  OK ` : `ERROR`
 
-<<<<<<< HEAD
-  logUnderControl( assertLogger, `[${color}]${resultName}[]`, name, a, b )
-}
-=======
   logUnderControl(assertLogger, `[${color}]${resultName}[]`, name, a, b)
 }
 
@@ -203,4 +162,3 @@ export function validateDate(date, maxYearsAhead) {
 
   return true
 }
->>>>>>> origin/dev-backend-node

@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 import { sameWords, validateWord,randomString, isEmailValid} from './../../src/utils.js'
 import {
   ANSWERS,
@@ -7,7 +5,6 @@ import {
   NAMES_RESTRICTIONS,
   PASSWORD_RESTRICTIONS,
 } from './consts.js'
->>>>>>> origin/dev-backend-node
 
 export default class User {
   /**
@@ -16,29 +13,12 @@ export default class User {
    * @param {string} email
    * @param {object} param3
    * @param {string} param3.login
-<<<<<<< HEAD
-   * @param {string} param3.password
-=======
    * @param {string} param3.password1
    * @param {string} param3.password2
->>>>>>> origin/dev-backend-node
    * @param {boolean} param3.activated
    * @param {string} param3.avatar
    */
   constructor(name, surname, email, { password = null, login = null, activated = false, avatar = null } = {}) {
-<<<<<<< HEAD
-    this.name = name
-    this.surname = surname
-    this.email = email
-    this.login = login ?? Math.random().toString()
-    this.password = password ?? Math.random().toString().slice(2).substring(0, 4)
-    this.activated = activated
-    this.avatar = avatar ?? `/media/image/avatarDefault.jpg`
-    this.createdDatetime = Date.now()
-    // console.log(this);
-  }
-}
-=======
     this.id = `${Date.now()}t${Math.random().toString().slice(2)}r`
     this.name = name
     this.surname = surname
@@ -90,4 +70,3 @@ validNames() {
 }
 
 }
->>>>>>> origin/dev-backend-node

@@ -1,24 +1,5 @@
 export const ONE_MINUTE = 1000 * 60
 export const TOKEN_EXPIRE_TIME_IN_MINUTES = ONE_MINUTE * 30
-<<<<<<< HEAD
-export const REFRESHING_INTERVAL_TIME_IN_MINUTES = ONE_MINUTE * 1
-
-export const ANSWERS = {
-    USER_NOT_EXIST:"Cannot find user with passed credentials." , //{code:1,error: "Cannot find user with passed credentials."},
-    USER_ALREADY_EXIST: "Credentials are already used.",
-    PASSWORDS_NOT_SAME: "Password's are not the same.",
-    TOKEN_NOT_PROVIDED:"Your request does not contain authentication token",
-    PASSWD_CHANGE_SUCCESS:"Your password has been changed sucessfuly.",
-    EMAIL_RESET_EXPIRED : "Reset email time expired ",
-    EMAIL_ACTIVATE_EXPIRED: "Activate email time expired",
-    PASSWD_REMIND_SUCCES:"Reset Password email has been sended. Check your E-mail",
-    PASSWD_REMIND_WRONG_EMAIL:"Cannot find user with that email",
-    LOGOUT_SUCCESS:"You has been logged out.",
-    TOKEN_NOT_EXIST:"Provided token has propably expired or you are not logged in. Please login again.",
-    ACCOUNT_ACTIVATION_SUCCESS:"Your account has ben activated successfully",
-    ACCOUNT_ALREADY_ACTIVATED:"Account has ben already activated.",
-    ACCOUNT_NOT_ACTIVATED:"Your acctount is not activated. Please check your adress email.",
-=======
 export const REFRESHING_INTERVAL_TIME_IN_MINUTES = ONE_MINUTE * 5
 
 export const ANSWERS = { // error - success
@@ -56,7 +37,6 @@ export const ANSWERS = { // error - success
     REGISTER_EMAIL_IN_USE:           { code:124, error:"User with provided email already exists in PE. Click remind password to restore your account."},
 
     CREATE_CREDENTIAL_NOT_PROVIDED:  { code:123, error:"Name surname or email is empty." },
->>>>>>> origin/dev-backend-node
 }
 
 const password = "secret123#"
@@ -71,13 +51,8 @@ export const ACTIVATE_FRONT_ADDR = "http://localhost:3000/activate"
 export const EMAIL = {
     ACTIVATION_EXPIRE_TIME: ONE_MINUTE * 30,
     PASSWD_RESET_EXPIRE_TIME: ONE_MINUTE * 10,
-<<<<<<< HEAD
-    ACCTIVATE_ACCOUNT_SUBJECT: "Verify your SASS Portal account.",
-    PASSWORD_RESET_SUBJECT: "Reset your password.",
-=======
     ACCTIVATE_ACCOUNT_SUBJECT: "Aktywuj swoje konto w Platformie Edukacyjnej.",
     PASSWORD_RESET_SUBJECT: "Zmiania hasła Platformy Edukacyjnej.",
->>>>>>> origin/dev-backend-node
     GMAIL_SERVICE_NAME: "gmail",
     GMAIL_SERVICE_HOST: "smtp.gmail.com",
     GMAIL_SERVICE_SECURE: false,
@@ -86,9 +61,6 @@ export const EMAIL = {
     GMAIL_USER_PASSWORD: password,
 }
 
-<<<<<<< HEAD
-export const DEBUG = false
-=======
 export const PASSWORD_RESTRICTIONS = {
     minLen: 8,
     maxLen: Infinity,
@@ -110,4 +82,3 @@ export const REGISTER_RESTRICTION = {
     canNameSurnameSame: true,
     canSurnamePasswordSame: false,
 }
->>>>>>> origin/dev-backend-node

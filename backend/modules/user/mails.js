@@ -1,10 +1,5 @@
-<<<<<<< HEAD
-import nodemail from "nodemailer";
-
-=======
 import nodemail from "nodemailer"
 // import {EMAIL} from './consts.js'
->>>>>>> origin/dev-backend-node
 // TODO, potrzebuje sprawdzac w db, czy user juz zostal aktywowany.
 
 import {
@@ -14,21 +9,12 @@ import {
   EMAIL,
   REFRESHING_INTERVAL_TIME_IN_MINUTES,
   PASSW_RESET_FRONT_ADDR,
-<<<<<<< HEAD
-} from "./consts.js";
-
-class EmailManager {
-  #acctivateCollection = [];
-  #passwResetCollection = [];
-
-=======
   ONE_MINUTE,
 } from "./consts.js"
 
 class EmailManager {
   #acctivateCollection = []
   #passwResetCollection = []
->>>>>>> origin/dev-backend-node
 
   #transporter = nodemail.createTransport({
     host: EMAIL.GMAIL_SERVICE_HOST,
@@ -39,21 +25,6 @@ class EmailManager {
       user: EMAIL.GMAIL_USER_NAME,
       pass: EMAIL.GMAIL_USER_PASSWORD,
     },
-<<<<<<< HEAD
-  });
-
-  constructor() {
-
-    setInterval(() => { // Acctivation email's
-      console.log("DELETE EXPIRED ACCTIVATION EMAIL MECHANISM.");
-      this.#acctivateCollection = this.#acctivateCollection.filter(this.filterExpireActivationEmails);
-    }, REFRESHING_INTERVAL_TIME_IN_MINUTES);
-
-    setInterval(() => {// Reset Passwd email's
-      console.log("DELETE EXPIRED PASSWD EMAIL MECHANISM.");
-      this.#passwResetCollection = this.#passwResetCollection.filter(this.filterExpireResetEmails);
-    }, REFRESHING_INTERVAL_TIME_IN_MINUTES);
-=======
   })
 
   constructor() {
@@ -64,32 +35,10 @@ class EmailManager {
     setInterval(() => {// Reset Passwd email's
       this.#passwResetCollection = this.#passwResetCollection.filter(this.filterExpireResetEmails)
     }, REFRESHING_INTERVAL_TIME_IN_MINUTES)
->>>>>>> origin/dev-backend-node
   }
 
 
   /**
-<<<<<<< HEAD
-   * 
-   * @param {Object} obj type of emailCollObj.
-   */
-  filterExpireResetEmails = (obj) => (Date.now() - obj.SEND_DATE) < EMAIL.PASSWD_RESET_EXPIRE_TIME; // nie minelo .
-
-  getAllAcctivationEmails = ()=>this.#acctivateCollection;
-  getAllResetEmails = ()=>this.#acctivateCollection;
-
-  /**
-   * 
-   * @param {Object} obj type of emailCollObj.
-   */
-  filterExpireActivationEmails = (obj) => (Date.now() - obj.SEND_DATE) < EMAIL.ACTIVATION_EXPIRE_TIME; // nie minelo .
-
-  /**
-   * Checks that an account can be activated.
-   * 
-   * @param {number} login 
-   * @returns {boolean} 
-=======
    *
    * @param {Object} obj type of emailCollObj.
    */
@@ -109,28 +58,10 @@ class EmailManager {
    *
    * @param {number} login
    * @returns {boolean}
->>>>>>> origin/dev-backend-node
    */
   isActiveActivationEmail(login) {
     //TODO: refactor return user OBJ or false.
 
-<<<<<<< HEAD
-    const collObj = this.#acctivateCollection.find((obj, idx) => obj.USER_ID == login);
-
-    if (collObj) {
-      const idx = this.#acctivateCollection.indexOf(collObj);
-      this.#acctivateCollection.splice(idx, 1); // delete email obj in collection.
-      return true;
-    }
-    return false;
-  }
-
-  /**
-    * Checks that an account can be activated. If can the email will be deleted. otherwise false.
-    * 
-    * @param {number} login 
-    * @returns {string|boolean}  restuns  
-=======
     const collObj = this.#acctivateCollection.find((obj, idx) => obj.USER_ID == login)
     if (!collObj) return false
 
@@ -147,41 +78,12 @@ class EmailManager {
     *
     * @param {number} login
     * @returns {string|boolean}  restuns
->>>>>>> origin/dev-backend-node
     */
   isActiveResetEmail(uniqueId) {
     //TODO: refactor return user OBJ or false.
 
     const collObj = this.#passwResetCollection.find(
       (obj, idx) => obj.UNIQUE_ID == uniqueId
-<<<<<<< HEAD
-    );
-
-    if (collObj) {
-      const idx = this.#passwResetCollection.indexOf(collObj);
-      this.#passwResetCollection.splice(idx, 1); // delete email obj in collection.
-      return collObj.EMAIL;
-    }
-    return false;
-  }
-
-  findEmailById(passwResetUniqueCode) {
-    const resetemailobj = this.#passwResetCollection.find((obj) => obj.UNIQUE_ID == passwResetUniqueCode);
-    return resetemailobj.EMAIL;
-  }
-
-  removeResetEmail(passwResetUniqueCode) {
-    this.#passwResetCollection = this.#passwResetCollection.filter(obj => obj.UNIQUE_ID != passwResetUniqueCode);
-  }
-
-
-  /**
-   * 
-   * @returns {number} uniqueId.
-   */
-  sendResetPasswordEmail(email) {
-    var uniqueId = Math.random();
-=======
     )
 
     if (!collObj) return false
@@ -233,26 +135,17 @@ class EmailManager {
    */
   sendResetPasswordEmail(email) {
     var uniqueId = Math.random()
->>>>>>> origin/dev-backend-node
 
     const mailOptions = {
       from: EMAIL.GMAIL_USER_NAME,
       to: email,
       subject: EMAIL.PASSWORD_RESET_SUBJECT,
-<<<<<<< HEAD
-      html: `<h1><a href="${PASSW_RESET_FRONT_ADDR}?code=${uniqueId}"> RESET PASSWORD </a></h1>
-             <br/> ${PASSW_RESET_ADDR} --> make  post call.
-             
-      `,
-    };
-=======
       html: `
       <h1>
       <a href="${PASSW_RESET_FRONT_ADDR}?code=${uniqueId}"> Kliknij aby zrezetować hasło. </a>
-      </h1> 
+      </h1>
       `,
     }
->>>>>>> origin/dev-backend-node
     const emailCollObj = {
       EMAIL_OPTIONS: mailOptions,
       SEND_DATE: Date.now(),
@@ -262,20 +155,6 @@ class EmailManager {
 
     this.#transporter.sendMail(mailOptions, (err, info) => {
       if (err) {
-<<<<<<< HEAD
-        console.log("Cannot send e-mail", { err });
-      } else {
-        const emailCollObj = {
-          EMAIL_OPTIONS: mailOptions,
-          SEND_DATE: Date.now(),
-          UNIQUE_ID: uniqueId,
-          EMAIL: email,
-        };
-        console.log(`Reset Passw send --> `, { email: emailCollObj.EMAIL_OPTIONS.to });
-        this.#passwResetCollection.push(emailCollObj);
-      }
-    });
-=======
         console.log("Cannot send e-mail", { err })
       } else {
         // const emailCollObj = {
@@ -288,35 +167,15 @@ class EmailManager {
         this.#passwResetCollection.push(emailCollObj)
       }
     })
->>>>>>> origin/dev-backend-node
 
   }
 
   /**
-<<<<<<< HEAD
-   * 
-=======
    *
->>>>>>> origin/dev-backend-node
    * @param {string} name User name.
    * @param {string} email User personal e-mail.
    * @param {number} userID User login.
    */
-<<<<<<< HEAD
-  sendAcctivationEmail(name, email, userID) {
-    const mailOptions = {
-      from: EMAIL.GMAIL_USER_NAME,
-      to: email,
-      subject: EMAIL.ACCTIVATE_ACCOUNT_SUBJECT,
-      html: `<h1><a href="${ACTIVATE_FRONT_ADDR}?code=${userID}"> Acctivate PAGE </a></h1>
-             <br/><a href="${ACTIVATE_REQUEST_ADDR}/${userID}"> API ACCTIVATE REQUEST </a>
-      `,
-    };
-   // console.log({ mailOptions });
-    this.#transporter.sendMail(mailOptions, (err, info) => {
-      if (err) {
-        console.log("Cannot send e-mail", { err });
-=======
   sendAcctivationEmail(userObj) {
     const mailOptions = {
       from: EMAIL.GMAIL_USER_NAME,
@@ -335,23 +194,10 @@ class EmailManager {
     this.#transporter.sendMail(mailOptions, (err, info) => {
       if (err) {
         console.log("Cannot send e-mail", { err })
->>>>>>> origin/dev-backend-node
       } else {
         const emailCollObj = {
           EMAIL_OPTIONS: mailOptions,
           SEND_DATE: Date.now(),
-<<<<<<< HEAD
-          USER_ID: userID,
-        };
-        this.#acctivateCollection.push(emailCollObj);
-        console.log(`Email succesfully. USER LOGIN ${userID} E-MAIL ${emailCollObj.EMAIL_OPTIONS.to}`);
-      }
-    });
-  }
-}
-
-export default new EmailManager();
-=======
           USER_ID: userObj.id,
         }
         this.#acctivateCollection.push(emailCollObj)
@@ -362,4 +208,3 @@ export default new EmailManager();
 }
 
 export default new EmailManager()
->>>>>>> origin/dev-backend-node
