@@ -51,7 +51,11 @@ export default class Logger {
   }
 
   /** @type {Color} */
+<<<<<<< HEAD
   static defaultColor = `white`
+=======
+  static defaultColor = `fgWhite`
+>>>>>>> origin/dev-backend-node
   static defaultBackground = ``
   static colorsReg = new RegExp( `\\[(?<color>${Object.keys( this.colors ).join( `|` )})](?<data>.*?)\\[]`, `gs` )
 
@@ -76,6 +80,10 @@ export default class Logger {
 
     this.isSeparated = options.separated
     this.#logger = items => {
+<<<<<<< HEAD
+=======
+      // console.log( 1 )
+>>>>>>> origin/dev-backend-node
       if (items.length != nonStaticPartsCount) {
         throw new Error( `Wrong count of passed items. Expected ${nonStaticPartsCount}, found ${items.length}` )
       }
@@ -83,6 +91,10 @@ export default class Logger {
       const preparedItems = []
       const date = Logger.getDate( options.locales )
 
+<<<<<<< HEAD
+=======
+      // console.log( 2 )
+>>>>>>> origin/dev-backend-node
       for (const part of parts) {
         const {
           color,
@@ -102,6 +114,10 @@ export default class Logger {
           ? `${value.slice( 0 , maxLen - 3 )}...`
           : value
 
+<<<<<<< HEAD
+=======
+        // console.log( -3 )
+>>>>>>> origin/dev-backend-node
         switch (align) {
           case `left`:
             fieldValue += ` `.repeat( fieldLength )
@@ -124,6 +140,10 @@ export default class Logger {
           firstSplitLen,
         } )
 
+<<<<<<< HEAD
+=======
+        // console.log( -4 )
+>>>>>>> origin/dev-backend-node
         preparedItems.push( fieldValue.replace( /\n/g, `\n` + (options.newLinePrefix || `     | `) )
           .replace( `{YYYY}`, date.YYYY )
           .replace( `{MM}`, date.MM )
@@ -139,6 +159,10 @@ export default class Logger {
           } )
         )
       }
+<<<<<<< HEAD
+=======
+      // console.log( 5 )
+>>>>>>> origin/dev-backend-node
 
       console.log( pattern, ...preparedItems )
     }
@@ -153,7 +177,11 @@ export default class Logger {
    * @param {Number} lineLength
    * @param {Number} firstLineLength
    */
+<<<<<<< HEAD
   static split( string, lineLength, { firstSplitLen=lineLength, separateBreakBlock=false } ) {
+=======
+  static split( string, lineLength, { firstSplitLen=lineLength, separateBreakBlock=false }={} ) {
+>>>>>>> origin/dev-backend-node
     const lBrReg = /[- ,:;.]/
     const fL = separateBreakBlock ? lineLength : firstSplitLen
     const l = lineLength
@@ -224,4 +252,19 @@ export function logUnderControl( logger, ...data ) {
 
   lastLogger = logger
   logger.log( ...data )
+<<<<<<< HEAD
+=======
+}
+
+export function addNextLineToLog( string=`` ) {
+  const defaultColor = Logger.colors[ Logger.defaultColor ]
+  const coloredString = Logger.split( string ).replace( Logger.colorsReg, (...match) => {
+    const { color, data } = match[ match.length - 1 ]
+    const text = data.replace( /\n     \| /g, `\n     ${defaultColor}| ${Logger.colors[ color ]}` )
+
+    return `${Logger.colors[ color ]}${text}${defaultColor}`
+  } )
+
+  console.log( `  - ${coloredString}` )
+>>>>>>> origin/dev-backend-node
 }
