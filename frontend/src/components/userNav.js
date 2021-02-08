@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from "react"
 import { Link } from "gatsby"
 
-import URLS from "../utils/urls.js"
+import URLS, { HOST } from "../utils/urls.js"
 import { authFetch } from "../utils/auth.js"
 import PlatformAccessor, { PlatformAdder } from "../models/platformAccessor.js"
 
 import classes from "./userNav.module.css"
-import { processUrn } from "../utils/functions.js"
 
-const defaultAvatarSrc = processUrn( `/media/image/avatarDefault.jpg` )
+const defaultAvatarSrc = `${HOST}/media/image/avatarDefault.jpg`
 
 const accessorsMap = platform => (
   <PlatformAccessor key={platform.id} platform={platform} />

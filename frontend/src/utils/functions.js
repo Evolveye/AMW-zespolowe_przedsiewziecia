@@ -108,9 +108,3 @@ export function memoizedFetch({
       cb(data)
     })
 }
-
-export function processUrn(urn) {
-  const url = `/`
-
-  return url + urn
-}
