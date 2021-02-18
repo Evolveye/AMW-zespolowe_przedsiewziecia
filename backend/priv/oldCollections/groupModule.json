@@ -1,0 +1,99 @@
+[{
+  "_id": {
+    "$oid": "601d8484d7182f09ecfd92b2"
+  },
+  "id": "1612547204620t7800678002538672r",
+  "lecturer": {
+    "id": "1612547183345t9011626731200102r",
+    "name": "Piotr",
+    "surname": "Pelek",
+    "email": "adam.szr98@gmail.com",
+    "login": "Pi780Pe",
+    "password": "3A3042In14(9",
+    "activated": true,
+    "avatar": "/media/image/avatarDefault.jpg",
+    "createdDatetime": 1612547183345
+  },
+  "created": 1612547204620,
+  "name": "informatyka",
+  "platformId": "1612547061148t45475559048511816r",
+  "membersIds": [
+    "1612547183345t9011626731200102r",
+    "1612547193563t31859588080962276r",
+    "1612547161477t6146368469313679r",
+    "1612547167424t07967622315769174r",
+    "1612547140482t4975565396654822r",
+    "1612549271799t13543762169056017r"
+  ]
+},{
+  "_id": {
+    "$oid": "601d848bd7182f09ecfd92b6"
+  },
+  "id": "1612547211539t26713156945161565r",
+  "lecturer": {
+    "id": "1612547174076t4864182754179409r",
+    "name": "Ewa",
+    "surname": "Wenda",
+    "email": "adam.szr98@gmail.com",
+    "login": "Ew048We",
+    "password": "mp2U90704Z52",
+    "activated": true,
+    "avatar": "/media/image/avatarDefault.jpg",
+    "createdDatetime": 1612547174076
+  },
+  "created": 1612547211539,
+  "name": "math",
+  "platformId": "1612547061148t45475559048511816r",
+  "membersIds": [
+    "1612547174076t4864182754179409r",
+    "1612547140482t4975565396654822r",
+    "1612547193563t31859588080962276r",
+    "1612547161477t6146368469313679r",
+    "1612549271799t13543762169056017r"
+  ]
+},{
+  "_id": {
+    "$oid": "601dad0e3601c62bd47b5718"
+  },
+  "id": "1612557582589t2278706202155516r",
+  "lecturer": {
+    "id": "1612547140482t4975565396654822r",
+    "name": "Monika",
+    "surname": "Jelonek",
+    "email": "adam.szr98@gmail.com",
+    "login": "mon",
+    "password": "mon",
+    "activated": true,
+    "avatar": "/media/image/avatarDefault.jpg",
+    "createdDatetime": 1612547140482
+  },
+  "created": 1612557582589,
+  "name": "kolarstwo",
+  "platformId": "1612547061148t45475559048511816r",
+  "membersIds": [
+    "1612547140482t4975565396654822r",
+    "1612553374033t15601442483826689r"
+  ]
+},{
+  "_id": {
+    "$oid": "601dad1f3601c62bd47b571c"
+  },
+  "id": "1612557599566t43282332162567205r",
+  "lecturer": {
+    "id": "1612547183345t9011626731200102r",
+    "name": "Piotr",
+    "surname": "Pelek",
+    "email": "adam.szr98@gmail.com",
+    "login": "piot",
+    "password": "piot",
+    "activated": true,
+    "avatar": "/media/image/avatarDefault.jpg",
+    "createdDatetime": 1612547183345
+  },
+  "created": 1612557599566,
+  "name": "wedkarstwo",
+  "platformId": "1612547061148t45475559048511816r",
+  "membersIds": [
+    "1612547183345t9011626731200102r"
+  ]
+}]

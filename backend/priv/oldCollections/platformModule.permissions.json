@@ -1,0 +1,91 @@
+[{
+  "_id": {
+    "$oid": "601d83f5d7182f09ecfd92a0"
+  },
+  "id": "1612547061151t9243550921045849r",
+  "referenceId": "1612547061148t45475559048511816r",
+  "name": "student",
+  "isMaster": false,
+  "isPersonel": false,
+  "canTeach": true,
+  "canEditDetails": false,
+  "canManageUsers": false,
+  "canManageRoles": false,
+  "canManageGroups": false,
+  "canManageCalendar": false
+},{
+  "_id": {
+    "$oid": "601d83f5d7182f09ecfd92a1"
+  },
+  "id": "1612547061151t39721328576301906r",
+  "referenceId": "1612547061148t45475559048511816r",
+  "name": "lecturer",
+  "isMaster": false,
+  "isPersonel": true,
+  "canTeach": true,
+  "canEditDetails": false,
+  "canManageUsers": false,
+  "canManageRoles": false,
+  "canManageGroups": false,
+  "canManageCalendar": false
+},{
+  "_id": {
+    "$oid": "601d83f5d7182f09ecfd92a2"
+  },
+  "id": "1612547061151t4937391241122058r",
+  "referenceId": "1612547061148t45475559048511816r",
+  "name": "owner",
+  "isMaster": true,
+  "isPersonel": false,
+  "canTeach": false,
+  "canEditDetails": false,
+  "canManageUsers": false,
+  "canManageRoles": false,
+  "canManageGroups": false,
+  "canManageCalendar": false
+},{
+  "_id": {
+    "$oid": "601dae893601c62bd47b572b"
+  },
+  "id": "1612557961768t6437365071336076r",
+  "referenceId": "1612557961765t92110571304883r",
+  "name": "student",
+  "isMaster": false,
+  "isPersonel": false,
+  "canTeach": true,
+  "canEditDetails": false,
+  "canManageUsers": false,
+  "canManageRoles": false,
+  "canManageGroups": false,
+  "canManageCalendar": false
+},{
+  "_id": {
+    "$oid": "601dae893601c62bd47b572c"
+  },
+  "id": "1612557961768t9167511231681789r",
+  "referenceId": "1612557961765t92110571304883r",
+  "name": "lecturer",
+  "isMaster": false,
+  "isPersonel": true,
+  "canTeach": true,
+  "canEditDetails": false,
+  "canManageUsers": false,
+  "canManageRoles": false,
+  "canManageGroups": false,
+  "canManageCalendar": false
+},{
+  "_id": {
+    "$oid": "601dae893601c62bd47b572d"
+  },
+  "id": "1612557961768t6934536695440772r",
+  "referenceId": "1612557961765t92110571304883r",
+  "name": "owner",
+  "isMaster": true,
+  "isPersonel": false,
+  "canTeach": false,
+  "canEditDetails": false,
+  "canManageUsers": false,
+  "canManageRoles": false,
+  "canManageGroups": false,
+  "canManageCalendar": false
+}]

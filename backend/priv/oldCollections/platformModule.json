@@ -1,0 +1,86 @@
+[{
+  "_id": {
+    "$oid": "601d83f5d7182f09ecfd929f"
+  },
+  "id": "1612547061148t45475559048511816r",
+  "owner": {
+    "id": "1612243289081t9344725563119318r",
+    "name": "adam",
+    "surname": "adam",
+    "email": "adam.brzuchowo@gmail.com",
+    "login": "adam",
+    "password": "adam",
+    "activated": true,
+    "avatar": "/media/image/avatarDefault.jpg",
+    "createdDatetime": 1612243289081
+  },
+  "created": 1612547061148,
+  "administrator": {
+    "id": "1612243289081t9344725563119318r",
+    "name": "adam",
+    "surname": "adam",
+    "email": "adam.brzuchowo@gmail.com",
+    "login": "adam",
+    "password": "adam",
+    "activated": true,
+    "avatar": "/media/image/avatarDefault.jpg",
+    "createdDatetime": 1612243289081
+  },
+  "name": "zslit",
+  "membersIds": [
+    "1612243289081t9344725563119318r",
+    "1612547161477t6146368469313679r",
+    "1612547167424t07967622315769174r",
+    "1612547174076t4864182754179409r",
+    "1612547183345t9011626731200102r",
+    "1612547193563t31859588080962276r",
+    "1612549271799t13543762169056017r",
+    "1612553374033t15601442483826689r",
+    "1612680158553t17919548280054332r",
+    "1612680331693t7481935080884945r",
+    "1612680472453t2817051796727663r",
+    "1612681338322t5075268838035707r",
+    "1612681741340t38808918679924576r"
+  ],
+  "assignedGroups": [
+    "1612547204620t7800678002538672r",
+    "1612547211539t26713156945161565r",
+    "1612557582589t2278706202155516r",
+    "1612557599566t43282332162567205r"
+  ]
+},{
+  "_id": {
+    "$oid": "601dae893601c62bd47b572a"
+  },
+  "id": "1612557961765t92110571304883r",
+  "owner": {
+    "id": "1612547140482t4975565396654822r",
+    "name": "Monika",
+    "surname": "Jelonek",
+    "email": "adam.szr98@gmail.com",
+    "login": "mon",
+    "password": "mon",
+    "activated": true,
+    "avatar": "/media/image/avatarDefault.jpg",
+    "createdDatetime": 1612547140482
+  },
+  "created": 1612557961765,
+  "administrator": {
+    "id": "1612547140482t4975565396654822r",
+    "name": "Monika",
+    "surname": "Jelonek",
+    "email": "adam.szr98@gmail.com",
+    "login": "mon",
+    "password": "mon",
+    "activated": true,
+    "avatar": "/media/image/avatarDefault.jpg",
+    "createdDatetime": 1612547140482
+  },
+  "name": "math",
+  "membersIds": [
+    "1612547140482t4975565396654822r"
+  ],
+  "assignedGroups": [
+    "1612557968206t971905834303584r"
+  ]
+}]

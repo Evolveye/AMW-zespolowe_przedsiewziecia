@@ -1,0 +1,193 @@
+[{
+  "_id": {
+    "$oid": "601d8484d7182f09ecfd92af"
+  },
+  "id": "1612547204620t8917429827275689r",
+  "referenceId": "1612547204620t7800678002538672r",
+  "name": "lecturer",
+  "isMaster": true,
+  "canManageUsers": true,
+  "canManageNotes": true,
+  "canManageMeets": true,
+  "userId": "1612547183345t9011626731200102r"
+},{
+  "_id": {
+    "$oid": "601d848bd7182f09ecfd92b3"
+  },
+  "id": "1612547211539t9078770137155858r",
+  "referenceId": "1612547211539t26713156945161565r",
+  "name": "lecturer",
+  "isMaster": true,
+  "canManageUsers": true,
+  "canManageNotes": true,
+  "canManageMeets": true,
+  "userId": "1612547174076t4864182754179409r"
+},{
+  "_id": {
+    "$oid": "601d84b2d7182f09ecfd92b7"
+  },
+  "id": "1612547250437t7518740946407758r",
+  "referenceId": "1612547204620t7800678002538672r",
+  "name": "student",
+  "isMaster": false,
+  "canManageUsers": false,
+  "canManageNotes": false,
+  "canManageMeets": false,
+  "userId": "1612547140482t4975565396654822r"
+},{
+  "_id": {
+    "$oid": "601d84bfd7182f09ecfd92b8"
+  },
+  "id": "1612547263448t902571767593936r",
+  "referenceId": "1612547204620t7800678002538672r",
+  "name": "student",
+  "isMaster": false,
+  "canManageUsers": false,
+  "canManageNotes": false,
+  "canManageMeets": false,
+  "userId": "1612547193563t31859588080962276r"
+},{
+  "_id": {
+    "$oid": "601d84c3d7182f09ecfd92b9"
+  },
+  "id": "1612547267533t9405965360050892r",
+  "referenceId": "1612547204620t7800678002538672r",
+  "name": "student",
+  "isMaster": false,
+  "canManageUsers": false,
+  "canManageNotes": false,
+  "canManageMeets": false,
+  "userId": "1612547161477t6146368469313679r"
+},{
+  "_id": {
+    "$oid": "601d84cbd7182f09ecfd92ba"
+  },
+  "id": "1612547275633t18172226178412232r",
+  "referenceId": "1612547204620t7800678002538672r",
+  "name": "student",
+  "isMaster": false,
+  "canManageUsers": false,
+  "canManageNotes": false,
+  "canManageMeets": false,
+  "userId": "1612547167424t07967622315769174r"
+},{
+  "_id": {
+    "$oid": "601d84e6d7182f09ecfd92bb"
+  },
+  "id": "1612547302004t6363077036057012r",
+  "referenceId": "1612547204620t7800678002538672r",
+  "name": "student",
+  "isMaster": false,
+  "canManageUsers": false,
+  "canManageNotes": false,
+  "canManageMeets": false,
+  "userId": "1612547140482t4975565396654822r"
+},{
+  "_id": {
+    "$oid": "601d84f1d7182f09ecfd92bc"
+  },
+  "id": "1612547313997t2709332556347741r",
+  "referenceId": "1612547211539t26713156945161565r",
+  "name": "student",
+  "isMaster": false,
+  "canManageUsers": false,
+  "canManageNotes": false,
+  "canManageMeets": false,
+  "userId": "1612547140482t4975565396654822r"
+},{
+  "_id": {
+    "$oid": "601d84f7d7182f09ecfd92bd"
+  },
+  "id": "1612547319362t9675163916959217r",
+  "referenceId": "1612547211539t26713156945161565r",
+  "name": "student",
+  "isMaster": false,
+  "canManageUsers": false,
+  "canManageNotes": false,
+  "canManageMeets": false,
+  "userId": "1612547193563t31859588080962276r"
+},{
+  "_id": {
+    "$oid": "601d84fdd7182f09ecfd92be"
+  },
+  "id": "1612547325191t5056450041367833r",
+  "referenceId": "1612547211539t26713156945161565r",
+  "name": "student",
+  "isMaster": false,
+  "canManageUsers": false,
+  "canManageNotes": false,
+  "canManageMeets": false,
+  "userId": "1612547161477t6146368469313679r"
+},{
+  "_id": {
+    "$oid": "601d8cad0113d31894476b91"
+  },
+  "id": "1612549293788t7451360260777782r",
+  "referenceId": "1612547211539t26713156945161565r",
+  "name": "student",
+  "isMaster": false,
+  "canManageUsers": false,
+  "canManageNotes": false,
+  "canManageMeets": false,
+  "userId": "1612549271799t13543762169056017r"
+},{
+  "_id": {
+    "$oid": "601d8d960113d31894476b97"
+  },
+  "id": "1612549526762t3908079733544012r",
+  "referenceId": "1612547204620t7800678002538672r",
+  "name": "student",
+  "isMaster": false,
+  "canManageUsers": false,
+  "canManageNotes": false,
+  "canManageMeets": false,
+  "userId": "1612549271799t13543762169056017r"
+},{
+  "_id": {
+    "$oid": "601d9cb130a65e37000b13ae"
+  },
+  "id": "1612553393738t006512507471937212r",
+  "referenceId": "1612547211539t26713156945161565r",
+  "name": "student",
+  "isMaster": false,
+  "canManageUsers": false,
+  "canManageNotes": false,
+  "canManageMeets": false,
+  "userId": "1612553374033t15601442483826689r"
+},{
+  "_id": {
+    "$oid": "601dad0e3601c62bd47b5715"
+  },
+  "id": "1612557582590t39396507181298257r",
+  "referenceId": "1612557582589t2278706202155516r",
+  "name": "lecturer",
+  "isMaster": true,
+  "canManageUsers": true,
+  "canManageNotes": true,
+  "canManageMeets": true,
+  "userId": "1612547140482t4975565396654822r"
+},{
+  "_id": {
+    "$oid": "601dad1f3601c62bd47b5719"
+  },
+  "id": "1612557599567t045191570310339824r",
+  "referenceId": "1612557599566t43282332162567205r",
+  "name": "lecturer",
+  "isMaster": true,
+  "canManageUsers": true,
+  "canManageNotes": true,
+  "canManageMeets": true,
+  "userId": "1612547183345t9011626731200102r"
+},{
+  "_id": {
+    "$oid": "601dad7d3601c62bd47b571e"
+  },
+  "id": "1612557693016t898306114770657r",
+  "referenceId": "1612557582589t2278706202155516r",
+  "name": "student",
+  "isMaster": false,
+  "canManageUsers": false,
+  "canManageNotes": false,
+  "canManageMeets": false,
+  "userId": "1612553374033t15601442483826689r"
+}]

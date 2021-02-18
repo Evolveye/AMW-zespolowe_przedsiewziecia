@@ -1,0 +1,241 @@
+[{
+  "_id": {
+    "$oid": "601d83f5d7182f09ecfd929e"
+  },
+  "id": "1612547061149t815359856893854r",
+  "referenceId": "1612547061148t45475559048511816r",
+  "name": "owner",
+  "isMaster": true,
+  "isPersonel": false,
+  "canTeach": false,
+  "canEditDetails": false,
+  "canManageUsers": false,
+  "canManageRoles": false,
+  "canManageGroups": false,
+  "canManageCalendar": false,
+  "userId": "1612243289081t9344725563119318r"
+},{
+  "_id": {
+    "$oid": "601d8444d7182f09ecfd92a4"
+  },
+  "id": "1612547061151t9243550921045849r",
+  "referenceId": "1612547061148t45475559048511816r",
+  "name": "lecturer",
+  "isMaster": false,
+  "isPersonel": true,
+  "canTeach": true,
+  "canEditDetails": false,
+  "canManageUsers": false,
+  "canManageRoles": false,
+  "canManageGroups": false,
+  "canManageCalendar": false,
+  "userId": "1612547140482t4975565396654822r"
+},{
+  "_id": {
+    "$oid": "601d8459d7182f09ecfd92a6"
+  },
+  "id": "1612547061151t9243550921045849r",
+  "referenceId": "1612547061148t45475559048511816r",
+  "name": "student",
+  "isMaster": false,
+  "isPersonel": false,
+  "canTeach": true,
+  "canEditDetails": false,
+  "canManageUsers": false,
+  "canManageRoles": false,
+  "canManageGroups": false,
+  "canManageCalendar": false,
+  "userId": "1612547161477t6146368469313679r"
+},{
+  "_id": {
+    "$oid": "601d845fd7182f09ecfd92a8"
+  },
+  "id": "1612547061151t9243550921045849r",
+  "referenceId": "1612547061148t45475559048511816r",
+  "name": "student",
+  "isMaster": false,
+  "isPersonel": false,
+  "canTeach": true,
+  "canEditDetails": false,
+  "canManageUsers": false,
+  "canManageRoles": false,
+  "canManageGroups": false,
+  "canManageCalendar": false,
+  "userId": "1612547167424t07967622315769174r"
+},{
+  "_id": {
+    "$oid": "601d8466d7182f09ecfd92aa"
+  },
+  "id": "1612547061151t9243550921045849r",
+  "referenceId": "1612547061148t45475559048511816r",
+  "name": "lecturer",
+  "isMaster": false,
+  "isPersonel": true,
+  "canTeach": true,
+  "canEditDetails": false,
+  "canManageUsers": false,
+  "canManageRoles": false,
+  "canManageGroups": false,
+  "canManageCalendar": false,
+  "userId": "1612547174076t4864182754179409r"
+},{
+  "_id": {
+    "$oid": "601d846fd7182f09ecfd92ac"
+  },
+  "id": "1612547061151t9243550921045849r",
+  "referenceId": "1612547061148t45475559048511816r",
+  "name": "lecturer",
+  "isMaster": false,
+  "isPersonel": true,
+  "canTeach": true,
+  "canEditDetails": false,
+  "canManageUsers": false,
+  "canManageRoles": false,
+  "canManageGroups": false,
+  "canManageCalendar": false,
+  "userId": "1612547183345t9011626731200102r"
+},{
+  "_id": {
+    "$oid": "601d8479d7182f09ecfd92ae"
+  },
+  "id": "1612547061151t9243550921045849r",
+  "referenceId": "1612547061148t45475559048511816r",
+  "name": "student",
+  "isMaster": false,
+  "isPersonel": false,
+  "canTeach": true,
+  "canEditDetails": false,
+  "canManageUsers": false,
+  "canManageRoles": false,
+  "canManageGroups": false,
+  "canManageCalendar": false,
+  "userId": "1612547193563t31859588080962276r"
+},{
+  "_id": {
+    "$oid": "601d8c970113d31894476b8f"
+  },
+  "id": "1612547061151t9243550921045849r",
+  "referenceId": "1612547061148t45475559048511816r",
+  "name": "student",
+  "isMaster": false,
+  "isPersonel": false,
+  "canTeach": true,
+  "canEditDetails": false,
+  "canManageUsers": false,
+  "canManageRoles": false,
+  "canManageGroups": false,
+  "canManageCalendar": false,
+  "userId": "1612549271799t13543762169056017r"
+},{
+  "_id": {
+    "$oid": "601d9c9e30a65e37000b13ad"
+  },
+  "id": "1612547061151t9243550921045849r",
+  "referenceId": "1612547061148t45475559048511816r",
+  "name": "student",
+  "isMaster": false,
+  "isPersonel": false,
+  "canTeach": true,
+  "canEditDetails": false,
+  "canManageUsers": false,
+  "canManageRoles": false,
+  "canManageGroups": false,
+  "canManageCalendar": false,
+  "userId": "1612553374033t15601442483826689r"
+},{
+  "_id": {
+    "$oid": "601dae893601c62bd47b5729"
+  },
+  "id": "1612557961765t9792041196654424r",
+  "referenceId": "1612557961765t92110571304883r",
+  "name": "owner",
+  "isMaster": true,
+  "isPersonel": false,
+  "canTeach": false,
+  "canEditDetails": false,
+  "canManageUsers": false,
+  "canManageRoles": false,
+  "canManageGroups": false,
+  "canManageCalendar": false,
+  "userId": "1612547140482t4975565396654822r"
+},{
+  "_id": {
+    "$oid": "601f8bdea14c9e1784b70e29"
+  },
+  "id": "1612547061151t9243550921045849r",
+  "referenceId": "1612547061148t45475559048511816r",
+  "name": "student",
+  "isMaster": false,
+  "isPersonel": false,
+  "canTeach": true,
+  "canEditDetails": false,
+  "canManageUsers": false,
+  "canManageRoles": false,
+  "canManageGroups": false,
+  "canManageCalendar": false,
+  "userId": "1612680158553t17919548280054332r"
+},{
+  "_id": {
+    "$oid": "601f8c8b70d1ee3324a7d212"
+  },
+  "id": "1612547061151t9243550921045849r",
+  "referenceId": "1612547061148t45475559048511816r",
+  "name": "student",
+  "isMaster": false,
+  "isPersonel": false,
+  "canTeach": true,
+  "canEditDetails": false,
+  "canManageUsers": false,
+  "canManageRoles": false,
+  "canManageGroups": false,
+  "canManageCalendar": false,
+  "userId": "1612680331693t7481935080884945r"
+},{
+  "_id": {
+    "$oid": "601f8e0670d1ee3324a7d214"
+  },
+  "id": "1612547061151t9243550921045849r",
+  "referenceId": "1612547061148t45475559048511816r",
+  "name": "student",
+  "isMaster": false,
+  "isPersonel": false,
+  "canTeach": true,
+  "canEditDetails": false,
+  "canManageUsers": false,
+  "canManageRoles": false,
+  "canManageGroups": false,
+  "canManageCalendar": false,
+  "userId": "1612680472453t2817051796727663r"
+},{
+  "_id": {
+    "$oid": "601f907a2130c61ff0f6311e"
+  },
+  "id": "1612547061151t9243550921045849r",
+  "referenceId": "1612547061148t45475559048511816r",
+  "name": "student",
+  "isMaster": false,
+  "isPersonel": false,
+  "canTeach": true,
+  "canEditDetails": false,
+  "canManageUsers": false,
+  "canManageRoles": false,
+  "canManageGroups": false,
+  "canManageCalendar": false,
+  "userId": "1612681338322t5075268838035707r"
+},{
+  "_id": {
+    "$oid": "601f920dd5cda511d43d045e"
+  },
+  "id": "1612547061151t9243550921045849r",
+  "referenceId": "1612547061148t45475559048511816r",
+  "name": "student",
+  "isMaster": false,
+  "isPersonel": false,
+  "canTeach": true,
+  "canEditDetails": false,
+  "canManageUsers": false,
+  "canManageRoles": false,
+  "canManageGroups": false,
+  "canManageCalendar": false,
+  "userId": "1612681741340t38808918679924576r"
+}]

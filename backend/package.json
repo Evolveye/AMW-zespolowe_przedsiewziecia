@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "type": "module",
   "description": "sass backend node edition",
-  "main": "server.js",
+  "main": "index.js",
   "scripts": {
-    "test": "node ./node_modules/mocha/bin/mocha ./server.test.js",
-    "start": "node server.js"
+    "test": "node ./node_modules/mocha/bin/mocha ./index.js",
+    "start": "node index.js"
   },
   "author": "",
   "license": "ISC",
@@ -15,12 +15,18 @@
     "chai": "^4.2.0",
     "cors": "^2.8.5",
     "express": "^4.17.1",
+    "express-graphql": "^0.12.0",
+    "graphql": "^15.5.0",
     "mongodb": "^3.6.3",
+    "mongoose": "^5.11.15",
     "nodemailer": "^6.4.17",
     "socket.io": "^3.0.4",
     "ws": "^7.4.2"
   },
   "devDependencies": {
+    "@babel/eslint-parser": "^7.12.13",
+    "@babel/preset-env": "^7.12.13",
+    "eslint": "^7.19.0",
     "mocha": "^8.2.1",
     "node-fetch": "^2.6.1",
     "request": "^2.88.2"
