@@ -1,0 +1,50 @@
+.root {
+  display: grid;
+  grid-template:
+    "mainnav  user    header" 50px
+    "mainnav  nav     main"   calc( 100vh - 80px )
+    "mainnav  footer  main"   30px /
+     100px    150px   1fr;
+}
+
+.mainNav {
+  grid-area: mainnav;
+  background-color: burlywood;
+}
+
+.userField {
+  grid-area: user;
+  background-color: rosybrown;
+}
+
+.nav {
+  grid-area: nav;
+  background-color: rebeccapurple;
+}
+
+.footer {
+  grid-area: footer;
+  background-color: forestgreen;
+}
+
+.header {
+  grid-area: header;
+  display: grid;
+  grid-template:
+    "titles search" 50px /
+     1fr    300px;
+  background-color: gold;
+}
+    .titlesNav {
+      grid-area: titles;
+      background-color: red;
+    }
+    .search {
+      grid-area: search;
+      background-color: gray;
+    }
+
+.main {
+  grid-area: main;
+  background-color: aqua;
+}

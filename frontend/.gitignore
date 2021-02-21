@@ -65,15 +65,5 @@ public
 yarn-error.log
 .pnp/
 .pnp.js
-
 # Yarn Integrity file
 .yarn-integrity
-
-# Zip file
-*.zip
-
-
-
-# MY EXCLUDES
-backend/*
-*_old

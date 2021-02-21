@@ -1,5 +1,3 @@
 import React from "react"
 
-export default () => (
-  <>404</>
-)
+export default () => <h1>404</h1>
