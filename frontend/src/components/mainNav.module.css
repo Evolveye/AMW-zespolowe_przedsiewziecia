@@ -1,0 +1,33 @@
+.nav {}
+
+.fields {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.field {
+  display: block;
+  margin-top: 5px;
+  width: 100%;
+  background-color: tomato;
+}
+    .fieldIconWrapper {
+      width: 35px;
+      margin: 5px auto;
+      padding: 7px;
+      background-color: white;
+      border-radius: 50%;
+    }
+    .fieldIcon {
+      /* width: 25px;
+      margin: 12px auto;
+      padding: 10px;
+      background-color: white;
+      border-radius: 50%; */
+    }
+    .fieldText {
+      display: block;
+      font-size: 14px;
+      text-align: center;
+    }

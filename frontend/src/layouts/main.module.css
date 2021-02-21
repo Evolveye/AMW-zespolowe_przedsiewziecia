@@ -1,42 +1,73 @@
 .root {
+  --topHeight: 3em;
+
   display: grid;
   grid-template:
-    "mainnav  user    header" 50px
-    "mainnav  nav     main"   calc( 100vh - 80px )
-    "mainnav  footer  main"   30px /
-     100px    150px   1fr;
+    "columnA  columnB header" var( --topHeight )
+    "columnA  columnB main"   calc( 100vh - var( --topHeight ) - 30px )
+    "footer   footer  main"   30px /
+     75px    200px   1fr;
 }
 
-.mainNav {
-  grid-area: mainnav;
-  background-color: burlywood;
-}
 
-.userField {
-  grid-area: user;
-  background-color: rosybrown;
+.columnA {
+  grid-area: columnA;
+  display: grid;
+  grid-template:
+    "logo" var( --topHeight )
+    "mainNav";
 }
+    .logo {
+      grid-area: logo;
+      background-color: yellowgreen;
+      font-size: 10px;
+    }
+    .mainNav {
+      grid-area: mainNav;
+      background-color: burlywood;
+    }
 
-.nav {
-  grid-area: nav;
-  background-color: rebeccapurple;
-}
 
-.footer {
-  grid-area: footer;
-  background-color: forestgreen;
+.columnB {
+  grid-area: columnB;
+  display: grid;
+  grid-template:
+    "user" var( --topHeight )
+    "subNav";
 }
+    .userField {
+      grid-area: user;
+      background-color: rosybrown;
+    }
+    .subNav {
+      grid-area: subNav;
+      display: flex;
+      flex-direction: column;
+      background-color: rebeccapurple;
+    }
+        .subNavField {
+          padding: 5px;
+          margin: 5px;
+          background-color: violet;
+        }
+            .subNavField::before {
+              content: ">";
+            }
+
 
 .header {
   grid-area: header;
   display: grid;
   grid-template:
-    "titles search" 50px /
-     1fr    300px;
+    "linksPath  search" 50px /
+     1fr        300px;
   background-color: gold;
 }
-    .titlesNav {
-      grid-area: titles;
+    .linksPath {
+      grid-area: linksPath;
+      display: flex;
+      align-items: center;
+      padding: 0 1em;
       background-color: red;
     }
     .search {
@@ -44,7 +75,14 @@
       background-color: gray;
     }
 
+
 .main {
   grid-area: main;
   background-color: aqua;
+}
+
+
+.footer {
+  grid-area: footer;
+  background-color: forestgreen;
 }

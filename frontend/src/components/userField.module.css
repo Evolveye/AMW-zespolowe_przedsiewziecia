@@ -1,0 +1,14 @@
+.userField {
+  display: flex;
+}
+
+.avatar {
+  margin: 5px;
+  border-radius: 50%;
+}
+
+.userData {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}

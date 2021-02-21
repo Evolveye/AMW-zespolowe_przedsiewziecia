@@ -106,7 +106,7 @@ input[type="checkbox"], input[type="radio"] {
   border: 1px solid var( --dark );
 }
 
-:focus:not( .is-not-focus ) {
+/* :focus:not( .is-not-focus ) {
   position: relative;
   outline: none;
 }
@@ -120,7 +120,7 @@ input[type="checkbox"], input[type="radio"] {
       border: 1px dashed var( --blue );
       border-radius: inherit;
       z-index: -1;
-    }
+    } */
 
 address {
   font-style: unset;
@@ -255,6 +255,11 @@ address {
   background-color: var( --blue );
 }
 
+.is-centered {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
 
 /*\
