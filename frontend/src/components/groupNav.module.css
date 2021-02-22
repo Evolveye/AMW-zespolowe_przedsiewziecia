@@ -1,0 +1,13 @@
+.nav {
+  display: flex;
+}
+
+.groups {
+  background-color: burlywood;
+  width: var( --logo-width );
+}
+
+.meets {
+  background-color: cadetblue;
+  width: var( --platform-nav-width );
+}

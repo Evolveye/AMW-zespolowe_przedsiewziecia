@@ -1,0 +1,22 @@
+.root {
+  display: grid;
+  grid-template:
+    "groupNav     main"   calc( 100vh - var( --top-height ) - 30px )
+    "groupNav     footer" 30px /
+     max-content  1fr
+}
+
+.groupNav {
+  grid-area: groupNav;
+  background-color: purple;
+}
+
+.main {
+  grid-area: main;
+  background-color: gray;
+}
+
+ .footer {
+  grid-area: footer;
+  background-color: gray;
+ }

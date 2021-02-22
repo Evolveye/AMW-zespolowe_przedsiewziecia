@@ -1,11 +1,11 @@
 import React from "react"
 import { Link } from "gatsby"
 
-import classes from "./links.module.css"
+import classes from "./platformSubPages.module.css"
 
 export default ({ className=``, to }) => (
-  <Link className={className} to={to}>
-    search link
+  <Link className={className} to="/">
+    links
   </Link>
 )
 
@@ -16,15 +16,13 @@ export const LinksPath = ({ staticPath=[], queryPath=[], className }) => {
     throw `Wrong query`
   }
 
-  const linksFromQuery = queryPath.map( ({ link, queryParam }) => {
+  const linksFromQuery = queryPath.filter( item => item ).map( ({ link, queryParam }) => {
     const linkParts = link.split( `?` )
 
     if (linkParts.length === 1) {
       if (link.indexOf( `?` ) < 0) linkParts.unshift( `` )
       else linkParts.push( `` )
     }
-
-    console.log( linkParts )
 
     const linkSearch = new URLSearchParams( linkParts[ 1 ] )
 
@@ -33,7 +31,8 @@ export const LinksPath = ({ staticPath=[], queryPath=[], className }) => {
     return { link:linkParts.join( `?` ), value:queryParam }
   } )
 
-  const links = [ ...staticPath, ...linksFromQuery ].map( ({ link, value }, i) => (
+  const concatenatedPaths = [ ...staticPath.filter( item => item ), ...linksFromQuery ]
+  const links = concatenatedPaths.map( ({ link, value }, i) => (
     <span key={link}>
       <Link
         className={classes.link}
@@ -41,7 +40,7 @@ export const LinksPath = ({ staticPath=[], queryPath=[], className }) => {
       >
         {value}
       </Link>
-      {i < queryPath.length - 1 && <span className={classes.separator}> -&gt; </span>}
+      {i < concatenatedPaths.length - 1 && <span className={classes.separator}> -&gt; </span>}
     </span>
   ) )
 
