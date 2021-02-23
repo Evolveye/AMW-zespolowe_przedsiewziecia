@@ -1,6 +1,9 @@
-import React from "react"
+import React, { useState } from "react"
 import { useStaticQuery, graphql, Link } from "gatsby"
 import Img from "gatsby-image"
+
+import ToggableBox from "./toggableBox.js"
+import { getUser } from "../utils/auth"
 
 import classes from "./userField.module.css"
 
@@ -14,24 +17,29 @@ const query = graphql`
   }
 `
 
-export default ({ className=`` }) => {
+export default ({ className = `` }) => {
   const { defaultAvatar } = useStaticQuery( query )
-  const name = `Imię`
-  const surname = `Nazwisko`
+  const { name, surname } = getUser()
 
   return (
-    <Link className={`${classes.userField} ${className}`} to="/user/profile">
-      <Img
-        className={classes.avatar}
-        style={{ width:`40px` }}
-        fluid={defaultAvatar.childImageSharp.fluid}
-        alt="user avatar"
-      />
+    <ToggableBox
+      className={`${classes.userField} ${className}`}
+      btnClassName={classes.activator}
+      boxClassName={classes.data}
+      btnContent={
+        <Img
+          className={classes.avatar}
+          fluid={defaultAvatar.childImageSharp.fluid}
+          alt="user avatar"
+        />
+      }
+    >
+      <span className={classes.name}>{name}</span>
+      <span className={classes.surname}>{surname}</span>
 
-      <div className={classes.userData}>
-        <span className={classes.name}>{name}</span>
-        <span className={classes.surname}>{surname}</span>
-      </div>
-    </Link>
+      <hr />
+
+      <Link to="/logout">Wyloguj</Link>
+    </ToggableBox>
   )
 }

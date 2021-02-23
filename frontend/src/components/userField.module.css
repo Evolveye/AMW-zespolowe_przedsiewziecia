@@ -1,14 +1,24 @@
 .userField {
+  position: relative;
   display: flex;
+}
+
+.activator {
+  background-color: transparent;
 }
 
 .avatar {
   margin: 5px;
+  width: 40px;
   border-radius: 50%;
 }
 
-.userData {
+.data {
+  position: absolute;
+  top: calc( 100% + 5px );
+  right: 5px;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  background-color: azure;
 }

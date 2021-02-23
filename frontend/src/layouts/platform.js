@@ -5,7 +5,7 @@ import GroupNav from "../components/groupNav.js"
 
 import classes from "./platform.module.css"
 
-export default ({ className=``, children, title, showMeets }) => (
+export default ({ className = ``, children, title, showMeets }) => (
   <Layout
     className={classes.root} title={title}
     logged

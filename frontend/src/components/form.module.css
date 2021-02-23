@@ -1,0 +1,12 @@
+.form {
+  background-color: #0003;
+  padding: 10px;
+  width: max-content;
+}
+.tabChanger.is-active {
+  background-color: red;
+}
+.tab {}
+.input {
+  display: block;
+}

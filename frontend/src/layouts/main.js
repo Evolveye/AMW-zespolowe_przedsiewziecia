@@ -4,11 +4,8 @@ import Layout from "./base.js"
 
 import classes from "./main.module.css"
 
-export default ({ className=``, title, children }) => (
-  <Layout
-    className={classes.root} title={title}
-    logged={false}
-  >
+export default ({ className = ``, title, children }) => (
+  <Layout className={classes.root} title={title}>
     <main className={`${classes.main} ${className}`}>
       {children}
     </main>
