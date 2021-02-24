@@ -13,8 +13,10 @@ import {
   logUnderControl as log,
   // addNextLineToLog as logLine,
 } from "./priv/src/utils.js"
+import { capitalize } from "./src/functions.js"
 
-/** @typedef {import("./modules/module.js").default[]} Module */
+/** @typedef {import("./addons/addon.js").Globals} ModuleGlobals */
+/** @typedef {import("./addons/addon.js").default} Module */
 
 
 
@@ -36,7 +38,7 @@ await mongose.connect( DB_CONN_STRING, {
 
 const app = express()
 const modulesClasses = await makeModulesClasses( `user`, `platform` )
-const modulesInstances = makeModulesInstances( modulesClasses )
+const modulesInstances = await makeModulesInstances( modulesClasses )
 const server = app.listen( PORT, () => log( LOGGERS.server, `Working localhost:${PORT}` ) )
 const wss = new WSS({ server })
 
@@ -70,26 +72,35 @@ app.use( (_, res) => res.status( 404 ).json({ code:0, error:`Endpoint not found`
 
 
 
-/** @return {Promise<Map<string,Module>>} */
+/**
+ * @param {string[]} addonsNames
+ * @return {Promise<Map<string,Module>>}
+ */
 async function makeModulesClasses( ...addonsNames ) {
   return new Map(
     await Promise.all( addonsNames.map( name => import(`./addons/${name}/index.js`) ) )
-      .then( mods => mods.map( ({ default:d }) => [ d.toString(), d ] ) ),
+      // .then( (mods, i) => mods.map( console.log ) ),
+      .then( mods => mods.map( ({ default:d }, i) => {
+        const name = addonsNames[ i ]
+
+        return [ capitalize( name ), d ]
+      } ) ),
   )
 }
 
 
-
-/** @return {Map<string,Module>} */
-function makeModulesInstances( modulesClasses ) {
-  const moduleLogger = modName => string => log( LOGGERS.module, modName, string )
+/**
+ * @param {Map<string,Module>} modulesClasses Constructor of Module
+ * @return {Map<string,Module>}
+ */
+async function makeModulesInstances( modulesClasses ) {
   const modulesInstances = new Map()
 
-  modulesClasses.forEach( (Class, modName) => {
+  for (const [ modName, Class ] of modulesClasses.entries()) {
     const requiredModules = {}
     let doInstallation = true
 
-    for (const requiredModule of Class.requiredModules) {
+    for (const requiredModule of Class.requiredModules.map( capitalize )) {
       if (modulesInstances.has( requiredModule )) {
         requiredModules[ requiredModule ] = modulesInstances.get( requiredModule )
       } else {
@@ -99,19 +110,31 @@ function makeModulesInstances( modulesClasses ) {
     }
 
     if (doInstallation && !modulesInstances.has( modName )) {
-      modulesInstances.set(
-        modName,
-        new Class(moduleLogger( modName ), dbManager, requiredModules),
-      )
+      /** @type {ModuleGlobals} */
+      const config = {
+        logger: string => log( LOGGERS.module, modName, string ),
+        name: modName,
+        requiredModules,
+        dbManager,
+      }
+
+      const module = new Class( config )
+
+      await module.waitToBeReady()
+
+      modulesInstances.set( modName, module )
     }
-  } )
+  }
 
   return modulesInstances
 }
 
 
-
-function setModulesAdditionalModules( modulesInstances ) { // eslint-disable-line
+/**
+ * @param {*} modulesClasses Constructor of Module
+ * @param {Module[]} modulesInstances
+ */
+function setModulesAdditionalModules( modulesClasses, modulesInstances ) { // eslint-disable-line
   modulesInstances.forEach( (instance, modName) =>
     /** @type {string[]} */ (modulesClasses.get( modName ).additionalModules)
       .filter( optModName => modulesInstances.has( optModName ) )
@@ -121,12 +144,16 @@ function setModulesAdditionalModules( modulesInstances ) { // eslint-disable-lin
 }
 
 
+/**
+ * @param {Module[]} modulesInstances
+ * @return {Map<string,Module>}
+ */
 function getModulesGraphQlConfig( modulesInstances ) {
   const queryObj = {}
   const mutationObj = {}
 
   modulesInstances.forEach( mod => {
-    log( LOGGERS.server, `[fgYellow]LOADING MODULE[] ${mod.toString()}` )
+    log( LOGGERS.server, `[fgYellow]LOADING MODULE[] ${mod.name}` )
 
     const { graphQl } = mod.getApi()
 

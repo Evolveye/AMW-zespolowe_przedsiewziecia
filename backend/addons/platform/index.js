@@ -1,15 +1,12 @@
-import Addon from "../addon.js";
-import { GraphQLSchema } from "graphql";
+import Addon from "../addon.js"
 
-import getGraphQlTypes from "./graphql.js";
-import getGraphQlModels from "./models.js";
+import getGraphQlTypes from "./graphql.js"
+import getGraphQlModels from "./models.js"
 
-export default class PlatformAddon extends Addon {
-  static requiredModules = [`UserAddon`]; // dla grupy bd 2 wpisy -> 
+export default class extends Addon {
+  static requiredModules = [ `user` ]
 
-  constructor(...params) {
-    super(...params)
-
+  async asyncConstructor() {
     this.graphQlModels = getGraphQlModels( this )
     this.graphQlTypes = getGraphQlTypes( this, this.graphQlModels )
   }
@@ -23,12 +20,6 @@ export default class PlatformAddon extends Addon {
         queryObj,
         mutationObj,
       },
-    };
+    }
   }
-
-  /**@returns {string}  Name of class */
-  toString = () => this.constructor.toString();
-
-  /**@returns {string}  Name of class */
-  static toString = () => "PlatformAddon";
 }

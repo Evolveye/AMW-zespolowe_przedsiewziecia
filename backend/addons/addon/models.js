@@ -7,6 +7,7 @@ import {
   GraphQLBoolean,
   GraphQLScalarType,
   GraphQLNonNull,
+  Kind
 } from "graphql";
 import mongoosePkg from "mongoose";
 

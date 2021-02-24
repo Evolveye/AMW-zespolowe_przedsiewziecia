@@ -1,57 +1,80 @@
+import { capitalize } from "../src/functions.js"
+
 /** @typedef {import("mongoose").Model} Model */
 /** @typedef {import("mongoose").Document} Document */
 
+/**
+ * @typedef {object} Globals
+ * @property {string} name
+ * @property {string} collectionName
+ * @property {(log:string) => void} logger
+ * @property {DatabaseManager} dbManager
+ * @property {Object<string,Addon>} requiredModules
+ */
 
 export default class Addon {
-  static requiredModules = []
+  /** @deprecated */
   static additionalModules = []
+  static requiredModules = []
 
-  /** @type {Object<string,Module>} */
+  /** @type {Promise<null>} */
+  #asyncConstructing = null
+  #name = ``
+
+  /** @type {Object<string,Addon>} */
   additionalModules = {}
   /** @type {Object<string,Model} */
   graphQlModels = {}
+  /** @type {Object<string,string} */
+  subcollections = {}
 
 
-  /**
-   * @param {string} collectionName
-   * @param {(log:string) => void} logger
-   * @param {DatabaseManager} dbManager
-   * @param {Object<string,Addon>} requiredModules
-   */
-  constructor(logger, dbManager, requiredModules) {
+  get name() {
+    return this.#name
+  }
+
+
+  /** @param {Globals} param0 */
+  constructor({ name, logger, dbManager, requiredModules }) {
+    this.#name = name
+
     this.requiredModules = requiredModules
     this.logger = logger
     this.dbManager = dbManager
 
-    console.log(1)
-    setTimeout(async () => {
-      debugger;
-      console.log(2)
-      console.log(this.toString)
-      this.basecollectionName = this.toString().charAt(0).toLowerCase() + this.toString().slice(1)
+    this.#asyncConstructing = new Promise( resolve => setTimeout( async() => {
+      this.baseCollectionName = `addon.${name.toLowerCase()}`
 
-      console.log(this.basecollectionName)
       const createCollectionIfNotExists = async collectionName =>
-        !(await dbManager.collectionExist(collectionName)) && await dbManager.createCollection(collectionName)
+        !(await dbManager.collectionExist( collectionName )) && dbManager.createCollection( collectionName )
 
-      await createCollectionIfNotExists(this.basecollectionName)
+      await createCollectionIfNotExists( this.baseCollectionName )
 
       for (const prop in this.subcollections) {
-        const subcollectionName = this.subcollections[prop]
-        const collectionFullname = `${this.basecollectionName}.${subcollectionName}`
+        const subcollectionName = this.subcollections[ prop ]
+        const collectionFullname = `${this.baseCollectionName}.${subcollectionName}`
 
-        this.subcollections[prop] = collectionFullname
+        this.subcollections[ prop ] = collectionFullname
 
-        await createCollectionIfNotExists(collectionFullname)
+        await createCollectionIfNotExists( collectionFullname )
       }
-    }, 0)
+
+      this.asyncConstructor().then( () => resolve() )
+    }, 0 ))
+  }
+
+
+  async asyncConstructor() {}
+
+
+  waitToBeReady() {
+    return this.#asyncConstructing
   }
 
 
   /** @param {string} name */
   getReqAddon( name ) {
-    const addonName = name[ 0 ].toUpperCase() + name.slice( 1 ).toLowerCase() + `Addon`
-    const addon = this.requiredModules[ addonName ]
+    const addon = this.requiredModules[ capitalize( name ) ]
 
     if (!addon) throw new Error(`This addon (${name}) doesn't exists`)
 
@@ -64,19 +87,14 @@ export default class Addon {
   }
 
 
-  /** @param {Module} mod */
+  /** @param {Addon} mod */
   addAdditionalModule = mod => {
-    const moduleName = mod.toString()
-    this.additionalModules[moduleName.charAt(0).toLowerCase() + moduleName.slice(1)] = mod
+    const moduleName = mod.name
+    this.additionalModules[ moduleName.charAt( 0 ).toLowerCase() + moduleName.slice( 1 ) ] = mod
   }
 
 
   toString() {
-    throw new Error(`You have to override me!`)
-  }
-
-
-  static toString() {
-    throw new Error(`You have to override me!`)
+    return this.name
   }
 }

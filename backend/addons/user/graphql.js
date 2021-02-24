@@ -6,42 +6,37 @@ import {
   GraphQLString,
   GraphQLInt,
   GraphQLBoolean,
-} from "graphql";
-//import { userModule, UserType } from "./models.js";
-import mongoose from "mongoose";
+} from "graphql"
+// import { userModule, UserType } from "./models.js";
+import mongoose from "mongoose"
 
 const getFilteredObjByKeys = (obj, keys) => Object.fromEntries(
-  Object.entries( obj ).filter( ([key]) => keys.includes( key ) )
+  Object.entries( obj ).filter( ([ key ]) => keys.includes( key ) ),
 )
 
-export default ({ isMailValid }, {UserModel, UserType}) => ({
+export default ({ isMailValid }, { UserModel, UserType }) => ({
   /** @type {import("graphql").GraphQLFieldConfigMap} */
   queryObj: {
     user: {
       type: UserType,
       args: {
-        id: { type: GraphQLID },
-        name: { type: GraphQLString },
-        surname: { type: GraphQLString },
+        id: { type:GraphQLID },
+        name: { type:GraphQLString },
+        surname: { type:GraphQLString },
       },
-      resolve(parent, args) {
-        console.log({ UserModel, UserType})
-        //console.log({ parent, args });
-        if (mongoose.Types.ObjectId.isValid(args.id))
-          return UserModel.findById(args.id);
+      resolve( parent, args ) {
+        if (mongoose.Types.ObjectId.isValid( args.id ))
+          return UserModel.findById( args.id )
         if (args.name && args.surname)
-          return UserModel.find({ name: args.name, surname: args.surname });
-        return "";
+          return UserModel.find({ name:args.name, surname:args.surname })
+        return ``
       },
     },
 
     users: {
-      type: GraphQLList(UserType),
+      type: GraphQLList( UserType ),
       args: {},
-      resolve( parent, args ) {
-        //console.log({ parent, args });
-        return UserModel.find({});
-      },
+      resolve: () => UserModel.find({}),
     },
   },
 
@@ -50,14 +45,14 @@ export default ({ isMailValid }, {UserModel, UserType}) => ({
     addUser: {
       type: UserType,
       args: {
-        name: { type: new GraphQLNonNull(GraphQLString) },
-        surname: { type: new GraphQLNonNull(GraphQLString) },
-        login: { type: new GraphQLNonNull(GraphQLString) },
-        password: { type: new GraphQLNonNull(GraphQLString) },
-        email: { type: new GraphQLNonNull(GraphQLString) },
-        activated: { defaultValue: false, type: GraphQLBoolean },
+        name: { type:new GraphQLNonNull(GraphQLString) },
+        surname: { type:new GraphQLNonNull(GraphQLString) },
+        login: { type:new GraphQLNonNull(GraphQLString) },
+        password: { type:new GraphQLNonNull(GraphQLString) },
+        email: { type:new GraphQLNonNull(GraphQLString) },
+        activated: { defaultValue:false, type:GraphQLBoolean },
         avatar: {
-          defaultValue: "/media/image/avatarDefault.jpg",
+          defaultValue: `/media/image/avatarDefault.jpg`,
           type: GraphQLString,
         },
         createdDatetime: {
@@ -65,8 +60,8 @@ export default ({ isMailValid }, {UserModel, UserType}) => ({
           type: GraphQLInt,
         },
       },
-      resolve(parent, args) {
-        //console.log({ parent, args });
+      resolve( parent, args ) {
+        // console.log({ parent, args });
         let user = new UserModel({
           name: args.name,
           surname: args.surname,
@@ -76,22 +71,21 @@ export default ({ isMailValid }, {UserModel, UserType}) => ({
           email: args.email,
           avatar: args.avatar,
           createdDatetime: args.createdDatetime,
-        });
-        //console.log(user)
-        return user.save();
+        })
+        // console.log(user)
+        return user.save()
       },
     },
 
     deleteUser: {
       type: UserType,
       args: {
-        id: { type: new GraphQLNonNull(GraphQLID) },
+        id: { type:new GraphQLNonNull(GraphQLID) },
       },
-      resolve(parent, args) {
-        //console.log({ parent, args });
-        if (!mongoose.isValidObjectId(args.id)) return `Bad request.`;
-        return UserModel.findOneAndDelete({ _id: args.id });
+      resolve( parent, args ) {
+        if (!mongoose.isValidObjectId( args.id )) return `Bad request.`
+        return UserModel.findOneAndDelete({ _id:args.id })
       },
     },
-  }
+  },
 })
