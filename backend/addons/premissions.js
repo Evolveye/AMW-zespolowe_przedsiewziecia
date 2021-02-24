@@ -1,9 +1,9 @@
 import { randomString } from "../priv/src/utils.js"
 
 export default fieldsNames => class {
-  id = randomString( 48,12, )
+  id = randomString( 48, 12 )
   abilities = fieldsNames.reduce(
-    (obj, ability) => ({ [ability]:false, ...obj }), {}
+    (obj, ability) => ({ [ ability ]:false, ...obj }), {},
   )
 
   /**

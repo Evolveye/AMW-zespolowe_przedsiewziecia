@@ -1,4 +1,5 @@
-import { capitalize } from "../src/functions.js"
+import { capitalize, LOGGERS } from "../src/utils.js"
+import { logUnderControl } from "../src/Logger.js"
 
 /** @typedef {import("mongoose").Model} Model */
 /** @typedef {import("mongoose").Document} Document */
@@ -35,32 +36,32 @@ export default class Addon {
 
 
   /** @param {Globals} param0 */
-  constructor({ name, logger, dbManager, requiredModules }) {
+  constructor({ name, requiredModules }) {
     this.#name = name
 
+    this.logger = string => logUnderControl( LOGGERS.module, name, string ),
     this.requiredModules = requiredModules
-    this.logger = logger
-    this.dbManager = dbManager
+    this.baseCollectionName = `addon.${name.toLowerCase()}`
 
-    this.#asyncConstructing = new Promise( resolve => setTimeout( async() => {
-      this.baseCollectionName = `addon.${name.toLowerCase()}`
+    // this.#asyncConstructing = new Promise( resolve => setTimeout( async() => {
+    //   this.baseCollectionName = `addon.${name.toLowerCase()}`
 
-      const createCollectionIfNotExists = async collectionName =>
-        !(await dbManager.collectionExist( collectionName )) && dbManager.createCollection( collectionName )
+    //   const createCollectionIfNotExists = async collectionName =>
+    //     !(await dbManager.collectionExist( collectionName )) && dbManager.createCollection( collectionName )
 
-      await createCollectionIfNotExists( this.baseCollectionName )
+    //   await createCollectionIfNotExists( this.baseCollectionName )
 
-      for (const prop in this.subcollections) {
-        const subcollectionName = this.subcollections[ prop ]
-        const collectionFullname = `${this.baseCollectionName}.${subcollectionName}`
+    //   for (const prop in this.subcollections) {
+    //     const subcollectionName = this.subcollections[ prop ]
+    //     const collectionFullname = `${this.baseCollectionName}.${subcollectionName}`
 
-        this.subcollections[ prop ] = collectionFullname
+    //     this.subcollections[ prop ] = collectionFullname
 
-        await createCollectionIfNotExists( collectionFullname )
-      }
+    //     await createCollectionIfNotExists( collectionFullname )
+    //   }
 
-      this.asyncConstructor().then( () => resolve() )
-    }, 0 ))
+    //   this.asyncConstructor().then( () => resolve() )
+    // }, 0 ))
   }
 
 
@@ -68,7 +69,7 @@ export default class Addon {
 
 
   waitToBeReady() {
-    return this.#asyncConstructing
+    return new Promise( r => r() ) // this.#asyncConstructing
   }
 
 

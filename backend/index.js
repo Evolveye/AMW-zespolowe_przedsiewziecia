@@ -5,15 +5,13 @@ import cors from "cors"
 import { GraphQLSchema, GraphQLObjectType } from "graphql"
 
 import WSS from "./priv/src/ws.js"
-import dbManager from "./priv/src/dbManager.js"
+// import dbManager from "./src/dbManager.js"
 import { DEBUG, PORT, LOGGERS } from "./priv/consts.js"
 import {
   doHttpLogShouldBePrinted as doHttpLog,
-  // doWsLogShouldBePrinted as doWsLog,
   logUnderControl as log,
-  // addNextLineToLog as logLine,
-} from "./priv/src/utils.js"
-import { capitalize } from "./src/functions.js"
+  capitalize,
+} from "./src/utils.js"
 
 /** @typedef {import("./addons/addon.js").Globals} ModuleGlobals */
 /** @typedef {import("./addons/addon.js").default} Module */
@@ -112,10 +110,8 @@ async function makeModulesInstances( modulesClasses ) {
     if (doInstallation && !modulesInstances.has( modName )) {
       /** @type {ModuleGlobals} */
       const config = {
-        logger: string => log( LOGGERS.module, modName, string ),
         name: modName,
         requiredModules,
-        dbManager,
       }
 
       const module = new Class( config )

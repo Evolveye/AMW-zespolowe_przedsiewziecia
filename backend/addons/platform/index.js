@@ -6,11 +6,13 @@ import getGraphQlModels from "./models.js"
 export default class extends Addon {
   static requiredModules = [ `user` ]
 
-  async asyncConstructor() {
-    this.graphQlModels = getGraphQlModels( this )
-    this.graphQlTypes = getGraphQlTypes( this, this.graphQlModels )
-  }
+  graphQlModels = getGraphQlModels( this )
+  graphQlTypes = getGraphQlTypes( this, this.graphQlModels )
 
+  // async asyncConstructor() {
+  //   this.graphQlModels = getGraphQlModels( this )
+  //   this.graphQlTypes = getGraphQlTypes( this, this.graphQlModels )
+  // }
 
   getApi() {
     const { queryObj, mutationObj } = this.graphQlTypes

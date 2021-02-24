@@ -24,7 +24,7 @@ export class WS {
   #middlewares = []
   #defaultListener = () => {}
 
-  /**@type {WebSocketServer} */
+  /** @type {WebSocketServer} */
   #server = null
 
   /**
@@ -50,7 +50,7 @@ export class WS {
     const msg = data ? { event, data } : event
     const send = () => this.ws.send( JSON.stringify( msg ) )
 
-   // console.log( `TEST`, this.#id, this.ws.readyState, msg )
+    // console.log( `TEST`, this.#id, this.ws.readyState, msg )
 
     if (this.ws.readyState !== 1) {
       this.ws.addEventListener( `open`, send )
@@ -91,11 +91,11 @@ export class WS {
       jsonData = data
     }
 
-  //   console.log( {"Commands": this.#commands,
-  //   "has": this.#commands.has( jsonData ) ,
-  //   "typeof":typeof jsonData === `string`
+    //   console.log( {"Commands": this.#commands,
+    //   "has": this.#commands.has( jsonData ) ,
+    //   "typeof":typeof jsonData === `string`
 
-  // })
+    // })
 
     if (typeof jsonData === `object` && `event` in jsonData && `data` in jsonData) {
       const { event, data } = jsonData
