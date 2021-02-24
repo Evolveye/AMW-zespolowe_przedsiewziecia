@@ -23,9 +23,14 @@ export default class Addon {
     this.logger = logger
     this.dbManager = dbManager
 
+    console.log(1)
     setTimeout(async () => {
+      debugger;
+      console.log(2)
+      console.log(this.toString)
       this.basecollectionName = this.toString().charAt(0).toLowerCase() + this.toString().slice(1)
 
+      console.log(this.basecollectionName)
       const createCollectionIfNotExists = async collectionName =>
         !(await dbManager.collectionExist(collectionName)) && await dbManager.createCollection(collectionName)
 

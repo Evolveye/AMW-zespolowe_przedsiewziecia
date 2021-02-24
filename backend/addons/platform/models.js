@@ -36,7 +36,7 @@ const GraphQLTypeDate = new GraphQLScalarType({
 /** @param {Addon} addon */
 export default (addon) => {
   const {UserModel,UserType} = addon.getReqAddon( `user` ).graphQlModels
-
+  
   return {
     PlatformModel: model(
       "Platform",
@@ -82,7 +82,7 @@ export default (addon) => {
           membersIds: { type: [Schema.Types.ObjectId] },
           assignedGroups: { type: [Schema.Types.ObjectId] },
         },
-        { collection: "platformModule" }
+        { collection: addon.basecollectionName }
       )
     ),
 
@@ -97,14 +97,14 @@ export default (addon) => {
         membersIds: {
           type: GraphQLList(GraphQLID),
         },
+        assignedGroups: {
+          type: GraphQLList(GraphQLID),
+        },
         membersObj: {
           type: GraphQLList(UserType),
           resolve(parent, args) {
             return UserModel.find({ _id: { $in: parent.membersIds } });
           },
-        },
-        assignedGroups: {
-          type: GraphQLList(GraphQLID),
         },
         administratorObject: {
           type: UserType,

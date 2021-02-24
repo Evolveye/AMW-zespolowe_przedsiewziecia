@@ -5,7 +5,7 @@ import getGraphQlTypes from "./graphql.js";
 import getGraphQlModels from "./models.js";
 
 export default class PlatformAddon extends Addon {
-  static requiredModules = [`UserAddon`];
+  static requiredModules = [`UserAddon`]; // dla grupy bd 2 wpisy -> 
 
   constructor(...params) {
     super(...params)
