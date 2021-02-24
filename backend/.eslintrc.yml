@@ -1,1 +1,7 @@
 extends: eye
+rules:
+  spaced-comment:
+    - error
+    - always
+    - block:
+        exceptions: [ \ ]
