@@ -1,6 +1,5 @@
 import React from "react"
-import { graphql, useStaticQuery, Link } from "gatsby"
-import Img from "gatsby-image"
+import { Link } from "gatsby"
 
 import SEO from "../components/seo.js"
 import PlatformNav from "../components/platformNav.js"
@@ -27,11 +26,17 @@ export default ({ className = ``, children, title }) => {
           />
         </Link>
 
-        <PlatformNav className={classes.platformNav} />
-        <PlatformSubPages className={classes.platformSubPages} />
-        <MainSearch className={`${classes.search} is-centered`} />
 
-        {isLogged() && <UserField className={classes.userField} />}
+        {
+          isLogged() && (
+            <>
+              <PlatformNav className={classes.platformNav} />
+              <PlatformSubPages className={classes.platformSubPages} />
+              <MainSearch className={`${classes.search} is-centered`} />
+              <UserField className={classes.userField} />
+            </>
+          )
+        }
       </header>
 
       <div className={`${classes.contentWrapper} ${className}`}>

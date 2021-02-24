@@ -6,8 +6,18 @@
   background-color: burlywood;
   width: var( --logo-width );
 }
+    .groupLink {
+      display: block;
+      margin: 2px;
+      background-color: deeppink;
+    }
 
 .meets {
   background-color: cadetblue;
   width: var( --platform-nav-width );
 }
+    .meetLink {
+      display: block;
+      margin: 2px;
+      background-color: deepskyblue;
+    }

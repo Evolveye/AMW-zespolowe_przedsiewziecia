@@ -1,30 +1,30 @@
-import React, { useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 
 export default ({ className = ``, btnClassName = ``, boxClassName = ``, btnContent, children }) => {
   const [ isButtonFocused, setBoxVisibility ] = useState( false )
-  const [ isBoxFocused, setBoxFocus ] = useState( false )
+  const toggleBoxVisibility = () => setBoxVisibility( !isButtonFocused )
+  const ref = useRef( null )
 
-  const toggleBoxVisibility = () => setBoxVisibility( isBoxVisible ? false : !isButtonFocused )
+  useEffect( () => {
+    const handleClickOutside = ({ target }) =>
+      ref.current && !ref.current.contains( target ) && setBoxVisibility( false )
 
-  const isBoxVisible = isButtonFocused || isBoxFocused
+    document.addEventListener( `mousedown`, handleClickOutside )
+
+    return () => document.removeEventListener( `mousedown`, handleClickOutside )
+  }, [ ref ] )
+
 
   return (
-    <article className={className}>
+    <article className={className} ref={ref}>
       <button
         className={btnClassName}
         onPointerDown={toggleBoxVisibility}
         onKeyDown={({ key }) => key == ` ` && toggleBoxVisibility()}
-        onBlur={() => setTimeout( () => setBoxVisibility( false ), 0 )}
       >
-        {btnContent}
+        {btnContent || `toggle box`}
       </button>
-
-      <section
-        tabIndex="-1"
-        onBlur={() => setBoxFocus( false )}
-        onFocus={() => setBoxFocus( true )}
-        style={{ display:(isBoxVisible ? `block` : `none`) }}
-      >
+      <section style={{ display:(isButtonFocused ? `block` : `none`) }}>
         <div className={boxClassName}>
           {children}
         </div>
