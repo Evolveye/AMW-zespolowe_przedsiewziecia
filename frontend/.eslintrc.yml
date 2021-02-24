@@ -1,13 +1,1 @@
 extends: eye
-rules:
-  # needed: rule for spacing after variable creation
-  keyword-spacing:
-    - error
-    - before: true
-      after: true
-  comma-spacing:
-    - error
-    - before: false
-      after: true
-  space-infix-ops:
-    - error
