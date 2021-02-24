@@ -11,7 +11,7 @@ import { isEmailValid } from "../../priv/src/utils.js"
 
 /** @typedef {import("../addon.js").default} Addon */
 
-/** @param {Addon} addon */
+/** @param {Addon} param0 */
 export default ({ baseCollectionName }) => {
   const UserModel = mongoose.model( `User`, new mongoose.Schema(
     {

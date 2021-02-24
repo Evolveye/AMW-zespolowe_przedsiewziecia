@@ -10,10 +10,6 @@ import {
 // import { userModule, UserType } from "./models.js";
 import mongoose from "mongoose"
 
-const getFilteredObjByKeys = (obj, keys) => Object.fromEntries(
-  Object.entries( obj ).filter( ([ key ]) => keys.includes( key ) ),
-)
-
 export default ({ isMailValid }, { UserModel, UserType }) => ({
   /** @type {import("graphql").GraphQLFieldConfigMap} */
   queryObj: {

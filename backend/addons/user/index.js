@@ -1,6 +1,6 @@
 import Addon from "../addon.js"
 
-import getGraphQlTypes from "./graphql.js"
+import getGraphQlTypes from "./types.js"
 import getGraphQlModels from "./models.js"
 
 export default class extends Addon {
