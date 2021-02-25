@@ -6,11 +6,14 @@ import { GraphQLSchema, GraphQLObjectType } from "graphql"
 
 import WSS from "./priv/src/ws.js"
 // import dbManager from "./src/dbManager.js"
-import { DEBUG, PORT, LOGGERS } from "./priv/consts.js"
+// import { DEBUG, PORT, LOGGERS, CLEAR_CONSOLE } from "./priv/consts.js"
 import {
+  LOGGERS,
+  DEBUG,
   doHttpLogShouldBePrinted as doHttpLog,
   logUnderControl as log,
   capitalize,
+  CLEAR_CONSOLE,
 } from "./src/utils.js"
 
 /** @typedef {import("./addons/addon.js").Globals} ModuleGlobals */
@@ -24,7 +27,13 @@ import {
 
 
 
-const DB_NAME = `SassPE`
+export const PUBLIC_LOCATION = `../frontend`
+export const UPLOADS_LOCATION = `./uploads`
+export const PORT = 3000
+export const HOST = `http://localhost:3000`
+export const DB_NAME = `SassPE`
+export const HTTP_API_PATH = `/api`
+export const GRAPHQL_ENDPOINT = `/graphql`
 const DB_CONN_STRING = `mongodb://127.0.0.1:27017/${DB_NAME}`
 
 await mongose.connect( DB_CONN_STRING, {
@@ -37,8 +46,10 @@ await mongose.connect( DB_CONN_STRING, {
 const app = express()
 const modulesClasses = await makeModulesClasses( `user`, `platform` )
 const modulesInstances = await makeModulesInstances( modulesClasses )
-const server = app.listen( PORT, () => log( LOGGERS.server, `Working localhost:${PORT}` ) )
+const server = app.listen( PORT, () => !CLEAR_CONSOLE && log( LOGGERS.server, `Working ${HOST}` ) )
 const wss = new WSS({ server })
+
+export default server
 
 
 
@@ -52,13 +63,13 @@ app.use( (req, _, next) => next(
   doHttpLog( req ) && log( LOGGERS.newRequest, `HTTP`, req.method, req.url ) ),
 )
 
-app.use( `/`, express.static( DEBUG ? `./public` : `../frontend` ) )
+app.use( `/`, express.static( DEBUG ? `./public` : PUBLIC_LOCATION ) )
 app.use( `/media`, express.static( `./media` ) )
 
 app.use( cors() )
 app.use( express.json() )
 
-app.use( `/api/graphql`, getModulesGraphQlConfig( modulesInstances ) )
+app.use( HTTP_API_PATH + GRAPHQL_ENDPOINT, getModulesGraphQlConfig( modulesInstances ) )
 
 app.use( (_, res) => res.status( 404 ).json({ code:0, error:`Endpoint not found` }) )
 
@@ -149,7 +160,7 @@ function getModulesGraphQlConfig( modulesInstances ) {
   const mutationObj = {}
 
   modulesInstances.forEach( mod => {
-    log( LOGGERS.server, `[fgYellow]LOADING MODULE[] ${mod.name}` )
+    if (!CLEAR_CONSOLE) log( LOGGERS.server, `[fgYellow]LOADING MODULE[] ${mod.name}` )
 
     const { graphQl } = mod.getApi()
 

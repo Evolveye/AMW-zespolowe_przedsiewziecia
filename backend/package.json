@@ -5,7 +5,7 @@
   "description": "sass backend node edition",
   "main": "index.js",
   "scripts": {
-    "test": "node ./node_modules/mocha/bin/mocha ./index.js",
+    "test": "npx mocha tests/index.js",
     "start": "node index.js"
   },
   "author": "",

@@ -8,7 +8,7 @@ export const DEBUG = false
 export const PASSWORD_HASH = true
 export const LOG_PAGES_ROUTE = true
 export const LOG_WS_EVENTS = true
-export const CLEAR_CONSOLE = false
+export const CLEAR_CONSOLE = false || process.argv.some( str => /mocha/.test( str ) )
 
 
 

@@ -1,3 +1,7 @@
+# better check function closing -- assert.equal( (await get( `/` ) )) )
+
+env:
+  mocha: true
 extends: eye
 rules:
   spaced-comment:
@@ -5,3 +9,11 @@ rules:
     - always
     - block:
         exceptions: [ \ ]
+  prefer-template:
+    - off
+  indent:
+    - error
+    - 2
+    - SwitchCase: 1
+  no-async-promise-executor:
+    - off
