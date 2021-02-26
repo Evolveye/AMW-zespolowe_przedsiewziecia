@@ -18,7 +18,6 @@ export const QueryLink = ({ className = ``, to, requiredParams, params, children
 
   params.forEach( ({ name, value }) => processedQueryParams.push({ name, value }) )
 
-  console.log( processedQueryParams )
   const queryString = processedQueryParams.map( ({ name, value }) => `${name}=${value}` ).join( `&` )
 
   return <Link className={className} to={`${to}?${queryString}`}>{children}</Link>

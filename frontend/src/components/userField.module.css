@@ -16,6 +16,7 @@
 .data {
   position: absolute;
   top: calc( 100% + 5px );
+  left: unset;
   right: 5px;
   display: flex;
   flex-direction: column;

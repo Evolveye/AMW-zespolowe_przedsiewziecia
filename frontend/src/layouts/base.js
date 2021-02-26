@@ -3,7 +3,7 @@ import { Link } from "gatsby"
 
 import SEO from "../components/seo.js"
 import PlatformNav from "../components/platformNav.js"
-import PlatformSubPages from "../components/platformSubPages.js"
+import PlatformSubPagesNav from "../components/platformSubPagesNav.js"
 import MainSearch from "../components/mainSearch.js"
 import UserField from "../components/userField.js"
 
@@ -31,7 +31,16 @@ export default ({ className = ``, children, title }) => {
           isLogged() && (
             <>
               <PlatformNav className={classes.platformNav} />
-              <PlatformSubPages className={classes.platformSubPages} />
+              <PlatformSubPagesNav
+                className={classes.platformSubPages}
+                queryPaths={
+                  [
+                    // { name:`Platforma`, link:`/platform?p` },
+                    { name:`Grupa`, link:`/group?p&g` },
+                    { name:`Spotkanie`, link:`/meet?p&g&m` },
+                  ]
+                }
+              />
               <MainSearch className={`${classes.search} is-centered`} />
               <UserField className={classes.userField} />
             </>

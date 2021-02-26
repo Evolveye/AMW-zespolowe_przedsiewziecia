@@ -1,13 +1,27 @@
 import React, { useEffect, useRef, useState } from "react"
 
-export default ({ className = ``, btnClassName = ``, boxClassName = ``, btnContent, children }) => {
+import classes from "./toggableBox.module.css"
+
+export default ({
+  className = ``,
+  btnClassName = ``,
+  boxClassName = ``,
+  btnContent,
+  fullScreened,
+  children,
+}) => {
   const [ isButtonFocused, setBoxVisibility ] = useState( false )
   const toggleBoxVisibility = () => setBoxVisibility( !isButtonFocused )
   const ref = useRef( null )
 
   useEffect( () => {
-    const handleClickOutside = ({ target }) =>
-      ref.current && !ref.current.contains( target ) && setBoxVisibility( false )
+    const handleClickOutside = ({ target }) => {
+      const node = ref.current
+
+      if (node && (!node.contains( target ) || target.classList.contains( classes.fullscreen ))) {
+        setBoxVisibility( false )
+      }
+    }
 
     document.addEventListener( `mousedown`, handleClickOutside )
 
@@ -16,7 +30,7 @@ export default ({ className = ``, btnClassName = ``, boxClassName = ``, btnConte
 
 
   return (
-    <article className={className} ref={ref}>
+    <article className={`${classes.wrapper} ${className}`} ref={ref}>
       <button
         className={btnClassName}
         onPointerDown={toggleBoxVisibility}
@@ -24,9 +38,18 @@ export default ({ className = ``, btnClassName = ``, boxClassName = ``, btnConte
       >
         {btnContent || `toggle box`}
       </button>
-      <section style={{ display:(isButtonFocused ? `block` : `none`) }}>
-        <div className={boxClassName}>
-          {children}
+
+      <section style={{ display:(isButtonFocused ? `inline` : `none`) }}>
+        <div className={`${classes.box} ${boxClassName}`}>
+          {
+            fullScreened ? (
+              <div className={classes.fullscreen}>
+                <div className={boxClassName}>
+                  {children}
+                </div>
+              </div>
+            ) : <div className={boxClassName}>{children}</div>
+          }
         </div>
       </section>
     </article>

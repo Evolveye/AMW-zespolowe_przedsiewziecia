@@ -1,6 +1,7 @@
 import { Link, navigate } from "gatsby"
 import React, { useState } from "react"
 
+import SwitchBox from "./switchBox.js"
 import ToggableBox from "./toggableBox.js"
 import { getUrnQuery } from "../utils/functions"
 
@@ -20,15 +21,25 @@ export default ({ className = `` }) => {
     <article className={className}>
       {
         !p ? defaultValue : (
-          <span>
+          <Link to={`/platform?p=${p}`}>
             platform-
             {` `}
             {p}
-          </span>
+          </Link>
         )
       }
 
-      <ToggableBox boxClassName={classes.nav}>
+      <ToggableBox boxClassName={classes.nav} btnContent="Ustawienia" fullScreened>
+        <SwitchBox tabs={
+          [
+            { name:`Użytkownicy`, node:<>Jakaś tabelka z użytkownikami</> },
+            { name:`Grupy`, node:<>Jakaś tabelka z grupami</> },
+          ]
+        }
+        />
+      </ToggableBox>
+
+      <ToggableBox boxClassName={classes.nav} btnContent="Wybierz platformę">
         <ul>
           {
             fakePlatforms.map( ({ id, name }) => (
@@ -37,7 +48,6 @@ export default ({ className = `` }) => {
           }
         </ul>
       </ToggableBox>
-
     </article>
   )
 }

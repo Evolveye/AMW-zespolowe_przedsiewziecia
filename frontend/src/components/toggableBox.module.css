@@ -1,0 +1,21 @@
+.wrapper {
+  position: relative;
+  display: inline;
+}
+
+.box {
+  position: absolute;
+  left: 0;
+  top: 100%;
+  z-index: 1;
+}
+
+.fullscreen {
+  position: fixed;
+  left: 0;
+  top: 0;
+  padding: 100px;
+  width: 100vw;
+  height: 100vh;
+  background-color: #000a;
+}
