@@ -1,4 +1,5 @@
 import chai from 'chai'
+import { describe,it } from 'mocha'
 import fetch from "node-fetch"
 
 import {
@@ -10,15 +11,13 @@ import {
   UPLOADS_LOCATION,
 } from "../index.js"
 
-const { assert } = chai
+const { assert,should } = chai
 
 
 
 /*\
  *   Tests
 \*/
-
-
 
 
 describe( `General`, () => {

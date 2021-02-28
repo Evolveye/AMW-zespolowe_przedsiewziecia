@@ -47,6 +47,7 @@ export default ({ baseCollectionName }) => {
         id: { type:GraphQLID },
         name: { type:GraphQLString },
         surname: { type:GraphQLString },
+        login:{type:GraphQLString},
         email: { type:GraphQLString },
         avatar: { type:GraphQLString },
         createdDateTime: { type:GraphQLTypeDate },

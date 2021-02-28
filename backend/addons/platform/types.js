@@ -30,17 +30,44 @@ export default ({ isMailValid }, { PlatformType, PlatformModel }) => ({
 
   /** @type {import("graphql").GraphQLFieldConfigMap} */
   mutationObj: {
+
+    deleteUsersFromPlatform: {
+      type: PlatformType,
+      args: {
+        userIds: { type:new GraphQLNonNull(new GraphQLList(GraphQLID)) },
+        targetPlatform: { type:new GraphQLNonNull(GraphQLID) },
+      },
+      resolve: (parent, args)=>
+        PlatformModel.findOneAndUpdate(
+          { _id:args.targetPlatform },
+          { $pull: { membersIds : {$in :args.userIds } } },
+          { new: true },
+        )
+    },
+
+    deletePlatform:{
+      type: PlatformType,
+      args: {
+        id: { type:new GraphQLNonNull(GraphQLID) },
+      },
+      resolve( parent, args ) {
+        if (!mongoose.isValidObjectId( args.id )) return `Bad request.`
+        return PlatformModel.findOneAndDelete({ _id:args.id })
+      },
+    },
+
     assignUsers: {
       type: PlatformType,
       args: {
         userIds: { type:new GraphQLNonNull(new GraphQLList(GraphQLID)) },
         targetPlatform: { type:new GraphQLNonNull(GraphQLID) },
       },
-      resolve: (parent, args) => PlatformModel.findOneAndUpdate(
-        { _id:args.targetPlatform },
-        { $push:{ $each:{ membersIds:args.userIds } } },
-        { new:true },
-      ),
+      resolve: (parent, args)=>
+        PlatformModel.findOneAndUpdate(
+          { _id:args.targetPlatform },
+          { $push: { membersIds : {$each :args.userIds } } },
+          { new: true },
+        )
     },
 
     addPlatform: {

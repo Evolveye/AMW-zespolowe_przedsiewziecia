@@ -10,6 +10,10 @@ import {
 // import { userModule, UserType } from "./models.js";
 import mongoose from "mongoose"
 
+
+const clear = obj => Object.fromEntries( Object.entries( obj ).filter( ([_, v]) => v != null ) )
+
+
 export default ({ isMailValid }, { UserModel, UserType }) => ({
   /** @type {import("graphql").GraphQLFieldConfigMap} */
   queryObj: {
@@ -38,6 +42,30 @@ export default ({ isMailValid }, { UserModel, UserType }) => ({
 
   /** @type {import("graphql").GraphQLFieldConfigMap} */
   mutationObj: {
+
+    updateUser:{
+      type:UserType,
+      args:{
+        id:{type: new GraphQLNonNull(GraphQLID)},
+        name: { type:GraphQLString },
+        surname: { type:GraphQLString },
+        login: { type:GraphQLString },
+        password: { type:GraphQLString },
+        email: { type:GraphQLString },
+        activated: { type:GraphQLBoolean },
+        avatar: {
+          defaultValue: `/media/image/avatarDefault.jpg`,
+          type: GraphQLString,
+        },
+      },
+      resolve(parent,args){
+        const userId = args.id
+        delete args.id
+        return UserModel.findOneAndUpdate({_id:userId},args,{new:true})
+      }
+    },
+
+
     addUser: {
       type: UserType,
       args: {
