@@ -40,17 +40,21 @@ export default ({
       </button>
 
       <section style={{ display:(isButtonFocused ? `inline` : `none`) }}>
-        <div className={`${classes.box} ${boxClassName}`}>
-          {
-            fullScreened ? (
+        {
+          fullScreened ? (
+            <div className={`${classes.box}`}>
               <div className={classes.fullscreen}>
                 <div className={boxClassName}>
                   {children}
                 </div>
               </div>
-            ) : <div className={boxClassName}>{children}</div>
-          }
-        </div>
+            </div>
+          ) : (
+            <div className={`${classes.box} ${boxClassName}`}>
+              <div className={boxClassName}>{children}</div>
+            </div>
+          )
+        }
       </section>
     </article>
   )

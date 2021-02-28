@@ -1,5 +1,5 @@
-import { Link, navigate } from "gatsby"
-import React, { useState } from "react"
+import { Link } from "gatsby"
+import React from "react"
 
 import SwitchBox from "./switchBox.js"
 import ToggableBox from "./toggableBox.js"

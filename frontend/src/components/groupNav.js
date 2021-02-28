@@ -1,4 +1,3 @@
-import { Link, navigate } from "gatsby"
 import React from "react"
 
 import { getUrnQuery } from "../utils/functions.js"

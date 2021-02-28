@@ -1,0 +1,9 @@
+.nav {
+  display: flex;
+  align-items: center;
+}
+.link {
+  margin: 10px;
+  font-weight: bold;
+}
+.separator {}

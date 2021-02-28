@@ -1,7 +1,7 @@
 import React from "react"
 import { Link } from "gatsby"
 
-import classes from "./platformSubPagesNav.module.css"
+import classes from "./subPagesNav.module.css"
 
 /**
  * @typedef {object} QueryPath
@@ -32,15 +32,24 @@ export default ({ queryPaths = [], className }) => {
     } )
 
     return paramsWithValues.includes( undefined ) ? null : (
-      <Link key={link} to={`${linkParts[ 0 ]}?${paramsWithValues.join( `&` )}`}>
+      <Link
+        key={link}
+        to={`${linkParts[ 0 ]}?${paramsWithValues.join( `&` )}`}
+        className={classes.link}
+      >
         {name}
       </Link>
     )
-  } ).filter( Boolean )
+  } ).filter( Boolean ).map( (link, i, arr) => (
+    <React.Fragment key={link.key}>
+      {link}
+      {i === arr.length - 1 ? null : <span className={classes.separator}>&gt;</span>}
+    </React.Fragment>
+  ) )
 
   return (
-    <span className={className}>
+    <article className={`${classes.nav} ${className}`}>
       {links}
-    </span>
+    </article>
   )
 }

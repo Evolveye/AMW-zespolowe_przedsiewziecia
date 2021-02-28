@@ -3,7 +3,7 @@ import { Link } from "gatsby"
 
 import SEO from "../components/seo.js"
 import PlatformNav from "../components/platformNav.js"
-import PlatformSubPagesNav from "../components/platformSubPagesNav.js"
+import PlatformSubPagesNav from "../components/subPagesNav.js"
 import MainSearch from "../components/mainSearch.js"
 import UserField from "../components/userField.js"
 
