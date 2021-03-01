@@ -1,0 +1,48 @@
+import React from "react"
+
+import URLS from "../utils/urls.js"
+import ERRORS, { DEFAULT_ERROR } from "../utils/errorList.js"
+
+import Layout from "../components/layout.js"
+import { setToken } from "../utils/auth.js"
+import Form from "../components/form.js"
+
+import { navigate } from "gatsby"
+
+export default class Login extends React.Component {
+  state = { error: null }
+
+  fields = [
+    { title: `Login`, name: `login`, icon: `user` },
+    {
+      title: `Hasło`,
+      name: `password`,
+      icon: `lock`,
+      type: `password`,
+      autoComplete: `off`,
+    },
+  ]
+
+  render = () => (
+    <Layout className="main_wrapper">
+      <Form
+        fields={this.fields}
+        title="Platforma edukacyjna - logowanie"
+        submitName="Zaloguj się"
+        method="POST"
+        headers={{ "Content-Type": "application/json" }}
+        address={URLS.LOGIN_POST}
+        onOk={({ token }) => {
+          setToken(token)
+          navigate(`/user/me`)
+        }}
+        onError={({ code }) =>
+          this.setState({ error: ERRORS[code] || DEFAULT_ERROR })
+        }
+      />
+      {this.state.error && (
+        <article className="errorBox">{this.state.error}</article>
+      )}
+    </Layout>
+  )
+}

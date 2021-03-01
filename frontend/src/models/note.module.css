@@ -1,0 +1,28 @@
+.field {
+  margin: 10px 0;
+  font-size: 14px;
+}
+
+.note {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 75px;
+  height: 100px;
+  margin: 40px auto;
+  border-radius: 15px;
+  text-shadow: 0 0 1px black, 0 0 1px black, 0 0 1px black;
+  color: white;
+  font-weight: bold;
+  font-size: 40px;
+}
+
+.title {
+  margin-top: 10px;
+  font-weight: bold;
+}
+
+.value {
+  margin: 0;
+  margin-left: 10px;
+}
