@@ -17,7 +17,6 @@ export default fieldsNames => class {
     this.importance = importance
     this.name = name
     this.color = color
-    console.log( abilities )
 
     Object.entries( abilities ).filter( ([ ability ]) => ability in this.abilities )
       .forEach( ([ ability, value ]) => this.abilities[ ability ] = value )
