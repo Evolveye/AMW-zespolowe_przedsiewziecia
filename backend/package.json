@@ -21,6 +21,7 @@
     "mongoose": "^5.11.15",
     "nodemailer": "^6.4.17",
     "socket.io": "^3.0.4",
+    "uuid": "^8.3.2",
     "ws": "^7.4.2"
   },
   "devDependencies": {

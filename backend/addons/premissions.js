@@ -1,7 +1,8 @@
 import { randomString } from "../priv/src/utils.js"
+import { v4 } from 'uuid'
 
 export default fieldsNames => class {
-  id = randomString( 48, 12 )
+  // id = randomString( 48, 12 )
   abilities = fieldsNames.reduce(
     (obj, ability) => ({ [ ability ]:false, ...obj }), {},
   )
@@ -12,19 +13,13 @@ export default fieldsNames => class {
    * @param {number} importance
    * @param {{ name:string value:Boolean }[]} abilities
    */
-  constructor( name, importance, color, abilities ) {
-    this.importance = 10
+  constructor( name, importance = 10, color, abilities ) {
+    this.importance = importance
     this.name = name
     this.color = color
+    console.log( abilities )
 
-    Object.entries( abilities ).filter( ability => ability in this.abilities )
-      .forEach( (ability, value) => this.abilities[ ability ] = value )
-  }
-}
-
-export class UserPermissions {
-  constructor() {
-    this.schemaUuid = 1234
-    this.userUuid = 1234
+    Object.entries( abilities ).filter( ([ ability ]) => ability in this.abilities )
+      .forEach( ([ ability, value ]) => this.abilities[ ability ] = value )
   }
 }

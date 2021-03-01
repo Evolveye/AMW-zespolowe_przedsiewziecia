@@ -125,7 +125,7 @@ async function makeModulesInstances( modulesClasses ) {
         requiredModules,
       }
 
-      const module = new Class( config )
+      const module = new Class(config)
 
       await module.waitToBeReady()
 
@@ -141,9 +141,9 @@ async function makeModulesInstances( modulesClasses ) {
  * @param {*} modulesClasses Constructor of Module
  * @param {Module[]} modulesInstances
  */
-function setModulesAdditionalModules( modulesClasses, modulesInstances ) { // eslint-disable-line
+function setModulesAdditionalModules(modulesClasses, modulesInstances) { // eslint-disable-line
   modulesInstances.forEach( (instance, modName) =>
-    /** @type {string[]} */ (modulesClasses.get( modName ).additionalModules)
+    /** @type {string[]} */(modulesClasses.get( modName ).additionalModules)
       .filter( optModName => modulesInstances.has( optModName ) )
       .map( optModName => modulesInstances.get( optModName ) )
       .forEach( instance.addAdditionalModule ),

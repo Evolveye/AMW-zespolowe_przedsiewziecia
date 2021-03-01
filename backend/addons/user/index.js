@@ -1,5 +1,5 @@
 import Addon from "../addon.js"
-
+import './permissions.js'
 import getGraphQlTypes from "./types.js"
 import getGraphQlModels from "./models.js"
 
