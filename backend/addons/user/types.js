@@ -11,12 +11,13 @@ import {
 import mongoose from "mongoose"
 
 
-const clear = obj => Object.fromEntries( Object.entries( obj ).filter( ([_, v]) => v != null ) )
+const clear = obj => Object.fromEntries( Object.entries( obj ).filter( ([ _, v ]) => v != null ) )
 
 
 export default ({ isMailValid }, { UserModel, UserType }) => ({
   /** @type {import("graphql").GraphQLFieldConfigMap} */
   queryObj: {
+
     user: {
       type: UserType,
       args: {
@@ -43,10 +44,10 @@ export default ({ isMailValid }, { UserModel, UserType }) => ({
   /** @type {import("graphql").GraphQLFieldConfigMap} */
   mutationObj: {
 
-    updateUser:{
-      type:UserType,
-      args:{
-        id:{type: new GraphQLNonNull(GraphQLID)},
+    updateUser: {
+      type: UserType,
+      args: {
+        id: { type:new GraphQLNonNull(GraphQLID) },
         name: { type:GraphQLString },
         surname: { type:GraphQLString },
         login: { type:GraphQLString },
@@ -58,11 +59,11 @@ export default ({ isMailValid }, { UserModel, UserType }) => ({
           type: GraphQLString,
         },
       },
-      resolve(parent,args){
+      resolve( parent, args ) {
         const userId = args.id
         delete args.id
-        return UserModel.findOneAndUpdate({_id:userId},args,{new:true})
-      }
+        return UserModel.findOneAndUpdate( { _id:userId }, args, { new:true } )
+      },
     },
 
 

@@ -4,12 +4,24 @@ import {
   GraphQLString,
   GraphQLID,
   GraphQLBoolean,
+  GraphQLNonNull,
+  GraphQLList,
+  GraphQLInt,
 } from "graphql"
 
 import { GraphQLTypeDate } from "../graphql.js"
 import { isEmailValid } from "../../priv/src/utils.js"
 
 /** @typedef {import("../addon.js").default} Addon */
+
+
+// const PermAbility = mongoose.model( ``, new mongoose.Schema(
+//   {
+//     AbilityName: { type:String },
+//     Value: { type:Boolean },
+//   } ) )
+
+
 
 /** @param {Addon} param0 */
 export default ({ baseCollectionName }) => {
@@ -47,7 +59,7 @@ export default ({ baseCollectionName }) => {
         id: { type:GraphQLID },
         name: { type:GraphQLString },
         surname: { type:GraphQLString },
-        login:{type:GraphQLString},
+        login: { type:GraphQLString },
         email: { type:GraphQLString },
         avatar: { type:GraphQLString },
         createdDateTime: { type:GraphQLTypeDate },

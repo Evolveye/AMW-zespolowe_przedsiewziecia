@@ -5,6 +5,9 @@ import {
   GraphQLNonNull,
   GraphQLString,
   GraphQLInt,
+  GraphQLBoolean,
+  GraphQLObjectType,
+  GraphQLInputObjectType,
 } from "graphql"
 
 const getFilteredObjByKeys = (obj, keys) =>
@@ -13,9 +16,40 @@ const getFilteredObjByKeys = (obj, keys) =>
 /**
  *
  */
-export default ({ isMailValid }, { PlatformType, PlatformModel }) => ({
+export default ({ isMailValid }, { PlatformType, PlatformModel, PermissionWithUserConnectorModel, PermissionModel, PlatformPermissionType, PlatformUserPermissionType }) => ({
   /** @type {import("graphql").GraphQLFieldConfigMap} */
   queryObj: {
+
+    platformUserPermission: {
+      type: PlatformPermissionType,
+      args: {
+        permissionId: { type:GraphQLID  },
+        userId: { type:GraphQLID  },
+      },
+      resolve( parent, args )
+      {
+        return PermissionModel.findById( args.permissionId )
+      },
+    },
+
+    permissionTemplate: {
+      type: PlatformPermissionType,
+      args: {
+        id: { type:GraphQLID },
+        platformId: { type:GraphQLID },
+        name: { type:GraphQLString },
+      },
+      resolve( parent, args ) {
+
+        if  (mongoose.Types.ObjectId.isValid( args.id ) && args.id)
+          return  PermissionModel.findById( args.id )
+
+        if (mongoose.Types.ObjectId.isValid( args.platformId ) && args.platformId && args.name)
+          return PermissionModel.findOne({ name:args.name, platformId:args.platformId })
+      },
+    },
+
+
     platform: {
       type: PlatformType,
       args: { id:{ type:GraphQLID } },
@@ -31,21 +65,58 @@ export default ({ isMailValid }, { PlatformType, PlatformModel }) => ({
   /** @type {import("graphql").GraphQLFieldConfigMap} */
   mutationObj: {
 
+    userPlatformPermission: {
+      type: PlatformUserPermissionType,
+      args: {
+        permissionId: { type:GraphQLID },
+        userId: { type:GraphQLID },
+      },
+      resolve( parent, args ) {
+        // console.log( args )
+        const x = new  PermissionWithUserConnectorModel(args)
+        // console.log( x )
+        return x.save()
+      },
+    }
+    ,
+
+    permissionTemplate: {
+      type: PlatformPermissionType,
+      args: {
+        platformId: { type:GraphQLID  },
+        name: { type:GraphQLString },
+        abilities: {
+          type: new GraphQLInputObjectType({ name: `Abilities`, fields: () => ({
+            canManageUsers: { type:GraphQLBoolean },
+            canManageGroups: { type:GraphQLBoolean },
+          }) }),
+        },
+        color: { type:GraphQLString },
+        importance: { type:GraphQLInt },
+      },
+      resolve( parent, args )
+      {
+        args.abilities = JSON.parse( JSON.stringify( args.abilities ) )
+        return new PermissionModel(args).save()
+      },
+    },
+
+
     deleteUsersFromPlatform: {
       type: PlatformType,
       args: {
         userIds: { type:new GraphQLNonNull(new GraphQLList(GraphQLID)) },
         targetPlatform: { type:new GraphQLNonNull(GraphQLID) },
       },
-      resolve: (parent, args)=>
+      resolve: (parent, args) =>
         PlatformModel.findOneAndUpdate(
           { _id:args.targetPlatform },
-          { $pull: { membersIds : {$in :args.userIds } } },
-          { new: true },
-        )
+          { $pull:{ membersIds:{ $in:args.userIds } } },
+          { new:true },
+        ),
     },
 
-    deletePlatform:{
+    deletePlatform: {
       type: PlatformType,
       args: {
         id: { type:new GraphQLNonNull(GraphQLID) },
@@ -62,12 +133,12 @@ export default ({ isMailValid }, { PlatformType, PlatformModel }) => ({
         userIds: { type:new GraphQLNonNull(new GraphQLList(GraphQLID)) },
         targetPlatform: { type:new GraphQLNonNull(GraphQLID) },
       },
-      resolve: (parent, args)=>
+      resolve: (parent, args) =>
         PlatformModel.findOneAndUpdate(
           { _id:args.targetPlatform },
-          { $push: { membersIds : {$each :args.userIds } } },
-          { new: true },
-        )
+          { $push:{ membersIds:{ $each:args.userIds } } },
+          { new:true },
+        ),
     },
 
     addPlatform: {
