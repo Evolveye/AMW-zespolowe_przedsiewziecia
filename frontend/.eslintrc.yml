@@ -1,1 +1,15 @@
 extends: eye
+rules:
+  spaced-comment:
+    - error
+    - always
+    - block:
+        exceptions: [ \ ]
+  prefer-template:
+    - off
+  indent:
+    - error
+    - 2
+    - SwitchCase: 1
+  no-async-promise-executor:
+    - off

@@ -3,6 +3,7 @@ import React from "react"
 
 import SwitchBox from "./switchBox.js"
 import ToggableBox from "./toggableBox.js"
+import DataTable from "./dataTable.js"
 import { getUrnQuery } from "../utils/functions"
 
 import classes from "./platformNav.module.css"
@@ -32,7 +33,60 @@ export default ({ className = `` }) => {
       <ToggableBox boxClassName={classes.nav} btnContent="Ustawienia" fullScreened>
         <SwitchBox tabs={
           [
-            { name:`Użytkownicy`, node:<>Jakaś tabelka z użytkownikami</> },
+            { name: `Użytkownicy`, node: (
+              <DataTable
+                getDataAddress="fakePlatformUsers"
+                deleteDataAddress=""
+                deletePosibilityChecker={fields => true}
+                staticLabels={
+                  {
+                    actions: `Akcje`,
+                    create: `Dodaj`,
+                    delete: `Usuń`,
+                    edit: `Edytuj`,
+                  }
+                }
+                fields={
+                  [
+                    {
+                      name: `name`,
+                      label: `Imię`,
+                      dataFieldname: `name`,
+                      // processor: () => `Imię ` + Math.random(),
+                      adder: {
+                        // type: `select`,
+                        colspan: 2,
+                        validator: field => field,
+                      },
+                    },
+                    {
+                      name: `surname`,
+                      label: `Nazwisko`,
+                      dataFieldname: `surname`,
+                      // processor: () => `Nazwisko ` + Math.random(),
+                    },
+                    {
+                      name: `surname`,
+                      label: `Nazwisko`,
+                      dataFieldname: `surname`,
+                      // processor: () => `Nazwisko ` + Math.random(),
+                    },
+                    {
+                      name: `role`,
+                      label: `Rola`,
+                      dataFieldname: `role`,
+                      processor: ({ name }) => name, // `Rola ` + Math.random(),
+                      editable: true,
+                      adder: {
+                        type: `select`,
+                        validator: ({ name }) => name,
+                        getDataAddress: `fakeGroupRoles`,
+                      },
+                    },
+                  ]
+                }
+              />
+            ) },
             { name:`Grupy`, node:<>Jakaś tabelka z grupami</> },
           ]
         }
