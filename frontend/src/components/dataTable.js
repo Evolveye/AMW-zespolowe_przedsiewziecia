@@ -1,16 +1,5 @@
-import React from "react"
+import React, { useState } from "react"
 
-/**
- * @typedef {object} Props
- * @property {object[]} fields
- * @property {string} fields.name
- * @property {string} fields.label
- * @property {string} [fields.dataFieldname]
- * @property {(field) => string} [fields.processor]
- * @property {object} [fields.adder]
- * @property {number} [fields.adder.colspan]
- * @property {(data:string) => Error?} fields.adder.validator
- */
 
 const fakeGroupRoles = [
   {
@@ -43,11 +32,43 @@ const fakePlatformUsers = [
     surname: `Szreiber`,
     role: fakeGroupRoles.find( ({ name }) => name === `Asystent` ),
   },
+  {
+    id: `3`,
+    name: `Kamil`,
+    surname: `Czarny`,
+    role: fakeGroupRoles.find( ({ name }) => name === `Student` ),
+  },
+]
+const fakeGroups = [
+  {
+    id: `1`,
+    name: `Przyroda`,
+    lecturer: fakePlatformUsers[ 1 ],
+  },
+  {
+    id: `2`,
+    name: `Oceanografia`,
+    lecturer: fakePlatformUsers[ 0 ],
+  },
 ]
 const fakeData = {
   fakePlatformUsers,
   fakeGroupRoles,
+  fakeGroups,
 }
+
+/**
+ * @param {object} props
+ * @param {object[]} props.fields
+ * @param {string} props.fields.name
+ * @param {string} props.fields.label
+ * @param {string} [props.fields.dataFieldname]
+ * @param {(field) => string} [props.fields.processor]
+ * @param {object} [props.fields.adder]
+ * @param {number} [props.fields.adder.colspan]
+ * @param {(data:string) => Error?} props.fields.adder.validator
+ */
+
 
 export default class DataTable extends React.Component {
   constructor( props ) {
@@ -73,27 +94,35 @@ export default class DataTable extends React.Component {
         <tr>
           {
             props.fields.map( ({ name, label }) => (
-              <td key={name}>{label}</td>
+              <th key={name}>{label}</th>
             ) )
           }
+          <th>{props.staticLabels?.actions || `Actions`}</th>
         </tr>
       ),
 
       tableAdder: (
-        props.fields.map( ({ adder = {}, name }) => {
-          if (colspanCounter !== 1) {
-            colspanCounter--
-            return null
+        <>
+          {
+            props.fields.map( ({ adder = {}, name }) => {
+              if (colspanCounter !== 1) {
+                colspanCounter--
+                return null
+              }
+
+              colspanCounter = adder.colspan || 1
+
+              return (
+                <td key={name} colSpan={colspanCounter}>
+                  {this.tableAdderFields[ name ]()}
+                </td>
+              )
+            } )
           }
-
-          colspanCounter = adder.colspan || 1
-
-          return (
-            <td key={name} colSpan={colspanCounter}>
-              {this.tableAdderFields[ name ]()}
-            </td>
-          )
-        } )
+          <td>
+            <button>{props.staticLabels?.create || `Create`}</button>
+          </td>
+        </>
       ),
 
       tableRows: [],
@@ -102,19 +131,44 @@ export default class DataTable extends React.Component {
 
 
   componentDidMount() {
-    const { getDataAddress, fields } = this.props
+    // const tableAdderFields
+    const {
+      getDataAddress,
+      fields,
+      staticLabels,
+      deletePosibilityChecker = () => false,
+    } = this.props
+
+    const del = this.props.deleteDataAddress != null
     const data = fakeData[ getDataAddress ]
-    const tableRows = data.map( field => (
-      <tr key={field.id}>
-        {
-          fields.map( ({ editable, dataFieldname, name, processor = it => it }) => (
-            <td key={name}>
-              {editable ? this.tableAdderFields[ name ]( field[ dataFieldname ] ) : processor( field[ dataFieldname ] )}
-            </td>
-          ) )
-        }
-      </tr>
-    ) )
+    const tableRows = data.map( field => {
+      let edit = false
+      console.log( field )
+
+      return (
+        <tr key={field.id}>
+          {
+            fields.map( ({ editable, name, dataFieldname = name, processor = it => it }) => {
+              if (editable) edit = true
+
+              return (
+                <td key={name}>
+                  {
+                    editable
+                      ? this.tableAdderFields[ name ]( field[ dataFieldname ] )
+                      : processor( field[ dataFieldname ] )
+                  }
+                </td>
+              ) },
+            )
+          }
+          <td>
+            {del && deletePosibilityChecker( field ) && <button>{staticLabels?.delete || `Delete`}</button>}
+            {edit && <button>{staticLabels?.edit || `Edit`}</button>}
+          </td>
+        </tr>
+      )
+    } )
 
     this.setState({ tableRows })
   }
@@ -130,7 +184,6 @@ export default class DataTable extends React.Component {
 
       case `select`:
         inputCreator = defaultValue => {
-          console.log( defaultValue )
           return (
             <select defaultValue={defaultValue?.name}>
               {

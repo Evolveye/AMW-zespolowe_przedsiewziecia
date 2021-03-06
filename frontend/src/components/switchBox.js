@@ -22,7 +22,9 @@ export default ({ className = ``, tabChangerClassName = ``, isActiveClassName = 
       </section>
 
       <section>
-        {activeTab.node}
+        <React.Fragment key={activeTab.name}>
+          {activeTab.node}
+        </React.Fragment>
       </section>
     </article>
   )

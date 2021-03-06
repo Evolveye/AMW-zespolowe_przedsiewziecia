@@ -17,6 +17,12 @@ const fakePlatforms = [
 
 export default ({ className = `` }) => {
   const { p } = getUrnQuery()
+  const labelsTranslation = {
+    actions: `Akcje`,
+    create: `Dodaj`,
+    delete: `Usuń`,
+    edit: `Edytuj`,
+  }
 
   return (
     <article className={className}>
@@ -38,14 +44,7 @@ export default ({ className = `` }) => {
                 getDataAddress="fakePlatformUsers"
                 deleteDataAddress=""
                 deletePosibilityChecker={fields => true}
-                staticLabels={
-                  {
-                    actions: `Akcje`,
-                    create: `Dodaj`,
-                    delete: `Usuń`,
-                    edit: `Edytuj`,
-                  }
-                }
+                staticLabels={labelsTranslation}
                 fields={
                   [
                     {
@@ -58,12 +57,6 @@ export default ({ className = `` }) => {
                         colspan: 2,
                         validator: field => field,
                       },
-                    },
-                    {
-                      name: `surname`,
-                      label: `Nazwisko`,
-                      dataFieldname: `surname`,
-                      // processor: () => `Nazwisko ` + Math.random(),
                     },
                     {
                       name: `surname`,
@@ -87,7 +80,29 @@ export default ({ className = `` }) => {
                 }
               />
             ) },
-            { name:`Grupy`, node:<>Jakaś tabelka z grupami</> },
+            { name: `Grupy`, node: (
+              <DataTable
+                getDataAddress="fakeGroups"
+                deleteDataAddress=""
+                deletePosibilityChecker={fields => true}
+                staticLabels={labelsTranslation}
+                fields={
+                  [
+                    { name:`name`, label:`Nazwa`, processor:name => name },
+                    {
+                      name: `lecturer`,
+                      label: `Prowadzący`,
+                      processor: ({ name, surname }) => `${name} ${surname}`,
+                      adder: {
+                        type: `select`,
+                        validator: ({ name }) => name,
+                        getDataAddress: `fakePlatformUsers`,
+                      },
+                    },
+                  ]
+                }
+              />
+            ) },
           ]
         }
         />
