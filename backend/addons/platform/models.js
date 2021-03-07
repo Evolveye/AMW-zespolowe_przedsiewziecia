@@ -58,34 +58,8 @@ export default addon => {
         return PermissionModel.findById( parent.platformId )
       } },
 
-      permissionTemplate: { type: PlatformPermissionType, async resolve( parent ) {
-        const conn = await PermissionWithUserConnectorModel.findOne({ permissionId:parent.permissionId, userId:parent.userId })
-        const user = await UserModel.findById( conn.userId )
-        const perms = await PermissionModel.findById( conn.permissionId )
-
-        console.log( typeof new mongoose.Types.ObjectId(parent.permissionId) )
-        console.log({ permId:new mongoose.Types.ObjectId(parent.permissionId), userId:new mongoose.Types.ObjectId(parent.userId) })
-        // console.log({ conn, user, perms  })
-        // const x = await PermissionWithUserConnectorModel.aggregate([
-        //   {
-        //     $match: {
-        //       permissionId: new mongoose.Types.ObjectId(parent.permissionId), 
-        //       userId: new mongoose.Types.ObjectId(parent.userId),
-        //     },
-        //   }, {
-        //     $lookup: {
-        //       from: PermissionModel.collection.collectionName, 
-        //       localField: `permissionId`, 
-        //       foreignField: `_id`, 
-        //       as: `perms`,
-        //     },
-        //   }, {
-        //     $unwind: {
-        //       path: `$perms`,
-        //     },
-        //   },
-        // ])
-        const x = await PermissionWithUserConnectorModel.aggregate([ 
+      permissionTemplate: { type: PlatformPermissionType, resolve( parent ) {
+        return PermissionWithUserConnectorModel.aggregate([
           { $match: {
             permissionId: parent.permissionId,
             userId: parent.userId,
@@ -96,11 +70,8 @@ export default addon => {
             as: `perms`,
           } }, { $unwind: {
             path: `$perms`,
-          } }, 
+          } },
         ])
-        console.log({ x })
-        console.log( x[ 0 ].perms )
-        return x[ 0 ].perms
       } },
     }),
     description: `Permission assigned to user in specyfic platform`,

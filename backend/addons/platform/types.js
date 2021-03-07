@@ -20,34 +20,34 @@ export default ({ isMailValid }, { PlatformType, PlatformModel, PermissionWithUs
   /** @type {import("graphql").GraphQLFieldConfigMap} */
   queryObj: {
 
-    platformUserPermission: {
-      type: PlatformPermissionType,
-      args: {
-        permissionId: { type:GraphQLID  },
-        userId: { type:GraphQLID  },
-      },
-      resolve( parent, args )
-      {
-        return PermissionModel.findById( args.permissionId )
-      },
-    },
+    // platformUserPermission: {
+    //   type: PlatformPermissionType,
+    //   args: {
+    //     permissionId: { type:GraphQLID  },
+    //     userId: { type:GraphQLID  },
+    //   },
+    //   resolve( parent, args )
+    //   {
+    //     return PermissionModel.findById( args.permissionId )
+    //   },
+    // },
 
-    permissionTemplate: {
-      type: PlatformPermissionType,
-      args: {
-        id: { type:GraphQLID },
-        platformId: { type:GraphQLID },
-        name: { type:GraphQLString },
-      },
-      resolve( parent, args ) {
+    // permissionTemplate: {
+    //   type: PlatformPermissionType,
+    //   args: {
+    //     id: { type:GraphQLID },
+    //     platformId: { type:GraphQLID },
+    //     name: { type:GraphQLString },
+    //   },
+    //   resolve( parent, args ) {
 
-        if  (mongoose.Types.ObjectId.isValid( args.id ) && args.id)
-          return  PermissionModel.findById( args.id )
+    //     if  (mongoose.Types.ObjectId.isValid( args.id ) && args.id)
+    //       return  PermissionModel.findById( args.id )
 
-        if (mongoose.Types.ObjectId.isValid( args.platformId ) && args.platformId && args.name)
-          return PermissionModel.findOne({ name:args.name, platformId:args.platformId })
-      },
-    },
+    //     if (mongoose.Types.ObjectId.isValid( args.platformId ) && args.platformId && args.name)
+    //       return PermissionModel.findOne({ name:args.name, platformId:args.platformId })
+    //   },
+    // },
 
 
     platform: {
@@ -65,20 +65,17 @@ export default ({ isMailValid }, { PlatformType, PlatformModel, PermissionWithUs
   /** @type {import("graphql").GraphQLFieldConfigMap} */
   mutationObj: {
 
-    userPlatformPermission: {
-      type: PlatformUserPermissionType,
-      args: {
-        permissionId: { type:GraphQLID },
-        userId: { type:GraphQLID },
-      },
-      resolve( parent, args ) {
-        // console.log( args )
-        const x = new  PermissionWithUserConnectorModel(args)
-        // console.log( x )
-        return x.save()
-      },
-    }
-    ,
+    // userPlatformPermission: {
+    //   type: PlatformUserPermissionType,
+    //   args: {
+    //     permissionId: { type:GraphQLID },
+    //     userId: { type:GraphQLID },
+    //   },
+    //   resolve( parent, args ) {
+    //     return PermissionWithUserConnectorModel( args ).save()
+    //   },
+    // }
+    // ,
 
     permissionTemplate: {
       type: PlatformPermissionType,
