@@ -24,8 +24,22 @@ mutation{
   )
   {
     abilities{canManageUsers,canManageGroups},color,importance
-  	
+
   }
+}
+
+
+mutation{
+permissionTemplate(
+  platformId:"60450e1cf78a622fe43a755f",
+  name:"perm1",
+  importance:999,
+  abilities:{canManageUsers:false,canManageGroups:false},
+  color:"green",
+
+){
+ id,name,importance,color,abilities{canManageUsers,canManageGroups}
+}
 }
 
 
@@ -34,7 +48,7 @@ mutation{
     permissionId:"603fe174af1cf51dc8f15e76",
     userId:"603bcfc2a21b86242089bdfc"
   )
-  
+
   {id,
     user{name,login,password},
     permissionId,
@@ -48,7 +62,7 @@ mutation{
     permissionId:"603fe174af1cf51dc8f15e76",
     userId:"603bcfc2a21b86242089bdfc"
   )
-  
+
   {id,
     user{id,login,password},
     permissionId,
@@ -91,3 +105,6 @@ mutation{
     id,login,email,password
   }
 }
+
+
+

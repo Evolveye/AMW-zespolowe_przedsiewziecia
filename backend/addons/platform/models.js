@@ -54,9 +54,10 @@ export default addon => {
       user: { type: UserType, resolve( parent ) {
         return UserModel.findById( parent.userId )
       } },
-      platfrom: { type: PlatformType, resolve( parent ) {
-        return PermissionModel.findById( parent.platformId )
+      platfromId: { type: GraphQLID, async resolve( parent ) {
+        return (await PermissionModel.findById( parent.permissionId )).platformId
       } },
+
 
       permissionTemplate: { type: PlatformPermissionType, resolve( parent ) {
         return PermissionWithUserConnectorModel.aggregate([

@@ -20,34 +20,58 @@ export default ({ isMailValid }, { PlatformType, PlatformModel, PermissionWithUs
   /** @type {import("graphql").GraphQLFieldConfigMap} */
   queryObj: {
 
-    // platformUserPermission: {
-    //   type: PlatformPermissionType,
-    //   args: {
-    //     permissionId: { type:GraphQLID  },
-    //     userId: { type:GraphQLID  },
-    //   },
-    //   resolve( parent, args )
-    //   {
-    //     return PermissionModel.findById( args.permissionId )
-    //   },
-    // },
+    platformUserPermission: {
+      type: PlatformUserPermissionType,
+      args: {
+        permissionId: { type:GraphQLID  },
+        userId: { type:GraphQLID  },
+      },
+      async resolve( parent, args )
+      {
+        console.log( args )
 
-    // permissionTemplate: {
-    //   type: PlatformPermissionType,
-    //   args: {
-    //     id: { type:GraphQLID },
-    //     platformId: { type:GraphQLID },
-    //     name: { type:GraphQLString },
-    //   },
-    //   resolve( parent, args ) {
 
-    //     if  (mongoose.Types.ObjectId.isValid( args.id ) && args.id)
-    //       return  PermissionModel.findById( args.id )
+        // const x = await   PermissionWithUserConnectorModel.aggregate([
+        //   { $match: {
+        //     permissionId: args.permissionId,
+        //     userId: args.userId,
+        //   } }, { $lookup: {
+        //     from: `platform permissions models`,
+        //     localField: `permissionId`,
+        //     foreignField: `_id`,
+        //     as: `perms`,
+        //   } }, { $unwind: {
+        //     path: `$perms`,
+        //   } },
+        // ])
+        // console.log( x )
+        return {
+          id: `60451bd0317116384cdd330f`,
+          permissionId: `60451a6ff78a622fe43a7562`,
+          userId: `6040cafa06319233304757ab`,
+          user: { id:`6040cafa06319233304757ab`, name:`Adam`, surname:`Adam` },
+          permissionTemplate: { id:`604519f4f78a622fe43a7561`, name:`brak` },
+        }
+        // return PermissionModel.findById( args.permissionId )
+      },
+    },
 
-    //     if (mongoose.Types.ObjectId.isValid( args.platformId ) && args.platformId && args.name)
-    //       return PermissionModel.findOne({ name:args.name, platformId:args.platformId })
-    //   },
-    // },
+    permissionTemplate: {
+      type: PlatformPermissionType,
+      args: {
+        id: { type:GraphQLID },
+        platformId: { type:GraphQLID },
+        name: { type:GraphQLString },
+      },
+      resolve( parent, args ) {
+
+        if  (mongoose.Types.ObjectId.isValid( args.id ) && args.id)
+          return  PermissionModel.findById( args.id )
+
+        if (mongoose.Types.ObjectId.isValid( args.platformId ) && args.platformId && args.name)
+          return PermissionModel.findOne({ name:args.name, platformId:args.platformId })
+      },
+    },
 
 
     platform: {
@@ -65,17 +89,18 @@ export default ({ isMailValid }, { PlatformType, PlatformModel, PermissionWithUs
   /** @type {import("graphql").GraphQLFieldConfigMap} */
   mutationObj: {
 
-    // userPlatformPermission: {
-    //   type: PlatformUserPermissionType,
-    //   args: {
-    //     permissionId: { type:GraphQLID },
-    //     userId: { type:GraphQLID },
-    //   },
-    //   resolve( parent, args ) {
-    //     return PermissionWithUserConnectorModel( args ).save()
-    //   },
-    // }
-    // ,
+    userPlatformPermission: {
+      type: PlatformUserPermissionType,
+      args: {
+        permissionId: { type:GraphQLID },
+        userId: { type:GraphQLID },
+
+      },
+      resolve( parent, args ) {
+        return PermissionWithUserConnectorModel( args ).save()
+      },
+    }
+    ,
 
     permissionTemplate: {
       type: PlatformPermissionType,
