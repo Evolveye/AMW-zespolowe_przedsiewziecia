@@ -9,11 +9,17 @@ import classes from "./subPagesNav.module.css"
  * @property {link} link
  */
 
+const defaultQueryPaths = [
+// { name:`Platforma`, link:`/platform?p` },
+  { name:`Grupa`, link:`/group?p&g` },
+  { name:`Spotkanie`, link:`/meet?p&g&m` },
+]
+
 /**
  * @param {object} param0
  * @param {QueryPath[]} param0.queryPaths
  */
-export default ({ queryPaths = [], className }) => {
+export default ({ queryPaths = defaultQueryPaths, className }) => {
   const search = Object.fromEntries( Array.from( new URLSearchParams( window.location.search ) ) )
   const links = queryPaths.map( ({ name, link }) => {
     const linkParts = link.split( `?` )
@@ -47,9 +53,10 @@ export default ({ queryPaths = [], className }) => {
     </React.Fragment>
   ) )
 
-  return (
-    <article className={`${classes.nav} ${className}`}>
-      {links}
-    </article>
-  )
+  return links
+  // return (
+  //   <article className={`${classes.nav} ${className}`}>
+  //     {links}
+  //   </article>
+  // )
 }

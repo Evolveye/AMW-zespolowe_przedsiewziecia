@@ -1,0 +1,27 @@
+.nav {
+  display: flex;
+  padding: 10px;
+}
+
+.toggleBox {
+  background-color: var( --background-color );
+}
+
+.settingsButton,
+.switchButton {
+  position: relative;
+  width: 30px;
+  height: 30px;
+}
+.switchButton {
+  
+}
+.switchButton::after {
+  content: "";
+  display: block;
+  width: 10px;
+  height: 10px;
+  border: 2px solid;
+  border-right-color: black;
+  border-bottom-color: black;
+}

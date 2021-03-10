@@ -1,11 +1,11 @@
 import React from "react"
 import { Link } from "gatsby"
 
-import SEO from "../components/seo.js"
-import PlatformNav from "../components/platformNav.js"
-import PlatformSubPagesNav from "../components/subPagesNav.js"
-import MainSearch from "../components/mainSearch.js"
-import UserField from "../components/userField.js"
+import SEO from "../containers/seo.js"
+import PlatformChooser from "../containers/platformChooser.js"
+import PlatformSubPagesNav from "../containers/subPagesNav.js"
+import SearchBar from "../components/searchBar.js"
+import UserField from "../containers/userField.js"
 
 import Logo from "../models/logo.js"
 
@@ -19,32 +19,27 @@ export default ({ className = ``, children, title }) => {
       <SEO title={title} />
 
       <header className={classes.header}>
-        <Link className={classes.logo} to="/">
-          <Logo
-            size={50}
-            text=""
-          />
-        </Link>
+        <section className={classes.navigationPath}>
+          <Link className={classes.logo} to="/">
+            <Logo
+              size={50}
+              text=""
+            />
+          </Link>
 
+          {
+            isLogged() && <>
+              <PlatformChooser className={classes.platformNav} />
+              <PlatformSubPagesNav className={classes.platformSubPages} />
+            </>
+          }
+        </section>
 
         {
-          isLogged() && (
-            <>
-              <PlatformNav className={classes.platformNav} />
-              <PlatformSubPagesNav
-                className={classes.platformSubPages}
-                queryPaths={
-                  [
-                    // { name:`Platforma`, link:`/platform?p` },
-                    { name:`Grupa`, link:`/group?p&g` },
-                    { name:`Spotkanie`, link:`/meet?p&g&m` },
-                  ]
-                }
-              />
-              <MainSearch className={`${classes.search} is-centered`} />
-              <UserField className={classes.userField} />
-            </>
-          )
+          isLogged() && <>
+            <SearchBar className={`${classes.search} is-centered`} />
+            <UserField className={classes.userField} />
+          </>
         }
       </header>
 

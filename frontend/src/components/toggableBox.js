@@ -36,7 +36,7 @@ export default ({
         onPointerDown={toggleBoxVisibility}
         onKeyDown={({ key }) => key == ` ` && toggleBoxVisibility()}
       >
-        {btnContent || `toggle box`}
+        {btnContent == null ? `toggle box` : btnContent}
       </button>
 
       <section style={{ display:(isButtonFocused ? `inline` : `none`) }}>

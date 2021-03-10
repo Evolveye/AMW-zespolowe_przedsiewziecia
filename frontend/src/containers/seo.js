@@ -30,11 +30,7 @@ function SEO({ description, lang, meta, title }) {
 
   return (
     <Helmet
-      htmlAttributes={
-        {
-          lang,
-        }
-      }
+      htmlAttributes={{ lang }}
       title={title}
       titleTemplate={defaultTitle ? `%s | ${defaultTitle}` : null}
       meta={
@@ -71,14 +67,14 @@ function SEO({ description, lang, meta, title }) {
             name: `twitter:description`,
             content: metaDescription,
           },
-        ].concat(meta)
+        ].concat( meta )
       }
     />
   )
 }
 
 SEO.defaultProps = {
-  lang: `en`,
+  lang: `pl`,
   meta: [],
   description: ``,
 }

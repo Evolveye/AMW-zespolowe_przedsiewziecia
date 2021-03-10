@@ -1,19 +1,17 @@
 import React from "react"
 
 import Layout from "./base.js"
-import GroupNav from "../components/groupNav.js"
+import GroupsList from "../containers/groupsList.js"
+import EventsCalendar from "../containers/eventsCalendar.js"
 
 import classes from "./platform.module.css"
 
 export default ({ className = ``, children, title, showMeets }) => (
-  <Layout
-    className={classes.root} title={title}
-    logged
-  >
-    <GroupNav className={classes.groupNav} showMeets={showMeets} />
-
-    <main className={`${classes.main} ${className}`}>
-      {children}
+  <Layout title={title}>
+    <main className={classes.main}>
+      <GroupsList className={classes.groups} />
+      <EventsCalendar className={classes.calendar} />
+      {/* {children} */}
     </main>
   </Layout>
 )

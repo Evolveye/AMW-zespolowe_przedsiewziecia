@@ -1,22 +1,18 @@
-.root {
+.main {
   display: grid;
   grid-template:
-    "groupNav     main"   calc( 100vh - var( --top-height ) - 30px )
-    "groupNav     footer" 30px /
-     max-content  1fr
+    "groups .     .         ." 100px
+    "groups .     calendar  ." calc( 100vh - var( --top-height ) - 200px )
+    "groups .     .         ." 100px /
+     300px  100px 1fr       100px;
 }
 
-.groupNav {
-  grid-area: groupNav;
+.groups {
+  grid-area: groups;
   background-color: purple;
 }
 
-.main {
-  grid-area: main;
-  background-color: gray;
+.calendar {
+  grid-area: calendar;
+  background-color: goldenrod;
 }
-
- .footer {
-  grid-area: footer;
-  background-color: gray;
- }

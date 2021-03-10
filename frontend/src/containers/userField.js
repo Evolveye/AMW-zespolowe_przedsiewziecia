@@ -2,7 +2,7 @@ import React from "react"
 import { useStaticQuery, graphql, Link } from "gatsby"
 import Img from "gatsby-image"
 
-import ToggableBox from "./toggableBox.js"
+import ToggableBox from "../components/toggableBox.js"
 import { getUser } from "../utils/auth"
 
 import classes from "./userField.module.css"
