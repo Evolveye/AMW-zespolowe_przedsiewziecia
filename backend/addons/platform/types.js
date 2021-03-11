@@ -26,33 +26,65 @@ export default ({ isMailValid }, { PlatformType, PlatformModel, PermissionWithUs
         permissionId: { type:GraphQLID  },
         userId: { type:GraphQLID  },
       },
-      async resolve( parent, args )
+      async resolve( parent, args, context, info )
       {
-        console.log( args )
+        // info jest ussless. przechowuje informacje o typach itd.
+        // context posiada w sobie serwer  - socket hedersy url body
+        // console.log({ x:`QueryObjResolve`, parent, args  }) // context,source args, context, info
+        args.permissionId = new mongoose.Types.ObjectId( args.permissionId )
+        args.userId = new mongoose.Types.ObjectId( args.userId )
+        // console.log({ args })
+        let x =  1
+        // x = await PermissionWithUserConnectorModel.find({})
+        // console.log({ all:x })
+        // console.log({ val1:typeof new mongoose.Types.ObjectId( args.permissionId ), val2:typeof x[ 0 ].permissionId })
+        // console.log({ val1:args.userId, val2:x[ 0 ].userId })
+        x = await PermissionWithUserConnectorModel.aggregate([
+          { $match: {
+            permissionId: { $eq:args.permissionId },
+            userId: { $eq:args.userId },
+          } }, { $lookup: {
+            from: `platform permissions models`,
+            localField: `permissionId`,
+            foreignField: `_id`,
+            as: `permissionTemplate`,
+          } },
+          { $lookup: {
+            from: `addon.user`,
+            localField: `userId`,
+            foreignField: `_id`,
+            as: `user`,
+          } },
+          { $unwind: {
+            path: `$user`,
+          } },
+          { $unwind: {
+            path: `$perms`,
+          } },
+          { $unwind: {
+            path: `$perms.abilities`,
+          } },
+          { $limit:1 },
+        ])
+        // console.log({ x })
+        // console.log({ return:x[ 0 ] })
+        // console.log({ return:x[ 0 ].perms })
+        // console.log({ return:x[ 0 ].perms.abilities })
 
 
-        // const x = await   PermissionWithUserConnectorModel.aggregate([
-        //   { $match: {
-        //     permissionId: args.permissionId,
-        //     userId: args.userId,
-        //   } }, { $lookup: {
-        //     from: `platform permissions models`,
-        //     localField: `permissionId`,
-        //     foreignField: `_id`,
-        //     as: `perms`,
-        //   } }, { $unwind: {
-        //     path: `$perms`,
-        //   } },
-        // ])
+
+        // const x = {
+        //   id: `60451bd0317116384cdd330f`,
+        //   permissionId: `60451a6ff78a622fe43a7562`,
+        //   userId: `6040cafa06319233304757ab`,
+        //   user: { id:`6040cafa06319233304757ab`, name:`Adam`, surname:`Adam` },
+        //   permissionTemplate: { id:`6040cafa06319233304757ab`, surname:`321`, name:`Adam` },
+        // }
+
         // console.log( x )
-        return {
-          id: `60451bd0317116384cdd330f`,
-          permissionId: `60451a6ff78a622fe43a7562`,
-          userId: `6040cafa06319233304757ab`,
-          user: { id:`6040cafa06319233304757ab`, name:`Adam`, surname:`Adam` },
-          permissionTemplate: { id:`604519f4f78a622fe43a7561`, name:`brak` },
-        }
-        // return PermissionModel.findById( args.permissionId )
+        //  tutaj zapytac duzego agregata
+        //  return go
+        return x[ 0 ]
       },
     },
 

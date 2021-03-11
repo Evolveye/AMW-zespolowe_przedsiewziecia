@@ -31,18 +31,33 @@ export default addon => {
     description: `An ability type.`,
   })
 
-  const PlatformPermissionType = new GraphQLObjectType({
-    name: `PlatformPermission`,
+  const PlatformPermissionType =  new GraphQLObjectType({
+    name: `PlatformPermission1`,
     fields: () => ({
       id: { type:GraphQLID },
       name: { type:GraphQLString },
-      abilities: { type:PlatformAbilityType  },
-      platformId: { type:GraphQLID },
-      color: { type:GraphQLString },
-      importance: { type:GraphQLInt },
+      surname: { type:GraphQLString },
+      login: { type:GraphQLString },
+      email: { type:GraphQLString },
+      avatar: { type:GraphQLString },
+      createdDateTime: { type:GraphQLTypeDate },
+      activated: { type:GraphQLBoolean },
+      password: { type:GraphQLString },
     }),
-    description: `Template for permissions.`,
+    description: `User object.`,
   })
+  // new GraphQLObjectType({
+  //   name: `PlatformPermission`,
+  //   fields: () => ({
+  //     id: { type:GraphQLID },
+  //     name: { type:GraphQLString },
+  //     abilities: { type:PlatformAbilityType  },
+  //     platformId: { type:GraphQLID },
+  //     color: { type:GraphQLString },
+  //     importance: { type:GraphQLInt },
+  //   }),
+  //   description: `Template for permissions.`,
+  // })
 
   const PlatformUserPermissionType =  new GraphQLObjectType({
     name: `PlatformUserPermission`,
@@ -50,30 +65,23 @@ export default addon => {
       id: { type:GraphQLID },
       permissionId: { type:GraphQLID },
       userId: { type:GraphQLID },
-
-      user: { type: UserType, resolve( parent ) {
-        return UserModel.findById( parent.userId )
+      user: { type: UserType, resolve() {
+        return { id:`6040cafa06319233304757ab`, name:`Adam`, surname:`Adam` }
       } },
-      platfromId: { type: GraphQLID, async resolve( parent ) {
-        return (await PermissionModel.findById( parent.permissionId )).platformId
-      } },
+      platfromId: { type:GraphQLID },
+      permissionTemplate: {
+        type: PlatformPermissionType,
+        resolve( parent, args, context, info ) {
+          // info jest ussless. przechowuje informacje o typach itd.
+          // context posiada w sobie serwer  - socket hedersy url body
+          // console.log({ parent, args })
+          // w kazdym z resolve poprostu wyciagnać dane z parent
+          // np. tutaj parent.permissionTempleta
+          console.log( `gotowe`, parent )
 
+          return { response:`put sth in there` }
 
-      permissionTemplate: { type: PlatformPermissionType, resolve( parent ) {
-        return PermissionWithUserConnectorModel.aggregate([
-          { $match: {
-            permissionId: parent.permissionId,
-            userId: parent.userId,
-          } }, { $lookup: {
-            from: `platform permissions models`,
-            localField: `permissionId`,
-            foreignField: `_id`,
-            as: `perms`,
-          } }, { $unwind: {
-            path: `$perms`,
-          } },
-        ])
-      } },
+        } },
     }),
     description: `Permission assigned to user in specyfic platform`,
   })
@@ -123,7 +131,7 @@ export default addon => {
       membersIds: { type:GraphQLList( GraphQLID ) },
       assignedGroups: { type:GraphQLList( GraphQLID ) },
       membersObj: {
-        type: GraphQLList( UserType ),
+        type: new GraphQLList( UserType ),
         resolve: parent => UserModel.find({ _id:{ $in:parent.membersIds } }),
       },
       administratorObject: {
