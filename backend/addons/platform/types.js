@@ -34,16 +34,17 @@ export default ({ isMailValid }, { PlatformType, PlatformModel, PermissionWithUs
         args.permissionId = new mongoose.Types.ObjectId( args.permissionId )
         args.userId = new mongoose.Types.ObjectId( args.userId )
         // console.log({ args })
-        let x =  1
+
         // x = await PermissionWithUserConnectorModel.find({})
         // console.log({ all:x })
         // console.log({ val1:typeof new mongoose.Types.ObjectId( args.permissionId ), val2:typeof x[ 0 ].permissionId })
         // console.log({ val1:args.userId, val2:x[ 0 ].userId })
-        x = await PermissionWithUserConnectorModel.aggregate([
+        let x = await  PermissionWithUserConnectorModel.aggregate([
           { $match: {
             permissionId: { $eq:args.permissionId },
             userId: { $eq:args.userId },
-          } }, { $lookup: {
+          } },
+          { $lookup: {
             from: `platform permissions models`,
             localField: `permissionId`,
             foreignField: `_id`,
@@ -59,32 +60,18 @@ export default ({ isMailValid }, { PlatformType, PlatformModel, PermissionWithUs
             path: `$user`,
           } },
           { $unwind: {
-            path: `$perms`,
+            path: `$permissionTemplate`,
           } },
           { $unwind: {
-            path: `$perms.abilities`,
+            path: `$permissionTemplate.abilities`,
           } },
           { $limit:1 },
         ])
-        // console.log({ x })
-        // console.log({ return:x[ 0 ] })
-        // console.log({ return:x[ 0 ].perms })
-        // console.log({ return:x[ 0 ].perms.abilities })
 
-
-
-        // const x = {
-        //   id: `60451bd0317116384cdd330f`,
-        //   permissionId: `60451a6ff78a622fe43a7562`,
-        //   userId: `6040cafa06319233304757ab`,
-        //   user: { id:`6040cafa06319233304757ab`, name:`Adam`, surname:`Adam` },
-        //   permissionTemplate: { id:`6040cafa06319233304757ab`, surname:`321`, name:`Adam` },
-        // }
-
-        // console.log( x )
         //  tutaj zapytac duzego agregata
         //  return go
-        return x[ 0 ]
+        // console.log( x[ 0 ] )
+        return x
       },
     },
 

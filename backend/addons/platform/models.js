@@ -31,33 +31,19 @@ export default addon => {
     description: `An ability type.`,
   })
 
-  const PlatformPermissionType =  new GraphQLObjectType({
-    name: `PlatformPermission1`,
+  const PlatformPermissionType = new GraphQLObjectType({
+    name: `PlatformPermission`,
     fields: () => ({
       id: { type:GraphQLID },
       name: { type:GraphQLString },
-      surname: { type:GraphQLString },
-      login: { type:GraphQLString },
-      email: { type:GraphQLString },
-      avatar: { type:GraphQLString },
-      createdDateTime: { type:GraphQLTypeDate },
-      activated: { type:GraphQLBoolean },
-      password: { type:GraphQLString },
+      abilities: { type:PlatformAbilityType  },
+      platformId: { type:GraphQLID },
+      color: { type:GraphQLString },
+      importance: { type:GraphQLInt },
     }),
-    description: `User object.`,
+    description: `Template for permissions.`,
   })
-  // new GraphQLObjectType({
-  //   name: `PlatformPermission`,
-  //   fields: () => ({
-  //     id: { type:GraphQLID },
-  //     name: { type:GraphQLString },
-  //     abilities: { type:PlatformAbilityType  },
-  //     platformId: { type:GraphQLID },
-  //     color: { type:GraphQLString },
-  //     importance: { type:GraphQLInt },
-  //   }),
-  //   description: `Template for permissions.`,
-  // })
+
 
   const PlatformUserPermissionType =  new GraphQLObjectType({
     name: `PlatformUserPermission`,
@@ -65,21 +51,28 @@ export default addon => {
       id: { type:GraphQLID },
       permissionId: { type:GraphQLID },
       userId: { type:GraphQLID },
-      user: { type: UserType, resolve() {
-        return { id:`6040cafa06319233304757ab`, name:`Adam`, surname:`Adam` }
+      user: { type: UserType, resolve( parent, args, context, info ) {
+        if (Array.isArray( parent ))
+          parent = parent[ 0 ]
+
+        parent.user.id =  mongoose.Types.ObjectId( parent.user._id )
+        console.log( parent.user )
+        return parent.user
       } },
       platfromId: { type:GraphQLID },
       permissionTemplate: {
         type: PlatformPermissionType,
         resolve( parent, args, context, info ) {
+          if (Array.isArray( parent ))
+            parent = parent[ 0 ]
           // info jest ussless. przechowuje informacje o typach itd.
           // context posiada w sobie serwer  - socket hedersy url body
           // console.log({ parent, args })
           // w kazdym z resolve poprostu wyciagnać dane z parent
           // np. tutaj parent.permissionTempleta
-          console.log( `gotowe`, parent )
-
-          return { response:`put sth in there` }
+          console.log( `gotowe`, typeof parent.permissionTemplate._id )
+          parent.permissionTemplate.id = mongoose.Types.ObjectId( parent.permissionTemplate._id )
+          return  parent.permissionTemplate
 
         } },
     }),
