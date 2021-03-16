@@ -1,6 +1,7 @@
 import { isBrowser, urlSearchParams } from "./functions.js"
 
-export const HOST = isBrowser() ? window.location.origin : `http://localhost:3000`
+//export const HOST = isBrowser() ? window.location.origin : `http://localhost:3000`
+export const HOST = isBrowser() ? `http://localhost:3000` : `http://localhost:3000`
 
 export const WS_HOST = "ws://localhost:3000"
 export function getSocketEventFromHttp( method, httpUrl ) {

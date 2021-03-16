@@ -51,3 +51,20 @@
   border-radius: 5px;
   border: none;
 }
+
+
+.rightColumnWithOverFlow {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  text-align: center;
+  height: 100vh;
+  overflow:scroll;
+}
+
+.hrWidth{
+  width: 500px;
+}
+.sectionTitle{
+  font-weight:900;
+}

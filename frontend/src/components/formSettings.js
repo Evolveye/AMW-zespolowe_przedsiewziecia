@@ -1,6 +1,5 @@
 import React from "react"
 
-import Sygnet from "../models/sygnet.js"
 import Input from "../models/input.js"
 
 import classes from "./form.module.css"
@@ -37,7 +36,7 @@ export default class Form extends React.Component {
 
     if ([`GET`].includes(method))
       throw new Error(`Metoda nie jest jeszcze wspeirana w tym komponencie`)
-
+    
     fetch(address, {
       method,
       headers,
@@ -77,16 +76,11 @@ export default class Form extends React.Component {
   }
 
   render = () => (
-    <form
+    <form style={{border: "none"}}
       className={classes.form}
       method={this.props.method || "GET"}
       onSubmit={this.handleSubmit}
     >
-      <header className={classes.header}>
-        <Sygnet size={50} />
-
-        <h3 className={classes.title}>{this.props.title}</h3>
-      </header>
 
       <article className={classes.main}>
         {this.state.fields}
