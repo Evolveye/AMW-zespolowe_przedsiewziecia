@@ -37,7 +37,7 @@ export default class RegisterPage extends React.Component {
         submitName="Zarejestruj się"
         method="POST"
         headers={{ "Content-Type": "application/json" }}
-        address="http://localhost:3000/api/register"
+        address={URLS.REGISTER_POST}
         onOk={() => navigate( `/checkMail` )}
         onError={({ code }) => this.setState({ error: ERRORS[code] })}
       />
