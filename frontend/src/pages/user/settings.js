@@ -81,7 +81,7 @@ export default class Settings extends React.Component {
             <article className="errorBox">{this.state.error}</article>
           )}
           <hr className={classes.hrWidth}/>
-          {/*
+
           <h1>Hasło</h1>
           <Form
             fields={this.fieldsPassword}
@@ -99,9 +99,8 @@ export default class Settings extends React.Component {
           {this.state.error && (
             <article className="errorBox">{this.state.error}</article>
           )}
-          /*
+          
           <hr className={classes.hrWidth}/>
-          */}
           {/*
           <h1>E-mail</h1>
           <Form
