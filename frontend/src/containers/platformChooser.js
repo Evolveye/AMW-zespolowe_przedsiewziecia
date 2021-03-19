@@ -8,6 +8,7 @@ import SwitchBox, { Tab } from "../components/switchBox.js"
 import DataTable from "../components/dataTable.js"
 import { getUrnQuery } from "../utils/functions"
 
+import settingsClasses from "./settings.module.css"
 import classes from "./platformChooser.module.css"
 
 const defaultValue = `Wybierz platformę...`
@@ -50,18 +51,18 @@ export default ({ className = `` }) => {
             {fakePlatforms.find( ({ id }) => id == p ).name}
           </Link>
           <ToggableBox
-            boxClassName={classes.settings}
-            btnClassName={`neumorphizm is-button ${classes.settingsSwitch}`}
+            boxClassName={settingsClasses.settings}
+            btnClassName={`neumorphizm is-button ${settingsClasses.settingsSwitch}`}
             btnIsActiveClassname="is-active"
             btnContent={<Image fluid={queryData.cog.childImageSharp.fluid} />}
             fullScreened
           >
             <SwitchBox
-              switchesWrapperClassname={classes.settingsTabsSwitches}
-              switchClassname={`neumorphizm is-button ${classes.settingsTabSwitch}`}
+              switchesWrapperClassname={settingsClasses.settingsTabsSwitches}
+              switchClassname={`neumorphizm is-button ${settingsClasses.settingsTabSwitch}`}
               activeSwitchClassname="is-active"
             >
-              <Tab className={classes.settingsTabSwitch} name="Użytkownicy">
+              <Tab className={settingsClasses.settingsTabSwitch} name="Użytkownicy">
                 <DataTable
                   getDataAddress="fakePlatformUsers"
                   deleteDataAddress=""

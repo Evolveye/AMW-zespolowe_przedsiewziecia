@@ -1,16 +1,15 @@
 .main {
   display: grid;
   grid-template:
-    "groups .     .         ." 100px
-    "groups .     calendar  ." calc( 100vh - var( --top-height ) - 200px )
-    "groups .     .         ." 100px /
-     300px  100px 1fr       100px;
+    ".    .      .     .        ." 50px
+    ".    groups .     .        ." 50px
+    ".    groups .     calendar ." calc( 100vh - var( --top-height ) - 200px )
+    ".    groups .     .        ." 100px /
+     50px 300px  100px 1fr      100px;
 }
 
 .groups {
   grid-area: groups;
-  margin: 20px;
-  background-color: purple;
 }
 
 .calendar {

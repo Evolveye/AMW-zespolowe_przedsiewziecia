@@ -1,6 +1,7 @@
 .wrapper {
   position: relative;
   display: inline;
+  height: max-content;
 }
 
 .box {

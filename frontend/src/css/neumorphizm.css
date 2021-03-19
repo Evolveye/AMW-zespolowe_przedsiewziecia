@@ -12,8 +12,8 @@
   outline: none;
 }
 .neumorphizm.is-button {
-  transition: all 0.2s;
   transform: scale( 1 );
+  transition: all .2s;
 }
 .neumorphizm.is-button:hover {
   box-shadow: 0 4px 10px 0px #0005;
@@ -21,9 +21,9 @@
 }
 .neumorphizm.is-button.is-active {
   box-shadow:
-    -2px -2px 2px #fff inset,
-     2px  2px 2px #0005 inset,
     -2px -2px 3px #eee,
-     2px  2px 3px #fff;
+     2px  2px 3px #fff,
+    -2px -2px 2px #fff inset,
+     2px  2px 2px #0005 inset;
   transform: scale( 0.9 );
 }

@@ -39,8 +39,3 @@
           transform: rotate( -45deg );
           transition: all 0.2s;
         }
-
-        .toggleBoxBtn:hover::after {
-          border-left-color: white;
-          border-bottom-color: white;
-        }
