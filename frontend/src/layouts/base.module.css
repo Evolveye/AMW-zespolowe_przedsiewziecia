@@ -1,5 +1,5 @@
 .root {
-  --top-height: 3em;
+  --top-height: 60px;
   --logo-width: 75px;
   --platform-nav-width: 250px;
 
@@ -21,8 +21,17 @@
     .navigationPath {
       grid-area: path;
       display: flex;
+      place-items: center;
     }
-        .navigationPath > :not( :last-child ) {
+        .separator {
+          transform: translateY( -3px );
+          height: max-content;
+          margin: 0 20px;
+          font-size: 30px;
+          font-weight: bold;
+          color: #aaa;
+        }
+        /* .navigationPath > :not( :last-child ) {
           position: relative;
           margin-right: 40px;
         }
@@ -32,7 +41,7 @@
           left: calc( 100% + 15px );
           top: calc( 50% - 10px );
           display: block;
-        }
+        } */
 
     .search {
       grid-area: search;

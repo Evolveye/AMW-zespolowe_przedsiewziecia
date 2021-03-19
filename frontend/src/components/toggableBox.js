@@ -6,6 +6,7 @@ export default ({
   className = ``,
   btnClassName = ``,
   boxClassName = ``,
+  btnIsActiveClassname = ``,
   btnContent,
   fullScreened,
   children,
@@ -32,7 +33,7 @@ export default ({
   return (
     <article className={`${classes.wrapper} ${className}`} ref={ref}>
       <button
-        className={btnClassName}
+        className={`${btnClassName} ${isButtonFocused ? btnIsActiveClassname : ``}`}
         onPointerDown={toggleBoxVisibility}
         onKeyDown={({ key }) => key == ` ` && toggleBoxVisibility()}
       >
@@ -51,7 +52,7 @@ export default ({
             </div>
           ) : (
             <div className={`${classes.box} ${boxClassName}`}>
-              <div className={boxClassName}>{children}</div>
+              {children}
             </div>
           )
         }

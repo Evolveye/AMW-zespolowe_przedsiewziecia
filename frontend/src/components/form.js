@@ -17,13 +17,14 @@ export default ({ className = ``, tab, tabs }) => {
     <SwitchBox
       className={`${classes.form} ${className}`}
       tabChangerClassName={classes.tabChanger}
-      isActiveClassName={classes.isActive}
+      btnIsActiveClassname={classes.isActive}
+      switchesWrapperClassname={classes.tabs}
       tabs={
         tabs.map( tab => {
           tab.node = (
             <form className={classes.tab}>
               {
-                tab.fields.map( ({ type, name, label, validator }) => (
+                tab.fields.map( ({ type, name, label }) => ( // validator
                   <input
                     key={label}
                     className={classes.input}

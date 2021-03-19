@@ -23,7 +23,9 @@
   --yellow: #d6ba32;
   --white: #f7f7f7;
 
-  --background-color: #faf9f9;
+  /* --background-color: #faf9f9; */
+  --background-color: #f6f2fb;
+  /* --background-color: #272626; */
   --aside-color: #ddd;
   --text-color: #111;
 
@@ -45,7 +47,6 @@
   letter-spacing: 0.05em;
   line-height: 2em;
 }
-
 
 
 /*\

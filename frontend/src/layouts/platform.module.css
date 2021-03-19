@@ -9,6 +9,7 @@
 
 .groups {
   grid-area: groups;
+  margin: 20px;
   background-color: purple;
 }
 

@@ -5,16 +5,25 @@ import ToggleBox from "./toggableBox.js"
 import classes from "./select.module.css"
 import { Link } from "gatsby"
 
-export default ({ className = ``, children, render }) => (
-  <article className={classes.select}>
-    <section className={classes.value}>
+export default ({
+  className = ``,
+  selectedItemClassName = ``,
+  itemsClassName = ``,
+  btnClassName = ``,
+  btnIsActiveClassname,
+  children,
+  render,
+}) => (
+  <article className={`${className} ${classes.select}`}>
+    <section className={`${classes.value} ${selectedItemClassName}`}>
       {render()}
     </section>
 
     <ToggleBox
       className={classes.toggleBox}
-      boxClassName={classes.toggleBoxContent}
-      btnClassName={classes.toggleBoxBtn}
+      boxClassName={`${classes.toggleBoxContent} ${itemsClassName}`}
+      btnClassName={`${classes.toggleBoxBtn} ${btnClassName}`}
+      btnIsActiveClassname={btnIsActiveClassname}
       btnContent=""
     >
       {children}
@@ -22,8 +31,8 @@ export default ({ className = ``, children, render }) => (
   </article>
 )
 
-export const Item = ({ children, linkTo }) => (
+export const Item = ({ className, children, linkTo }) => (
   linkTo
-    ? <Link className={classes.value} to={linkTo}>{children}</Link>
-    : <span className={classes.value}>{children}</span>
+    ? <Link className={`${classes.item} ${className}`} to={linkTo}>{children}</Link>
+    : <span className={`${classes.item} ${className}`}>{children}</span>
 )

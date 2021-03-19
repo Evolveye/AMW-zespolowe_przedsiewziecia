@@ -3,10 +3,10 @@
   padding: 10px;
   width: max-content;
 }
-.tabChanger.is-active {
-  background-color: red;
-}
 .tab {}
+.tabs {
+  display: flex;
+}
 .input {
   display: block;
 }

@@ -19,7 +19,7 @@ const defaultQueryPaths = [
  * @param {object} param0
  * @param {QueryPath[]} param0.queryPaths
  */
-export default ({ queryPaths = defaultQueryPaths, className }) => {
+export default ({ queryPaths = defaultQueryPaths }) => {
   const search = Object.fromEntries( Array.from( new URLSearchParams( window.location.search ) ) )
   const links = queryPaths.map( ({ name, link }) => {
     const linkParts = link.split( `?` )
@@ -46,12 +46,13 @@ export default ({ queryPaths = defaultQueryPaths, className }) => {
         {name}
       </Link>
     )
-  } ).filter( Boolean ).map( (link, i, arr) => (
-    <React.Fragment key={link.key}>
-      {link}
-      {i === arr.length - 1 ? null : <span className={classes.separator}>&gt;</span>}
-    </React.Fragment>
-  ) )
+  } ).filter( Boolean )
+  // .map( (link, i, arr) => (
+  //   <React.Fragment key={link.key}>
+  //     {link}
+  //     {i === arr.length - 1 ? null : <span className={classes.separator}>&gt;</span>}
+  //   </React.Fragment>
+  // ) )
 
   return links
   // return (

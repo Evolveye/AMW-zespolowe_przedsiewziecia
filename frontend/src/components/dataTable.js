@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React from "react"
 
 
 const fakeGroupRoles = [
@@ -143,7 +143,6 @@ export default class DataTable extends React.Component {
     const data = fakeData[ getDataAddress ]
     const tableRows = data.map( field => {
       let edit = false
-      console.log( field )
 
       return (
         <tr key={field.id}>
