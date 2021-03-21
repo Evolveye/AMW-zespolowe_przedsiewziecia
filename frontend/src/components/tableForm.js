@@ -85,13 +85,24 @@ export default class TableForm extends React.Component {
     this.setCreatingElements()
     this.setState({ creationAllowed: false })
 
+    let body = JSON.stringify({ ...fieldsData, ...this.props.staticPostBodyData })
+
+    if (this.props.enctype === `multipart/form-data`) {
+      body = new FormData()
+
+      // Object.entries({ ...fieldsData, ...this.props.staticPostBodyData }).forEach( ([ v, k ]) =>
+      //   body.append( k, v )
+      // )
+    }
+
+    console.log(body)
     fetchWithStatusProcessing(this.props.fetchPostAddress, {
       method: `POST`,
       headers: {
         Authentication: `Bearer ${getToken()}`,
         "Content-Type": `application/json`,
       },
-      body: JSON.stringify({ ...fieldsData, ...this.props.staticPostBodyData }),
+      body
     }).then(data => {
       this.setState({ creationAllowed: true })
 
@@ -108,6 +119,9 @@ export default class TableForm extends React.Component {
       if (data.success) {
         //TODO get value from every cell and make new row
         const { code, success } = data
+
+        console.log({data})
+
 
         console.info({ code, success })
 
