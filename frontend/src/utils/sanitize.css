@@ -130,10 +130,16 @@ hr {
   color: inherit;
 }
 
+.okBox,
 .errorBox {
-  background-color: #cc3311;
   padding: 20px;
   margin: 50px;
   color: white;
   font-weight: bold;
+}
+.errorBox {
+  background-color: #cc3311;
+}
+.okBox {
+  background-color: #36cc11;
 }

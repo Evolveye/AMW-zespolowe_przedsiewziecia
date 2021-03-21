@@ -16,7 +16,19 @@ export default class Settings extends React.Component {
         email: '',
         login: '',
 
-    }
+  }
+
+  generalFormsFields = {
+    submitName: `Zmień`,
+    method: `PUT`,
+    address: URLS.USER_ME_PUT,
+    headers: {
+      Authentication: `Bearer ${getToken()}`,
+      "Content-Type": `application/json`,
+    },
+  }
+
+  okMsg = `Operacja wykonana pomyślnie`
 
   fieldsPersonal = [{ title: `Imię`, name: `name` },{title: `Nazwisko`,name: `surname`,},]
   fieldsLogin = [{ title: `Login`, name: `login` },]
@@ -28,9 +40,28 @@ export default class Settings extends React.Component {
       })
   }
 
+  ok = (okField, errorField) => this.setState({ [okField]:this.okMsg, [errorField]:null })
+  error = (okField, errorField, code) => this.setState({ [okField]:null, [errorField]: ERRORS[code] || DEFAULT_ERROR })
+  infoBoxes = (okField, errorField) => <>
+    {this.state[errorField] && (
+      <article className="errorBox">{this.state[errorField]}</article>
+    )}
+    {this.state[okField] && (
+      <article className="okBox">{this.state[okField]}</article>
+    )}
+  </>
+  createForm = (fields, okField, errorField) => <>
+    <Form
+      {...this.generalFormsFields}
+      fields={fields}
+      onError={({ code }) => this.error(okField, errorField, code)}
+      onOk={() => this.ok(okField, errorField)}
+    />
+    {this.infoBoxes(okField, errorField)}
+  </>
+
   render = () => (
     <AuthorizedContent>
-      
       <Layout className="main_wrapper-splited">
         <article className={classes.leftColumn}>
           <h2>Twoje dane:</h2>
@@ -44,84 +75,21 @@ export default class Settings extends React.Component {
 
         <article className={classes.rightColumnWithOverFlow}>
           <h1 className={classes.sectionTitle}>Ustawienia</h1>
+
           <h1>Dane personalne</h1>
-          <Form
-            fields={this.fieldsPersonal}
-            submitName="Zmień"
-            method="PUT"
-            headers={{
-              Authentication: `Bearer ${getToken()}`,
-              "Content-Type": `application/json`,
-            }}
-            address={URLS.USER_ME_PUT}
-            onError={({ code }) =>
-              this.setState({ error: ERRORS[code] || DEFAULT_ERROR })
-            }
-          />
-          {this.state.error && (
-            <article className="errorBox">{this.state.error}</article>
-          )}
+          {this.createForm(this.fieldsPersonal, `okGeneral`, `errorGeneral`)}
           <hr className={classes.hrWidth}/>
-            
+
           <h1>Login</h1>
-          <Form
-            fields={this.fieldsLogin}
-            submitName="Zmień"
-            method="PUT"
-            headers={{
-              Authentication: `Bearer ${getToken()}`,
-              "Content-Type": `application/json`,
-            }}
-            address={URLS.USER_ME_PUT}
-            onError={({ code }) =>
-              this.setState({ error: ERRORS[code] || DEFAULT_ERROR })
-            }
-          />
-          {this.state.error && (
-            <article className="errorBox">{this.state.error}</article>
-          )}
+          {this.createForm(this.fieldsLogin, `okLogin`, `errorLogin`)}
           <hr className={classes.hrWidth}/>
 
           <h1>Hasło</h1>
-          <Form
-            fields={this.fieldsPassword}
-            submitName="Zmień"
-            method="PUT"
-            headers={{
-              Authentication: `Bearer ${getToken()}`,
-              "Content-Type": `application/json`,
-            }}
-            address={URLS.USER_ME_PUT}
-            onError={({ code }) =>
-              this.setState({ error: ERRORS[code] || DEFAULT_ERROR })
-            }
-          />
-          {this.state.error && (
-            <article className="errorBox">{this.state.error}</article>
-          )}
-
+          {this.createForm(this.fieldsPassword, `okPassword`, `errorPassword`)}
           <hr className={classes.hrWidth}/>
-          
-          <h1>E-mail</h1>
-          <Form
-            fields={this.fieldsEmail}
-            submitName="Zmień"
-            method="PUT"
-            headers={{
-              Authentication: `Bearer ${getToken()}`,
-              "Content-Type": `application/json`,
-            }}
-            address={URLS.USER_ME_PUT}
-            onError={({ code }) =>
-              this.setState({ error: ERRORS[code] || DEFAULT_ERROR })
-            }
-          />
-          {this.state.error && (
-            <article className="errorBox">{this.state.error}</article>
-          )}
-          
-          
 
+          <h1>E-mail</h1>
+          {this.createForm(this.fieldsEmail, `okEmail`, `errorEmail`)}
         </article>
       </Layout>
     </AuthorizedContent>
