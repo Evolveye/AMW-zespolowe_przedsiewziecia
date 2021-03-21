@@ -57,6 +57,7 @@ const URLS = {
   GROUP$ID_NOTES$ID_PUT: `${HOST}/api/groups/notes/:noteId`,
   GROUP$ID_PERMISSIONS_GET: `${HOST}/api/groups/:groupId/permissions`,
   GROUP$ID_PERMISSIONS_MY_GET: `${HOST}/api/groups/:groupId/permissions/my`,
+  GROUPS$ID_FILE_POST: `${HOST}/api/groups/:groupId/materials`,
 
   // Meet scope
   MEET_GET: `${HOST}/api/meets`,
@@ -69,6 +70,9 @@ const URLS = {
   MEET$ID_USERS$ID_DELETE: `${HOST}/api/meets/:meetId/users/:userId`,
   MEET$ID_PERMISSIONS_GET: `${HOST}/api/meets/:meetId/permissions`,
   MEET$ID_PERMISSIONS_MY_GET: `${HOST}/api/meets/:meetId/permissions/my`,
+
+
+
 }
 
 export default new Proxy( URLS, {
