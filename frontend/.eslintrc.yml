@@ -1,5 +1,9 @@
 extends: eye
 rules:
+  react/jsx-curly-newline:
+    - error
+    - multiline: consistent
+      singleline: consistent
   spaced-comment:
     - error
     - always
