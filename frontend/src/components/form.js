@@ -1,87 +1,113 @@
 import React, { useState } from "react"
+import PropTypes from "prop-types"
 
-import SwitchBox from "./switchBox.js"
-import classes from "./form.module.css"
+import SwitchBox, { Tab as SwitchTab } from "./switchBox.js"
 
-export default ({ className = ``, tab, tabs }) => {
-  if (tab) tabs = [ tab ]
 
+const formFieldProps = {
+  className: PropTypes.string,
+  name: PropTypes.string.isRequired,
+  validator: PropTypes.func,
+}
+
+
+export const Tab = () => null
+Tab.type = (<Tab name="" />).type
+Tab.propTypes = {
+  className: PropTypes.string,
+  name: PropTypes.string.isRequired,
+}
+
+
+export const Text = () => null
+Text.type = (<Text name="" />).type
+Text.propTypes = formFieldProps
+
+
+export const Password = () => null
+Password.type = (<Password name="" />).type
+Password.propTypes = formFieldProps
+
+
+export const Submit = () => null
+Submit.type = (<Submit />).type
+Submit.propTypes = {
+  className: PropTypes.string,
+  handler: PropTypes.func,
+}
+
+
+export default function Form({ classNames, children }) {
   const [ fieldsValues, setValues ] = useState({})
-  const updateValues = ({ target }) => setValues({ [ target.name ]:target.value, ...fieldsValues })
-  const submit = (e, tab) => {
+  const updateValues = ({ target }) => setValues({
+    [ target.name ]: target.value,
+    ...fieldsValues,
+  })
+  const onSubmit = (e, { handler }) => {
     e.preventDefault()
-    tab.summary?.onSubmit( fieldsValues )
+    if (typeof handler === `function`) handler( fieldsValues )
   }
 
   return (
-    <SwitchBox
-      className={`${classes.form} ${className}`}
-      tabChangerClassName={classes.tabChanger}
-      btnIsActiveClassname={classes.isActive}
-      switchesWrapperClassname={classes.tabs}
-      tabs={
-        tabs.map( tab => {
-          tab.node = (
-            <form className={classes.tab}>
-              {
-                tab.fields.map( ({ type, name, label }) => ( // validator
-                  <input
-                    key={label}
-                    className={classes.input}
-                    type={type}
-                    name={name}
-                    placeholder={label}
-                    autoComplete={`${tab.name} ${name}`}
-                    onChange={updateValues}
-                  />
-                ) )
-              }
-              {
-                tab.summary && (
-                  <button type="submit" onClick={e => submit( e, tab )}>{tab.summary.label}</button>
-                )
-              }
-            </form>
-          )
-
-          return tab
-        } )
+    <SwitchBox classNames={classNames}>
+      {
+        React.Children
+          .toArray( children )
+          .filter( c => c.type === Tab.type )
+          .map( tab => (
+            <SwitchTab key={tab.props.name} name={tab.props.name}>
+              <form>
+                {processFormChildren( tab, updateValues, onSubmit )}
+              </form>
+            </SwitchTab>
+          ) )
       }
-    />
-    // <article className={`${classes.form} ${className}`}>
-    //   <section>
-    //     {
-    //       tabs.map( tab => (
-    //         <button
-    //           key={tab.name}
-    //           className={`${classes.tabChanger} ${activeTab.name === tab.name ? classes.isActive : ``}`}
-    //           onClick={() => setActiveTab( tab )}
-    //         >
-    //           {tab.name}
-    //         </button>
-    //       ) )
-    //     }
-    //   </section>
-    //   <form className={classes.tab}>
-    //     {
-    //       activeTab.fields.map( ({ type, name, label, validator }) => (
-    //         <input
-    //           key={label}
-    //           className={classes.input}
-    //           type={type}
-    //           name={name}
-    //           placeholder={label}
-    //           autoComplete={`${activeTab.name} ${name}`}
-    //           onChange={updateValues}
-    //         />
-    //       ) )
-    //     }
-    //     {
-    //       activeTab.summary && (
-    //         <button type="submit" onClick={submit}>{activeTab.summary.label}</button>
-    //       )
-    //     }
-    //   </form>
-    // </article>
+    </SwitchBox>
   )
+}
+Form.propTypes = {
+  classNames: PropTypes.shape({
+    it: PropTypes.string,
+    switch: PropTypes.string,
+    switcher: PropTypes.string,
+    switches: PropTypes.string,
+    activeSwitch: PropTypes.string,
+  }),
+}
+
+
+function processFormChildren( element, updateValues, onSubmit ) {
+  console.log( element )
+  return React.Children.map( element.props.children, child => {
+    if (typeof child.type === `string`) {
+      return React.cloneElement( child, child.props, processFormChildren( child ) )
+    }
+
+    const { props } = child
+    const inputProps = {
+      key: props.name,
+      name: props.name,
+      autoComplete: `${element.name} ${props.name}`,
+      className: props.className,
+      placeholder: props.children,
+      onChange: updateValues,
+    }
+
+    switch (child.type) {
+      case Text.type:     return <input type="text" {...inputProps} />
+      case Password.type: return <input type="password" {...inputProps} />
+
+      case Submit.type: return (
+        <button
+          key="submit"
+          className={props.className}
+          onClick={e => onSubmit( e, props )}
+        >
+          {props.children}
+        </button>
+      )
+
+      default: return null
+    }
+  } )
 }

@@ -1,13 +1,10 @@
 import React from "react"
 
-import Form from "../components/form.js"
+import NotLoggedForm from "../containers/notLoggedForm.js"
 import Layout from "../layouts/main.js"
-import { fakeLogin, isLogged } from "../utils/auth.js"
-import { useForceUpdate } from "../utils/functions.js"
+import { useUser } from "../utils/auth.js"
 
 export default () => {
-  const forceUpdate = useForceUpdate()
-
   return (
     <Layout title="Strona główna">
       <article className="is-centered">
@@ -17,9 +14,10 @@ export default () => {
         <small className="h1-small">Edukacja, szkolenia, spotkania, kursy</small>
       </article>
       {
-        !isLogged() && (
+        !useUser() && (
           <article className="is-centered">
-            <Form tabs={
+            <NotLoggedForm />
+            {/* <Form tabs={
               [
                 {
                   name: `Logowanie`,
@@ -41,7 +39,17 @@ export default () => {
                 },
               ]
             }
-            />
+            >
+              <Tab name="Logowanie">
+                <Field type="text" name="login" label="Login" validator={v => true} />
+                <Field type="password" name="password" label="Hasło" validator={v => true} />
+                <Submit>Zaloguj</Submit>
+              </Tab>
+
+              <Tab name="Rejestracja">
+                <Submit>Zarejestruj</Submit>
+              </Tab>
+            </Form> */}
           </article>
         )
       }

@@ -58,9 +58,11 @@ export default ({ className = `` }) => {
             fullScreened
           >
             <SwitchBox
-              switchesWrapperClassname={settingsClasses.settingsTabsSwitches}
-              switchClassname={`neumorphizm is-button ${settingsClasses.settingsTabSwitch}`}
-              activeSwitchClassname="is-active"
+              classNames={{
+                switches: settingsClasses.settingsTabsSwitches,
+                switch: `neumorphizm is-button ${settingsClasses.settingsTabSwitch}`,
+                activeSwitch: `is-active`,
+              }}
             >
               <Tab className={settingsClasses.settingsTabSwitch} name="Użytkownicy">
                 <DataTable
@@ -140,6 +142,5 @@ export default ({ className = `` }) => {
         ) )
       }
     </Select>
-
   )
 }

@@ -5,6 +5,7 @@ import Img from "gatsby-image"
 import ToggableBox from "../components/toggableBox.js"
 import { getUser } from "../utils/auth"
 
+import settingsClasses from "./settings.module.css"
 import classes from "./userField.module.css"
 
 const query = graphql`
@@ -24,8 +25,9 @@ export default ({ className = `` }) => {
   return (
     <ToggableBox
       className={`${classes.userField} ${className}`}
-      btnClassName={classes.activator}
-      boxClassName={classes.data}
+      btnClassName={`neumorphizm is-button ${classes.activator}`}
+      btnIsActiveClassname="is-active"
+      boxClassName={`${settingsClasses.settings} ${classes.data}`}
       btnContent={
         <Img
           className={classes.avatar}
@@ -34,12 +36,26 @@ export default ({ className = `` }) => {
         />
       }
     >
-      <span className={classes.name}>{name}</span>
-      <span className={classes.surname}>{surname}</span>
+      <h2>
+        <span className={classes.name}>{name}</span>
+        <span className={classes.surname}>{surname}</span>
+      </h2>
 
       <hr />
 
-      <Link to="/logout">Wyloguj</Link>
+      <Link className={`neumorphizm is-button ${classes.link}`} to="/user/notes">
+        Oceny
+      </Link>
+
+      <Link className={`neumorphizm is-button ${classes.link}`} to="/user/settings">
+        Ustawienia
+      </Link>
+
+      <hr />
+
+      <Link className={`neumorphizm is-button ${classes.link} ${classes.logout}`} to="/logout">
+        Wyloguj
+      </Link>
     </ToggableBox>
   )
 }

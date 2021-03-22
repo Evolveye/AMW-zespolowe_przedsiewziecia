@@ -110,6 +110,11 @@ input[type="checkbox"], input[type="radio"] {
   border: 1px solid var( --dark );
 }
 
+hr {
+  margin: 20px auto;
+  width: 80%;
+}
+
 /* :focus:not( .is-not-focus ) {
   position: relative;
   outline: none;

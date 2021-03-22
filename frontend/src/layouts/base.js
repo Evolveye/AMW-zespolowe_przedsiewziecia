@@ -7,7 +7,7 @@ import "../css/neumorphizm.css"
 import SEO from "../components/seo.js"
 import PlatformChooser from "../containers/platformChooser.js"
 import PlatformSubPagesNav from "../containers/subPagesNav.js"
-import SearchBar from "../components/searchBar.js"
+// import SearchBar from "../components/searchBar.js"
 import UserField from "../containers/userField.js"
 
 import Logo from "../models/logo.js"
@@ -46,7 +46,7 @@ export default ({ className = ``, children, title }) => {
 
         {
           isLogged() && <>
-            <SearchBar className={`${classes.search} is-centered`} />
+            {/* <SearchBar className={`${classes.search} is-centered`} /> */}
             <UserField className={classes.userField} />
           </>
         }

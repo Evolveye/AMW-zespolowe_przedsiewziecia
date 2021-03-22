@@ -1,0 +1,15 @@
+.form {
+  min-width: 250px;
+}
+.switches {
+  display: flex;
+}
+.switch {
+  flex-grow: 1;
+}
+.input {
+  display: block;
+}
+.button {
+  display: block;
+}
