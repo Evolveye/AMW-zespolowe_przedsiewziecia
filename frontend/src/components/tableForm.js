@@ -39,10 +39,10 @@ export default class TableForm extends React.Component {
     })
   }
 
-  updateNewField = e => {
-    const element = e.target || e
+  updateNewField = (eOrName, value=null) => {
+    const element = eOrName.target || eOrName
 
-    this.setState({ [element.name]: element.value })
+    this.setState({ [value ? eOrName : element.name]:(value || element.value) })
   }
 
   deleteRow = id => {
@@ -85,24 +85,22 @@ export default class TableForm extends React.Component {
     this.setCreatingElements()
     this.setState({ creationAllowed: false })
 
+    const headers =  { Authentication: `Bearer ${getToken()}` }
     let body = JSON.stringify({ ...fieldsData, ...this.props.staticPostBodyData })
 
     if (this.props.enctype === `multipart/form-data`) {
       body = new FormData()
 
-      // Object.entries({ ...fieldsData, ...this.props.staticPostBodyData }).forEach( ([ v, k ]) =>
-      //   body.append( k, v )
-      // )
-    }
+      Object.entries({ ...fieldsData, ...this.props.staticPostBodyData }).forEach( ([ k, v ]) => {
+        console.log({ k, v })
+        body.append( k, v )
+      } )
+    } else headers[ "Content-Type" ] = `application/json`
 
-    console.log(body)
     fetchWithStatusProcessing(this.props.fetchPostAddress, {
       method: `POST`,
-      headers: {
-        Authentication: `Bearer ${getToken()}`,
-        "Content-Type": `application/json`,
-      },
-      body
+      headers,
+      body,
     }).then(data => {
       this.setState({ creationAllowed: true })
 

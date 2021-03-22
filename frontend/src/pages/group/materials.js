@@ -6,13 +6,19 @@ import URLS from "../../utils/urls.js"
 
 import Layout from "../../components/groupLayout.js"
 import TableForm from "../../components/tableForm.js"
-import Select from "../../components/select.js"
 
 // import classes from "./group.module.css"
 
 
 class FileInput extends React.Component {
-  render = () => <input type="file" name={this.props.name} />
+  render = () => <input
+    type="file"
+    name={this.props.name}
+    onChange={({ target }) => {
+      console.dir( target.files[ 0 ] )
+      this.props.onChange( target.name, target.files[ 0 ] )
+    }}
+  />
 }
 
 
@@ -31,7 +37,7 @@ export default () => {
         Powrót do widoku grupy
       </Link>
 
-      <h1>Grupa -- Oceny</h1>
+      <h1>Grupa -- Materiały</h1>
 
       <TableForm
         fetchPostAddress={URLS.GROUPS$ID_FILE_POST.replace(`:groupId`, groupId)}
@@ -55,7 +61,6 @@ export default () => {
             props: {
                 name: `myFile`,
             },
-
           },
         }}
         colSpans={{ name: 2 }}
