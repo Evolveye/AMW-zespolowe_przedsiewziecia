@@ -37,13 +37,13 @@ export default class GroupModule extends Module {
           post: auth(pPerms(this.runMid(m.httpCreateGroup))),
         },
       ],
-      // [
-      //   `/groups/:groupId/materials`,
-      //   {
-      //     //  get: auth(this.perms(this.runMid(m.httpHandleAllFilesInGroup))),
-      //    // post: auth(pPerms(this.perms(this.runMid(m.httpAddFile)))),
-      //   }
-      // ],
+      [
+        `/groups/:groupId/materials`,
+        {
+          //  get: auth(this.perms(this.runMid(m.httpHandleAllFilesInGroup))),
+           post: auth(pPerms(this.perms(this.runMid(m.httpAddFile)))),
+        }
+      ],
       // [
       //   `/groups/:groupId/materials/:materialId`,
       //   {
