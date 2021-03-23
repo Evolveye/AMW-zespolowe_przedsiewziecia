@@ -1,0 +1,74 @@
+[{
+  "_id": {
+    "$oid": "60058b3b7778ec2cc42de73b"
+  },
+  "id": "1610976059155t6468072424061733r",
+  "lecturer": {
+    "id": "1610975260304t1786168421065535r",
+    "name": "Patryk",
+    "surname": "Waski",
+    "email": "jariva4876@sofiarae.com",
+    "login": "patryk",
+    "password": "patryk",
+    "activated": true,
+    "avatar": "/media/image/avatarDefault.jpg",
+    "createdDatetime": 1610975354816
+  },
+  "created": 1610976059155,
+  "name": "Zajace",
+  "platformId": "1610975039693t028231356685848086r",
+  "membersIds": [
+    "1610975354816t7672193555804632r",
+    "1610975680792t27279286269382186r",
+    "1610975692488t12594268606442616r",
+    "1610975701432t7756999698308229r"
+  ]
+},{
+  "_id": {
+    "$oid": "60058c037778ec2cc42de73d"
+  },
+  "id": "1610976259901t5284930457868025r",
+  "lecturer": {
+    "id": "1610975789753t49023839340064534r",
+    "name": "Magda",
+    "surname": "Śnieg",
+    "email": "jariva4876@sofiarae.com",
+    "login": "Ma363Śn",
+    "password": "lID@S",
+    "activated": true,
+    "avatar": "/media/image/avatarDefault.jpg",
+    "createdDatetime": 1610975789753
+  },
+  "created": 1610976259901,
+  "name": "Dziki",
+  "platformId": "1610975006301t8894487127043562r",
+  "membersIds": [
+    "1610975789753t49023839340064534r",
+    "1610975831665t5971833184986888r",
+    "1610975817109t361016811954048r"
+  ]
+},{
+  "_id": {
+    "$oid": "600599c37778ec2cc42de74f"
+  },
+  "id": "1610979779391t8522683242861135r",
+  "lecturer": {
+    "id": "1610979665594t7009572601819747r",
+    "name": "Andrzej",
+    "surname": "Szary",
+    "email": "jariva4876@sofiarae.com",
+    "login": "An531Sz",
+    "password": "*xSfG",
+    "activated": true,
+    "avatar": "/media/image/avatarDefault.jpg",
+    "createdDatetime": 1610979665594
+  },
+  "created": 1610979779391,
+  "name": "Kocięta",
+  "platformId": "1610975039693t028231356685848086r",
+  "membersIds": [
+    "1610979665594t7009572601819747r",
+    "1610979803448t7533778515585501r",
+    "1610975701432t7756999698308229r"
+  ]
+}]

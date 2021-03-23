@@ -1,0 +1,50 @@
+[{
+  "_id": {
+    "$oid": "60044319a7da1b283008f6dd"
+  },
+  "id": "1610892057259t5938412887385769r",
+  "lecturer": {
+    "id": "1610915462923t785453286492r",
+    "name": "Patryk",
+    "surname": "Waski",
+    "email": "snieg.op@gmail.com",
+    "login": "098",
+    "password": "098",
+    "activated": true,
+    "avatar": "/media/image/avatarDefault.jpg",
+    "createdDatetime": 1610915462923
+  },
+  "created": 1610892057259,
+  "name": "Lisy",
+  "platformId": "1610878404386t3714100488989107r",
+  "membersIds": [
+    "1610915462923t785453286492r",
+    "1610915462923t7677269850213602r",
+    "1610915462923t96781562378426r",
+    "1610915462923t30516209506744674r"
+  ]
+},{
+  "_id": {
+    "$oid": "600462e69a5c282b28022afa"
+  },
+  "id": "1610892057259t593844333255769r",
+  "lecturer": {
+    "id": "1610915462923t98543558672r",
+    "name": "Magda",
+    "surname": "Snieg",
+    "email": "snieg.op@gmail.com",
+    "login": "123",
+    "password": "123",
+    "activated": true,
+    "avatar": "/media/image/avatarDefault.jpg",
+    "createdDatetime": 1610915462923
+  },
+  "created": 1610892057259,
+  "name": "Dziki",
+  "platformId": "1610878404386t6775816449383387r",
+  "membersIds": [
+    "1610915462923t98543558672r",
+    "1610891926267t8258813502551035r",
+    "1610915460162t8961837167330171r",
+  ]
+}]

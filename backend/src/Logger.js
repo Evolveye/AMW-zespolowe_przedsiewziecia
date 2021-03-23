@@ -47,7 +47,7 @@ export default class Logger {
     bgBlue: `\x1b[44m`,
     bgMagenta: `\x1b[45m`,
     bgCyan: `\x1b[46m`,
-    bgWhite: `\x1b[47m`,
+    bgWhite: `\x1b[47m`
   }
 
   /** @type {Color} */
@@ -62,10 +62,10 @@ export default class Logger {
    * @param {LoggerPart[]} parts
    * @param {Options?} options
    */
-  constructor( parts, options = {} ) {
+  constructor( parts, options={} ) {
     let pattern = ``
 
-    for (const { color = Logger.defaultColor, background = Logger.defaultBackground, bold = false } of parts) pattern += ``
+    for (const { color=Logger.defaultColor, background=Logger.defaultBackground, bold=false } of parts) pattern += ``
       + (Logger.colors[ `bg` + background.charAt( 0 ).toUpperCase() + background.slice( 1 ) ] || ``)
       + (Logger.colors[ `fg` + color.charAt( 0 ).toUpperCase() + color.slice( 1 ) ] || ``)
       + (bold ? Logger.colors.bright : ``)
@@ -93,7 +93,7 @@ export default class Logger {
           length,
           maxLen,
           splitLen,
-          firstSplitLen,
+          firstSplitLen
         } = part
 
         const mainColor = color
@@ -101,7 +101,7 @@ export default class Logger {
           : Logger.defaultColor
         let fieldLength = Math.max( length - value.length, 0 )
         let fieldValue = maxLen && value.length > maxLen
-          ? `${value.slice( 0, maxLen - 3 )}...`
+          ? `${value.slice( 0 , maxLen - 3 )}...`
           : value
 
         // console.log( -3 )
@@ -115,7 +115,7 @@ export default class Logger {
             break
 
           case `center`:
-            for (let i = fieldLength;  i;  i--)
+            for (let i = fieldLength; i; i--)
               if (i % 2) fieldValue += ` `
               else fieldValue = ` ` + fieldValue
             break
@@ -137,10 +137,10 @@ export default class Logger {
           .replace( `{ss}`, date.ss )
           .replace( Logger.colorsReg, (...match) => {
             const { color, data } = match[ match.length - 1 ]
-            const text = data.replace( /\n {5}\| /g, `\n     ${Logger.colors[ mainColor ]}| ${Logger.colors[ color ]}` )
+            const text = data.replace( /\n     \| /g, `\n     ${Logger.colors[ mainColor ]}| ${Logger.colors[ color ]}` )
 
             return `${Logger.colors[ color ]}${text}${Logger.colors[ mainColor ]}`
-          } ),
+          } )
         )
       }
       // console.log( 5 )
@@ -158,7 +158,7 @@ export default class Logger {
    * @param {Number} lineLength
    * @param {Number} firstLineLength
    */
-  static split( string, lineLength, { firstSplitLen = lineLength, separateBreakBlock = false } = {} ) {
+  static split( string, lineLength, { firstSplitLen=lineLength, separateBreakBlock=false }={} ) {
     const lBrReg = /[- ,:;.]/
     const fL = separateBreakBlock ? lineLength : firstSplitLen
     const l = lineLength
@@ -205,9 +205,9 @@ export default class Logger {
     return (separateBreakBlock && (/\n/.test( string ) || string.length > firstSplitLen) ? `\n` : ``) + string
   }
 
-  static getDate( locales = `en-GB`, date = Date.now() ) {
-    const options = { year:`numeric`, month:`2-digit`, day:`2-digit`, hour:`2-digit`, minute:`2-digit`, second:`2-digit` }
-    const [ { value:DD },, { value:MM },, { value:YYYY },, { value:hh },, { value:mm },, { value:ss } ] = new Intl.DateTimeFormat( locales, options )
+  static getDate( locales=`en-GB`, date=Date.now() ) {
+    const options = { year:`numeric`, month:'2-digit', day: '2-digit', hour:`2-digit`, minute:`2-digit`, second:`2-digit` }
+    const [ { value:DD },,{ value:MM },,{ value:YYYY },,{ value:hh },,{ value:mm },,{ value:ss } ] = new Intl.DateTimeFormat( locales, options )
       .formatToParts( date )
 
     return { YYYY, MM, DD, hh, mm, ss }
@@ -231,11 +231,11 @@ export function logUnderControl( logger, ...data ) {
   logger.log( ...data )
 }
 
-export function addNextLineToLog( string = `` ) {
+export function addNextLineToLog( string=`` ) {
   const defaultColor = Logger.colors[ Logger.defaultColor ]
   const coloredString = Logger.split( string ).replace( Logger.colorsReg, (...match) => {
     const { color, data } = match[ match.length - 1 ]
-    const text = data.replace( /\n {5}\| /g, `\n     ${defaultColor}| ${Logger.colors[ color ]}` )
+    const text = data.replace( /\n     \| /g, `\n     ${defaultColor}| ${Logger.colors[ color ]}` )
 
     return `${Logger.colors[ color ]}${text}${defaultColor}`
   } )

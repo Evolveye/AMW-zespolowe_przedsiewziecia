@@ -1,0 +1,81 @@
+[{
+  "_id": {
+    "$oid": "6005871e7778ec2cc42de72b"
+  },
+  "id": "1610975006301t8894487127043562r",
+  "owner": {
+    "id": "1610974847062t4781811777879781r",
+    "name": "Jarek",
+    "surname": "Kania",
+    "email": "megaminxdayan@gmail.com",
+    "login": "jarek",
+    "password": "jarek",
+    "activated": true,
+    "avatar": "/media/image/avatarDefault.jpg",
+    "createdDatetime": 1610974847062
+  },
+  "created": 1610975006301,
+  "administrator": {
+    "id": "1610974847062t4781811777879781r",
+    "name": "Jarek",
+    "surname": "Kania",
+    "email": "megaminxdayan@gmail.com",
+    "login": "jarek",
+    "password": "jarek",
+    "activated": true,
+    "avatar": "/media/image/avatarDefault.jpg",
+    "createdDatetime": 1610974847062
+  },
+  "name": "Gawra",
+  "membersIds": [
+    "1610974847062t4781811777879781r",
+    "1610975806434t5122461600889627r",
+    "1610975817109t361016811954048r",
+    "1610975831665t5971833184986888r"
+  ],
+  "assignedGroups": [
+    "1610976259901t5284930457868025r"
+  ]
+},{
+  "_id": {
+    "$oid": "6005873f7778ec2cc42de72d"
+  },
+  "id": "1610975039693t028231356685848086r",
+  "owner": {
+    "id": "1610974793354t20544642826315007r",
+    "name": "Adam",
+    "surname": "Szreiber",
+    "email": "megaminxdayan@gmail.com",
+    "login": "adam",
+    "password": "adam",
+    "activated": true,
+    "avatar": "/media/image/avatarDefault.jpg",
+    "createdDatetime": 1610974793354
+  },
+  "created": 1610975039693,
+  "administrator": {
+    "id": "1610974793354t20544642826315007r",
+    "name": "Adam",
+    "surname": "Szreiber",
+    "email": "megaminxdayan@gmail.com",
+    "login": "adam",
+    "password": "adam",
+    "activated": true,
+    "avatar": "/media/image/avatarDefault.jpg",
+    "createdDatetime": 1610974793354
+  },
+  "name": "Nora",
+  "membersIds": [
+    "1610974793354t20544642826315007r",
+    "1610975354816t7672193555804632r",
+    "1610975680792t27279286269382186r",
+    "1610975692488t12594268606442616r",
+    "1610975701432t7756999698308229r",
+    "1610979665594t7009572601819747r",
+    "1610979803448t7533778515585501r"
+  ],
+  "assignedGroups": [
+    "1610979779391t8522683242861135r",
+    "1610976059155t6468072424061733r"
+  ]
+}]

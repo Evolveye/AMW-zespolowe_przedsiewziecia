@@ -1,0 +1,379 @@
+[{
+  "_id": {
+    "$oid": "60058e727778ec2cc42de73f"
+  },
+  "userId": "1610975817109t361016811954048r",
+  "lecturer": {
+    "id": "1610975789753t49023839340064534r",
+    "name": "Magda",
+    "surname": "Śnieg",
+    "email": "jariva4876@sofiarae.com",
+    "login": "magda",
+    "password": "magda",
+    "activated": true,
+    "avatar": "/media/image/avatarDefault.jpg",
+    "createdDatetime": 1610975789753
+  },
+  "date": 1610976882980,
+  "description": "Zdane, ale nie ciesz sie za bardzo, następnym razem będzie trudniej.",
+  "value": "2",
+  "groupId": "1610976259901t5284930457868025r",
+  "id": "1610976882980t32013828024944346r"
+},{
+  "_id": {
+    "$oid": "60058e917778ec2cc42de740"
+  },
+  "userId": "1610975817109t361016811954048r",
+  "lecturer": {
+    "id": "1610975789753t49023839340064534r",
+    "name": "Magda",
+    "surname": "Śnieg",
+    "email": "jariva4876@sofiarae.com",
+    "login": "magda",
+    "password": "magda",
+    "activated": true,
+    "avatar": "/media/image/avatarDefault.jpg",
+    "createdDatetime": 1610975789753
+  },
+  "date": 1610976913654,
+  "description": "Jak zwykle. DOPUSZCZAJACY",
+  "value": "2",
+  "groupId": "1610976259901t5284930457868025r",
+  "id": "1610976913654t7231129751630019r"
+},{
+  "_id": {
+    "$oid": "60058ea77778ec2cc42de741"
+  },
+  "userId": "1610975817109t361016811954048r",
+  "lecturer": {
+    "id": "1610975789753t49023839340064534r",
+    "name": "Magda",
+    "surname": "Śnieg",
+    "email": "jariva4876@sofiarae.com",
+    "login": "magda",
+    "password": "magda",
+    "activated": true,
+    "avatar": "/media/image/avatarDefault.jpg",
+    "createdDatetime": 1610975789753
+  },
+  "date": 1610976935127,
+  "description": "Dostateczny, czyżbyś sciągał?",
+  "value": "3",
+  "groupId": "1610976259901t5284930457868025r",
+  "id": "1610976935127t8114184006256626r"
+},{
+  "_id": {
+    "$oid": "60058edd7778ec2cc42de742"
+  },
+  "userId": "1610975831665t5971833184986888r",
+  "lecturer": {
+    "id": "1610975789753t49023839340064534r",
+    "name": "Magda",
+    "surname": "Śnieg",
+    "email": "jariva4876@sofiarae.com",
+    "login": "magda",
+    "password": "magda",
+    "activated": true,
+    "avatar": "/media/image/avatarDefault.jpg",
+    "createdDatetime": 1610975789753
+  },
+  "date": 1610976989882,
+  "description": "Dobry - kilka błędów zwiazanych z nieuwagą.",
+  "value": "4",
+  "groupId": "1610976259901t5284930457868025r",
+  "id": "1610976989882t6526167638802194r"
+},{
+  "_id": {
+    "$oid": "60058eeb7778ec2cc42de743"
+  },
+  "userId": "1610975831665t5971833184986888r",
+  "lecturer": {
+    "id": "1610975789753t49023839340064534r",
+    "name": "Magda",
+    "surname": "Śnieg",
+    "email": "jariva4876@sofiarae.com",
+    "login": "magda",
+    "password": "magda",
+    "activated": true,
+    "avatar": "/media/image/avatarDefault.jpg",
+    "createdDatetime": 1610975789753
+  },
+  "date": 1610977003394,
+  "description": "Perfekcyjnie !!!",
+  "value": "5",
+  "groupId": "1610976259901t5284930457868025r",
+  "id": "1610977003394t3160034617101175r"
+},{
+  "_id": {
+    "$oid": "60058ef87778ec2cc42de744"
+  },
+  "userId": "1610975831665t5971833184986888r",
+  "lecturer": {
+    "id": "1610975789753t49023839340064534r",
+    "name": "Magda",
+    "surname": "Śnieg",
+    "email": "jariva4876@sofiarae.com",
+    "login": "magda",
+    "password": "magda",
+    "activated": true,
+    "avatar": "/media/image/avatarDefault.jpg",
+    "createdDatetime": 1610975789753
+  },
+  "date": 1610977016518,
+  "description": "Nie ma do czego sie przyczepić",
+  "value": "5",
+  "groupId": "1610976259901t5284930457868025r",
+  "id": "1610977016518t306513964036224r"
+},{
+  "_id": {
+    "$oid": "60058f197778ec2cc42de745"
+  },
+  "userId": "1610975831665t5971833184986888r",
+  "lecturer": {
+    "id": "1610975789753t49023839340064534r",
+    "name": "Magda",
+    "surname": "Śnieg",
+    "email": "jariva4876@sofiarae.com",
+    "login": "magda",
+    "password": "magda",
+    "activated": true,
+    "avatar": "/media/image/avatarDefault.jpg",
+    "createdDatetime": 1610975789753
+  },
+  "date": 1610977049287,
+  "description": "Zadanie dodatkowe było trudne. Niemniej jednak udało Ci się je rozwiazac.",
+  "value": "6",
+  "groupId": "1610976259901t5284930457868025r",
+  "id": "1610977049287t8062114619060778r"
+},{
+  "_id": {
+    "$oid": "600596517778ec2cc42de748"
+  },
+  "userId": "1610975680792t27279286269382186r",
+  "lecturer": {
+    "id": "1610975260304t1786168421065535r",
+    "name": "Patryk",
+    "surname": "Waski",
+    "email": "jariva4876@sofiarae.com",
+    "login": "patryk",
+    "password": "patryk",
+    "activated": true,
+    "avatar": "/media/image/avatarDefault.jpg",
+    "createdDatetime": 1610975260304
+  },
+  "date": 1610978897142,
+  "description": "Przykro mi nic nie było dobrze tym razem.",
+  "value": "1",
+  "groupId": "1610976059155t6468072424061733r",
+  "id": "1610978897142t3308270917060636r"
+},{
+  "_id": {
+    "$oid": "6005966b7778ec2cc42de749"
+  },
+  "userId": "1610975680792t27279286269382186r",
+  "lecturer": {
+    "id": "1610975260304t1786168421065535r",
+    "name": "Patryk",
+    "surname": "Waski",
+    "email": "jariva4876@sofiarae.com",
+    "login": "patryk",
+    "password": "patryk",
+    "activated": true,
+    "avatar": "/media/image/avatarDefault.jpg",
+    "createdDatetime": 1610975260304
+  },
+  "date": 1610978923972,
+  "description": "Dop. Uratowały Cię poprawne rysunki.",
+  "value": "2",
+  "groupId": "1610976059155t6468072424061733r",
+  "id": "1610978923972t14158029708110131r"
+},{
+  "_id": {
+    "$oid": "6005969a7778ec2cc42de74a"
+  },
+  "userId": "1610975680792t27279286269382186r",
+  "lecturer": {
+    "id": "1610975260304t1786168421065535r",
+    "name": "Patryk",
+    "surname": "Waski",
+    "email": "jariva4876@sofiarae.com",
+    "login": "patryk",
+    "password": "patryk",
+    "activated": true,
+    "avatar": "/media/image/avatarDefault.jpg",
+    "createdDatetime": 1610975260304
+  },
+  "date": 1610978970407,
+  "description": "Ściagałeś - następnym razem nie będziesz siedział w tym obok Ani",
+  "value": "4",
+  "groupId": "1610976059155t6468072424061733r",
+  "id": "1610978970407t4733569257380139r"
+},{
+  "_id": {
+    "$oid": "600596b27778ec2cc42de74b"
+  },
+  "userId": "1610975692488t12594268606442616r",
+  "lecturer": {
+    "id": "1610975260304t1786168421065535r",
+    "name": "Patryk",
+    "surname": "Waski",
+    "email": "jariva4876@sofiarae.com",
+    "login": "patryk",
+    "password": "patryk",
+    "activated": true,
+    "avatar": "/media/image/avatarDefault.jpg",
+    "createdDatetime": 1610975260304
+  },
+  "date": 1610978994413,
+  "description": "",
+  "value": "4",
+  "groupId": "1610976059155t6468072424061733r",
+  "id": "1610978994413t3511257067874167r"
+},{
+  "_id": {
+    "$oid": "600596d67778ec2cc42de74c"
+  },
+  "userId": "1610975692488t12594268606442616r",
+  "lecturer": {
+    "id": "1610975260304t1786168421065535r",
+    "name": "Patryk",
+    "surname": "Waski",
+    "email": "jariva4876@sofiarae.com",
+    "login": "patryk",
+    "password": "patryk",
+    "activated": true,
+    "avatar": "/media/image/avatarDefault.jpg",
+    "createdDatetime": 1610975260304
+  },
+  "date": 1610979030142,
+  "description": "Gdyby znajomość wzorów była lepsza otrzymała byś 4+ ",
+  "value": "3",
+  "groupId": "1610976059155t6468072424061733r",
+  "id": "1610979030142t24074656664898386r"
+},{
+  "_id": {
+    "$oid": "60059d0a7778ec2cc42de752"
+  },
+  "userId": "1610979803448t7533778515585501r",
+  "lecturer": {
+    "id": "1610979665594t7009572601819747r",
+    "name": "Andrzej",
+    "surname": "Szary",
+    "email": "jariva4876@sofiarae.com",
+    "login": "andrzej",
+    "password": "andrzej",
+    "activated": true,
+    "avatar": "/media/image/avatarDefault.jpg",
+    "createdDatetime": 1610979665594
+  },
+  "date": 1610980618972,
+  "description": "Dostateczny, nie mogłem się doczytać.",
+  "value": "3",
+  "groupId": "1610979779391t8522683242861135r",
+  "id": "1610980618972t08240466169794125r"
+},{
+  "_id": {
+    "$oid": "60059d197778ec2cc42de753"
+  },
+  "userId": "1610979803448t7533778515585501r",
+  "lecturer": {
+    "id": "1610979665594t7009572601819747r",
+    "name": "Andrzej",
+    "surname": "Szary",
+    "email": "jariva4876@sofiarae.com",
+    "login": "andrzej",
+    "password": "andrzej",
+    "activated": true,
+    "avatar": "/media/image/avatarDefault.jpg",
+    "createdDatetime": 1610979665594
+  },
+  "date": 1610980633747,
+  "description": "Zacznij pisać drukowanymi. PROSZĘ !!!",
+  "value": "3",
+  "groupId": "1610979779391t8522683242861135r",
+  "id": "1610980633747t4613461886524819r"
+},{
+  "_id": {
+    "$oid": "60059e0a7778ec2cc42de754"
+  },
+  "userId": "1610975701432t7756999698308229r",
+  "lecturer": {
+    "id": "1610979665594t7009572601819747r",
+    "name": "Andrzej",
+    "surname": "Szary",
+    "email": "jariva4876@sofiarae.com",
+    "login": "andrzej",
+    "password": "andrzej",
+    "activated": true,
+    "avatar": "/media/image/avatarDefault.jpg",
+    "createdDatetime": 1610979665594
+  },
+  "date": 1610980874880,
+  "description": "Mnożenie nie stanowi dla ciebie problemu.",
+  "value": "5",
+  "groupId": "1610979779391t8522683242861135r",
+  "id": "1610980874880t02281786304189093r"
+},{
+  "_id": {
+    "$oid": "60059e407778ec2cc42de755"
+  },
+  "userId": "1610975701432t7756999698308229r",
+  "lecturer": {
+    "id": "1610979665594t7009572601819747r",
+    "name": "Andrzej",
+    "surname": "Szary",
+    "email": "jariva4876@sofiarae.com",
+    "login": "andrzej",
+    "password": "andrzej",
+    "activated": true,
+    "avatar": "/media/image/avatarDefault.jpg",
+    "createdDatetime": 1610979665594
+  },
+  "date": 1610980928334,
+  "description": "Dzielenie - błąd rachunkowy, mimo wszystko dobrze Ci poszło.",
+  "value": "4",
+  "groupId": "1610979779391t8522683242861135r",
+  "id": "1610980928334t8566633322953143r"
+},{
+  "_id": {
+    "$oid": "60059e737778ec2cc42de756"
+  },
+  "userId": "1610975701432t7756999698308229r",
+  "lecturer": {
+    "id": "1610979665594t7009572601819747r",
+    "name": "Andrzej",
+    "surname": "Szary",
+    "email": "jariva4876@sofiarae.com",
+    "login": "andrzej",
+    "password": "andrzej",
+    "activated": true,
+    "avatar": "/media/image/avatarDefault.jpg",
+    "createdDatetime": 1610979665594
+  },
+  "date": 1610980979747,
+  "description": "Nic dodać nic ująć.",
+  "value": "5",
+  "groupId": "1610979779391t8522683242861135r",
+  "id": "1610980979747t5929399494966878r"
+},{
+  "_id": {
+    "$oid": "60059e7f7778ec2cc42de757"
+  },
+  "userId": "1610975701432t7756999698308229r",
+  "lecturer": {
+    "id": "1610979665594t7009572601819747r",
+    "name": "Andrzej",
+    "surname": "Szary",
+    "email": "jariva4876@sofiarae.com",
+    "login": "andrzej",
+    "password": "andrzej",
+    "activated": true,
+    "avatar": "/media/image/avatarDefault.jpg",
+    "createdDatetime": 1610979665594
+  },
+  "date": 1610980991425,
+  "description": "Brawo.",
+  "value": "5",
+  "groupId": "1610979779391t8522683242861135r",
+  "id": "1610980991425t07878299507695141r"
+}]

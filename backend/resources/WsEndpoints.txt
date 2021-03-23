@@ -1,0 +1,32 @@
+// ---------------------------------------------------------
+
+endpoint  dla activate. to grzie jest .
+
+
+
+// ---------------------------------------------------------
+api.get.me
+api.get.users.me
+
+api.get.groups.notes
+
+api.get.platforms
+
+
+Backend /api/activate/:login
+FRONT /activate  
+
+Backend /api/password/reset/:Math.Random()
+FRONT /password/reset          
+
+
+/password/reset -->  frontpage do resetowania.
+
+
+reset password -> posiada kolekcje emaili, a unique code to random().
+acctivateAccount -> posiada login do aktywancji.
+
+
+
+backend endpoint activate  = http://localhost:3000/api/password/reset
+ 
