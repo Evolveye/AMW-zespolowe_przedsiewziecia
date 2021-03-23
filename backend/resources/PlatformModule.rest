@@ -1,0 +1,57 @@
+ @host= http://localhost:3000
+
+
+########################### ALL MY PLATFORMS ##################################
+GET  {{host}}/api/platforms?platformId=1612243314757t5386663959125733r&groupId=1612243474423t1026935722388651r
+Authentication: Bearer 0.7918220868961368
+
+########################### ALL USERS OF PLATFORM ##################################
+GET  {{host}}/api/platforms/1611780772329t09982433981483507r/users
+Authentication: Bearer 0.6945962755685093
+########################### PERMISSIONS ##################################
+GET  {{host}}/api/platforms/permissions?platformId=1612243314757t5386663959125733r
+Authentication: Bearer 0.6945962755685093
+
+########################### PERMISSIONS TEMPLATES ##################################
+GET  {{host}}/api/platforms/1612243314757t5386663959125733r/permissions
+Authentication: Bearer 0.12073430048197653
+
+########################### CREATE NEW Platform ##################################
+
+POST {{host}}/api/platforms
+Content-Type: application/json
+Authentication: Bearer 0.6544625068073082
+
+{
+    "name":"Gawra"
+}
+
+########################### CREATE USER #################################
+POST {{host}}/api/platforms/1610975039693t028231356685848086r/users
+Content-Type: application/json
+Authentication: Bearer 0.521768798915772
+
+{
+    "name":"Benek",
+    "surname":"Gant",
+    "email":"rzekaoazon@gmail.com"
+}
+
+########################### Delete user from plat ##################################
+
+DELETE  {{host}}/api/platforms/1610831335734t9733850716958281r/users/1610830929204t4742033775315271r
+Authentication: Bearer 0.521768798915772
+
+
+
+########################### Delete Platfrom. #################################
+DELETE  {{host}}/api/platforms/1610831335734t9733850716958281r
+Content-Type: application/json
+Authentication: Bearer 0.521768798915772
+
+{
+    "name":"Jarek",
+    "surname":"Bak",
+    "email":"oppoS@num234.com"
+}
+

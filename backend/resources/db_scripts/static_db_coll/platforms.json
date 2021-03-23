@@ -1,0 +1,72 @@
+[{
+  "_id": {
+    "$oid": "60040dc43b56b12a6cc7c010"
+  },
+  "id": "1610878404386t3714100488989107r",
+  "owner": {
+    "id": "1610830929204t4742033775315271r",
+    "name": "Adam",
+    "surname": "Szreiber",
+    "email": "adambrzuchowo@gmail.com",
+    "login": "adam",
+    "password": "adam",
+    "activated": true,
+    "avatar": "/media/image/avatarDefault.jpg",
+    "createdDatetime": 1610830929204
+  },
+  "created": 1610878404386,
+  "administrator": {
+    "id": "1610830929204t4742033775315271r",
+    "name": "Adam",
+    "surname": "Szreiber",
+    "email": "adambrzuchowo@gmail.com",
+    "login": "adam",
+    "password": "adam",
+    "activated": true,
+    "avatar": "/media/image/avatarDefault.jpg",
+    "createdDatetime": 1610830929204
+  },
+  "name": "Nora",
+  "membersIds": [
+    "1610830929204t4742033775315271r",
+    "1610915462923t7677269850213602r",
+    "1610915462923t30516209506744674r",
+    "1610915462923t96781562378426r",
+    "1610915462923t785453286492r"
+  ]
+},{
+  "_id": {
+    "$oid": "60040dc43b56b12a6cc7c012"
+  },
+  "id": "1610878404386t6775816449383387r",
+  "owner": {
+    "id": "1610891926267t6775816449383387r",
+    "name": "Jarek",
+    "surname": "Kania",
+    "email": "adambrzuchowo@gmail.com",
+    "login": "poi",
+    "password": "poi",
+    "activated": true,
+    "avatar": "/media/image/avatarDefault.jpg",
+    "createdDatetime": 1610891926267
+  },
+  "created": 1610878404386,
+  "administrator": {
+    "id": "1610891926267t6775816449383387r",
+    "name": "Jarek",
+    "surname": "Kania",
+    "email": "adambrzuchowo@gmail.com",
+    "login": "poi",
+    "password": "poi",
+    "activated": true,
+    "avatar": "/media/image/avatarDefault.jpg",
+    "createdDatetime": 1610891926267
+  },
+  "name": "Gawra",
+  "membersIds": [
+    "1610891926267t6775816449383387r",
+    "1610915462923t98543558672r",
+    "1610891926267t8258813502551035r",
+    "1610915460162t8961837167330171r"
+  ]
+}]

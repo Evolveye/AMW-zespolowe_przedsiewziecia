@@ -1,0 +1,70 @@
+ @host= http://localhost:3000
+
+
+########################### PERMISSIONS MY ##################################
+GET  {{host}}/api/groups/1612243314757t5386663959125733r/permissions/my?platformId=1612243314757t5386663959125733r&groupId=1612243474423t1026935722388651r
+Authentication: Bearer 0.7918220868961368
+
+########################### PERMISSIONS TEMPLATE ##################################
+GET  {{host}}/api/groups/1612243474423t1026935722388651r/permissions
+Authentication: Bearer 0.06442535554118822
+
+########################### LIST OF USERS GROUPS ##################################
+GET  {{host}}/api/groups
+Authentication: Bearer 0.9192622642497601
+
+// GET Lista grup usera - wszystkie do które należy. /api/groups // header { "authenthication": "string" }
+    # app.get(`/api/groups`, this.httpHandleMyGroups)
+
+
+########################### CREATE NEW GROUP ##################################
+// app.post(`/api/groups`, this.httpCreateGroup)
+// body:{"name": "string", "lecturer": "string", "platformId":"string"}
+POST  {{host}}/api/groups
+Authentication: Bearer 0.40010901507843766
+Content-Type: application/json
+
+{
+    "name":"Króliki",
+    "lecturer":"1611346267433t8920215355855889r",
+    "platformId":"1611346231291t27635696913338736r"
+}
+########################### ADD USERS TO GROUP ##################################
+//POST Dodawanie usera do grupy /api/groups/users // header { "authenthication": "string" } //body "usersIds": [ "string"  ]POST Dodawanie usera do grupy /api/groups/users // header { "authenthication": "string" } //body "usersIds": [ "string"  ]
+POST  {{host}}/api/groups/users
+Content-Type: application/json
+Authentication: Bearer 0.11218495659211136
+
+{
+    "groupId": "1611495666140t3009533012538326r",
+    "usersIds":[
+        "1611496029188t23167197586490396r",
+        "1611496041481t9151390869381331r"
+    ]
+}
+
+########################### GET ALL GROUPS OF PLATFORM ##################################
+GET  {{host}}/api/groups/platform/1612103294088t382136678438991r
+Authentication: Bearer 0.5858389368919648
+
+########################### GET ALL MEMBERS OF GROUP ##################################
+GET  {{host}}/api/groups/1612515218225t16545881289636788r/users?
+Authentication: Bearer 0.05796914946526388
+#/api/groups/1612515218225t16545881289636788r/users?platformId=1612243314757t5386663959125733r&groupId=1612515218225t16545881289636788r
+
+
+
+########################### DELETE MEMBER OF GROUP ##################################
+DELETE {{host}}/api/groups/1610976259901t5284930457868025r/users/1610975817109t361016811954048r
+Authentication: Bearer 0.094568608954672
+
+
+########################### DELETE  GROUP ##################################
+//DELETE Kasowanie grupy /api/groups/:groupId 
+DELETE {{host}}/api/groups/1611760398905t8443398675835792r
+Authentication: Bearer 0.6544625068073082
+
+
+
+
+
