@@ -58,6 +58,8 @@ const URLS = {
   GROUP$ID_PERMISSIONS_GET: `${HOST}/api/groups/:groupId/permissions`,
   GROUP$ID_PERMISSIONS_MY_GET: `${HOST}/api/groups/:groupId/permissions/my`,
   GROUPS$ID_FILE_POST: `${HOST}/api/groups/:groupId/materials`,
+  GROUPS$ID_FILE_GET: `${HOST}/api/groups/:groupId/materials`,
+  GROUPS$ID_FILE_DELETE: `${HOST}/api/groups/:groupId/materials/:materialId`,
 
   // Meet scope
   MEET_GET: `${HOST}/api/meets`,
