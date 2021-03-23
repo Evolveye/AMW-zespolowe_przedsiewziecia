@@ -1,1 +1,0 @@
-tworzenie grup, gdy tworzymy 2-go grupę do ten 1 dodaje sie user niepotrzebnie.
