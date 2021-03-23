@@ -19,6 +19,7 @@ export default class TableForm extends React.Component {
 
   componentDidMount() {
     this.setCreatingElements()
+    
 
     fetchWithStatusProcessing(this.props.fetchGetAddress, {
       method: `GET`,
@@ -34,9 +35,11 @@ export default class TableForm extends React.Component {
         return console.info({ code, success })
       }
 
+      
       this.addToTable(data[this.props.responseGetDataName])
       this.onFillListeners.forEach(({ ref, field }) => ref.current[field]())
     })
+    
   }
 
   updateNewField = (eOrName, value=null) => {
@@ -141,8 +144,12 @@ export default class TableForm extends React.Component {
 
       for (const field of this.props.objectsFields) {
         if (typeof field === `object`) {
+          const processor = field.processor || (x => x)
+          const propName = field.alt || field.name
+          const processorData = field.entire ? obj : obj[ propName ]
+
           fields.push(
-            <td key={field.name}>{field.processor(obj[field.name])}</td>
+            <td key={field.name}>{processor( processorData )}</td>
           )
         } else fields.push(<td key={field}>{obj[field]}</td>)
       }
@@ -231,6 +238,7 @@ export default class TableForm extends React.Component {
 
   render = () => (
     <table className="table">
+      
       <thead className="thead">
         <tr>
           {this.props.titleFields.map(field => (
@@ -244,7 +252,7 @@ export default class TableForm extends React.Component {
       <tbody>
         <tr>
           {this.state.creatingLis}
-
+          
           <td>
             <button
               type="button"
