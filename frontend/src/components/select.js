@@ -12,11 +12,11 @@ export default ({
   btnClassName = ``,
   btnIsActiveClassname,
   children,
-  render,
+  renderChoosedItem,
 }) => (
   <article className={`${className} ${classes.select}`}>
     <section className={`${classes.value} ${selectedItemClassName}`}>
-      {render()}
+      {renderChoosedItem()}
     </section>
 
     <ToggleBox

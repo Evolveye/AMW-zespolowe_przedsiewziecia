@@ -17,6 +17,12 @@ const fakePlatforms = [
   { id:2, name:`Akademia` },
   { id:3, name:`Szkółka leśna` },
 ]
+const labelsTranslation = {
+  actions: `Akcje`,
+  create: `Dodaj`,
+  delete: `Usuń`,
+  edit: `Edytuj`,
+}
 
 const query = graphql`
   query {
@@ -29,14 +35,8 @@ const query = graphql`
 `
 
 export default ({ className = `` }) => {
-  const { p } = getUrnQuery()
   const queryData = useStaticQuery( query )
-  const labelsTranslation = {
-    actions: `Akcje`,
-    create: `Dodaj`,
-    delete: `Usuń`,
-    edit: `Edytuj`,
-  }
+  const { p } = getUrnQuery()
 
   return (
     <Select
@@ -45,92 +45,13 @@ export default ({ className = `` }) => {
       itemsClassName={classes.items}
       btnClassName={`neumorphizm is-button ${classes.navSwitch}`}
       btnIsActiveClassname="is-active"
-      render={
+      renderChoosedItem={
         () => !p ? defaultValue : <>
           <Link className={classes.platform} to={`/platform?p=${p}`}>
             {fakePlatforms.find( ({ id }) => id == p ).name}
           </Link>
-          <ToggableBox
-            boxClassName={settingsClasses.settings}
-            btnClassName={`neumorphizm is-button ${settingsClasses.settingsSwitch}`}
-            btnIsActiveClassname="is-active"
-            btnContent={<Image fluid={queryData.cog.childImageSharp.fluid} />}
-            fullScreened
-          >
-            <SwitchBox
-              classNames={{
-                switches: settingsClasses.settingsTabsSwitches,
-                switch: `neumorphizm is-button ${settingsClasses.settingsTabSwitch}`,
-                activeSwitch: `is-active`,
-              }}
-            >
-              <Tab className={settingsClasses.settingsTabSwitch} name="Użytkownicy">
-                <DataTable
-                  getDataAddress="fakePlatformUsers"
-                  deleteDataAddress=""
-                  // deletePosibilityChecker={fields => true}
-                  staticLabels={labelsTranslation}
-                  fields={
-                    [
-                      {
-                        name: `name`,
-                        label: `Imię`,
-                        dataFieldname: `name`,
-                        // processor: () => `Imię ` + Math.random(),
-                        adder: {
-                          // type: `select`,
-                          colspan: 2,
-                          validator: field => field,
-                        },
-                      },
-                      {
-                        name: `surname`,
-                        label: `Nazwisko`,
-                        dataFieldname: `surname`,
-                        // processor: () => `Nazwisko ` + Math.random(),
-                      },
-                      {
-                        name: `role`,
-                        label: `Rola`,
-                        dataFieldname: `role`,
-                        processor: ({ name }) => name, // `Rola ` + Math.random(),
-                        editable: true,
-                        adder: {
-                          type: `select`,
-                          validator: ({ name }) => name,
-                          getDataAddress: `fakeGroupRoles`,
-                        },
-                      },
-                    ]
-                  }
-                />
-              </Tab>
 
-              <Tab name="Grupy">
-                <DataTable
-                  getDataAddress="fakeGroups"
-                  deleteDataAddress=""
-                  // deletePosibilityChecker={fields => true}
-                  staticLabels={labelsTranslation}
-                  fields={
-                    [
-                      { name:`name`, label:`Nazwa`, processor:name => name },
-                      {
-                        name: `lecturer`,
-                        label: `Prowadzący`,
-                        processor: ({ name, surname }) => `${name} ${surname}`,
-                        adder: {
-                          type: `select`,
-                          validator: ({ name }) => name,
-                          getDataAddress: `fakePlatformUsers`,
-                        },
-                      },
-                    ]
-                  }
-                />
-              </Tab>
-            </SwitchBox>
-          </ToggableBox>
+          <PlatformSettings queryData={queryData} />
         </>
       }
     >
@@ -144,3 +65,87 @@ export default ({ className = `` }) => {
     </Select>
   )
 }
+
+const PlatformSettings = ({ queryData }) => (
+  <ToggableBox
+    boxClassName={settingsClasses.settings}
+    btnClassName={`neumorphizm is-button ${settingsClasses.settingsSwitch}`}
+    btnIsActiveClassname="is-active"
+    btnContent={<Image fluid={queryData.cog.childImageSharp.fluid} />}
+    fullScreened
+  >
+    <SwitchBox
+      classNames={{
+        switches: settingsClasses.settingsTabsSwitches,
+        switch: `neumorphizm is-button ${settingsClasses.settingsTabSwitch}`,
+        activeSwitch: `is-active`,
+      }}
+    >
+      <Tab className={settingsClasses.settingsTabSwitch} name="Użytkownicy">
+        <DataTable
+          getDataAddress="fakePlatformUsers"
+          deleteDataAddress=""
+          // deletePosibilityChecker={fields => true}
+          staticLabels={labelsTranslation}
+          fields={
+            [
+              {
+                name: `name`,
+                label: `Imię`,
+                dataFieldname: `name`,
+                // processor: () => `Imię ` + Math.random(),
+                adder: {
+                  // type: `select`,
+                  colspan: 2,
+                  validator: field => field,
+                },
+              },
+              {
+                name: `surname`,
+                label: `Nazwisko`,
+                dataFieldname: `surname`,
+                // processor: () => `Nazwisko ` + Math.random(),
+              },
+              {
+                name: `role`,
+                label: `Rola`,
+                dataFieldname: `role`,
+                processor: ({ name }) => name, // `Rola ` + Math.random(),
+                editable: true,
+                adder: {
+                  type: `select`,
+                  validator: ({ name }) => name,
+                  getDataAddress: `fakeGroupRoles`,
+                },
+              },
+            ]
+          }
+        />
+      </Tab>
+
+      <Tab name="Grupy">
+        <DataTable
+          getDataAddress="fakeGroups"
+          deleteDataAddress=""
+          // deletePosibilityChecker={fields => true}
+          staticLabels={labelsTranslation}
+          fields={
+            [
+              { name:`name`, label:`Nazwa`, processor:name => name },
+              {
+                name: `lecturer`,
+                label: `Prowadzący`,
+                processor: ({ name, surname }) => `${name} ${surname}`,
+                adder: {
+                  type: `select`,
+                  validator: ({ name }) => name,
+                  getDataAddress: `fakePlatformUsers`,
+                },
+              },
+            ]
+          }
+        />
+      </Tab>
+    </SwitchBox>
+  </ToggableBox>
+)
