@@ -1,5 +1,13 @@
 .form {
   min-width: 250px;
+  height: unset;
+  padding: 10px;
+}
+.tab {
+  display: flex;
+  min-height: 200px;
+  align-items: center;
+  justify-content: center;
 }
 .switches {
   display: flex;
@@ -9,7 +17,9 @@
 }
 .input {
   display: block;
+  margin: 5px;
 }
 .button {
   display: block;
+  margin: 15px;
 }

@@ -55,7 +55,11 @@ export default function Form({ classNames, children }) {
           .toArray( children )
           .filter( c => c.type === Tab.type )
           .map( tab => (
-            <SwitchTab key={tab.props.name} name={tab.props.name}>
+            <SwitchTab
+              key={tab.props.name}
+              name={tab.props.name}
+              className={tab.props.className}
+            >
               <form>
                 {processFormChildren( tab, updateValues, onSubmit )}
               </form>
@@ -77,7 +81,6 @@ Form.propTypes = {
 
 
 function processFormChildren( element, updateValues, onSubmit ) {
-  console.log( element )
   return React.Children.map( element.props.children, child => {
     if (typeof child.type === `string`) {
       return React.cloneElement( child, child.props, processFormChildren( child ) )

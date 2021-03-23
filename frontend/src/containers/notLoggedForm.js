@@ -3,18 +3,19 @@ import React from "react"
 import Form, { Tab, Text, Password, Submit } from "../components/form.js"
 import { fakeLogin } from "../utils/auth.js"
 
+import settingsClasses from "./settings.module.css"
 import classes from "./form.module.css"
 
 export default () => (
   <Form
     classNames={{
-      it: classes.form,
+      it: `${classes.form} ${settingsClasses.settings}`,
       switch: `neumorphizm is-button ${classes.switch}`,
       switches: classes.switches,
       activeSwitch: `is-active`,
     }}
   >
-    <Tab name="Logowanie">
+    <Tab className={classes.tab} name="Logowanie">
       <Text className={classes.input} name="login" validator={() => true}>Login</Text>
       <Password className={classes.input} name="password" validator={() => true}>Hasło</Password>
 
@@ -33,7 +34,9 @@ export default () => (
         <Password className={classes.input} name="password2" validator={() => true}>Powtórne hasło</Password>
       </div>
 
-      <Submit>Zarejestruj</Submit>
+      <Submit className={`neumorphizm is-button ${classes.button}`}>
+        Zarejestruj
+      </Submit>
     </Tab>
   </Form>
 )

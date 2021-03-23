@@ -21,7 +21,7 @@
     .navigationPath {
       grid-area: path;
       display: flex;
-      place-items: center;
+      align-items: center;
     }
         .separator {
           transform: translateY( -3px );

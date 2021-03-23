@@ -4,10 +4,9 @@ import PropTypes from "prop-types"
 // import classes from "./switchBox.module.css"
 
 
-export const Tab = ({ className, children }) => (
-  <section className={className}>{children}</section>
-)
+export const Tab = () => null
 Tab.propTypes = {
+  className: PropTypes.string,
   name: PropTypes.string.isRequired,
 }
 
@@ -20,6 +19,7 @@ export default function SwitchBox({ classNames, children }) {
   if (!tabs.length) return null
 
   const [ activeTab, setActiveTab ] = useState( tabs[ 0 ] )
+  const activeProps = activeTab.props
 
   return (
     <article className={classNames?.it}>
@@ -27,7 +27,7 @@ export default function SwitchBox({ classNames, children }) {
         {
           tabs.map( tab => {
             const { name } = tab.props
-            const activeClassname = activeTab.props.name === name ? classNames?.activeSwitch : ``
+            const activeClassname = activeProps.name === name ? classNames?.activeSwitch : ``
 
             return (
               <button
@@ -42,7 +42,7 @@ export default function SwitchBox({ classNames, children }) {
         }
       </section>
 
-      <article key={activeTab.props.name}>
+      <article key={activeProps.name} className={activeProps.className}>
         {activeTab.props.children}
       </article>
     </article>
