@@ -793,13 +793,13 @@ export async function httpGetTemplatePermissions({ mod, req, res }) {
 
 // }
 
-// /** @param {MiddlewareParameters} param0 */
-// export async function httpHandleAllFilesInGroup({ mod, req, res}){
-//   const groupId = req.params.groupId || req.body.groupId || req.query.groupId;
-//   const colllectionOfFiles = await dbManager.findManyObjects(`materials`,{ groupId:{$eq: groupId}})
+/** @param {MiddlewareParameters} param0 */
+export async function httpHandleAllFilesInGroup({ mod, req, res}){
+  const groupId = req.params.groupId || req.body.groupId || req.query.groupId;
+  const colllectionOfFiles = await dbManager.findManyObjects(`materials`,{ groupId:{$eq: groupId}})
 
-//   return res.json({ fileDataset:(colllectionOfFiles || []) });
-// }
+  return res.json({ fileDataset:(colllectionOfFiles || []) });
+}
 
 /** @param {MiddlewareParameters} param0 */
 export async function httpAddFile({ mod, req, res, next}) {
