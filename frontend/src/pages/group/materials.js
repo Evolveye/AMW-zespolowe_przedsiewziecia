@@ -68,7 +68,7 @@ export default () => {
         staticPostBodyData={{}}
         objectsFields={[
           { name: `file`, alt:`filePath`, entire:true, processor: file =>
-            //<a download href={`/` + file.path}>{file.name}</a>
+            <a download href={`/` + file.path}>{file.name}</a>
           },
           { name: `user`, processor: ({name, surname}) => `${name} ${surname}` },
           `description`,
