@@ -755,43 +755,43 @@ export async function httpGetTemplatePermissions({ mod, req, res }) {
   return res.json({ permissions: permissionList });
 }
 
-// /** @param {MiddlewareParameters} param0 */
-// export async function httpHandleDeleteFile({ mod, req, res}){
-//  // where will be file name/ file path
-//   const fileToDelete = req.params.materialId || req.body.materialId || req.query.materialId;
+/** @param {MiddlewareParameters} param0 */
+export async function httpHandleDeleteFile({ mod, req, res}){
+ // where will be file name/ file path
+  const fileToDelete = req.params.materialId || req.body.materialId || req.query.materialId;
 
-//  // console.log({fileToDelete})
-//    // fileDoc = await mod.dbManager.findOne(`materials`,{id:{$eq:fileToDelete}});
-//    const fileDoc = await mod.dbManager.findOneAndDelete(`materials`,{id:{$eq:fileToDelete}});
+ // console.log({fileToDelete})
+   // fileDoc = await mod.dbManager.findOne(`materials`,{id:{$eq:fileToDelete}});
+   const fileDoc = await mod.dbManager.findOneAndDelete(`materials`,{id:{$eq:fileToDelete}});
 
-//   //console.log({path:fileDoc.value.path})
-//    let fileExists = true;
+  //console.log({path:fileDoc.value.path})
+   let fileExists = true;
 
-//   const fullFilePath =  APP_ROOT_DIR +`/`+ fileDoc.value.path
+  const fullFilePath =  APP_ROOT_DIR +`/`+ fileDoc.value.path
 
-//  // console.log({fullFilePath})
-//   fileExists = await new Promise(async (resolve,reject)=>{
-//     try{
-//       await filesystem.access(fullFilePath)
-//       //console.log(`access OK`)
-//       resolve(true)
-//     }
-//     catch(exception)
-//     {
-//     //  console.log(`access ERR`)
-//       reject(exception)
-//     }
-//   })
-//   //console.log(`EXISTS`,{fileExists})
-//   if(fileExists != true)
-//   res.json({code:88888,error:`File ${fullFilePath} not found`})
+ // console.log({fullFilePath})
+  fileExists = await new Promise(async (resolve,reject)=>{
+    try{
+      await filesystem.access(fullFilePath)
+      //console.log(`access OK`)
+      resolve(true)
+    }
+    catch(exception)
+    {
+    //  console.log(`access ERR`)
+      reject(exception)
+    }
+  })
+  //console.log(`EXISTS`,{fileExists})
+  if(fileExists != true)
+  res.json({code:88888,error:`File ${fullFilePath} not found`})
 
-//   await filesystem.unlink(fullFilePath)
+  await filesystem.unlink(fullFilePath)
 
-//   console.log(`Succesfuly deleted file`);
-//   return res.json({code:99999,success:`file ${fullFilePath} has been deleted`});
+  console.log(`Succesfuly deleted file`);
+  return res.json({code:99999,success:`file ${fullFilePath} has been deleted`});
 
-// }
+}
 
 /** @param {MiddlewareParameters} param0 */
 export async function httpHandleAllFilesInGroup({ mod, req, res}){

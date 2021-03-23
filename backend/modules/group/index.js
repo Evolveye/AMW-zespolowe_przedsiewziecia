@@ -44,12 +44,12 @@ export default class GroupModule extends Module {
            post: auth(pPerms(this.perms(this.runMid(m.httpAddFile)))),
         }
       ],
-      // [
-      //   `/groups/:groupId/materials/:materialId`,
-      //   {
-      //     delete: auth(pPerms(this.perms(this.runMid(m.httpHandleDeleteFile)))), // 
-      //   },
-      // ],
+      [
+        `/groups/:groupId/materials/:materialId`,
+        {
+          delete: auth(pPerms(this.perms(this.runMid(m.httpHandleDeleteFile)))), // 
+        },
+      ],
       [
         `/groups/notes`,
         {
