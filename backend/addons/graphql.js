@@ -18,13 +18,14 @@ const typesModificators = [
   } },
 ]
 
-const types = {
+const typesAliases = {
   mongoose: {
     id: Schema.Types.ObjectId,
     date: Number,
     int: Number,
     float: Number,
     string: String,
+    boolean: Boolean,
     arrayOf( type ) {
       return [ this[ type ] ]
     },
@@ -35,31 +36,81 @@ const types = {
     string: gql.GraphQLString,
     int: gql.GraphQLInt,
     float: gql.GraphQLFloat,
+    boolean: gql.GraphQLBoolean,
     arrayOf( type ) {
       return gql.GraphQLList( this[ type ] )
     },
   },
 }
 
+export const types = {
+  ID: `id`,
+  DATE: `date`,
+  STRING: `string`,
+  INT: `int`,
+  FLOAT: `float`,
+  BOOLEAN: `boolean`,
+  ARRAY_OF( type ) {
+    if (!(type in types)) throw new Error( `Wrong type` )
+    return `arrayOf ${types[ type ]}`
+  },
+  SHAPE( shape ) {
+    console.log( shape )
 
-export const createModels = (name, obj) => {
+    throw ``
+  },
+}
+
+
+/**
+ * @param {string} name
+ */
+export const createModels = (name, obj, config = {}) => {
   const modelObjsWithSources = [
-    { source:`mongoose`, modelObj:{}, buildModel:obj =>  mongoose.model( name, obj ) },
-    { source:`graphql`, modelObj:{}, buildModel:obj =>  new gql.GraphQLObjectType({ name, fields:obj }) },
+    {
+      source: `mongoose`,
+      modelObj: {},
+      buildModel: obj => mongoose.model( name, obj, config.collection  ),
+      setKeyValue( specifiedType, setup, key ) {
+        if (key == `id`) return null
+        return { type:specifiedType, ...(setup || {}) }
+      },
+    },
+    {
+      source: `graphql`,
+      modelObj: {},
+      buildModel: obj => {
+        console.log( obj, gql.GraphQLID )
+        return new gql.GraphQLObjectType({
+          name,
+          fields: obj,
+          description: config.description,
+        })
+      },
+    },
   ]
 
-  Object.entries( obj ).forEach( ([ key, type ]) => {
+  Object.entries( obj ).forEach( ([ key, typeOrSetup ]) => {
+    const type = typeof typeOrSetup === `object`
+      ? typeOrSetup.type
+      : typeOrSetup
+
     const [ resolvedType, ...params ] = typesModificators
       .find( ({ regex }) => regex.test( type ) )
-      ?.resolver( type ) || [ type ]
+      ?.resolver( type, key, typeOrSetup ) || [ type ]
 
-    modelObjsWithSources.forEach( ({ source, modelObj }) => {
-      const ts = types[ source ] // if "ts[ resolvedType ]" is a function, it cannot lose "this"
+    modelObjsWithSources.forEach( ({ source, modelObj, setKeyValue }) => {
+      const ts = typesAliases[ source ] // if "ts[ resolvedType ]" is a function, it cannot lose "this"
       const isItFunction = true
         && typeof ts[ resolvedType ] == `function`
         && /[a-z]/.test( ts[ resolvedType ].name[ 0 ] )
 
-      modelObj[ key ] = isItFunction ? ts[ resolvedType ]( ...params ) : ts[ resolvedType ]
+      const specifiedType = isItFunction ? ts[ resolvedType ]( ...params ) : ts[ resolvedType ]
+      const finalValue = setKeyValue
+        ? setKeyValue( specifiedType, typeOrSetup, key )
+        : { type:specifiedType }
+
+      if (finalValue) modelObj[ key ] = finalValue
     } )
   } )
 
@@ -69,7 +120,15 @@ export const createModels = (name, obj) => {
   )
 }
 
+export const processArgs = argsObj => {
+  const args = {}
 
+  Object.entries( argsObj ).forEach( ([ name, setup ]) =>
+    args[ name ] = setup.constructor.name === `Object` ? setup : { type:setup },
+  )
+
+  return args
+}
 
 
 

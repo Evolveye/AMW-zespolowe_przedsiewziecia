@@ -1,24 +1,29 @@
-import mongoose from "mongoose"
-import {
-  GraphQLObjectType,
-  GraphQLString,
-  GraphQLID,
-  GraphQLBoolean,
-} from "graphql"
-
-import { GraphQLTypeDate } from "../graphql.js"
+import { createModels, types } from "../graphql.js"
 import { isEmailValid } from "../../priv/src/utils.js"
 
 /** @typedef {import("../addon.js").default} Addon */
 
+
 /** @param {Addon} param0 */
 export default ({ baseCollectionName }) => {
-  const UserModel = mongoose.model( `User`, new mongoose.Schema(
+  const { mongoose:UserModel, graphql:UserType } = createModels( `UserTest`,
     {
-      name: { type:String, minLength:2, maxLength:15, trim:true },
-      surname: { type:String, minLength:2, maxLength:15, trim:true },
+      id: types.ID,
+      login: types.STRING,
+      name: {
+        type: types.STRING,
+        minLength: 2,
+        maxLength: 15,
+        trim: true,
+      },
+      surname: {
+        type: types.STRING,
+        minLength: 2,
+        maxLength: 15,
+        trim: true,
+      },
       email: {
-        type: String,
+        type: types.STRING,
         validate: [
           {
             validator: value => isEmailValid( value ),
@@ -29,34 +34,17 @@ export default ({ baseCollectionName }) => {
             message: `Email already in use.`,
           },
         ],
+        message: `Email validation failed`,
       },
-      avatar: { type:String },
-      activated: { type:Boolean },
-      login: { type:String },
-      password: { type:String },
-      createdDateTime: { type:Number },
-    },
-    { collection:baseCollectionName },
-  ) )
-
-  return {
-    UserModel,
-    UserType: new GraphQLObjectType({
-      name: `User`,
-      fields: () => ({
-        id: { type:GraphQLID },
-        name: { type:GraphQLString },
-        surname: { type:GraphQLString },
-        login:{type:GraphQLString},
-        email: { type:GraphQLString },
-        avatar: { type:GraphQLString },
-        createdDateTime: { type:GraphQLTypeDate },
-        activated: { type:GraphQLBoolean },
-        password: { type:GraphQLString },
-      }),
+      password: types.STRING,
+      avatar: types.STRING,
+      activated: types.BOOLEAN,
+      createdDateTime: types.DATE,
+    }, {
+      collection: baseCollectionName,
       description: `User object.`,
-    }),
-  }
+    },
+  )
 
-
+  return { UserModel, UserType }
 }

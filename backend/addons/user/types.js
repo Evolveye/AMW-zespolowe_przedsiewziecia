@@ -9,21 +9,23 @@ import {
 } from "graphql"
 // import { userModule, UserType } from "./models.js";
 import mongoose from "mongoose"
+import { processArgs } from "../graphql.js"
 
 
 const clear = obj => Object.fromEntries( Object.entries( obj ).filter( ([ _, v ]) => v != null ) )
 
 
-export default ({ isMailValid }, { UserModel, UserType }) => ({
+export default ({ UserModel, UserType }, { isMailValid }) => ({
   /** @type {import("graphql").GraphQLFieldConfigMap} */
   queryObj: {
+
     user: {
       type: UserType,
-      args: {
-        id: { type:GraphQLID },
-        name: { type:GraphQLString },
-        surname: { type:GraphQLString },
-      },
+      args: processArgs({
+        id: GraphQLID,
+        name: GraphQLString,
+        surname: GraphQLString,
+      }),
       resolve( parent, args ) {
         if (mongoose.Types.ObjectId.isValid( args.id ))
           return UserModel.findById( args.id )
@@ -38,6 +40,7 @@ export default ({ isMailValid }, { UserModel, UserType }) => ({
       args: {},
       resolve: () => UserModel.find({}),
     },
+
   },
 
   /** @type {import("graphql").GraphQLFieldConfigMap} */
@@ -45,19 +48,19 @@ export default ({ isMailValid }, { UserModel, UserType }) => ({
 
     updateUser: {
       type: UserType,
-      args: {
-        id: { type:new GraphQLNonNull(GraphQLID) },
-        name: { type:GraphQLString },
-        surname: { type:GraphQLString },
-        login: { type:GraphQLString },
-        password: { type:GraphQLString },
-        email: { type:GraphQLString },
-        activated: { type:GraphQLBoolean },
+      args: processArgs({
+        id: GraphQLNonNull( GraphQLID ),
+        name: GraphQLString,
+        surname: GraphQLString,
+        login: GraphQLString,
+        password: GraphQLString,
+        email: GraphQLString,
+        activated: GraphQLBoolean,
         avatar: {
           defaultValue: `/media/image/avatarDefault.jpg`,
           type: GraphQLString,
         },
-      },
+      }),
       resolve( parent, args ) {
         const userId = args.id
         delete args.id
@@ -65,16 +68,18 @@ export default ({ isMailValid }, { UserModel, UserType }) => ({
       },
     },
 
-
     addUser: {
       type: UserType,
-      args: {
-        name: { type:new GraphQLNonNull(GraphQLString) },
-        surname: { type:new GraphQLNonNull(GraphQLString) },
-        login: { type:new GraphQLNonNull(GraphQLString) },
-        password: { type:new GraphQLNonNull(GraphQLString) },
-        email: { type:new GraphQLNonNull(GraphQLString) },
-        activated: { defaultValue:false, type:GraphQLBoolean },
+      args: processArgs({
+        name: GraphQLNonNull( GraphQLString ),
+        surname: GraphQLNonNull( GraphQLString ),
+        login: GraphQLNonNull( GraphQLString ),
+        password: GraphQLNonNull( GraphQLString ),
+        email: GraphQLNonNull( GraphQLString ),
+        activated: {
+          defaultValue: false,
+          type: GraphQLBoolean,
+        },
         avatar: {
           defaultValue: `/media/image/avatarDefault.jpg`,
           type: GraphQLString,
@@ -83,7 +88,7 @@ export default ({ isMailValid }, { UserModel, UserType }) => ({
           defaultValue: Date.now().valueOf(),
           type: GraphQLInt,
         },
-      },
+      }),
       resolve( parent, args ) {
         // console.log({ parent, args });
         let user = new UserModel({
@@ -103,13 +108,14 @@ export default ({ isMailValid }, { UserModel, UserType }) => ({
 
     deleteUser: {
       type: UserType,
-      args: {
-        id: { type:new GraphQLNonNull(GraphQLID) },
-      },
+      args: processArgs({
+        id: GraphQLNonNull( GraphQLID ),
+      }),
       resolve( parent, args ) {
         if (!mongoose.isValidObjectId( args.id )) return `Bad request.`
         return UserModel.findOneAndDelete({ _id:args.id })
       },
     },
+
   },
 })
