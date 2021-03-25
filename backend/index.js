@@ -5,8 +5,6 @@ import cors from "cors"
 import { GraphQLSchema, GraphQLObjectType } from "graphql"
 
 import WSS from "./priv/src/ws.js"
-// import dbManager from "./src/dbManager.js"
-// import { DEBUG, PORT, LOGGERS, CLEAR_CONSOLE } from "./priv/consts.js"
 import {
   LOGGERS,
   DEBUG,
@@ -30,7 +28,7 @@ import {
 export const PUBLIC_LOCATION = `../frontend`
 export const UPLOADS_LOCATION = `./uploads`
 export const PORT = 3000
-export const HOST = `http://localhost:3000`
+export const HOST = `http://localhost:${PORT}`
 export const DB_NAME = `SassPE`
 export const HTTP_API_PATH = `/api`
 export const GRAPHQL_ENDPOINT = `/graphql`
@@ -46,7 +44,10 @@ await mongose.connect( DB_CONN_STRING, {
 const app = express()
 const modulesClasses = await makeModulesClasses( `user`, `platform` )
 const modulesInstances = await makeModulesInstances( modulesClasses )
-const server = app.listen( PORT, () => !CLEAR_CONSOLE && log( LOGGERS.server, `Working ${HOST}` ) )
+const server = app.listen( PORT, () => !CLEAR_CONSOLE && log( LOGGERS.server, ``
+  + `\nWorking on ${HOST}`
+  + `\nGraphQL address: ${HOST + HTTP_API_PATH + GRAPHQL_ENDPOINT}`,
+) )
 const wss = new WSS({ server })
 
 export default server

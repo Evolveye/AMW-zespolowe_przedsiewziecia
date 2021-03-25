@@ -3,3 +3,4 @@ node_modules/
 frontend/*
 temp-*
 *-temp
+priv

@@ -1,3 +1,5 @@
+import {} from "graphql"
+
 import Addon from "../addon.js"
 
 import getGraphQlTypes from "./graphql.js"
