@@ -864,3 +864,38 @@ export async function httpGetAllGroupTasks({ mod, req, res, next }) {
   const t = await mod.dbManager.findManyObjects(mod.subcollections.tasks, { groupId: { $eq: groupId } })
   return res.json({ tasks: t })
 }
+
+
+/** @param {MiddlewareParameters} param0 */
+export async function httpDoneTask({ mod, req, res, next }) {
+  // tutaj będzie upload pliku jakiegos.
+  // zdobadz id pliku 
+  const groupId = req.params.groupId || req.body.groupId || req.query.groupId;
+  const taskId = req.params.taskId || req.body.taskId || req.query.taskId;
+
+  let uploadOk = true
+  upload(req, res, function (err) {
+    if (err instanceof multer.MulterError) {
+      console.log(`Please upload a file: ${err}`)
+      uploadOk = false
+    }
+    if (err) {
+      console.log(`Unknown error: ${err}`)
+      uploadOk = false
+    }
+  });
+
+  if (uploadOk === false)
+    return res.json(ANSWERS.TASK_UPLOAD_FAILED)
+
+  const { mimetype, filename, path } = req.file
+
+  const finalFile = new File(mimetype, filename, path, req.body.description, groupId, req.user)
+  const td = new TaskDone(taskId, req.user, finalFile.path, finalFile.id)
+  console.log({ taskDone: td })
+
+  await mod.dbManager.insertObject(mod.subcollections.materials, finalFile)
+  await mod.dbManager.insertObject(mod.subcollections.tasksDone, td)
+
+  return res.json({ task: td, file: finalFile, ...ANSWERS.TASK_DONE_SUCCESS })
+}

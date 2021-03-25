@@ -33,6 +33,12 @@ export default class GroupModule extends Module {
     const m = middlewares;
 
     return new Map([
+      [ 
+        `/groups/:groupId/tasks/:taskId/done`, 
+        {
+          post: auth(this.runMid(m.httpDoneTask)),
+        },
+      ],
       [
         `/groups/:groupId/tasks`,
         {

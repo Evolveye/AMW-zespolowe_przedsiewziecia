@@ -1,4 +1,17 @@
 
+export class TaskDone{
+    constructor(taskId,user,file,fileId)
+    { 
+        // id / idzad / osoba / data oddania / 
+        this.taskId=taskId
+        this.id = `${Date.now()}t${Math.random().toString().slice(2)}r`
+        this.created = Date.now().valueOf()
+        this.user = user
+        this.filepath = file
+        this.fileId = fileId
+    }
+}
+
 
 export class Task{
     constructor(title,description,groupId,expireDate,author,type = "zadanie",mandatory = true)
