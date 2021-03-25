@@ -51,6 +51,7 @@ export default () => {
             {meetsLis.length ? meetsLis : "Nie należysz do żadnego spotkania"}
           </ul>
         </article>
+        
         <article className={classes.rightColumn}>
           <h2>Zadania</h2>
           <ul className="list">{meetsLis.length ? meetsLis : "Brak zadań"}</ul>

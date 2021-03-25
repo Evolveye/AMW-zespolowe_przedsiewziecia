@@ -3,8 +3,10 @@
   flex-direction: column;
   margin-top: 30px;
   width: 350px;
-  padding-right: 10px;
-  /*
+  height: 90vh;
+  padding-left: 20px;
+  position: relative;
+/*
   border: 1px solid black;
   */
 }
@@ -14,4 +16,14 @@
 .wrapper {
   display: flex;
   margin-left: 120px;
+}
+
+.rightColumn:nth-child(2):after{
+  content: "";
+  border-left: 1px solid #ccc;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 90%;
+  width: 1px;
 }
