@@ -1,4 +1,22 @@
 
+/**
+ * @typedef {object} Group
+ * @property {string} name Name of goroup
+ * @property {object} lecturer Head of group id
+ * @property {string} created
+ * @property {string[]} membersIds
+ */
+ export class Group {
+    constructor(name, lecturer,platformId) {
+        this.id = `${Date.now()}t${Math.random().toString().slice(2)}r`
+        this.lecturer = lecturer
+        this.created = Date.now()
+        this.name = name
+        this.platformId = platformId
+        this.membersIds = []
+    }
+}
+
 export class TaskDone{
     constructor(taskId,user,file,fileId)
     { 
@@ -12,6 +30,20 @@ export class TaskDone{
     }
 }
 
+export class File{
+    constructor(contentType,name,path,description,groupId,user)
+    {
+        this.contentType=contentType
+        this.name=name
+        this.path=path
+        this.dateUpload=Date.now().valueOf()
+        this.description=description
+        this.groupId=groupId
+        this.user=user
+        this.id = `${Date.now()}t${Math.random().toString().slice(2)}r`
+    }
+
+}
 
 export class Task{
     constructor(title,description,groupId,expireDate,author,type = "zadanie",mandatory = true)
@@ -29,41 +61,6 @@ export class Task{
         // this.platfromId = platformId
         // this.assigments = {} // {user.name/user.surname, fileId}
         // file extension
-    }
-}
-
-
-
-export class File{
-    constructor(contentType,name,path,description,groupId,user)
-    {
-        this.contentType=contentType
-        this.name=name
-        this.path=path
-        this.dateUpload=Date.now().valueOf()
-        this.description=description
-        this.groupId=groupId
-        this.user=user
-        this.id = `${Date.now()}t${Math.random().toString().slice(2)}r`
-    }
-
-}
-
-/**
- * @typedef {object} Group
- * @property {string} name Name of goroup
- * @property {object} lecturer Head of group id
- * @property {string} created
- * @property {string[]} membersIds
- */
-export class Group {
-    constructor(name, lecturer,platformId) {
-        this.id = `${Date.now()}t${Math.random().toString().slice(2)}r`
-        this.lecturer = lecturer
-        this.created = Date.now()
-        this.name = name
-        this.platformId = platformId
-        this.membersIds = []
     }
 }
 

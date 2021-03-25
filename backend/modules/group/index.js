@@ -24,7 +24,7 @@ export default class GroupModule extends Module {
   };
 
   /** @param {import("socket.io").Socket} socket */
-  socketConfigurator(socket) { }
+  socketConfigurator(socket) {}
   getApi() {
     /** @type {import("../user/index.js").default} */
     const userModule = this.requiredModules.userModule;
@@ -33,11 +33,11 @@ export default class GroupModule extends Module {
     const m = middlewares;
 
     return new Map([
-      [ 
-        `/groups/:groupId/tasks/:taskId/done`, 
+      [
+        `/groups/:groupId/tasks`,
         {
-          get:auth(this.runMid(m.httpGetAllTasksDone)),
-          post: auth(this.runMid(m.httpDoneTask)),
+           get: auth(this.runMid(m.httpGetAllGroupTasks)),
+           post: auth(pPerms(this.runMid(m.httpCreateTask))),
         },
       ],
       [ //  delete / edit NOT MUST
@@ -46,11 +46,11 @@ export default class GroupModule extends Module {
            delete: auth(this.runMid(m.HttpHandleDeleteTask)),
         },
       ],
-      [
-        `/groups/:groupId/tasks`,
+      [ 
+        `/groups/:groupId/tasks/:taskId/done`, 
         {
-           get: auth(this.runMid(m.httpGetAllGroupTasks)),
-           post: auth(pPerms(this.runMid(m.httpCreateTask))),
+          get:auth(this.runMid(m.httpGetAllTasksDone)),
+          post: auth(this.runMid(m.httpDoneTask)),
         },
       ],
       [
@@ -63,8 +63,8 @@ export default class GroupModule extends Module {
       [
         `/groups/:groupId/materials`,
         {
-            get: auth(this.perms(this.runMid(m.httpHandleAllFilesInGroup))),
-           post: auth(pPerms(this.perms(this.runMid(m.httpAddFile)))),
+          get: auth(this.perms(this.runMid(m.httpHandleAllFilesInGroup))),
+          post: auth(pPerms(this.perms(this.runMid(m.httpAddFile)))),
         }
       ],
       [
@@ -207,8 +207,8 @@ export default class GroupModule extends Module {
       // TODO: FIX, double position in
       const permissions = isPlatformOwner
         ? new GroupPermission(groupId, `lecturer`, {
-          isMaster: true,
-        }).getProxy()
+            isMaster: true,
+          }).getProxy()
         : new GroupPermission(groupId, `student`).getProxy();
 
       req.user.groupPerms = permissions;
@@ -310,9 +310,10 @@ export default class GroupModule extends Module {
     return this.isUserAssigned(userId, groupObj);
   };
 
-  checkIsGroupDuplicate = async (platformId, groupName) => {
-    const groups = await this.getAllGroupsFromPlatform(platformId)
-    return groups.some(group => group.name === groupName)
+  checkIsGroupDuplicate =async (platformId,groupName)=>
+  {
+   const groups= await this.getAllGroupsFromPlatform(platformId)
+   return groups.some(group => group.name === groupName)
   }
 
   getAllTemplatePerms = (groupId) =>

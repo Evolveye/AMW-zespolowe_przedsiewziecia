@@ -1,13 +1,13 @@
 /** @typedef {import("./index.js").MiddlewareParameters} MiddlewareParameters */
-import { Grade, Group } from "./models.js";
+import { Grade, Group, Task, File, TaskDone } from "./models.js";
 import dbManager from "../../src/dbManager.js";
 import { ANSWERS, MAX_LEN_GROUP_NAME, MAX_LEN_NOTE_DESCRIPTION } from "./consts.js";
 import GroupPermission, { GroupUserPermission } from "./permissions.js";
 import multer from "multer"
-import {generateId} from "../../src/utils.js";
+import { generateId } from "../../src/utils.js";
 import filesystem from 'fs/promises'
 import fs from 'fs'
-import {APP_ROOT_DIR} from '../../consts.js'
+import { APP_ROOT_DIR } from '../../consts.js'
 
 
 let storage = multer.diskStorage({
@@ -15,7 +15,7 @@ let storage = multer.diskStorage({
     cb(null, 'uploads/materials')
   },
   filename: function (req, file, cb) {
-    cb(null, Date.now()+'-'+ file.originalname)
+    cb(null, Date.now() + '-' + file.originalname)
   }
 })
 
@@ -756,53 +756,60 @@ export async function httpGetTemplatePermissions({ mod, req, res }) {
 }
 
 /** @param {MiddlewareParameters} param0 */
-export async function httpHandleDeleteFile({ mod, req, res}){
- // where will be file name/ file path
+export async function httpHandleDeleteFile({ mod, req, res }) {
+  // where will be file name/ file path
   const fileToDelete = req.params.materialId || req.body.materialId || req.query.materialId;
 
- // console.log({fileToDelete})
-   // fileDoc = await mod.dbManager.findOne(`materials`,{id:{$eq:fileToDelete}});
-   const fileDoc = await mod.dbManager.findOneAndDelete(`materials`,{id:{$eq:fileToDelete}});
+  console.log({ fileToDelete })
+  // fileDoc = await mod.dbManager.findOne(`materials`,{id:{$eq:fileToDelete}});
+  const fileDoc = await mod.dbManager.findOneAndDelete(`materials`, { id: { $eq: fileToDelete } });
 
-  //console.log({path:fileDoc.value.path})
-   let fileExists = true;
+  console.log({ path: fileDoc.value.path })
+  let fileExists = true;
+  // fs.access(fileToDelete,(err)=>{
+  //   console.log(err);
+  //   fileExists=false;
+  // })
 
-  const fullFilePath =  APP_ROOT_DIR +`/`+ fileDoc.value.path
+  const fullFilePath = APP_ROOT_DIR + `/` + fileDoc.value.path
 
- // console.log({fullFilePath})
-  fileExists = await new Promise(async (resolve,reject)=>{
-    try{
+  console.log({ fullFilePath })
+  fileExists = await new Promise(async (resolve, reject) => {
+    try {
       await filesystem.access(fullFilePath)
-      //console.log(`access OK`)
+      console.log(`access OK`)
       resolve(true)
     }
-    catch(exception)
-    {
-    //  console.log(`access ERR`)
+    catch (exception) {
+      console.log(`access ERR`)
       reject(exception)
     }
   })
-  //console.log(`EXISTS`,{fileExists})
-  if(fileExists != true)
-  res.json({code:88888,error:`File ${fullFilePath} not found`})
+  console.log(`EXISTS`, { fileExists })
+  if (!fileExists)
+    res.json({ code: 88888, error: `File ${fullFilePath} not found` })
 
   await filesystem.unlink(fullFilePath)
 
   console.log(`Succesfuly deleted file`);
-  return res.json({code:99999,success:`file ${fullFilePath} has been deleted`});
+  return res.json({ code: 99999, success: `file ${fullFilePath} has been deleted` });
 
 }
 
 /** @param {MiddlewareParameters} param0 */
-export async function httpHandleAllFilesInGroup({ mod, req, res}){
+export async function httpHandleAllFilesInGroup({ mod, req, res }) {
   const groupId = req.params.groupId || req.body.groupId || req.query.groupId;
-  const colllectionOfFiles = await dbManager.findManyObjects(`materials`,{ groupId:{$eq: groupId}})
+  const colllectionOfFiles = await dbManager.findManyObjects(`materials`, { groupId: { $eq: groupId } })
+  // <button url src = colllectionOfFiles[0].path> kiliknij aby pobrac </buittpon>
 
-  return res.json({ fileDataset:(colllectionOfFiles || []) });
+  // colllectionOfFiles.forEach( f => f.filePath = `/materials/${f.filePath}`)
+  // console.log({colllectionOfFiles})
+
+  return res.json({ fileDataset: (colllectionOfFiles || []) });
 }
 
 /** @param {MiddlewareParameters} param0 */
-export async function httpAddFile({ mod, req, res, next}) {
+export async function httpAddFile({ mod, req, res, next }) {
   upload(req, res, function (err) {
     if (err instanceof multer.MulterError) console.log(`Please upload a file: ${err}`)
     else if (err) console.log(`Unknown error: ${err}`)
@@ -813,28 +820,31 @@ export async function httpAddFile({ mod, req, res, next}) {
 
     console.log(file)
 
-    let finalFile = {
-      contentType: req.file.mimetype,
-      name: req.file.filename,
-      path: req.file.path,
-      dateUpload: Date.now(),
-      description: req.body.description,
-      groupId: groupId,
-      user: req.user,
-      id: generateId(),
-    };
-    mod.dbManager.insertObject(`materials`,finalFile).then( (res,rej ) =>{
+    const { mimetype, filename, path } = req.file
+
+    let finalFile = new File(mimetype, filename, path, req.body.description, groupId, req.user)
+    // finalFile = {
+    //   contentType: req.file.mimetype,
+    //   name: req.file.filename,
+    //   path: req.file.path,
+    //   dateUpload: Date.now(),
+    //   description: req.body.description,
+    //   groupId: groupId,
+    //   user: req.user,
+    //   id: generateId(),
+    // };
+    mod.dbManager.insertObject(mod.subcollections.materials, finalFile).then((res, rej) => {  // BUG:
       //console.log(res);
 
       if (rej) return console.log(rej);
 
-      console.log("saved to database");//
+      console.log("saved to database"); //
     })
 
-    res.json({ fileData:finalFile })
-
+    res.json({ fileData: finalFile })
   });
 }
+
 
 /** @param {MiddlewareParameters} param0 */
 export async function httpCreateTask({ mod, req, res, next }) {
@@ -865,7 +875,6 @@ export async function httpGetAllGroupTasks({ mod, req, res, next }) {
   return res.json({ tasks: t })
 }
 
-
 /** @param {MiddlewareParameters} param0 */
 export async function httpDoneTask({ mod, req, res, next }) {
   // tutaj będzie upload pliku jakiegos.
@@ -883,7 +892,7 @@ export async function httpDoneTask({ mod, req, res, next }) {
       console.log(`Unknown error: ${err}`)
       uploadOk = false
     }
-  })
+  });
 
   if (uploadOk === false)
     return res.json(ANSWERS.TASK_UPLOAD_FAILED)
@@ -900,6 +909,15 @@ export async function httpDoneTask({ mod, req, res, next }) {
   return res.json({ task: td, file: finalFile, ...ANSWERS.TASK_DONE_SUCCESS })
 }
 
+
+/** @param {MiddlewareParameters} param0 */
+export async function httpGetAllTasksDone({ mod, req, res, next }) {
+  const groupId = req.params.groupId || req.body.groupId || req.query.groupId;
+  const taskId = req.params.taskId || req.body.taskId || req.query.taskId;
+
+  const tasksArr = await mod.dbManager.findManyObjects(mod.subcollections.tasksDone, { taskId: { $eq: taskId } })
+  return res.json({ tasks: tasksArr })
+}
 
 
 /** @param {MiddlewareParameters} param0 */
@@ -925,14 +943,3 @@ export async function HttpHandleDeleteTask({ mod, req, res, next }) {
   //const tasksArr = await mod.dbManager.findManyObjects(mod.subcollections.tasksDone,{taskId:{$eq:taskId}})
   return res.json(ANSWERS.TASK_DELETE_SUCCESS)
 }
-
-
-/** @param {MiddlewareParameters} param0 */
-export async function httpGetAllTasksDone({ mod, req, res, next }) {
-  const groupId = req.params.groupId || req.body.groupId || req.query.groupId;
-  const taskId = req.params.taskId || req.body.taskId || req.query.taskId;
-
-  const tasksArr = await mod.dbManager.findManyObjects(mod.subcollections.tasksDone, { taskId: { $eq: taskId } })
-  return res.json({ tasks: tasksArr })
-}
-
