@@ -84,7 +84,7 @@ export default ({ children, className = `` }) => {
           ) : null}
         </nav>
 
-        <article>
+        <article className={`main_wrapper-splited-right_column ${className}`}>
           {children}
         </article>
       </Layout>

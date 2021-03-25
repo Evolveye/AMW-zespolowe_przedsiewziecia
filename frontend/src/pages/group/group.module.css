@@ -15,7 +15,7 @@
 }
 .wrapper {
   display: flex;
-  margin-left: 120px;
+  margin-left: -60px;
 }
 
 .rightColumn:nth-child(2):after{
@@ -24,6 +24,7 @@
   position: absolute;
   bottom: 0;
   left: 0;
-  height: 90%;
+  top: 10%;
+  height: 80%;
   width: 1px;
 }
