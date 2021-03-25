@@ -9,15 +9,13 @@ import Layout from "./layout.js"
 
 import FlatTile from "../models/flatTile.js"
 
-import classes from "./group.module.css"
-
 const menyItems = [
   // { urn: `settings`, name: `Ustawienia ogólne`, permName:`isMaster` },
   { urn: `notes`, name: `Oceny`, permName: `isMaster` },
   { urn: `users`, name: `Użytkownicy`, permName: `isMaster` },
   // { urn: `roles`, name: `Role`, permName:`isMaster` },
-  { urn: `tasks`, name: `Zadania`, permName: `isMaster` },
   { urn: `materials`, name: `Materiały`, permName: `isMaster` },
+  { urn: `tasks`, name: `Zadania`, permName: `isMaster` },
   { urn: `meets`, name: `Spotkania`, permName: `isMaster` },
 ]
 
@@ -85,27 +83,14 @@ export default ({ children, className = `` }) => {
             </>
           ) : null}
 
-          {/*<h2>Spotkania</h2>
+          <h2>Spotkania</h2>
           <ul className="list">
             {meetsLis.length ? meetsLis : "Nie należysz do żadnego spotkania"}
-          </ul>*/}
+          </ul>
         </nav>
-        <article className={classes.wrapper}>
-          <article className={classes.rightColumn}>
-            
-            <h2>Spotkania</h2>
-            <ul className="list">
-              {meetsLis.length ? meetsLis : "Nie należysz do żadnego spotkania"}
-            </ul>
-            
-          </article>
-          <article className={classes.rightColumn}>
-            {children}
-            <h2>Zadania</h2>
-            <ul className="list">
-              {meetsLis.length ? meetsLis : "Brak zadań"}
-            </ul>
-          </article>
+
+        <article className={`main_wrapper-splited-right_column ${className}`}>
+          {children}
         </article>
       </Layout>
     </AuthorizedContent>
