@@ -36,6 +36,7 @@ export default class GroupModule extends Module {
       [ 
         `/groups/:groupId/tasks/:taskId/done`, 
         {
+          get:auth(this.runMid(m.httpGetAllTasksDone)),
           post: auth(this.runMid(m.httpDoneTask)),
         },
       ],

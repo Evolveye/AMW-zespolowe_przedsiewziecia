@@ -34,6 +34,20 @@ export class Task{
 
 
 
+export class File{
+    constructor(contentType,name,path,description,groupId,user)
+    {
+        this.contentType=contentType
+        this.name=name
+        this.path=path
+        this.dateUpload=Date.now().valueOf()
+        this.description=description
+        this.groupId=groupId
+        this.user=user
+        this.id = `${Date.now()}t${Math.random().toString().slice(2)}r`
+    }
+
+}
 
 /**
  * @typedef {object} Group

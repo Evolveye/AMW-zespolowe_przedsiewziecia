@@ -926,3 +926,13 @@ export async function HttpHandleDeleteTask({ mod, req, res, next }) {
   return res.json(ANSWERS.TASK_DELETE_SUCCESS)
 }
 
+
+/** @param {MiddlewareParameters} param0 */
+export async function httpGetAllTasksDone({ mod, req, res, next }) {
+  const groupId = req.params.groupId || req.body.groupId || req.query.groupId;
+  const taskId = req.params.taskId || req.body.taskId || req.query.taskId;
+
+  const tasksArr = await mod.dbManager.findManyObjects(mod.subcollections.tasksDone, { taskId: { $eq: taskId } })
+  return res.json({ tasks: tasksArr })
+}
+
