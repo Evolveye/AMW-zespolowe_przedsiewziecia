@@ -883,7 +883,7 @@ export async function httpDoneTask({ mod, req, res, next }) {
       console.log(`Unknown error: ${err}`)
       uploadOk = false
     }
-  });
+  })
 
   if (uploadOk === false)
     return res.json(ANSWERS.TASK_UPLOAD_FAILED)
@@ -899,3 +899,30 @@ export async function httpDoneTask({ mod, req, res, next }) {
 
   return res.json({ task: td, file: finalFile, ...ANSWERS.TASK_DONE_SUCCESS })
 }
+
+
+
+/** @param {MiddlewareParameters} param0 */
+export async function HttpHandleDeleteTask({ mod, req, res, next }) {
+  const groupId = req.params.groupId || req.body.groupId || req.query.groupId;
+  const taskId = req.params.taskId || req.body.taskId || req.query.taskId;
+
+  const doneTasks = await mod.dbManager.findManyObjects(mod.subcollections.tasksDone, { taskId: { $eq: taskId } })
+
+  const filesPath = doneTasks.map(task => task.filepath)
+
+  const fullFilePath = (relpath) => APP_ROOT_DIR + `/` + relpath
+
+  const promises = [
+    filesPath.map(path => filesystem.unlink(fullFilePath(path))), // delete from drive
+    mod.dbManager.deleteMany(mod.subcollections.tasksDone, { taskId: { $eq: taskId } }), // from  tasks in db
+    mod.dbManager.deleteMany(mod.subcollections.materials, { path: { $in: filesPath } }), // from files in db
+    mod.dbManager.deleteObject(mod.subcollections.tasks, { id: { $eq: taskId } })
+  ]
+
+  await Promise.all(promises)
+
+  //const tasksArr = await mod.dbManager.findManyObjects(mod.subcollections.tasksDone,{taskId:{$eq:taskId}})
+  return res.json(ANSWERS.TASK_DELETE_SUCCESS)
+}
+

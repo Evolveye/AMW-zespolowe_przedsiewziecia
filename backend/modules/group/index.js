@@ -39,6 +39,12 @@ export default class GroupModule extends Module {
           post: auth(this.runMid(m.httpDoneTask)),
         },
       ],
+      [ //  delete / edit NOT MUST
+        `/groups/:groupId/tasks/:taskId`,
+        {
+           delete: auth(this.runMid(m.HttpHandleDeleteTask)),
+        },
+      ],
       [
         `/groups/:groupId/tasks`,
         {
