@@ -15,6 +15,9 @@ import * as middlewares from "./middlewares.js";
 export default class GroupModule extends Module {
   static requiredModules = [`UserModule`, `PlatformModule`];
   subcollections = {
+    materials:`materials`,
+    tasks:`tasks`,
+    tasksDone:`tasks.done`,
     notes: `notes`,
     templatePermissions: `permissions`,
     userPermissions: `permissions.users`,
@@ -33,6 +36,7 @@ export default class GroupModule extends Module {
       [
         `/groups/:groupId/tasks`,
         {
+           get: auth(this.runMid(m.httpGetAllGroupTasks)),
            post: auth(pPerms(this.runMid(m.httpCreateTask))),
         },
       ],

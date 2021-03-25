@@ -855,3 +855,12 @@ export async function httpCreateTask({ mod, req, res, next }) {
 
   return res.json({ task: t, ...ANSWERS.TASK_CREATE_SUCCESS })
 }
+
+
+/** @param {MiddlewareParameters} param0 */
+export async function httpGetAllGroupTasks({ mod, req, res, next }) {
+  const groupId = req.params.groupId || req.body.groupId || req.query.groupId;
+
+  const t = await mod.dbManager.findManyObjects(mod.subcollections.tasks, { groupId: { $eq: groupId } })
+  return res.json({ tasks: t })
+}
