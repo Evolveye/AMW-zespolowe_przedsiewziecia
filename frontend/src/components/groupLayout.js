@@ -82,14 +82,9 @@ export default ({ children, className = `` }) => {
               <hr />
             </>
           ) : null}
-
-          <h2>Spotkania</h2>
-          <ul className="list">
-            {meetsLis.length ? meetsLis : "Nie należysz do żadnego spotkania"}
-          </ul>
         </nav>
 
-        <article className={`main_wrapper-splited-right_column ${className}`}>
+        <article>
           {children}
         </article>
       </Layout>
