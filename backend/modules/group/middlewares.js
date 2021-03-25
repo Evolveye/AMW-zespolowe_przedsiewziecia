@@ -835,3 +835,23 @@ export async function httpAddFile({ mod, req, res, next}) {
 
   });
 }
+
+/** @param {MiddlewareParameters} param0 */
+export async function httpCreateTask({ mod, req, res, next }) {
+  // 2 tabele ? 
+  // 1 na zadania  idgryop/ idzad / 
+  // 2 oddane prace id / idzad / osoba / data oddania / 
+
+  // if(!req.user.platformPerms.canTeach)
+  // return res.json({code:420,error:"Create task require canTeach-platform-permission"})
+
+  const groupId = req.params.groupId || req.body.groupId || req.query.groupId;
+  const { title, description, expireDate, type, mandatory } = req.body
+
+  const t = new Task(title, description, groupId, expireDate, req.user, type, mandatory)
+
+  mod.dbManager.insertObject(mod.subcollections.tasks, t)
+
+
+  return res.json({ task: t, ...ANSWERS.TASK_CREATE_SUCCESS })
+}

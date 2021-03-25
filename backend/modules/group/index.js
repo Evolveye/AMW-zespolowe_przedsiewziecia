@@ -31,6 +31,12 @@ export default class GroupModule extends Module {
 
     return new Map([
       [
+        `/groups/:groupId/tasks`,
+        {
+           post: auth(pPerms(this.runMid(m.httpCreateTask))),
+        },
+      ],
+      [
         `/groups`,
         {
           get: auth(this.runMid(m.httpHandleMyGroups)),
