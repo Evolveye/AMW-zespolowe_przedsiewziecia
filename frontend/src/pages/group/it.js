@@ -18,7 +18,7 @@ export default () => {
         Powrót do widoku platformy
       </Link>
 
-      <h1>Grupa</h1>
+      
     </Layout>
   )
 }
