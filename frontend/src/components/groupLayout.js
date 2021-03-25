@@ -14,8 +14,8 @@ const menyItems = [
   { urn: `notes`, name: `Oceny`, permName: `isMaster` },
   { urn: `users`, name: `Użytkownicy`, permName: `isMaster` },
   // { urn: `roles`, name: `Role`, permName:`isMaster` },
-  { urn: `materials`, name: `Materiały`, permName: `isMaster` },
   { urn: `tasks`, name: `Zadania`, permName: `isMaster` },
+  { urn: `materials`, name: `Materiały`, permName: `isMaster` },
   { urn: `meets`, name: `Spotkania`, permName: `isMaster` },
 ]
 
