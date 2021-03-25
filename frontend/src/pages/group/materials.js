@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react"
+import React from "react"
 import { Link } from "gatsby"
 
 import { urlSearchParams } from "../../utils/functions.js"
-import URLS, { HOST } from "../../utils/urls.js"
+import URLS from "../../utils/urls.js"
 import {getUser} from "../../utils/auth.js"
 
 import Layout from "../../components/groupLayout.js"
