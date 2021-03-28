@@ -48,17 +48,17 @@ export default class PlatformGroups extends React.Component {
       
 
       <TableForm
-        fetchPostAddress={URLS.MEET_POST}
-        fetchGetAddress={URLS.MEET_FROM_GROUP$ID_GET.replace(
+        fetchPostAddress={URLS.GROUPS$ID_TASKS_POST}
+        fetchGetAddress={URLS.GROUPS$ID_TASKS_GET.replace(
           `:groupId`,
           this.groupId
         ).replace(`:platformId`, this.platformId)}
-        fetchDeleteAddress={URLS.MEET$ID_DELETE}
-        deleteIdParameterName=":meetId"
-        responseGetDataName="meets"
-        responsePostDataName="meet"
-        buttonAdd="Dodaj do grupy"
-        buttonDelete="Usuń z grupy"
+        fetchDeleteAddress={URLS.GROUPS$ID_TASKS_DELETE}
+        deleteIdParameterName=":taskId"
+        responseGetDataName="tasks"
+        responsePostDataName="task"
+        buttonAdd="Dodaj zadanie"
+        buttonDelete="Usuń zadanie"
         staticPostBodyData={{
           groupId: this.groupId,
           platformId: this.platformId,

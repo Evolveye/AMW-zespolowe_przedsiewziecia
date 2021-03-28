@@ -60,6 +60,11 @@ const URLS = {
   GROUPS$ID_FILE_POST: `${HOST}/api/groups/:groupId/materials`,
   GROUPS$ID_FILE_GET: `${HOST}/api/groups/:groupId/materials`,
   GROUPS$ID_FILE_DELETE: `${HOST}/api/groups/:groupId/materials/:materialId`,
+  GROUPS$ID_TASKS_POST: `${HOST}/api/groups/:groupId/tasks`,
+  GROUPS$ID_TASKS_GET:  `${HOST}/api/groups/:groupId/tasks`,
+  GROUPS$ID_TASKS_DELETE:  `${HOST}/api/groups/:groupId/tasks/:taskId`,
+  GROUPS$ID_TASKS_DONE: `${HOST}/api/groups/:groupId/tasks/:taskId/done`,
+
 
   // Meet scope
   MEET_GET: `${HOST}/api/meets`,
