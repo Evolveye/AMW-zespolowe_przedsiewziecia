@@ -7,10 +7,18 @@ import URLS from "../../utils/urls.js"
 import Layout from "../../components/groupLayout.js"
 import TableForm from "../../components/tableForm.js"
 
-const DateInput = props => <input type="datetime-local" {...props} />
 
 
+class DateInput extends React.Component{
+  
+  render = () => <input 
+    type="datetime-local"  
+    onChange={({ target }) => this.props.onChange(target.name, target.value)}
+    />
+}
 
+
+//const DateInput = props => <input type="datetime-local" {...props} />
 
 
 
@@ -18,10 +26,7 @@ class FileInput extends React.Component {
     render = () => <input
       type="file"
       name={this.props.name}
-      onChange={({ target }) => {
-        console.dir( target.files[ 0 ] )
-        this.props.onChange( target.name, target.files[ 0 ] )
-      }}
+      onChange={({ target }) => this.props.onChange( target.name, target.files[ 0 ] )}
     />
   }
 
@@ -38,6 +43,8 @@ export default class PlatformGroups extends React.Component {
     this.href = `/group/it?platformId=${this.platformId}&groupId=${this.groupId}`
   }
 
+
+
   render = () => (
     <Layout className="is-centered">
       <Link className="return_link" to={this.href}>
@@ -48,11 +55,8 @@ export default class PlatformGroups extends React.Component {
       
 
       <TableForm
-        fetchPostAddress={URLS.GROUPS$ID_TASKS_POST}
-        fetchGetAddress={URLS.GROUPS$ID_TASKS_GET.replace(
-          `:groupId`,
-          this.groupId
-        ).replace(`:platformId`, this.platformId)}
+        fetchPostAddress={URLS.GROUPS$ID_TASKS_POST.replace(`:groupId`, this.groupId)}
+        fetchGetAddress={URLS.GROUPS$ID_TASKS_GET.replace(`:groupId`,this.groupId)}
         fetchDeleteAddress={URLS.GROUPS$ID_TASKS_DELETE}
         deleteIdParameterName=":taskId"
         responseGetDataName="tasks"
@@ -65,31 +69,27 @@ export default class PlatformGroups extends React.Component {
         }}
         objectsFields={[
           {
-            name: `dateStart`,
+            name: `created`,
             processor: dateTime => getDate(`YYYY:MM:DD hh:mm`, dateTime),
           },
           {
-            name: `dateEnd`,
+            name: `expire`,
             processor: dateTime => getDate(`YYYY:MM:DD hh:mm`, dateTime),
           },
+          `title`,
           `description`,
-          { name: `file`, alt:`filePath`, entire:true, processor: file =>
-            <a download href={`/` + file.path}>{file.name}</a>
-          },
         ]}
         titleFields={[
           `Data rozpoczęcia`,
           `Data zakończenia`,
+          `Nazwa`,
           `Opis`,
-          `Załącznik`,
+          
         ]}
         inputFieldsComponents={{
           dateStart: { component: DateInput },
           dateEnd: { component: DateInput },
-          file: {
-            component: FileInput,
-            props: { name:`myFile` },
-          },
+        
         }}
       />
     </Layout>
