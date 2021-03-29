@@ -24,6 +24,17 @@ const meetsLisMap = ({ id, dateStart, description }, platformAndGroupQuery) => (
   </li>
 )
 
+const tasksLisMap = ({ id, created,expire, description, title }, platformAndGroupQuery) => (
+  <li key={id}>
+    <FlatTile
+      title={ getDate(`YYYY.MM.DD - hh:mm`, expire)}
+      description={title}
+      color={`#3e8bff`}
+      linkAddress={`/task/it?${platformAndGroupQuery}&taskId=${id}`}
+    />
+  </li>
+)
+
 export default () => {
   const query = urlSearchParams()
   const href = `/platform/it?platformId=${query.get("platformId")}`
@@ -31,13 +42,45 @@ export default () => {
   const platformId = query.get(`platformId`)
   const groupId = query.get(`groupId`)
   const platformAndGroupQuery = `platformId=${platformId}&groupId=${groupId}`
-  const url = URLS.MEET_FROM_GROUP$ID_GET.replace(`:groupId`, groupId)
+  const urlMeets = URLS.MEET_FROM_GROUP$ID_GET.replace(`:groupId`, groupId)
+  const urlTasks = URLS.GROUPS$ID_TASKS_GET.replace(`:groupId`, groupId)
+  console.log({urlTasks})
 
+  
   const [meetsLis, setMeetsRows] = useState(
-    (authFetch({ url }) || { meets: [] }).meets.map(meet =>
+    (authFetch({ url:urlMeets }) || { meets: [] }).meets.map(meet =>
       meetsLisMap(meet, platformAndGroupQuery)
     )
   )
+  const [tasksLis, setTasksRows] = useState(
+    (authFetch({ url:urlTasks }) || { tasks: [] }).tasks.map(task =>
+      tasksLisMap(task, platformAndGroupQuery)
+    )
+  )
+
+  console.log(urlTasks)
+
+
+  useEffect(() => {
+    authFetch({
+      url:urlMeets,
+      cb: ({ meets }) =>
+        setMeetsRows(
+          meets.map(meet => meetsLisMap(meet, platformAndGroupQuery))
+        ),
+    })
+  }, [urlMeets, platformAndGroupQuery])
+
+  useEffect(() => {
+    authFetch({
+      url: urlTasks,
+      cb: ({ tasks }) =>
+        setTasksRows(
+          tasks.map(task => tasksLisMap(task, platformAndGroupQuery))
+        ),
+    })
+  }, [urlTasks, platformAndGroupQuery])
+  console.log({tasksLis})
   return (
     <Layout className="is-centered">
       <Link className="return_link" to={href}>
@@ -54,7 +97,7 @@ export default () => {
         
         <article className={classes.rightColumn}>
           <h2>Zadania</h2>
-          <ul className="list">{meetsLis.length ? meetsLis : "Brak zadań"}</ul>
+          <ul className="list">{tasksLis.length ? tasksLis : "Brak zadań"}</ul>
         </article>
       </article>
     </Layout>
