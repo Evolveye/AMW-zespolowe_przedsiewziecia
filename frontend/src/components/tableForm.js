@@ -34,7 +34,7 @@ export default class TableForm extends React.Component {
         const { code, success } = data
         return console.info({ code, success })
       }
-
+      
       
       this.addToTable(data[this.props.responseGetDataName])
       this.onFillListeners.forEach(({ ref, field }) => ref.current[field]())
