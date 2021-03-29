@@ -2,13 +2,33 @@ import mongoose from "mongoose"
 import { v4 } from 'uuid'
 
 import { randomString } from "../priv/src/utils.js"
+import { createModels, types } from "./graphql.js"
+
+
+export const { mongoose:RoleWithUserConnectorModel, graphql:RoleWithUserConnectorType } =
+  createModels( `RoleWithUserConnector`, {
+    permissionId: types.ID,
+    userId: types.ID,
+  } )
+
 
 export default (modelName, fieldsNames) => {
   const makeObjectFromFields = defaultValue => fieldsNames.reduce(
     (obj, ability) => ({ [ ability ]:defaultValue, ...obj }), {},
   )
 
+  const { mongoose:RoleModel, graphql:RoleType } = createModels( modelName, {
+    id: types.ID,
+    platformId: types.ID,
+    abilities: types.SHAPE( makeObjectFromFields( types.BOOLEAN ) ),
+    name: types.STRING,
+    color: types.INT,
+    importance: types.INT,
+  } )
+
   return {
+    RoleModel,
+    RoleType,
     Permission: class {
       // id = randomString( 48, 12 )
       abilities = makeObjectFromFields( false )
@@ -28,18 +48,5 @@ export default (modelName, fieldsNames) => {
           .forEach( ([ ability, value ]) => this.abilities[ ability ] = value )
       }
     },
-
-    PermissionModel: mongoose.model( modelName, new mongoose.Schema({
-      name: String,
-      abilities: makeObjectFromFields( Boolean ),
-      platformId: mongoose.Types.ObjectId,
-      color: String,
-      importance: Number,
-    }) ),
-
-    PermissionWithUserConnectorModel: mongoose.model( `Permissions with user connector`, new mongoose.Schema({
-      permissionId: mongoose.Types.ObjectId,
-      userId: mongoose.Types.ObjectId,
-    }) ),
   }
 }

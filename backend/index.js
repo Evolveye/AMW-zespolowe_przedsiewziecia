@@ -42,7 +42,7 @@ await mongose.connect( DB_CONN_STRING, {
 } )
 
 const app = express()
-const modulesClasses = await makeModulesClasses( `user` )
+const modulesClasses = await makeModulesClasses( `user`, `platform` )
 const modulesInstances = await makeModulesInstances( modulesClasses )
 const server = app.listen( PORT, () => !CLEAR_CONSOLE && log( LOGGERS.server, ``
   + `\nWorking on ${HOST}`

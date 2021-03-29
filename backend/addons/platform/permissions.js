@@ -1,9 +1,15 @@
 import { v4 } from 'uuid'
-import createPermissions from '../premissions.js'
+import createPermissions, {
+  RoleWithUserConnectorModel as connectorModel,
+  RoleWithUserConnectorType as connectorType,
+} from '../premissions.js'
+
+export const RoleWithUserConnectorModel = connectorModel
+export const RoleWithUserConnectorType = connectorType
 
 // console.log( createPermissions( `Platform Permissions Model`, [ `canManageUsers`, `canManageGroups`  ] ).Permission )
-export const { Permission, PermissionModel, PermissionWithUserConnectorModel } =
-  createPermissions( `Platform Permissions Model`, [ `canManageUsers`, `canManageGroups`  ] ) // templates
+export const { Permission, RoleModel, RoleType } =
+  createPermissions( `PlatformPermissionsModel`, [ `canManageUsers`, `canManageGroups`  ] ) // templates
 
 class PlatformPerms extends Permission {
   constructor( platformId, ...data ) {

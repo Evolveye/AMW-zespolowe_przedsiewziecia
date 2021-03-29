@@ -16,18 +16,17 @@ const getFilteredObjByKeys = (obj, keys) =>
 /**
  *
  */
-export default ({ isMailValid }, { PlatformType, PlatformModel, PermissionWithUserConnectorModel, PermissionModel, PlatformPermissionType, PlatformUserPermissionType }) => ({
+export default ({ PlatformType, PlatformModel, RoleWithUserConnectorModel, RoleWithUserConnectorType, RoleModel, RoleType }) => ({
   /** @type {import("graphql").GraphQLFieldConfigMap} */
   queryObj: {
 
     platformUserPermission: {
-      type: PlatformUserPermissionType,
+      type: RoleWithUserConnectorType,
       args: {
         permissionId: { type:GraphQLID  },
         userId: { type:GraphQLID  },
       },
-      async resolve( parent, args, context, info )
-      {
+      async resolve( parent, args, context, info ) {
         // info jest ussless. przechowuje informacje o typach itd.
         // context posiada w sobie serwer  - socket hedersy url body
         // console.log({ x:`QueryObjResolve`, parent, args  }) // context,source args, context, info
@@ -39,7 +38,7 @@ export default ({ isMailValid }, { PlatformType, PlatformModel, PermissionWithUs
         // console.log({ all:x })
         // console.log({ val1:typeof new mongoose.Types.ObjectId( args.permissionId ), val2:typeof x[ 0 ].permissionId })
         // console.log({ val1:args.userId, val2:x[ 0 ].userId })
-        let x = await  PermissionWithUserConnectorModel.aggregate([
+        let x = await  RoleWithUserConnectorModel.aggregate([
           { $match: {
             permissionId: { $eq:args.permissionId },
             userId: { $eq:args.userId },
@@ -76,7 +75,7 @@ export default ({ isMailValid }, { PlatformType, PlatformModel, PermissionWithUs
     },
 
     permissionTemplate: {
-      type: PlatformPermissionType,
+      type: RoleType,
       args: {
         id: { type:GraphQLID },
         platformId: { type:GraphQLID },
@@ -85,10 +84,10 @@ export default ({ isMailValid }, { PlatformType, PlatformModel, PermissionWithUs
       resolve( parent, args ) {
 
         if  (mongoose.Types.ObjectId.isValid( args.id ) && args.id)
-          return  PermissionModel.findById( args.id )
+          return  RoleModel.findById( args.id )
 
         if (mongoose.Types.ObjectId.isValid( args.platformId ) && args.platformId && args.name)
-          return PermissionModel.findOne({ name:args.name, platformId:args.platformId })
+          return RoleModel.findOne({ name:args.name, platformId:args.platformId })
       },
     },
 
@@ -109,19 +108,19 @@ export default ({ isMailValid }, { PlatformType, PlatformModel, PermissionWithUs
   mutationObj: {
 
     userPlatformPermission: {
-      type: PlatformUserPermissionType,
+      type: RoleType,
       args: {
         permissionId: { type:GraphQLID },
         userId: { type:GraphQLID },
 
       },
       resolve( parent, args ) {
-        return PermissionWithUserConnectorModel( args ).save()
+        return RoleWithUserConnectorModel( args ).save()
       },
     },
 
     permissionTemplate: {
-      type: PlatformPermissionType,
+      type: RoleType,
       args: {
         platformId: { type:GraphQLID  },
         name: { type:GraphQLString },
@@ -134,10 +133,9 @@ export default ({ isMailValid }, { PlatformType, PlatformModel, PermissionWithUs
         color: { type:GraphQLString },
         importance: { type:GraphQLInt },
       },
-      resolve( parent, args )
-      {
+      resolve( parent, args ) {
         args.abilities = JSON.parse( JSON.stringify( args.abilities ) )
-        return new PermissionModel(args).save()
+        return new RoleModel(args).save()
       },
     },
 

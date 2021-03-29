@@ -7,7 +7,7 @@ export default class extends Addon {
   static requiredModules = [ `user` ]
 
   graphQlModels = getGraphQlModels( this )
-  graphQlTypes = getGraphQlTypes( this, this.graphQlModels )
+  graphQlTypes = getGraphQlTypes( this.graphQlModels, this )
 
   getApi() {
     const { queryObj, mutationObj } = this.graphQlTypes
