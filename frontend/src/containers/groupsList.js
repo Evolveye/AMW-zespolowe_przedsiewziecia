@@ -68,9 +68,11 @@ export default ({ className = `` }) => {
                       fullScreened
                     >
                       <SwitchBox
-                        switchesWrapperClassname={settingsClasses.settingsTabsSwitches}
-                        switchClassname={`neumorphizm is-button ${settingsClasses.settingsTabSwitch}`}
-                        activeSwitchClassname="is-active"
+                        classNames={{
+                          switch: `neumorphizm is-button ${settingsClasses.settingsTabSwitch}`,
+                          switches: settingsClasses.settingsTabsSwitches,
+                          activeSwitch: `is-active`,
+                        }}
                       >
                         <Tab name="Użytkownicy">
                           Jakaś tabelka z użytkownikami

@@ -29,7 +29,6 @@ export default ({
     return () => document.removeEventListener( `mousedown`, handleClickOutside )
   }, [ ref ] )
 
-
   return (
     <article className={`${classes.wrapper} ${className}`} ref={ref}>
       <button
