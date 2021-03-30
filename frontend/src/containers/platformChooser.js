@@ -5,7 +5,7 @@ import Image from "gatsby-image"
 import Select, { Item } from "../components/select.js"
 import ToggableBox from "../components/toggableBox.js"
 import SwitchBox, { Tab } from "../components/switchBox.js"
-import DataTable from "../components/dataTable.js"
+import DataTable, { Adder, Field, Processor } from "../components/dataTable.js"
 import { getUrnQuery } from "../utils/functions"
 
 import settingsClasses from "./settings.module.css"
@@ -83,68 +83,44 @@ const PlatformSettings = ({ queryData }) => (
     >
       <Tab className={settingsClasses.settingsTabSwitch} name="Użytkownicy">
         <DataTable
+          className={classes.table}
           getDataAddress="fakePlatformUsers"
           deleteDataAddress=""
           // deletePosibilityChecker={fields => true}
           staticLabels={labelsTranslation}
-          fields={
-            [
-              {
-                name: `name`,
-                label: `Imię`,
-                dataFieldname: `name`,
-                // processor: () => `Imię ` + Math.random(),
-                adder: {
-                  // type: `select`,
-                  colspan: 2,
-                  validator: field => field,
-                },
-              },
-              {
-                name: `surname`,
-                label: `Nazwisko`,
-                dataFieldname: `surname`,
-                // processor: () => `Nazwisko ` + Math.random(),
-              },
-              {
-                name: `role`,
-                label: `Rola`,
-                dataFieldname: `role`,
-                processor: ({ name }) => name, // `Rola ` + Math.random(),
-                editable: true,
-                adder: {
-                  type: `select`,
-                  validator: ({ name }) => name,
-                  getDataAddress: `fakeGroupRoles`,
-                },
-              },
-            ]
-          }
-        />
+        >
+          <Field label="Imię" name="name">
+            <Adder type="text" validator={() => true} />
+          </Field>
+
+          <Field label="Nazwisko" name="surname">
+            <Adder type="text" validator={() => true} />
+          </Field>
+
+          <Field label="Rola" name="role" editable>
+            <Processor render={({ name }) => name} />
+            <Adder type="text" validator={() => true} />
+          </Field>
+        </DataTable>
       </Tab>
 
-      <Tab name="Grupy">
+      <Tab className={settingsClasses.settingsTabSwitch} name="Grupy">
         <DataTable
+          className={classes.table}
           getDataAddress="fakeGroups"
           deleteDataAddress=""
           // deletePosibilityChecker={fields => true}
           staticLabels={labelsTranslation}
-          fields={
-            [
-              { name:`name`, label:`Nazwa`, processor:name => name },
-              {
-                name: `lecturer`,
-                label: `Prowadzący`,
-                processor: ({ name, surname }) => `${name} ${surname}`,
-                adder: {
-                  type: `select`,
-                  validator: ({ name }) => name,
-                  getDataAddress: `fakePlatformUsers`,
-                },
-              },
-            ]
-          }
-        />
+        >
+          <Field label="Nazwa" name="name">
+            <Adder type="text" validator={() => true} />
+          </Field>
+
+          <Field label="Prowadzący" name="lecturer">
+            <Processor render={({ name, surname }) => `${name} ${surname}`} />
+            <Adder type="text" validator={() => true} />
+          </Field>
+        </DataTable>
       </Tab>
     </SwitchBox>
   </ToggableBox>

@@ -1,4 +1,5 @@
 import React from "react"
+import PropTypes from "prop-types"
 
 
 const fakeGroupRoles = [
@@ -14,6 +15,14 @@ const fakeGroupRoles = [
     id: `2`,
     color: 0x00ff00,
     name: `Asystent`,
+    abilities: {
+      canManageGroup: true,
+    },
+  },
+  {
+    id: `3`,
+    color: null,
+    name: `Student`,
     abilities: {
       canManageGroup: true,
     },
@@ -69,22 +78,56 @@ const fakeData = {
  * @param {(data:string) => Error?} props.fields.adder.validator
  */
 
+export const Field = () => null
+Field.type = (<Field name="" />).type
+Field.propTypes = {
+  className: PropTypes.string,
+  title: PropTypes.string.isRequired,
+  dataFieldname: PropTypes.string,
+  editable: PropTypes.bool,
+}
+
+
+export const Processor = () => null
+Processor.type = (<Processor name="" />).type
+Processor.propTypes = {
+  render: PropTypes.func.isRequired,
+}
+
+
+export const Adder = () => null
+Adder.type = (<Adder name="" />).type
+Adder.propTypes = {
+  name: PropTypes.string.isRequired,
+  type: PropTypes.string.isRequired,
+  validator: PropTypes.func,
+  getDataAddress: PropTypes.func,
+}
+
 
 export default class DataTable extends React.Component {
   constructor( props ) {
     super( props )
 
+    this.fields = React.Children
+      .toArray( this.props.children )
+      .filter( ({ type }) => type === Field.type )
+      .map( ({ props }) => props )
     let colspanCounter = 1
 
-    this.tableAdderFields = props.fields.reduce( (obj, { adder = {}, name }) => {
+    this.tableAdderFields = this.fields.reduce( (obj, { name, children }) => {
       if (colspanCounter !== 1) {
         colspanCounter--
         return obj
       }
 
-      colspanCounter = adder.colspan || 1
+      const adder = React.Children
+        .toArray( children )
+        .filter( ({ type }) => type === Adder.type )[ 0 ]
 
-      return { [ name ]:this.getInputCreator( adder ), ...obj }
+      colspanCounter = adder.props.colspan || 1
+
+      return { [ name ]:this.getInputCreator( adder.props ), ...obj }
     }, {} )
 
     colspanCounter = 1
@@ -92,11 +135,7 @@ export default class DataTable extends React.Component {
     this.state = {
       tableHeaders: (
         <tr>
-          {
-            props.fields.map( ({ name, label }) => (
-              <th key={name}>{label}</th>
-            ) )
-          }
+          {this.fields.map( ({ label }) => <th key={label}>{label}</th> )}
           <th>{props.staticLabels?.actions || `Actions`}</th>
         </tr>
       ),
@@ -104,16 +143,20 @@ export default class DataTable extends React.Component {
       tableAdder: (
         <>
           {
-            props.fields.map( ({ adder = {}, name }) => {
+            this.fields.map( ({ label, name, children }) => {
+              const adder = React.Children
+                .toArray( children )
+                .filter( ({ type }) => type === Adder.type )[ 0 ]
+
               if (colspanCounter !== 1) {
                 colspanCounter--
                 return null
               }
 
-              colspanCounter = adder.colspan || 1
+              colspanCounter = adder.props.colspan || 1
 
               return (
-                <td key={name} colSpan={colspanCounter}>
+                <td key={label} colSpan={colspanCounter}>
                   {this.tableAdderFields[ name ]()}
                 </td>
               )
@@ -134,7 +177,6 @@ export default class DataTable extends React.Component {
     // const tableAdderFields
     const {
       getDataAddress,
-      fields,
       staticLabels,
       deletePosibilityChecker = () => false,
     } = this.props
@@ -147,7 +189,13 @@ export default class DataTable extends React.Component {
       return (
         <tr key={field.id}>
           {
-            fields.map( ({ editable, name, dataFieldname = name, processor = it => it }) => {
+            this.fields.map( ({ editable, name, dataFieldname = name, children }) => {
+              const processor = React.Children
+                .toArray( children )
+                .filter( ({ type }) => type === Processor.type )[ 0 ]
+                ?.props
+                .render || (it => it)
+
               if (editable) edit = true
 
               return (
@@ -178,7 +226,7 @@ export default class DataTable extends React.Component {
 
     switch (type) {
       case `text`:
-        inputCreator = defaultValue => <input value={validator( defaultValue )} />
+        inputCreator = defaultValue => <input defaultValue={validator( defaultValue )} />
         break
 
       case `select`:
@@ -201,7 +249,8 @@ export default class DataTable extends React.Component {
 
 
   render = () => (
-    <table>
+    <table className={this.props.className || ``}>
+      {console.log( this.props )}
       <thead>
         {this.state.tableHeaders}
       </thead>
