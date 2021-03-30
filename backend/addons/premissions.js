@@ -1,7 +1,3 @@
-import mongoose from "mongoose"
-import { v4 } from 'uuid'
-
-import { randomString } from "../priv/src/utils.js"
 import { createModels, types } from "./graphql.js"
 
 
@@ -22,7 +18,7 @@ export default (modelName, fieldsNames) => {
     platformId: types.ID,
     abilities: types.SHAPE( makeObjectFromFields( types.BOOLEAN ) ),
     name: types.STRING,
-    color: types.INT,
+    color: types.STRING,
     importance: types.INT,
   } )
 

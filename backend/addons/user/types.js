@@ -1,6 +1,5 @@
 import {
   GraphQLID,
-  GraphQLObjectType,
   GraphQLList,
   GraphQLNonNull,
   GraphQLString,
@@ -12,10 +11,14 @@ import mongoose from "mongoose"
 import { processArgs } from "../graphql.js"
 
 
-const clear = obj => Object.fromEntries( Object.entries( obj ).filter( ([ _, v ]) => v != null ) )
+// const clear = obj => Object.fromEntries( Object.entries( obj ).filter( ([ _, v ]) => v != null ) )
 
 
-export default ({ UserModel, UserType }, { isMailValid }) => ({
+/**
+ * @param {object} param0
+ * @param {mongoose.Model} param0.UserModel
+ */
+export default ({ UserModel, UserType }) => ({
   /** @type {import("graphql").GraphQLFieldConfigMap} */
   queryObj: {
 
@@ -26,12 +29,15 @@ export default ({ UserModel, UserType }, { isMailValid }) => ({
         name: GraphQLString,
         surname: GraphQLString,
       }),
-      resolve( parent, args ) {
-        if (mongoose.Types.ObjectId.isValid( args.id ))
-          return UserModel.findById( args.id )
-        if (args.name && args.surname)
-          return UserModel.find({ name:args.name, surname:args.surname })
-        return ``
+
+      resolve( _, { id, name, surname } ) {
+        if (mongoose.Types.ObjectId.isValid( id )) {
+          return UserModel.findById( id )
+        }
+
+        if (name && surname) {
+          return UserModel.find({ name, surname })
+        }
       },
     },
 
@@ -61,7 +67,7 @@ export default ({ UserModel, UserType }, { isMailValid }) => ({
           type: GraphQLString,
         },
       }),
-      resolve( parent, args ) {
+      resolve( _, args ) {
         const userId = args.id
         delete args.id
         return UserModel.findOneAndUpdate( { _id:userId }, args, { new:true } )

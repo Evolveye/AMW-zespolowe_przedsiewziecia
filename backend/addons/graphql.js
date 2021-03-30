@@ -34,10 +34,10 @@ const typesAliases = {
     float: gql.GraphQLFloat,
     boolean: gql.GraphQLBoolean,
     arrayOf( type ) {
+      console.log( type )
       return new gql.GraphQLList( this[ type ] )
     },
     shapeOf( { name, key }, shape ) {
-      console.log( shape )
       return new gql.GraphQLObjectType( {
         name: `${name}_${key}`,
         fields: shape,
@@ -54,8 +54,8 @@ export const types = {
   FLOAT: `float`,
   BOOLEAN: `boolean`,
   ARRAY_OF( type ) {
-    if (!(type in types)) throw new Error( `Wrong type` )
-    return [ `arrayOf`, types[ type ] ]
+    if (!Object.values( types ).includes( type )) throw new Error( `Wrong type (${type})` )
+    return [ `arrayOf`, type ]
   },
   SHAPE( shape ) {
     return [ `shapeOf`, JSON.stringify( shape ) ]
@@ -63,24 +63,32 @@ export const types = {
 }
 
 
-/** @param {string} name */
+/**
+ * @param {string} name
+ * @returns {{mongoose:mongoose.Model graphql:gql.GraphQLObjectType
+ */
 export const createModels = (name, obj, config = {}) => {
   const modelObjsWithSources = [
     {
       source: `mongoose`,
       buildModel: obj => {
-        console.log( `M`, obj )
-        return mongoose.model( name, obj, config.collection  )
+        const schema = new mongoose.Schema( obj )
+
+        schema.set( `toJSON`, { virtuals:true } )
+        schema.virtual( `id` ).get( function() {
+          return this._id.toHexString()
+        } )
+
+        return mongoose.model( name, schema, config.collection  )
       },
       setKeyValue( specifiedType, setup, key ) {
         if (key == `id`) return null
-        return { type:specifiedType, ...setup }
+        return { ...(Array.isArray( setup ) ? {} : setup), type:specifiedType }
       },
     },
     {
       source: `graphql`,
       buildModel: obj => {
-        console.log( `G`, obj )
         return new gql.GraphQLObjectType({
           name,
           fields: () => obj,
@@ -118,6 +126,7 @@ function modelsCreatorhelper( data, obj ) {
       ? (Array.isArray( typeOrSetup ) ? typeOrSetup : [ typeOrSetup.type ])
       : [ typeOrSetup ]
 
+    // console.log( typeOrSetup, typeof typeOrSetup === `object`, resolvedType )
     const shape = resolvedType === `shapeOf`
       ? modelsCreatorhelper( data, JSON.parse( params[ 0 ] ) )
       : null
@@ -136,7 +145,10 @@ function modelsCreatorhelper( data, obj ) {
           && /[a-z]/.test( ts[ resolvedType ].name[ 0 ] )
         const specifiedType = isItFunction ? ts[ resolvedType ]( ...params ) : ts[ resolvedType ]
 
-        finalValue = setKeyValue?.( specifiedType, setup, key ) ?? { type:specifiedType }
+        finalValue = setKeyValue
+          ? setKeyValue( specifiedType, setup, key )
+          : { type:specifiedType }
+        // console.log( { specifiedType, setup, key, finalValue }, ts[ resolvedType ] )
       }
 
 
