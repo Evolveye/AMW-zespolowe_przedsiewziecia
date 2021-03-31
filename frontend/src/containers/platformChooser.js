@@ -88,16 +88,16 @@ const PlatformSettings = ({ queryData }) => (
       <Tab className={settingsClasses.settingsTabSwitch} name="Użytkownicy">
         <DataTable {...dataTableProps} getDataAddress="fakePlatformUsers">
           <Field label="Imię" name="name">
-            <Adder type="text" validator={() => true} />
+            <Adder type="text" />
           </Field>
 
           <Field label="Nazwisko" name="surname">
-            <Adder type="text" validator={() => true} />
+            <Adder type="text" />
           </Field>
 
           <Field label="Rola" name="role" editable>
-            <Processor render={({ name }) => name} />
-            <Adder type="text" validator={() => true} />
+            <Processor render={({ id, name }) => ({ label:name, value:id })} />
+            <Adder type="select" getDataAddress="fakePlatformRoles" />
           </Field>
         </DataTable>
       </Tab>
@@ -105,12 +105,12 @@ const PlatformSettings = ({ queryData }) => (
       <Tab className={settingsClasses.settingsTabSwitch} name="Grupy">
         <DataTable {...dataTableProps} getDataAddress="fakeGroups">
           <Field label="Nazwa" name="name">
-            <Adder type="text" validator={() => true} />
+            <Adder type="text" />
           </Field>
 
           <Field label="Prowadzący" name="lecturer">
             <Processor render={({ name, surname }) => `${name} ${surname}`} />
-            <Adder type="text" validator={() => true} />
+            <Adder type="text" />
           </Field>
         </DataTable>
       </Tab>

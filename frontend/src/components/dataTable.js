@@ -8,15 +8,7 @@ const fakeGroupRoles = [
     color: 0xff0000,
     name: `Admin`,
     abilities: {
-      canManageGroup: true,
-    },
-  },
-  {
-    id: `2`,
-    color: 0x00ff00,
-    name: `Asystent`,
-    abilities: {
-      canManageGroup: true,
+      canManageMeets: true,
     },
   },
   {
@@ -24,7 +16,33 @@ const fakeGroupRoles = [
     color: null,
     name: `Student`,
     abilities: {
-      canManageGroup: true,
+      canManageMeets: true,
+    },
+  },
+]
+const fakePlatformRoles = [
+  {
+    id: `1`,
+    color: 0xff0000,
+    name: `Admin`,
+    abilities: {
+      canManageGroups: true,
+    },
+  },
+  {
+    id: `2`,
+    color: 0x00ff00,
+    name: `Asystent`,
+    abilities: {
+      canManageGroups: true,
+    },
+  },
+  {
+    id: `3`,
+    color: null,
+    name: `Student`,
+    abilities: {
+      canManageGroups: false,
     },
   },
 ]
@@ -33,19 +51,19 @@ const fakePlatformUsers = [
     id: `1`,
     name: `Paweł`,
     surname: `Stolarski`,
-    role: fakeGroupRoles.find( ({ name }) => name === `Admin` ),
+    role: fakePlatformRoles.find( ({ name }) => name === `Admin` ),
   },
   {
     id: `2`,
     name: `Adam`,
     surname: `Szreiber`,
-    role: fakeGroupRoles.find( ({ name }) => name === `Asystent` ),
+    role: fakePlatformRoles.find( ({ name }) => name === `Asystent` ),
   },
   {
     id: `3`,
     name: `Kamil`,
     surname: `Czarny`,
-    role: fakeGroupRoles.find( ({ name }) => name === `Student` ),
+    role: fakePlatformRoles.find( ({ name }) => name === `Student` ),
   },
 ]
 const fakeGroups = [
@@ -62,6 +80,7 @@ const fakeGroups = [
 ]
 const fakeData = {
   fakePlatformUsers,
+  fakePlatformRoles,
   fakeGroupRoles,
   fakeGroups,
 }
@@ -101,7 +120,7 @@ Adder.propTypes = {
   name: PropTypes.string.isRequired,
   type: PropTypes.string.isRequired,
   validator: PropTypes.func,
-  getDataAddress: PropTypes.func,
+  getDataAddress: PropTypes.string,
 }
 
 
@@ -113,23 +132,33 @@ export default class DataTable extends React.Component {
       .toArray( props.children )
       .filter( ({ type }) => type === Field.type )
       .map( ({ props }) => props )
+      .map( props => {
+        const childrenFilter = Component => React.Children
+          .toArray( props.children )
+          .filter( ({ type }) => type === Component.type )[ 0 ]
+
+        return {
+          ...props,
+          adder: childrenFilter( Adder ),
+          processor: childrenFilter( Processor )?.props.render || (it => it),
+        }
+      } )
 
     const abilities = props.actionPosibility()
     let colspanCounter = 1
 
-    this.tableAdderFields = this.fields.reduce( (obj, { name, children }) => {
+    this.tableAdderFields = this.fields.reduce( (obj, { name, adder, processor }) => {
       if (colspanCounter !== 1) {
         colspanCounter--
         return obj
       }
 
-      const adder = React.Children
-        .toArray( children )
-        .filter( ({ type }) => type === Adder.type )[ 0 ]
-
       colspanCounter = adder.props.colspan || 1
 
-      return { [ name ]:this.getInputCreator( adder.props ), ...obj }
+      return {
+        [ name ]: this.getInputCreator({ processor, ...adder.props }),
+        ...obj,
+      }
     }, {} )
 
     colspanCounter = 1
@@ -197,25 +226,13 @@ export default class DataTable extends React.Component {
       return (
         <tr key={field.id}>
           {
-            this.fields.map( ({ editable:editableField, name, dataFieldname = name, children }) => {
-              const processor = React.Children
-                .toArray( children )
-                .filter( ({ type }) => type === Processor.type )[ 0 ]
-                ?.props
-                .render || (it => it)
-
+            this.fields.map( ({ editable:editableField, name, dataFieldname = name, processor }) => {
               if (editableField && (abilities || abilities.edit)) editable = true
 
-              return (
-                <td key={name}>
-                  {
-                    editable
-                      ? this.tableAdderFields[ name ]( field[ dataFieldname ] )
-                      : processor( field[ dataFieldname ] )
-                  }
-                </td>
-              ) },
-            )
+              const filler = editable ? this.tableAdderFields[ name ] : processor
+
+              return <td key={name}>{filler( field[ dataFieldname ] )}</td>
+            } )
           }
           <td>
             {(abilities ?? abilities.delete) && (
@@ -238,30 +255,33 @@ export default class DataTable extends React.Component {
   }
 
 
-  getInputCreator({ type = `text`, getDataAddress, validator = it => it }) {
-    let inputCreator = null
+  getInputCreator({ type, getDataAddress, validator = () => true, processor }) {
+    const onChange = ({ target }) => validator( target.value )
+    const getDefaultValue = defaultValue => defaultValue
+      ? processor( defaultValue )
+      : undefined
 
     switch (type) {
       case `text`:
-        inputCreator = defaultValue => <input defaultValue={validator( defaultValue )} />
-        break
+        return defaultValue => (
+          <input defaultValue={getDefaultValue( defaultValue )} onChange={onChange} />
+        )
 
       case `select`:
-        inputCreator = defaultValue => {
-          return (
-            <select defaultValue={defaultValue?.name}>
-              {
-                fakeData[ getDataAddress ].map( field => (
-                  <option key={field.id} value={field.name}>{validator( field )}</option>
-                ) )
-              }
-            </select>
-          )
-        }
-        break
-    }
+        return defaultValue => (
+          <select defaultValue={getDefaultValue( defaultValue )?.value} onChange={onChange}>
+            {
+              fakeData[ getDataAddress ].map( field => {
+                const { value, label } = processor( field )
 
-    return inputCreator
+                return <option key={field.id} value={value}>{label}</option>
+              } )
+            }
+          </select>
+        )
+
+      default: null
+    }
   }
 
 

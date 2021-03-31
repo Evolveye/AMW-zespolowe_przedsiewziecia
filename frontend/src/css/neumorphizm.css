@@ -19,6 +19,7 @@
   box-shadow: 0 4px 10px 0px #0005;
   transform: scale( 1.1 );
 }
+.neumorphizm.is-button:active,
 .neumorphizm.is-button.is-active {
   box-shadow:
     -2px -2px 3px #eee,
