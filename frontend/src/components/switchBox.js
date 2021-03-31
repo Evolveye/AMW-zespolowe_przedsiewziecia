@@ -12,6 +12,7 @@ Tab.propTypes = {
 
 
 export default function SwitchBox({ classNames, children }) {
+  const css = classNames || {}
   const tabs = React.Children
     .toArray( children )
     .filter( ({ type }) => type === (<Tab name="" />).type )
@@ -22,17 +23,17 @@ export default function SwitchBox({ classNames, children }) {
   const activeProps = activeTab.props
 
   return (
-    <article className={classNames?.it}>
-      <section className={classNames?.switches}>
+    <article className={css.it}>
+      <section className={css.switches}>
         {
           tabs.map( tab => {
             const { name } = tab.props
-            const activeClassname = activeProps.name === name ? classNames?.activeSwitch : ``
+            const activeClassname = activeProps.name === name ? css.activeSwitch : ``
 
             return (
               <button
                 key={name}
-                className={`${classNames?.switch} ${activeClassname}`}
+                className={`${css.switch} ${activeClassname}`}
                 onClick={() => setActiveTab( tab )}
               >
                 {name}

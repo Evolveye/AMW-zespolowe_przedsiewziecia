@@ -11,18 +11,22 @@ import { getUrnQuery } from "../utils/functions"
 import settingsClasses from "./settings.module.css"
 import classes from "./platformChooser.module.css"
 
-const defaultValue = `Wybierz platformę...`
+const buttonsClasname = `neumorphizm is-button`
+const dataTableButtonsClassName = `${buttonsClasname} ${classes.actionButton}`
+const dataTableProps = {
+  className: classes.table,
+  actionPosibility: () => true, // same as { create:true, delete:true, edit:true, }
+  actionsLabel: `Akcje`,
+  create: { label:`Dodaj`, className:`${dataTableButtonsClassName} ${classes.isCreate}` },
+  delete: { label:`Usuń`, className:`${dataTableButtonsClassName} ${classes.isDelete}` },
+  edit: { label:`Edytuj`, className:`${dataTableButtonsClassName} ${classes.isEdit}` },
+}
+
 const fakePlatforms = [
   { id:1, name:`Szkoła` },
   { id:2, name:`Akademia` },
   { id:3, name:`Szkółka leśna` },
 ]
-const labelsTranslation = {
-  actions: `Akcje`,
-  create: `Dodaj`,
-  delete: `Usuń`,
-  edit: `Edytuj`,
-}
 
 const query = graphql`
   query {
@@ -46,7 +50,7 @@ export default ({ className = `` }) => {
       btnClassName={`neumorphizm is-button ${classes.navSwitch}`}
       btnIsActiveClassname="is-active"
       renderChoosedItem={
-        () => !p ? defaultValue : <>
+        () => !p ? `Wybierz platformę...` : <>
           <Link className={classes.platform} to={`/platform?p=${p}`}>
             {fakePlatforms.find( ({ id }) => id == p ).name}
           </Link>
@@ -69,7 +73,7 @@ export default ({ className = `` }) => {
 const PlatformSettings = ({ queryData }) => (
   <ToggableBox
     boxClassName={settingsClasses.settings}
-    btnClassName={`neumorphizm is-button ${settingsClasses.settingsSwitch}`}
+    btnClassName={`${buttonsClasname} ${settingsClasses.settingsSwitch}`}
     btnIsActiveClassname="is-active"
     btnContent={<Image fluid={queryData.cog.childImageSharp.fluid} />}
     fullScreened
@@ -77,18 +81,12 @@ const PlatformSettings = ({ queryData }) => (
     <SwitchBox
       classNames={{
         switches: settingsClasses.settingsTabsSwitches,
-        switch: `neumorphizm is-button ${settingsClasses.settingsTabSwitch}`,
+        switch: `${buttonsClasname} ${settingsClasses.settingsTabSwitch}`,
         activeSwitch: `is-active`,
       }}
     >
       <Tab className={settingsClasses.settingsTabSwitch} name="Użytkownicy">
-        <DataTable
-          className={classes.table}
-          getDataAddress="fakePlatformUsers"
-          deleteDataAddress=""
-          // deletePosibilityChecker={fields => true}
-          staticLabels={labelsTranslation}
-        >
+        <DataTable {...dataTableProps} getDataAddress="fakePlatformUsers">
           <Field label="Imię" name="name">
             <Adder type="text" validator={() => true} />
           </Field>
@@ -105,13 +103,7 @@ const PlatformSettings = ({ queryData }) => (
       </Tab>
 
       <Tab className={settingsClasses.settingsTabSwitch} name="Grupy">
-        <DataTable
-          className={classes.table}
-          getDataAddress="fakeGroups"
-          deleteDataAddress=""
-          // deletePosibilityChecker={fields => true}
-          staticLabels={labelsTranslation}
-        >
+        <DataTable {...dataTableProps} getDataAddress="fakeGroups">
           <Field label="Nazwa" name="name">
             <Adder type="text" validator={() => true} />
           </Field>

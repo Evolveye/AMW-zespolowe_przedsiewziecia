@@ -110,9 +110,11 @@ export default class DataTable extends React.Component {
     super( props )
 
     this.fields = React.Children
-      .toArray( this.props.children )
+      .toArray( props.children )
       .filter( ({ type }) => type === Field.type )
       .map( ({ props }) => props )
+
+    const abilities = props.actionPosibility()
     let colspanCounter = 1
 
     this.tableAdderFields = this.fields.reduce( (obj, { name, children }) => {
@@ -136,7 +138,7 @@ export default class DataTable extends React.Component {
       tableHeaders: (
         <tr>
           {this.fields.map( ({ label }) => <th key={label}>{label}</th> )}
-          <th>{props.staticLabels?.actions || `Actions`}</th>
+          <th>{props.actionsLabel || `Actions`}</th>
         </tr>
       ),
 
@@ -163,7 +165,13 @@ export default class DataTable extends React.Component {
             } )
           }
           <td>
-            <button>{props.staticLabels?.create || `Create`}</button>
+            {
+              (abilities || abilities.create) && (
+                <button className={props.create?.className || ``}>
+                  {props.create?.label || `Create`}
+                </button>
+              )
+            }
           </td>
         </>
       ),
@@ -174,29 +182,29 @@ export default class DataTable extends React.Component {
 
 
   componentDidMount() {
-    // const tableAdderFields
     const {
       getDataAddress,
-      staticLabels,
-      deletePosibilityChecker = () => false,
+      delete: del,
+      edit,
+      actionPosibility = () => false,
     } = this.props
 
-    const del = this.props.deleteDataAddress != null
     const data = fakeData[ getDataAddress ]
     const tableRows = data.map( field => {
-      let edit = false
+      const abilities = actionPosibility( field )
+      let editable = false
 
       return (
         <tr key={field.id}>
           {
-            this.fields.map( ({ editable, name, dataFieldname = name, children }) => {
+            this.fields.map( ({ editable:editableField, name, dataFieldname = name, children }) => {
               const processor = React.Children
                 .toArray( children )
                 .filter( ({ type }) => type === Processor.type )[ 0 ]
                 ?.props
                 .render || (it => it)
 
-              if (editable) edit = true
+              if (editableField && (abilities || abilities.edit)) editable = true
 
               return (
                 <td key={name}>
@@ -210,8 +218,17 @@ export default class DataTable extends React.Component {
             )
           }
           <td>
-            {del && deletePosibilityChecker( field ) && <button>{staticLabels?.delete || `Delete`}</button>}
-            {edit && <button>{staticLabels?.edit || `Edit`}</button>}
+            {(abilities ?? abilities.delete) && (
+              <button className={del?.className || ``}>
+                {del?.label || `Delete`}
+              </button>
+            )}
+
+            {editable && (
+              <button className={edit?.className || ``}>
+                {edit?.label || `Edit`}
+              </button>
+            )}
           </td>
         </tr>
       )
@@ -250,7 +267,6 @@ export default class DataTable extends React.Component {
 
   render = () => (
     <table className={this.props.className || ``}>
-      {console.log( this.props )}
       <thead>
         {this.state.tableHeaders}
       </thead>
@@ -264,4 +280,12 @@ export default class DataTable extends React.Component {
       </tbody>
     </table>
   )
+}
+DataTable.propTypes = {
+  className: PropTypes.string,
+  actionPosibility: PropTypes.func,
+  actionsLabel: PropTypes.string,
+  create: PropTypes.shape({ label:PropTypes.string, className:PropTypes.string }),
+  delete: PropTypes.shape({ label:PropTypes.string, className:PropTypes.string }),
+  edit: PropTypes.shape({ label:PropTypes.string, className:PropTypes.string }),
 }

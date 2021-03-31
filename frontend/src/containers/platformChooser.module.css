@@ -13,6 +13,21 @@
     .table {
       width: 100%;
     }
+      .actionButton {
+        padding: 5px;
+      }
+      .actionButton.is-create:hover {
+        color: white;
+        background-color: #3ca53c;
+      }
+      .actionButton.is-delete:hover {
+        color: white;
+        background-color: orangered;
+      }
+      .actionButton.is-edit:hover {
+        color: white;
+        background-color: #11aafb;
+      }
 
 .toggleBox {
   background-color: var( --background-color );
