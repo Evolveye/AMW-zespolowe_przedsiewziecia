@@ -45,7 +45,6 @@ Adder.propTypes = {
 }
 
 
-
 const InputField = ({
   defaultValue,
   className = ``,
@@ -54,6 +53,7 @@ const InputField = ({
   validator = () => true,
   processor,
   validateInitialData = data => data,
+  runAfterDataLoad,
 }) => {
   const [ data, setData ] = useState()
   const standardProps = {
@@ -65,10 +65,12 @@ const InputField = ({
 
   // standardProps[ `key` ] = typeof data
 
-  if (getDataAddress) useEffect(
-    () => { fetchOrGet( getDataAddress, setData ) },
-    [ setData ],
-  )
+  useEffect( () => {
+    runAfterDataLoad( () => {
+      if (getDataAddress) fetchOrGet( getDataAddress, setData )
+    } )
+  }, [] )
+
 
   switch (type) {
     case `text`: return <input type="text" {...standardProps} />
@@ -124,7 +126,16 @@ export default class DataTable extends React.Component {
       colspanCounter = adder.props.colspan || 1
 
       return {
-        [ name ]: defaultValue => <InputField {...{ defaultValue, processor, ...adder.props }} />, // this.getInputCreator({ processor, ...adder.props }),
+        [ name ]: defaultValue => (
+          <InputField
+            {...{
+              defaultValue,
+              processor,
+              ...adder.props,
+              runAfterDataLoad: this.runAfterDataLoad,
+            }}
+          />
+        ), // this.getInputCreator({ processor, ...adder.props }),
         ...obj,
       }
     }, {} )
@@ -174,6 +185,8 @@ export default class DataTable extends React.Component {
       ),
 
       tableRows: [],
+      waitingForDataCbs: [],
+      inputs: {},
     }
   }
 
@@ -223,6 +236,18 @@ export default class DataTable extends React.Component {
     } )
 
     this.setState({ tableRows })
+    this.runAfterDataLoad()
+  }
+
+
+  runAfterDataLoad = cb => {
+    if (cb && !this.state.tableRows.length) return this.setState( s => ({
+      waitingForDataCbs: [ cb, ...s.waitingForDataCbs ],
+    }) )
+
+    Array( cb, ...this.state.waitingForDataCbs ).forEach( cb => cb?.() )
+
+    if (this.state.waitingForDataCbs.length) this.setState({ waitingForDataCbs:[] })
   }
 
 

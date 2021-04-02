@@ -96,6 +96,7 @@ const fakeData = {
 
 /** @param {string} address */
 export default function fetchOrGet( address, cb ) {
+  // return new Promise( r => setTimeout( () => r([]), 10000 ))
   if (address.startsWith( `fake.` )) {
     const data = fakeData[ address.slice( 5 ) ]
 
