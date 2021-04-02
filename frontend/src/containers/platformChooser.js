@@ -6,7 +6,7 @@ import Select, { Item } from "../components/select.js"
 import ToggableBox from "../components/toggableBox.js"
 import SwitchBox, { Tab } from "../components/switchBox.js"
 import DataTable, { Adder, Field, Processor } from "../components/dataTable.js"
-import { getUrnQuery } from "../utils/functions"
+import { getUrnQuery, getDate } from "../utils/functions"
 
 import settingsClasses from "./settings.module.css"
 import classes from "./platformChooser.module.css"
@@ -86,31 +86,54 @@ const PlatformSettings = ({ queryData }) => (
       }}
     >
       <Tab className={settingsClasses.settingsTabSwitch} name="Użytkownicy">
-        <DataTable {...dataTableProps} getDataAddress="fakePlatformUsers">
+        <DataTable {...dataTableProps} getDataAddress="fake.platformUsers">
           <Field label="Imię" name="name">
-            <Adder type="text" />
+            <Adder className={classes.adder} type="text" />
           </Field>
 
           <Field label="Nazwisko" name="surname">
-            <Adder type="text" />
+            <Adder className={classes.adder} type="text" />
           </Field>
 
           <Field label="Rola" name="role" editable>
             <Processor render={({ id, name }) => ({ label:name, value:id })} />
-            <Adder type="select" getDataAddress="fakePlatformRoles" />
+            <Adder className={classes.adder} type="select" getDataAddress="fake.platformRoles" />
           </Field>
         </DataTable>
       </Tab>
 
       <Tab className={settingsClasses.settingsTabSwitch} name="Grupy">
-        <DataTable {...dataTableProps} getDataAddress="fakeGroups">
+        <DataTable {...dataTableProps} getDataAddress="fake.groups">
           <Field label="Nazwa" name="name">
-            <Adder type="text" />
+            <Adder className={classes.adder} type="text" />
           </Field>
 
           <Field label="Prowadzący" name="lecturer">
-            <Processor render={({ name, surname }) => `${name} ${surname}`} />
-            <Adder type="text" />
+            <Processor render={({ id, name, surname }) => ({ label:`${name} ${surname}`, value:id })} />
+            <Adder
+              className={classes.adder}
+              type="select"
+              getDataAddress="fake.platformUsers"
+              validateInitialData={(data, { tableContent }) => data}
+            />
+          </Field>
+        </DataTable>
+      </Tab>
+
+      <Tab className={settingsClasses.settingsTabSwitch} name="Spotkania">
+        <DataTable {...dataTableProps} getDataAddress="fake.meets">
+          <Field label="Czas rozpoczęcia" name="startDate">
+            <Processor render={getDate} />
+            <Adder className={classes.adder} type="datetime-local" />
+          </Field>
+
+          <Field label="Czas zakończenia" name="expirationDate">
+            <Processor render={getDate} />
+            <Adder className={classes.adder} type="datetime-local" />
+          </Field>
+
+          <Field label="Opis" name="description">
+            <Adder className={classes.adder} type="textarea" />
           </Field>
         </DataTable>
       </Tab>

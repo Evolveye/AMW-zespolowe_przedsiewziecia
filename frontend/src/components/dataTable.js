@@ -1,89 +1,9 @@
-import React from "react"
+import React, { useEffect, useState } from "react"
 import PropTypes from "prop-types"
 
+import fetchOrGet, { isData } from "./fetchOrGet.js"
 
-const fakeGroupRoles = [
-  {
-    id: `1`,
-    color: 0xff0000,
-    name: `Admin`,
-    abilities: {
-      canManageMeets: true,
-    },
-  },
-  {
-    id: `3`,
-    color: null,
-    name: `Student`,
-    abilities: {
-      canManageMeets: true,
-    },
-  },
-]
-const fakePlatformRoles = [
-  {
-    id: `1`,
-    color: 0xff0000,
-    name: `Admin`,
-    abilities: {
-      canManageGroups: true,
-    },
-  },
-  {
-    id: `2`,
-    color: 0x00ff00,
-    name: `Asystent`,
-    abilities: {
-      canManageGroups: true,
-    },
-  },
-  {
-    id: `3`,
-    color: null,
-    name: `Student`,
-    abilities: {
-      canManageGroups: false,
-    },
-  },
-]
-const fakePlatformUsers = [
-  {
-    id: `1`,
-    name: `Paweł`,
-    surname: `Stolarski`,
-    role: fakePlatformRoles.find( ({ name }) => name === `Admin` ),
-  },
-  {
-    id: `2`,
-    name: `Adam`,
-    surname: `Szreiber`,
-    role: fakePlatformRoles.find( ({ name }) => name === `Asystent` ),
-  },
-  {
-    id: `3`,
-    name: `Kamil`,
-    surname: `Czarny`,
-    role: fakePlatformRoles.find( ({ name }) => name === `Student` ),
-  },
-]
-const fakeGroups = [
-  {
-    id: `1`,
-    name: `Przyroda`,
-    lecturer: fakePlatformUsers[ 1 ],
-  },
-  {
-    id: `2`,
-    name: `Oceanografia`,
-    lecturer: fakePlatformUsers[ 0 ],
-  },
-]
-const fakeData = {
-  fakePlatformUsers,
-  fakePlatformRoles,
-  fakeGroupRoles,
-  fakeGroups,
-}
+
 
 /**
  * @param {object} props
@@ -117,10 +37,58 @@ Processor.propTypes = {
 export const Adder = () => null
 Adder.type = (<Adder name="" />).type
 Adder.propTypes = {
+  className: PropTypes.string,
   name: PropTypes.string.isRequired,
   type: PropTypes.string.isRequired,
   validator: PropTypes.func,
   getDataAddress: PropTypes.string,
+}
+
+
+
+const InputField = ({
+  defaultValue,
+  className = ``,
+  type,
+  getDataAddress,
+  validator = () => true,
+  processor,
+  validateInitialData = data => data,
+}) => {
+  const [ data, setData ] = useState()
+  const standardProps = {
+    defaultValue: defaultValue ? processor( defaultValue )?.value : undefined,
+    key: typeof data,
+    onChange: ({ target }) => validator( target.value ),
+    className,
+  }
+
+  // standardProps[ `key` ] = typeof data
+
+  if (getDataAddress) useEffect(
+    () => { fetchOrGet( getDataAddress, setData ) },
+    [ setData ],
+  )
+
+  switch (type) {
+    case `text`: return <input type="text" {...standardProps} />
+    case `datetime-local`: return <input type="datetime-local" {...standardProps} />
+    case `textarea`: return <textarea {...standardProps} />
+
+    case `select`: return (
+      <select {...standardProps}>
+        {
+          validateInitialData( Array.isArray( data ) ? data : [], {} ).map( field => {
+            const { value, label } = processor( field )
+
+            return <option key={value} value={value}>{label}</option>
+          } )
+        }
+      </select>
+    )
+
+    default: null
+  }
 }
 
 
@@ -156,7 +124,7 @@ export default class DataTable extends React.Component {
       colspanCounter = adder.props.colspan || 1
 
       return {
-        [ name ]: this.getInputCreator({ processor, ...adder.props }),
+        [ name ]: defaultValue => <InputField {...{ defaultValue, processor, ...adder.props }} />, // this.getInputCreator({ processor, ...adder.props }),
         ...obj,
       }
     }, {} )
@@ -210,7 +178,7 @@ export default class DataTable extends React.Component {
   }
 
 
-  componentDidMount() {
+  async componentDidMount() {
     const {
       getDataAddress,
       delete: del,
@@ -218,7 +186,7 @@ export default class DataTable extends React.Component {
       actionPosibility = () => false,
     } = this.props
 
-    const data = fakeData[ getDataAddress ]
+    const data = await fetchOrGet( getDataAddress )
     const tableRows = data.map( field => {
       const abilities = actionPosibility( field )
       let editable = false
@@ -229,7 +197,10 @@ export default class DataTable extends React.Component {
             this.fields.map( ({ editable:editableField, name, dataFieldname = name, processor }) => {
               if (editableField && (abilities || abilities.edit)) editable = true
 
-              const filler = editable ? this.tableAdderFields[ name ] : processor
+              const filler = editable ? this.tableAdderFields[ name ] : data => {
+                const processedData = processor( data )
+                return processedData.label ?? processedData
+              }
 
               return <td key={name}>{filler( field[ dataFieldname ] )}</td>
             } )
@@ -252,36 +223,6 @@ export default class DataTable extends React.Component {
     } )
 
     this.setState({ tableRows })
-  }
-
-
-  getInputCreator({ type, getDataAddress, validator = () => true, processor }) {
-    const onChange = ({ target }) => validator( target.value )
-    const getDefaultValue = defaultValue => defaultValue
-      ? processor( defaultValue )
-      : undefined
-
-    switch (type) {
-      case `text`:
-        return defaultValue => (
-          <input defaultValue={getDefaultValue( defaultValue )} onChange={onChange} />
-        )
-
-      case `select`:
-        return defaultValue => (
-          <select defaultValue={getDefaultValue( defaultValue )?.value} onChange={onChange}>
-            {
-              fakeData[ getDataAddress ].map( field => {
-                const { value, label } = processor( field )
-
-                return <option key={field.id} value={value}>{label}</option>
-              } )
-            }
-          </select>
-        )
-
-      default: null
-    }
   }
 
 

@@ -28,6 +28,9 @@
         color: white;
         background-color: #11aafb;
       }
+      .adder {
+        width: 100%;
+      }
 
 .toggleBox {
   background-color: var( --background-color );
