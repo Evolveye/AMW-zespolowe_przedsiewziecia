@@ -33,7 +33,7 @@ export default class GroupModule extends Module {
     const m = middlewares;
 
     return new Map([
-      // ednpoint dla uploadów 
+      // ednpoint dla uploadów
       [
         `/groups/:groupId/tasks`,
         {
@@ -47,8 +47,8 @@ export default class GroupModule extends Module {
            delete: auth(this.runMid(m.HttpHandleDeleteTask)),
         },
       ],
-      [ 
-        `/groups/:groupId/tasks/:taskId/done`, 
+      [
+        `/groups/:groupId/tasks/:taskId/done`,
         {
           get:auth(this.runMid(m.httpGetAllTasksDone)),
           post: auth(this.runMid(m.httpDoneTask)),
@@ -71,13 +71,7 @@ export default class GroupModule extends Module {
       [
         `/groups/:groupId/materials/:materialId`,
         {
-          delete: auth(pPerms(this.perms(this.runMid(m.httpHandleDeleteFile)))), // 
-        },
-      ],
-      [
-        `/groups/notes`,
-        {
-          get: auth(this.runMid(m.httpGetAllMyNotes)),
+          delete: auth(pPerms(this.perms(this.runMid(m.httpHandleDeleteFile)))), //
         },
       ],
 
@@ -109,6 +103,13 @@ export default class GroupModule extends Module {
         `/api/groups/:groupId`,
         {
           delete: auth(pPerms(this.perms(this.runMid(m.httpDeleteGroup)))),
+        },
+      ],
+
+      [ // notes has been done before.
+        `/groups/notes`,
+        {
+          get: auth(this.runMid(m.httpGetAllMyNotes)),
         },
       ],
 
