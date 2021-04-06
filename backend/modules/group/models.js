@@ -6,7 +6,7 @@
  * @property {string} created
  * @property {string[]} membersIds
  */
- export class Group {
+export class Group {
     constructor(name, lecturer,platformId) {
         this.id = `${Date.now()}t${Math.random().toString().slice(2)}r`
         this.lecturer = lecturer
@@ -18,7 +18,7 @@
 }
 
 export class TaskDone{
-    constructor(taskId,user,file,fileId)
+    constructor(taskId,user,file,description,name,fileId)
     { 
         // id / idzad / osoba / data oddania / 
         this.taskId=taskId
@@ -27,6 +27,8 @@ export class TaskDone{
         this.user = user
         this.filepath = file
         this.fileId = fileId
+        this.description = description
+        this.filename = name
     }
 }
 

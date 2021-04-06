@@ -33,6 +33,7 @@ export default class GroupModule extends Module {
     const m = middlewares;
 
     return new Map([
+      // ednpoint dla uploadów 
       [
         `/groups/:groupId/tasks`,
         {
