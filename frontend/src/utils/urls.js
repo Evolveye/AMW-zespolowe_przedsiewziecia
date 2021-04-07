@@ -65,6 +65,7 @@ const URLS = {
   GROUPS$ID_TASKS_DELETE:  `${HOST}/api/groups/:groupId/tasks/:taskId`,
   GROUPS$ID_TASKS_DONE_POST: `${HOST}/api/groups/:groupId/tasks/:taskId/done`,
   GROUPS$ID_TASKS_DONE_GET: `${HOST}/api/groups/:groupId/tasks/:taskId/done`,
+  GROUP$ID_GRADINGSCALE_PUT: `${HOST}/api/groups/:groupId/scale`,
 
   // Meet scope
   MEET_GET: `${HOST}/api/meets`,
