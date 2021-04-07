@@ -36,7 +36,8 @@ export default class Form extends React.Component {
 
     if ([`GET`].includes(method))
       throw new Error(`Metoda nie jest jeszcze wspeirana w tym komponencie`)
-    
+    console.log("adres na jaki wysyłam: ", address)
+    console.log("to co wysyłam: ", body)
     fetch(address, {
       method,
       headers,

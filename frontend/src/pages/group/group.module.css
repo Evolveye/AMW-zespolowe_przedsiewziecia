@@ -28,3 +28,17 @@
   height: 80%;
   width: 1px;
 }
+
+.rightColumnWithOverFlow {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  text-align: center;
+  height: 100vh;
+  /*overflow:scroll;*/
+}
+
+.sectionTitle{
+  font-weight:900;
+  font-size: 25px;
+}

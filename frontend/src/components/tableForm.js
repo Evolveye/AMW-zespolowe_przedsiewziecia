@@ -19,7 +19,6 @@ export default class TableForm extends React.Component {
 
   componentDidMount() {
     this.setCreatingElements()
-    
 
     fetchWithStatusProcessing(this.props.fetchGetAddress, {
       method: `GET`,
@@ -34,18 +33,16 @@ export default class TableForm extends React.Component {
         const { code, success } = data
         return console.info({ code, success })
       }
-      
-      
+
       this.addToTable(data[this.props.responseGetDataName])
       this.onFillListeners.forEach(({ ref, field }) => ref.current[field]())
     })
-    
   }
 
-  updateNewField = (eOrName, value=null) => {
+  updateNewField = (eOrName, value = null) => {
     const element = eOrName.target || eOrName
 
-    this.setState({ [value ? eOrName : element.name]:(value || element.value) })
+    this.setState({ [value ? eOrName : element.name]: value || element.value })
   }
 
   deleteRow = id => {
@@ -88,17 +85,23 @@ export default class TableForm extends React.Component {
     this.setCreatingElements()
     this.setState({ creationAllowed: false })
 
-    const headers =  { Authentication: `Bearer ${getToken()}` }
-    let body = JSON.stringify({ ...fieldsData, ...this.props.staticPostBodyData })
+    const headers = { Authentication: `Bearer ${getToken()}` }
+    let body = JSON.stringify({
+      ...fieldsData,
+      ...this.props.staticPostBodyData,
+    })
 
     if (this.props.enctype === `multipart/form-data`) {
       body = new FormData()
 
-      Object.entries({ ...fieldsData, ...this.props.staticPostBodyData }).forEach( ([ k, v ]) => {
+      Object.entries({
+        ...fieldsData,
+        ...this.props.staticPostBodyData,
+      }).forEach(([k, v]) => {
         console.log({ k, v })
-        body.append( k, v )
-      } )
-    } else headers[ "Content-Type" ] = `application/json`
+        body.append(k, v)
+      })
+    } else headers["Content-Type"] = `application/json`
 
     fetchWithStatusProcessing(this.props.fetchPostAddress, {
       method: `POST`,
@@ -121,8 +124,7 @@ export default class TableForm extends React.Component {
         //TODO get value from every cell and make new row
         const { code, success } = data
 
-        console.log({data})
-
+        console.log({ data })
 
         console.info({ code, success })
 
@@ -146,11 +148,9 @@ export default class TableForm extends React.Component {
         if (typeof field === `object`) {
           const processor = field.processor || (x => x)
           const propName = field.alt || field.name
-          const processorData = field.entire ? obj : obj[ propName ]
-
-          fields.push(
-            <td key={field.name}>{processor( processorData )}</td>
-          )
+          const processorData = field.entire ? obj : obj[propName]
+          
+          fields.push(<td key={field.name}>{processor(processorData)}</td>)
         } else fields.push(<td key={field}>{obj[field]}</td>)
       }
 
@@ -159,9 +159,11 @@ export default class TableForm extends React.Component {
           {fields}
 
           <td>
-            <button type="button" onClick={() => this.deleteRow(obj.id)}>
-              {this.props.buttonDelete}
-            </button>
+            {this.props.buttonDelete ? (
+              <button type="button" onClick={() => this.deleteRow(obj.id)}>
+                {this.props.buttonDelete}
+              </button>
+            ) : null}
           </td>
         </tr>
       )
@@ -238,7 +240,6 @@ export default class TableForm extends React.Component {
 
   render = () => (
     <table className="table">
-      
       <thead className="thead">
         <tr>
           {this.props.titleFields.map(field => (
@@ -252,7 +253,7 @@ export default class TableForm extends React.Component {
       <tbody>
         <tr>
           {this.state.creatingLis}
-          
+
           <td>
             <button
               type="button"
@@ -277,7 +278,7 @@ export default class TableForm extends React.Component {
 
 TableForm.propTypes = {
   fetchGetAddress: PropTypes.string.isRequired,
-  fetchDeleteAddress: PropTypes.string.isRequired,
+  fetchDeleteAddress: PropTypes.string,
   fetchPostAddress: PropTypes.string.isRequired,
 
   deleteIdParameterName: PropTypes.string.isRequired,
@@ -286,7 +287,7 @@ TableForm.propTypes = {
   staticPostBodyData: PropTypes.objectOf(PropTypes.string).isRequired,
 
   buttonAdd: PropTypes.string.isRequired,
-  buttonDelete: PropTypes.string.isRequired,
+  buttonDelete: PropTypes.string,
 
   objectsFields: PropTypes.array.isRequired,
   titleFields: PropTypes.array.isRequired,
