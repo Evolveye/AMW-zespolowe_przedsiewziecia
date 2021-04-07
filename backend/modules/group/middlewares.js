@@ -1,12 +1,12 @@
 /** @typedef {import("./index.js").MiddlewareParameters} MiddlewareParameters */
-import { Grade, Group, Task, File, TaskDone } from "./models.js";
+import { Grade, Group, Task, File, TaskDone, Scale } from "./models.js";
 import dbManager from "../../src/dbManager.js";
 import { ANSWERS, MAX_LEN_GROUP_NAME, MAX_LEN_NOTE_DESCRIPTION } from "./consts.js";
 import GroupPermission, { GroupUserPermission } from "./permissions.js";
 import multer from "multer"
-import { generateId } from "../../src/utils.js";
+import { generateId,isDigit } from "../../src/utils.js";
 import filesystem from 'fs/promises'
-import fs from 'fs'
+
 import { APP_ROOT_DIR } from '../../consts.js'
 
 
@@ -716,6 +716,9 @@ export async function httpCreateGroup({ mod, req, res }) {
     ownerTemplate
   );
 
+  const groupScale = new Scale(group.id,[1,2,3,4,5])
+  await mod.dbManager.insertObject(mod.subcollections.scale,groupScale)
+
   await mod.saveGroup(group);
 
   await platformMod.updatePlatform(
@@ -848,9 +851,9 @@ export async function httpAddFile({ mod, req, res, next }) {
 
 /** @param {MiddlewareParameters} param0 */
 export async function httpCreateTask({ mod, req, res, next }) {
-  // 2 tabele ? 
-  // 1 na zadania  idgryop/ idzad / 
-  // 2 oddane prace id / idzad / osoba / data oddania / 
+  // 2 tabele ?
+  // 1 na zadania  idgryop/ idzad /
+  // 2 oddane prace id / idzad / osoba / data oddania /
 
   // if(!req.user.platformPerms.canTeach)
   // return res.json({code:420,error:"Create task require canTeach-platform-permission"})
@@ -879,7 +882,7 @@ export async function httpGetAllGroupTasks({ mod, req, res, next }) {
 /** @param {MiddlewareParameters} param0 */
 export async function httpDoneTask({ mod, req, res, next }) {
   // tutaj będzie upload pliku jakiegos.
-  // zdobadz id pliku 
+  // zdobadz id pliku
   const groupId = req.params.groupId || req.body.groupId || req.query.groupId;
   const taskId = req.params.taskId || req.body.taskId || req.query.taskId;
   const file = req.file;
@@ -923,7 +926,7 @@ export async function httpDoneTask({ mod, req, res, next }) {
   const td = new TaskDone(taskId, req.user, finalFile.path,finalFile.description, finalFile.id)
   console.log({ taskDone: td })
 
-  
+
   await mod.dbManager.insertObject(mod.subcollections.materials, finalFile)
   await mod.dbManager.insertObject(mod.subcollections.tasksDone, td)
 
@@ -967,4 +970,21 @@ export async function HttpHandleDeleteTask({ mod, req, res, next }) {
   return res.json(ANSWERS.TASK_DELETE_SUCCESS)
 }
 
+/** @param {MiddlewareParameters} param0 */
+export async function httpChangeScale({ mod, req, res, next }){
+  const groupId = req.params.groupId || req.body.groupId || req.query.groupId;
 
+  /** @type {string} */
+  let newScale = req.body.gradingScale
+
+  /** @type {string[]} */
+  let grades = newScale.split(`,`)
+  if(!grades.every(item=> isDigit(item)))
+  return res.status(400).json(ANSWERS.GRADES_NOT_INT)
+
+  grades = grades.map(item=> parseInt(item))
+  newScale = new Scale(groupId,grades)
+
+  await mod.dbManager.updateObject(mod.subcollections.scale,{groupId:{$eq:groupId},},{ $set: {grades:grades}})
+  return res.json(ANSWERS.GRADES_UPDATED_SUCCESS)
+}

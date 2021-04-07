@@ -1,3 +1,11 @@
+export class Scale{
+    constructor(groupId,grades)
+    {
+        this.groupId = groupId
+        this.grades = grades
+        this.id = `${Date.now()}t${Math.random().toString().slice(2)}r`
+    }
+}
 
 /**
  * @typedef {object} Group
@@ -19,8 +27,8 @@ export class Group {
 
 export class TaskDone{
     constructor(taskId,user,file,description,name,fileId)
-    { 
-        // id / idzad / osoba / data oddania / 
+    {
+        // id / idzad / osoba / data oddania /
         this.taskId=taskId
         this.id = `${Date.now()}t${Math.random().toString().slice(2)}r`
         this.created = Date.now().valueOf()
@@ -59,7 +67,7 @@ export class Task{
         this.type = type
         this.mandatory = mandatory
         this.author = author
-        
+
         // this.platfromId = platformId
         // this.assigments = {} // {user.name/user.surname, fileId}
         // file extension

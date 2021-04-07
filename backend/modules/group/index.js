@@ -21,6 +21,7 @@ export default class GroupModule extends Module {
     notes: `notes`,
     templatePermissions: `permissions`,
     userPermissions: `permissions.users`,
+    scale:`scale`,
   };
 
   /** @param {import("socket.io").Socket} socket */
@@ -33,6 +34,16 @@ export default class GroupModule extends Module {
     const m = middlewares;
 
     return new Map([
+      [
+        `/groups/:groupId/scale`,
+        {
+        //   get: auth(this.runMid(m.httpGetGroupScale)),
+           put: auth(pPerms(this.runMid(m.httpChangeScale))),
+        },
+      ],
+
+
+
       // ednpoint dla uploadów
       [
         `/groups/:groupId/tasks`,

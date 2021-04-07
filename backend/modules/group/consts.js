@@ -67,12 +67,14 @@ export const ANSWERS = {
 
     GET_TEMPLATE_PERMS_MISS_GROUP_ID:{ code: 334, error: "Cannot find groupId in request params." },
     GET_TEMPLATE_PERMS_NOT_ALLOWED:{ code: 333, erorr: "can not get list of group perms, because u are not  -> PE master or group member." },
-    
+
     TASK_CREATE_SUCCESS:{code:335,success:"Task has been created."},
     TASK_DONE_SUCCESS:{code:334,success:"Your task has been correctly handled "},
     TASK_DELETE_SUCCESS:{code:336,success:"Task has been deleted with all files assigned to task."},
     TASK_UPLOAD_FAILED:{ code: 337, error: "File upload error" },
-    
+
+    GRADES_NOT_INT:{code:338,error:"Every grades should be an intiger number."},
+    GRADES_UPDATED_SUCCESS:{code:339,success:"Succesfully updated current grades."},
 
 }
 
