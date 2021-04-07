@@ -123,7 +123,7 @@ export default class GroupModule extends Module {
 
       [
         `/groups/notes/:noteId`,
-        {
+        { // delete and creating note has been tested.
           delete: auth(this.perms(this.runMid(m.httpHandleDeleteNote))),
           put: auth(this.perms(this.runMid(m.httpHandleNoteUpdate))),
         },
