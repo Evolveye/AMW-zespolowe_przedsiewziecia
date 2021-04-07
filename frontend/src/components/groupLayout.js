@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from "react"
 import { Link } from "gatsby"
 
-import { urlSearchParams, getDate } from "../utils/functions.js"
-import { AuthorizedContent, authFetch, getGroupPerms } from "../utils/auth.js"
-import URLS from "../utils/urls.js"
+import { urlSearchParams } from "../utils/functions.js"
+import { AuthorizedContent, getGroupPerms } from "../utils/auth.js"
+//import URLS from "../utils/urls.js"
 
 import Layout from "./layout.js"
 
-import FlatTile from "../models/flatTile.js"
+//import FlatTile from "../models/flatTile.js"
 
 const menyItems = [
-  // { urn: `settings`, name: `Ustawienia ogólne`, permName:`isMaster` },
+  { urn: `settings`, name: `Ustawienia grupy`, permName:`isMaster` },
   { urn: `notes`, name: `Oceny`, permName: `isMaster` },
   { urn: `users`, name: `Użytkownicy`, permName: `isMaster` },
   // { urn: `roles`, name: `Role`, permName:`isMaster` },
@@ -19,6 +19,7 @@ const menyItems = [
   { urn: `meets`, name: `Spotkania`, permName: `isMaster` },
 ]
 
+/*
 const meetsLisMap = ({ id, dateStart, description }, platformAndGroupQuery) => (
   <li key={id}>
     <FlatTile
@@ -29,6 +30,7 @@ const meetsLisMap = ({ id, dateStart, description }, platformAndGroupQuery) => (
     />
   </li>
 )
+*/
 const menuLisBuilder = (perms, platformAndGroupQuery) =>
   menyItems
     .filter(({ permName }) => !permName || perms[permName])
@@ -44,17 +46,20 @@ export default ({ children, className = `` }) => {
   const platformId = query.get(`platformId`)
   const groupId = query.get(`groupId`)
   const platformAndGroupQuery = `platformId=${platformId}&groupId=${groupId}`
-  const url = URLS.MEET_FROM_GROUP$ID_GET.replace(`:groupId`, groupId)
+  //const url = URLS.MEET_FROM_GROUP$ID_GET.replace(`:groupId`, groupId)
 
+  /*
   const [meetsLis, setMeetsRows] = useState(
     (authFetch({ url }) || { meets: [] }).meets.map(meet =>
       meetsLisMap(meet, platformAndGroupQuery)
     )
   )
+  */
   const [menuLis, setMenuRows] = useState(
     menuLisBuilder(getGroupPerms(groupId) || {}, platformAndGroupQuery)
   )
 
+  /*
   useEffect(() => {
     authFetch({
       url,
@@ -64,7 +69,7 @@ export default ({ children, className = `` }) => {
         ),
     })
   }, [url, platformAndGroupQuery])
-
+*/
   useEffect(() => {
     getGroupPerms(groupId, perms => {
       setMenuRows(menuLisBuilder(perms || {}, platformAndGroupQuery))
