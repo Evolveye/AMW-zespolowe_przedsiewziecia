@@ -46,7 +46,7 @@ export default class Notes extends React.Component {
     // const studentsNotes = groups.filter( ({ notes }) => {
     //   for (const { lecturer } of notes)
     //     if (lecturer.id != myId) return false
-
+    //
     //   return true
     // } )
 
