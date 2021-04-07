@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react"
+import React, {useState, useEffect} from "react"
 import { Link } from "gatsby"
 
 import TableForm from "../../components/tableForm" 
 import Layout from "../../components/groupLayout.js"
 import { urlSearchParams } from "../../utils/functions.js"
 import URLS from "../../utils/urls.js"
-
+import {getUser, getGroupPerms} from "../../utils/auth.js"
 
 
 
@@ -20,7 +20,33 @@ class FileInput extends React.Component {
     />
   }
 
+  class DisabledInput extends React.Component {
+    state = { user:null }
+  
+    componentDidMount() {
+      getUser().then( user => this.setState({ user }) )
+    }
+    render = () => <input
+      type="text"
+      disabled
+      name={this.props.name}
+      value={this.state.user ? `${this.state.user.name} ${this.state.user.surname}` : ``}
+    />
+  }
+
+
+
 export default () => {
+  const [ perms, setPerm ] = useState(null)
+
+  useEffect( () => { getGroupPerms(groupId, console.log)}, [ setPerm ] )
+  //console.log("getGroupPerms",perms)
+
+  const [ user, setUser ] = useState(null)
+
+  useEffect( () => { getUser().then( setUser ) }, [ setUser ] )
+  //console.log("user:", user)
+  
   const query = urlSearchParams()
   const href = `/group/it?platformId=${query.get(
     "platformId"
@@ -38,25 +64,33 @@ export default () => {
       <TableForm
         fetchPostAddress={URLS.GROUPS$ID_TASKS_DONE_POST.replace(`:groupId`, groupId).replace(`:taskId`, taskId)}
         fetchGetAddress={URLS.GROUPS$ID_TASKS_DONE_GET.replace(`:groupId`, groupId).replace(`:taskId`, taskId)}
-        fetchDeleteAddress={URLS.GROUPS$ID_TASKS_DELETE.replace(`:groupId`, groupId)}
+        //fetchDeleteAddress={URLS.GROUPS$ID_TASKS_DELETE.replace(`:groupId`, groupId)}
         enctype="multipart/form-data"
         deleteIdParameterName=":taskId"
         responseGetDataName="tasks"
         responsePostDataName="fileData"
         buttonAdd="Wyślij plik"
-        buttonDelete="Usuń plik"
+        //buttonDelete="Usuń plik"
         staticPostBodyData={{}}
-        objectsFields={[
+        objectsFields={
+          [
           { name: `file`, alt:`filePath`, entire:true, processor: file =>
+              
+            //console.log(file.user.id)
             <a download href={`/` + file.filepath}>{file.filename}</a>
           },
           `description`,
+          { name: `user`, processor: ({name, surname}) => `${name} ${surname}` },
         ]}
-        titleFields={[`Plik`, `Komentarz`]}
+        titleFields={[`Plik`, `Komentarz`, `Dodał`]}
         inputFieldsComponents={{
           file: {
             component: FileInput,
             props: { name:`myFile` },
+          },
+          user: {
+            component: DisabledInput,
+            props: { name:"user" }
           },
         }}
       />

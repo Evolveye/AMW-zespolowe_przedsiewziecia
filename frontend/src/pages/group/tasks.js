@@ -21,7 +21,7 @@ class DateInput extends React.Component{
 //const DateInput = props => <input type="datetime-local" {...props} />
 
 
-
+/*
 class FileInput extends React.Component {
     render = () => <input
       type="file"
@@ -29,7 +29,7 @@ class FileInput extends React.Component {
       onChange={({ target }) => this.props.onChange( target.name, target.files[ 0 ] )}
     />
   }
-
+*/
 
 export default class PlatformGroups extends React.Component {
   constructor(props) {
@@ -87,8 +87,8 @@ export default class PlatformGroups extends React.Component {
           
         ]}
         inputFieldsComponents={{
-          dateStart: { component: DateInput },
-          dateEnd: { component: DateInput },
+          created: { component: DateInput },
+          expire: { component: DateInput },
         
         }}
       />

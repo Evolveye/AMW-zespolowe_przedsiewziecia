@@ -43,7 +43,7 @@ export default class PlatformGroups extends React.Component {
         buttonDelete="Usuń z grupy"
         staticPostBodyData={{ groupId: this.groupId }}
         objectsFields={[`name`, `surname`,
-          { name: `perms`, processor: ({ name }) => translateRole( name ) },
+          { name: `perms`, processor: (perm={}) => translateRole(perm.name, `Student`) },
         ]}
         titleFields={[`Imię`, `Nazwisko`, `Rola`]}
         inputFieldsComponents={{

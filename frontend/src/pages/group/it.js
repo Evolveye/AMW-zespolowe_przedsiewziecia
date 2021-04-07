@@ -4,9 +4,7 @@ import { Link } from "gatsby"
 import Layout from "../../components/groupLayout.js"
 import { urlSearchParams, getDate } from "../../utils/functions.js"
 import {
-  AuthorizedContent,
-  authFetch,
-  getGroupPerms,
+  authFetch
 } from "../../utils/auth.js"
 import FlatTile from "../../models/flatTile.js"
 import URLS from "../../utils/urls.js"
