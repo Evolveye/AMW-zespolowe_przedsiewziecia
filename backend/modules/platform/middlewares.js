@@ -1,8 +1,9 @@
 import { CREATE_USER_EMAIL_CONTENT, ANSWERS, MAX_LEN_PLATFORM_NAME } from "./consts.js";
 import { isEmailValid, isEveryChar, sameWords } from "./../../src/utils.js";
-import { DEBUG } from "./../../consts.js"
+import { APP_ROOT_DIR, DEBUG } from "./../../consts.js"
 import { Platform } from "./model.js"
 import { PlatformUserPermission } from './permissions.js'
+import filesystem from 'fs/promises'
 /** @typedef {import("./index.js").MiddlewareParameters} MiddlewareParameters */
 
 /** @param {MiddlewareParameters} param0 */
@@ -67,7 +68,7 @@ export async function httpCreateNewUser({ mod, req, res }) {
       return res.status(400).json(ANSWERS.CREATE_USER_ALREADY_ASSIGNED);
   }
 
-  const user = // TODO: Zmienic to na fazy 
+  const user = // TODO: Zmienic to na fazy
     alreadyExistUser
     ?? await mod.requiredModules.userModule.createUser(
       { name, surname, email, activated: true },
@@ -296,6 +297,8 @@ export async function httpDeletePlatform({ mod, req, res }) {
   // DELETE usuwanie platformy   /api/platforms/:id
   const targetPlatformId = req.params.platformId;
   const client = req.user;
+  const fullFilePath = (relpath) => APP_ROOT_DIR + `/` + relpath
+
 
   const target = await mod.getPlatform(targetPlatformId);
 
@@ -305,24 +308,24 @@ export async function httpDeletePlatform({ mod, req, res }) {
   if (!client.platformPerms.isMaster)
     return res.status(400).json(ANSWERS.DELETE_PLATFORM_NOT_ALLOWED);
 
-  // if (!mod.isPlatformOwner(client.id, target))
-  //   return res.status(400).json({ code: 209, error: "You dont have privilages to create new users on mod platform." })
-
-  //await mod.deletePlatformCascade(targetPlatformId)
-
-  //  let platform = mod.dbManager.find(
-  //     mod.basecollectionName,
-  //     { id: { $eq: platformId } })
-  // let platform = await mod.dbManager.findOneAndDelete(mod.basecollectionName, { id: { $eq: platformId } })
-
   if (!target) throw new Error("Drop Platform cascade has been refused.");
 
   let platformId = target.id;
-  //console.log({ target })
+  console.log({ target })
 
   const query = { platformId: { $eq: platformId } };
-  // const deleteUsersTask = mod.dbManager.deleteMany(`userModule`, { id: { $in: target.membersIds } })
-  // const deleteUsersSessions = mod.dbManager.deleteMany(`userModule.sessions`, { userId: { $in: target.membersIds } })
+
+  const tasksAssignedToPe = await mod.dbManager.findManyObjects(`groupModule.tasks`,{groupId:{$in:target.assignedGroups}})
+  const tasksIds = tasksAssignedToPe.map(task => task.id)
+  const materialsOfGroup = await mod.dbManager.findManyObjects(`groupModule.materials`,{groupId:{$in:target.assignedGroups}})
+
+  const deleteTasks = await mod.dbManager.deleteMany(`groupModule.tasks`,{groupId:{$in:target.assignedGroups}})
+  const deleteTasksDone = await mod.dbManager.deleteMany(`groupModule.tasks.done`,{taskId:{$in:tasksIds}});
+  const deleteMaterials = await mod.dbManager.deleteMany(`groupModule.materials`,{groupId:{$in:target.assignedGroups}});
+  const deleteScales = await mod.dbManager.deleteMany(`groupModule.scale`,{groupId:{$in:target.assignedGroups}});
+
+  const deleteFilesFromDrive = materialsOfGroup.map(item => filesystem.unlink(fullFilePath(item.path))  )
+
   const deleteMeetingsTask = await mod.dbManager.deleteMany(
     `meetModule`,
     query

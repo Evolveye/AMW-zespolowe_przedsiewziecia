@@ -957,8 +957,9 @@ export async function HttpHandleDeleteTask({ mod, req, res, next }) {
 
   const fullFilePath = (relpath) => APP_ROOT_DIR + `/` + relpath
 
+  filesPath.map(path => filesystem.unlink(fullFilePath(path))) // delete from drive
+
   const promises = [
-    filesPath.map(path => filesystem.unlink(fullFilePath(path))), // delete from drive
     mod.dbManager.deleteMany(mod.subcollections.tasksDone, { taskId: { $eq: taskId } }), // from  tasks in db
     mod.dbManager.deleteMany(mod.subcollections.materials, { path: { $in: filesPath } }), // from files in db
     mod.dbManager.deleteObject(mod.subcollections.tasks, { id: { $eq: taskId } })
