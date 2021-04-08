@@ -37,13 +37,10 @@ export default class GroupModule extends Module {
       [
         `/groups/:groupId/scale`,
         {
-        //   get: auth(this.runMid(m.httpGetGroupScale)),
+           get: auth(this.runMid(m.httpGetGroupScale)),
            put: auth(pPerms(this.runMid(m.httpChangeScale))),
         },
       ],
-
-
-
       // ednpoint dla uploadów
       [
         `/groups/:groupId/tasks`,

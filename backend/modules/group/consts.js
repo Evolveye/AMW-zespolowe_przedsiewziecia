@@ -75,6 +75,7 @@ export const ANSWERS = {
 
     GRADES_NOT_INT:{code:338,error:"Every grades should be an intiger number."},
     GRADES_UPDATED_SUCCESS:{code:339,success:"Succesfully updated current grades."},
-
+    GET_GRADES_SUCCESS:{code:340,success:"Succesfully find scale of grades in this group."},
+    GET_GRADES_NOT_ALLOWED:{code:341,error:`Only user with canTeach permission can get grade scale.`}
 }
 

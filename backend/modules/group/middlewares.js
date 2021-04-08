@@ -974,7 +974,7 @@ export async function HttpHandleDeleteTask({ mod, req, res, next }) {
 /** @param {MiddlewareParameters} param0 */
 export async function httpChangeScale({ mod, req, res, next }){
   const groupId = req.params.groupId || req.body.groupId || req.query.groupId;
-
+  console.log(req.user)
   /** @type {string} */
   let newScale = req.body.gradingScale
 
@@ -986,6 +986,18 @@ export async function httpChangeScale({ mod, req, res, next }){
   grades = grades.map(item=> parseInt(item))
   newScale = new Scale(groupId,grades)
 
-  await mod.dbManager.updateObject(mod.subcollections.scale,{groupId:{$eq:groupId},},{ $set: {grades:grades}})
+  await mod.dbManager.updateObject(mod.subcollections.scale,{groupId:{$eq:groupId}},{ $set: {grades:grades}})
   return res.json(ANSWERS.GRADES_UPDATED_SUCCESS)
+}
+
+export async function httpGetGroupScale({ mod, req, res, next })
+{
+  if(!req.user.canTeach)
+  return res.status(400).json(ANSWERS.GET_GRADES_NOT_ALLOWED)
+
+  const groupId = req.params.groupId || req.body.groupId || req.query.groupId;
+
+  const scale = await mod.dbManager.findObject(mod.subcollections.scale,{groupId:{$eq:groupId}})
+
+  return res.json({...ANSWERS.GET_GRADES_SUCCESS,scale:scale.grades})
 }
