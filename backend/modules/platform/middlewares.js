@@ -88,11 +88,21 @@ export async function httpCreateNewUser({ mod, req, res }) {
     roleName ?? baseRole,
     targetPlatformId
   );
+  const newPermissions = await mod.getNewPermission(
+    roleName ?? baseRole,
+    targetPlatformId
+  )
+
+  if (!newPermissions)
+  return res.status(400).json(ANSWERS.CREATE_USER_NO_PERMS_IN_REQ);
 
   if (!permission)
     return res.status(400).json(ANSWERS.CREATE_USER_NO_PERMS_IN_REQ);
 
   permission.userId = user.id;
+
+  const connector = new ConnectorPermissionToUser(targetPlatformId,user.id,newPermissions.id)
+  const task_connector_save =  mod.saveConnectorPermsToUser(connector)
 
   const task_perm_save = mod.saveUserPermission(permission);
 
@@ -102,7 +112,7 @@ export async function httpCreateNewUser({ mod, req, res }) {
     { $push: { membersIds: user.id } }
   );
 
-  await Promise.all([task_perm_save, task_platform_update]);
+  await Promise.all([task_perm_save, task_platform_update, task_connector_save]);
 
   delete user.password;
   return res.status(200).json({ user });

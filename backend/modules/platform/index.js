@@ -364,7 +364,7 @@ export default class PlatformModule extends Module {
       referenceId: { $eq: platformId },
     });
 
-  getNewAllTemplatePerms = (platformId) =>  
+  getNewAllTemplatePerms = (platformId) =>
     this.dbManager.findManyObjects(this.subcollections.newTemplatePermissions, {
       platformId: { $eq: platformId },
   });
@@ -373,6 +373,18 @@ export default class PlatformModule extends Module {
     this.dbManager.findOne(this.subcollections.userPermissions, {
       $and: [{ referenceId: platformId }, { userId: userId }],
     });
+
+  getNewPermission = (permissionName, platformId) => {
+    return this.dbManager.findOne(this.subcollections.templatesPerm, {
+      $and: [
+        { platformId: { $eq: platformId } },
+        { name: { $eq: permissionName } },
+      ],
+    });
+  };
+
+  saveConnectorPermsToUser =(obj)=>
+    this.dbManager.insertObject(this.subcollections.newUserPermissions, obj)
 
   toString = () => this.constructor.toString();
   static toString = () => "PlatformModule";
