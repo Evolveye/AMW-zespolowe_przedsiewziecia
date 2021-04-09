@@ -367,5 +367,19 @@ export async function httpDeletePlatform({ mod, req, res }) {
 }
 
 export function httpGetBasePlatformPermisionTemplate({ mod, req, res }){
-    return res.json(new PlatformPermissions())
+    return res.json(PlatformAbilities.getStudentAbilities())
+}
+
+/** @param {MiddlewareParameters} param0 */
+export function httpCreatePlatformsPermissions({ mod, req, res }) {
+  const platformId =  req.params.platformId || req.body.platformId || req.query.platformId;
+  const permissionObject = req.body
+
+  const template = new PlatformPermissions(
+    permissionObject.name,permissionObject.color,permissionObject.importance,
+    permissionObject.abilities,platformId )
+
+  console.log({recivedObj:permissionObject,createdObj:template})
+
+  mod.dbManager.insertObject(mod.subcollections.newTemplatePermissions,template)
 }

@@ -47,12 +47,14 @@ export class PlatformUserPermission extends PlatformPermission {
 
 
 export class PlatformPermissions{
-  constructor(name,color,importance,abilities)
+  constructor(name,color,importance,abilities,platformId)
   {
+      this.id = `${Date.now()}t${Math.random().toString().slice(2)}r`
       this.name = name ||"Anonymous"
       this.color = color || 0xFFFFFF
       this.importance = importance || 0
       this.abilities = abilities || new PlatformAbilities()
+      this.platformId = platformId
   }
 
   static getOwnerPermissions(){

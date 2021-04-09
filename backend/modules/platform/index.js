@@ -74,7 +74,7 @@ export default class PlatformModule extends Module {
         `/platforms/:platformId/permissions`,
         {
           get: auth(this.runMid(m.httpGetPlatformsPermissions)),
-          post: auth(this.runMid(m.httpCreatePlatformsPermissions)), // TODO this.httpCreatePlatformsPermissions
+          post: auth(this.runMid(m.httpCreatePlatformsPermissions)),
         },
       ],
 
