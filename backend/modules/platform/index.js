@@ -71,10 +71,18 @@ export default class PlatformModule extends Module {
         },
       ],
       [
+        `/platforms/:platformId/newpermissions`,
+        {
+          get: auth(this.runMid(m.httpGetNewPlatformsPermissions)),
+          post: auth(this.runMid(m.httpCreatePlatformsPermissions)),
+        },
+      ],
+
+      [
         `/platforms/:platformId/permissions`,
         {
           get: auth(this.runMid(m.httpGetPlatformsPermissions)),
-          post: auth(this.runMid(m.httpCreatePlatformsPermissions)),
+          // post: auth(this.runMid(m.httpCreatePlatformsPermissions)),
         },
       ],
 
@@ -355,6 +363,12 @@ export default class PlatformModule extends Module {
     this.dbManager.findManyObjects(this.subcollections.templatesPerm, {
       referenceId: { $eq: platformId },
     });
+
+  getNewAllTemplatePerms = (platformId) =>  
+    this.dbManager.findManyObjects(this.subcollections.newTemplatePermissions, {
+      platformId: { $eq: platformId },
+  });
+
   getPermissions = (platformId, userId) =>
     this.dbManager.findOne(this.subcollections.userPermissions, {
       $and: [{ referenceId: platformId }, { userId: userId }],

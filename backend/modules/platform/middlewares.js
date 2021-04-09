@@ -108,6 +108,19 @@ export async function httpCreateNewUser({ mod, req, res }) {
   return res.status(200).json({ user });
 }
 
+export async function httpGetNewPlatformsPermissions({ mod, req, res }) {
+  // "/api/platforms/:platformId/permissions": {
+  // Pobieranie wszystkich permisji
+  const platformId = req.params.platformId;
+
+  const member = await mod.checkUserAssigned(req.user.id, platformId);
+  if (!member) return res.status(400).json(ANSWERS.GET_PERMS_NOT_MEMBER);
+
+  const permsTemplatesAll = await mod.getNewAllTemplatePerms(platformId);
+
+  res.json({ permissions: permsTemplatesAll });
+}
+
 export async function httpGetPlatformsPermissions({ mod, req, res }) {
   // "/api/platforms/:platformId/permissions": {
   // Pobieranie wszystkich permisji
