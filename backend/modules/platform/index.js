@@ -22,6 +22,8 @@ export default class PlatformModule extends Module {
   static additionalModules = [`GroupModule`];
 
   subcollections = {
+    newTemplatePermissions:`newPermissionsTemplates`,
+    newUserPermissions:`newPermissionsUsers`,
     templatesPerm: `permissions`,
     userPermissions: `permissions.users`,
   };
@@ -62,7 +64,12 @@ export default class PlatformModule extends Module {
           delete: auth(this.perms(this.runMid(m.httpDeletePlatform))),
         },
       ],
-
+      [
+        `/platforms/permissiontemplate`,
+        {
+         get: m.httpGetBasePlatformPermisionTemplate,
+        },
+      ],
       [
         `/platforms/:platformId/permissions`,
         {

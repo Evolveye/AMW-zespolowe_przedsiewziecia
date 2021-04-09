@@ -44,3 +44,46 @@ export class PlatformUserPermission extends PlatformPermission {
     this.userId = userId
   }
 }
+
+
+export class PlatformPermissions{
+  constructor(name,color,importance,abilities)
+  {
+      this.name = name ||"Anonymous"
+      this.color = color || 0xFFFFFF
+      this.importance = importance || 0
+      this.abilities = abilities || new PlatformAbilities()
+  }
+
+  static getOwnerPermissions(){
+      return new PlatformPermissions(`Owner`,0xFFD700,9999,PlatformAbilities.getOwnerAbilities())
+  }
+  static getLecturerPermissions(){
+      return new PlatformPermissions(`Lecturer`,0x808080 ,100,PlatformAbilities.getLecturerAbilities())
+  }
+  static getStudentPermissions(){
+      return new PlatformPermissions(`Student`,0x808080 ,10,PlatformAbilities.getStudentAbilities())
+  }
+}
+
+
+export class PlatformAbilities{
+  constructor(canCreateUsers,canDeleteUsers,canDeletePlatform,canEditPlatform,canCreateGroups,canDeleteGroups)
+  {
+      this.canCreateUsers = canCreateUsers || false
+      this.canDeleteUsers =canDeleteUsers || false
+      this.canDeletePlatform =canDeletePlatform || false
+      this.canEditPlatform =canEditPlatform || false
+      this.canCreateGroups = canCreateGroups || false
+      this.canDeleteGroups = canDeleteGroups || false
+  }
+  static getOwnerAbilities(){
+      return new PlatformAbilities(true,true,true,true,true,true)
+  }
+  static getLecturerAbilities(){
+      return new PlatformAbilities()
+  }
+  static getStudentAbilities(){
+      return new PlatformAbilities()
+  }
+}

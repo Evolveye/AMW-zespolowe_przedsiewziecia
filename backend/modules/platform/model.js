@@ -1,4 +1,3 @@
-
 /**
  * @typedef {Object} platform
  * @property {string} name

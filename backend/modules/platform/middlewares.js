@@ -2,7 +2,7 @@ import { CREATE_USER_EMAIL_CONTENT, ANSWERS, MAX_LEN_PLATFORM_NAME } from "./con
 import { isEmailValid, isEveryChar, sameWords } from "./../../src/utils.js";
 import { APP_ROOT_DIR, DEBUG } from "./../../consts.js"
 import { Platform } from "./model.js"
-import { PlatformUserPermission } from './permissions.js'
+import { PlatformUserPermission, PlatformPermissions, PlatformAbilities } from './permissions.js'
 import filesystem from 'fs/promises'
 /** @typedef {import("./index.js").MiddlewareParameters} MiddlewareParameters */
 
@@ -364,4 +364,8 @@ export async function httpDeletePlatform({ mod, req, res }) {
   // await mod.dbManager.deleteObject(mod.collectionName, { id: { $eq: targetPlatformId } })
 
   return res.status(200).json(ANSWERS.DELETE_PLATFORM_SUCCESS);
+}
+
+export function httpGetBasePlatformPermisionTemplate({ mod, req, res }){
+    return res.json(new PlatformPermissions())
 }

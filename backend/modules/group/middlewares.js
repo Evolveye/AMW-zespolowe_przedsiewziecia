@@ -859,12 +859,12 @@ export async function httpCreateTask({ mod, req, res, next }) {
   // return res.json({code:420,error:"Create task require canTeach-platform-permission"})
 
   const groupId = req.params.groupId || req.body.groupId || req.query.groupId;
-  console.log("wchodzę")
+
   const { title, description, expireDate, type, mandatory } = req.body
 
   const t = new Task(title, description, groupId, expireDate, req.user, type, mandatory)
 
-  mod.dbManager.insertObject(mod.subcollections.tasks, t)
+  await mod.dbManager.insertObject(mod.subcollections.tasks, t)
 
 
   return res.json({ task: t, ...ANSWERS.TASK_CREATE_SUCCESS })
@@ -887,7 +887,7 @@ export async function httpDoneTask({ mod, req, res, next }) {
   const taskId = req.params.taskId || req.body.taskId || req.query.taskId;
   const file = req.file;
 
-  upload(req, res, function(err){
+  upload(req, res, async function(err){
     if(err instanceof multer.MulterError) console.log(`Please upload a file ${err}`)
     else if (err) console.log(`Unknow error : ${err}`)
 
@@ -895,43 +895,11 @@ export async function httpDoneTask({ mod, req, res, next }) {
     //console.log(req.file, req.files)
     const finalFile = new File(mimetype, filename, path, req.body.description, groupId, req.user)
     const td = new TaskDone(taskId, req.user, finalFile.path,finalFile.description, req.file.filename, finalFile.id)
-    //console.log({ taskDone: td })
-    //console.log("filename: ", req.file.filename)
-    mod.dbManager.insertObject(mod.subcollections.materials, finalFile)
-    mod.dbManager.insertObject(mod.subcollections.tasksDone, td)
+
+    await mod.dbManager.insertObject(mod.subcollections.materials, finalFile)
+    await mod.dbManager.insertObject(mod.subcollections.tasksDone, td)
     return res.json({ task: td, fileData: finalFile, ...ANSWERS.TASK_DONE_SUCCESS })
   });
-
-
-  //console.log(req.file, req.files)
-  /*
-  let uploadOk = true
-  upload(req, res, function (err) {
-    if (err instanceof multer.MulterError) {
-      console.log(`Please upload a file: ${err}`)
-      uploadOk = false
-    }
-    if (err) {
-      console.log(`Unknown error: ${err}`)
-      uploadOk = false
-    }
-  });
-
-  if (uploadOk === false)
-    return res.json(ANSWERS.TASK_UPLOAD_FAILED)
-
-  const { mimetype, filename, path } = req.file
-  console.log(req.file)
-  const finalFile = new File(mimetype, filename, path, req.body.description, groupId, req.user)
-  const td = new TaskDone(taskId, req.user, finalFile.path,finalFile.description, finalFile.id)
-  console.log({ taskDone: td })
-
-
-  await mod.dbManager.insertObject(mod.subcollections.materials, finalFile)
-  await mod.dbManager.insertObject(mod.subcollections.tasksDone, td)
-
-  return res.json({ task: td, fileData: finalFile, ...ANSWERS.TASK_DONE_SUCCESS })
-  */
 }
 
 
@@ -974,7 +942,6 @@ export async function HttpHandleDeleteTask({ mod, req, res, next }) {
 /** @param {MiddlewareParameters} param0 */
 export async function httpChangeScale({ mod, req, res, next }){
   const groupId = req.params.groupId || req.body.groupId || req.query.groupId;
-  console.log(req.user)
   /** @type {string} */
   let newScale = req.body.gradingScale
 
