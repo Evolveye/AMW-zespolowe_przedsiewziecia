@@ -2,7 +2,7 @@ import { CREATE_USER_EMAIL_CONTENT, ANSWERS, MAX_LEN_PLATFORM_NAME } from "./con
 import { isEmailValid, isEveryChar, sameWords } from "./../../src/utils.js";
 import { APP_ROOT_DIR, DEBUG } from "./../../consts.js"
 import { Platform } from "./model.js"
-import { PlatformUserPermission, PlatformPermissions, PlatformAbilities } from './permissions.js'
+import { PlatformUserPermission, PlatformPermissions, PlatformAbilities, ConnectorPermissionToUser } from './permissions.js'
 import filesystem from 'fs/promises'
 /** @typedef {import("./index.js").MiddlewareParameters} MiddlewareParameters */
 
@@ -395,4 +395,16 @@ export function httpCreatePlatformsPermissions({ mod, req, res }) {
   console.log({recivedObj:permissionObject,createdObj:template})
 
   mod.dbManager.insertObject(mod.subcollections.newTemplatePermissions,template)
+}
+
+/** @param {MiddlewareParameters} param0 */
+export function httpAssignPermsToUser({ mod, req, res }) {
+  const platformId =  req.params.platformId || req.body.platformId || req.query.platformId;
+  const userId = req.body.userId
+  const permsId = req.body.permsId
+
+  const connector = new ConnectorPermissionToUser(platformId,userId,permsId)
+  console.log({ConnectorPermsToUser:connector})
+
+  mod.dbManager.insertObject(mod.subcollections.newUserPermissions,connector)
 }

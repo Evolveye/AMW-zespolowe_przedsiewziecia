@@ -89,3 +89,13 @@ export class PlatformAbilities{
       return new PlatformAbilities()
   }
 }
+
+export class ConnectorPermissionToUser{
+  constructor(platformId,userId,permissionId)
+  {
+    this.id = `${Date.now()}t${Math.random().toString().slice(2)}r`
+    this.platformId = platformId
+    this.userId = userId
+    this.permissionId = permissionId
+  }
+}
