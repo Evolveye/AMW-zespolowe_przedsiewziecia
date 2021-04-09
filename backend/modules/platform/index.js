@@ -1,5 +1,5 @@
 import Module from "../module.js";
-import Permissions from "./permissions.js";
+import Permissions, { PlatformPermissions } from "./permissions.js";
 
 import { ANSWERS, MAX_PLATFORM_NUMBER } from "./consts.js";
 import * as middlewares from "./middlewares.js";
@@ -265,6 +265,16 @@ export default class PlatformModule extends Module {
     );
   };
 
+  createNewBaseRoles = ( platformId ) =>
+  {
+    return [ 
+        PlatformPermissions.getLecturerPermissions(platformId),
+        PlatformPermissions.getOwnerPermissions(platformId),
+        PlatformPermissions.getStudentPermissions(platformId)
+      ]
+  }
+
+
   getAllUserPlatforms(userId) {
     return this.dbManager.findManyObjects(this.basecollectionName, {
       membersIds: { $eq: userId },
@@ -382,6 +392,10 @@ export default class PlatformModule extends Module {
       ],
     });
   };
+
+  saveNewPermissions = (obj)=>
+  this.dbManager.insertObject(this.subcollections.newTemplatePermissions, obj)
+
 
   saveConnectorPermsToUser =(obj)=>
     this.dbManager.insertObject(this.subcollections.newUserPermissions, obj)

@@ -305,11 +305,14 @@ export async function httpCreatePlatform({ mod, req, res }) {
       isMaster: true,
     }
   );
+  const newPerms = mod.createNewBaseRoles(newPlatform.id)
+  const ownerNewPermissions = new ConnectorPermissionToUser(newPlatform.id,req.user.id,newPerms.find(perm=> perm.name==`Owner`).id)
 
-  const tasksToDo = [];
+  const tasksToDo = [newPerms.map(item=> mod.saveNewPermissions(item))];
+  //tasksToDo.push(mod.createNewBaseRoles())
   tasksToDo.push(mod.saveUserPermission(ownerPermisions));
   tasksToDo.push(mod.savePlatform(newPlatform));
-  tasksToDo.push(mod.createBaseRoles(newPlatform.id));
+  tasksToDo.push(mod.saveConnectorPermsToUser(ownerNewPermissions));
 
   await Promise.all(tasksToDo);
 

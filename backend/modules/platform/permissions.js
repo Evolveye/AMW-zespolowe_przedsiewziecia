@@ -54,17 +54,17 @@ export class PlatformPermissions{
       this.color = color || 0xFFFFFF
       this.importance = importance || 0
       this.abilities = abilities || new PlatformAbilities()
-      this.platformId = platformId
+      this.platformId = platformId || null
   }
 
-  static getOwnerPermissions(){
-      return new PlatformPermissions(`Owner`,0xFFD700,9999,PlatformAbilities.getOwnerAbilities())
+  static getOwnerPermissions(platformId){
+      return new PlatformPermissions(`Owner`,0xFFD700,9999,PlatformAbilities.getOwnerAbilities(),platformId)
   }
-  static getLecturerPermissions(){
-      return new PlatformPermissions(`Lecturer`,0x808080 ,100,PlatformAbilities.getLecturerAbilities())
+  static getLecturerPermissions(platformId){
+      return new PlatformPermissions(`Lecturer`,0x808080 ,100,PlatformAbilities.getLecturerAbilities(),platformId)
   }
-  static getStudentPermissions(){
-      return new PlatformPermissions(`Student`,0x808080 ,10,PlatformAbilities.getStudentAbilities())
+  static getStudentPermissions(platformId){
+      return new PlatformPermissions(`Student`,0x808080 ,10,PlatformAbilities.getStudentAbilities(),platformId)
   }
 }
 
