@@ -22,6 +22,8 @@ export default class GroupModule extends Module {
     templatePermissions: `permissions`,
     userPermissions: `permissions.users`,
     scale:`scale`,
+    newTemplatePermissions: `newPermissions`,
+    newUserPermissions: `newPermissions.users`,
   };
 
   /** @param {import("socket.io").Socket} socket */
@@ -33,7 +35,21 @@ export default class GroupModule extends Module {
     const pPerms = this.requiredModules.platformModule.perms;
     const m = middlewares;
 
-    return new Map([
+    return new Map([ // httpCreateGroupPermissions
+      [
+        `/groups/:groupId/permissions/my`,
+        {
+          get: auth(this.runMid(m.httpHandleMyPermission)),
+        },
+      ],
+      [
+        `/groups/:groupId/permissions`,
+        {
+          get: auth(this.perms(this.runMid(m.httpGetTemplatePermissions))),
+          post: auth(this.runMid(m.httpCreateGroupPermissions)), // TODO this.httpCreatePermissions
+        },
+      ],
+
       [
         `/groups/permissiontemplate`,
         {
@@ -151,28 +167,14 @@ export default class GroupModule extends Module {
         },
       ],
 
-      [
-        `/groups/:groupId/permissions/my`,
-        {
-          get: auth(this.runMid(m.httpHandleMyPermission)),
-        },
-      ],
+      // [
+      //   `/groups/:groupId/permissions/:permissionId`,
+      //   {
+      //     delete: auth(this.runMid(m.httpDeletePermission)), // TODO this.httpDeletePermission
+      //     put: auth(this.runMid(m.httpEditPermission)), // TODO this.httpEditPermission
+      //   },
+      // ],
 
-      [
-        `/groups/:groupId/permissions/:permissionId`,
-        {
-          delete: auth(this.runMid(m.httpDeletePermission)), // TODO this.httpDeletePermission
-          put: auth(this.runMid(m.httpEditPermission)), // TODO this.httpEditPermission
-        },
-      ],
-
-      [
-        `/groups/:groupId/permissions`,
-        {
-          get: auth(this.perms(this.runMid(m.httpGetTemplatePermissions))),
-          post: auth(this.runMid(m.httpCreatePermissions)), // TODO this.httpCreatePermissions
-        },
-      ],
     ]);
   }
 
@@ -342,6 +344,19 @@ export default class GroupModule extends Module {
     await this.dbManager.findManyObjects(this.basecollectionName, {
       platformId: { $eq: platformId },
     });
+
+  getAllPermissionsTemplateFromGroup = (groupId)=>
+  this.dbManager.findManyObjects(
+    this.subcollections.newTemplatePermissions,
+    {groupId:{$eq:groupId}}
+    )
+
+  saveNewGroupPermissionTemplate = (template) =>
+  this.dbManager.insertObject(this.subcollections.newTemplatePermissions,template)
+
+  saveNewGroupPermissionConnector = (connector) =>
+  this.dbManager.insertObject(this.subcollections.newUserPermissions,connector)
+
 
   getGroupPermissions = (userId, groupId) => {
     return this.dbManager.findOne(this.subcollections.userPermissions, {
