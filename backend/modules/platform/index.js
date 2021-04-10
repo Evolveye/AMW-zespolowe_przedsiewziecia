@@ -1,5 +1,5 @@
 import Module from "../module.js";
-import Permissions, { PlatformPermissions } from "./permissions.js";
+import Permissions, { ConnectorPermissionToUser, PlatformPermissions } from "./permissions.js";
 
 import { ANSWERS, MAX_PLATFORM_NUMBER } from "./consts.js";
 import * as middlewares from "./middlewares.js";
@@ -174,6 +174,22 @@ export default class PlatformModule extends Module {
       }
     );
 
+    if(!newPerms)
+    {
+      const platformMember = await this.checkUserAssigned(req.user.id, platformId);
+
+      if (!platformMember)
+        return res.status(400).json(ANSWERS.PLATFORM_PERMS_NOT_MEMBER);
+
+      const inDbPermission = await this.getNewPermission(`Student`,platformId)
+      req.user.platformPerms = inDbPermission
+      req.user.platformPerms.platformId = platformId;
+      const connector = new ConnectorPermissionToUser(platformId,req.user.id,inDbPermission.id)
+      await this.saveConnectorPermsToUser(connector)
+    } else {
+      req.user.newPlatformPerms = newPerms
+    }
+
     if (!perms) {
       const platformMember = this.checkUserAssigned(req.user.id, platformId);
 
@@ -196,6 +212,7 @@ export default class PlatformModule extends Module {
         perms
       ).getProxy();
     }
+    //console.log({old:req.user.platformPerms.target,new:req.user.newPlatformPerms})
   }
 
   /** @param {import("socket.io").Socket} socket */
