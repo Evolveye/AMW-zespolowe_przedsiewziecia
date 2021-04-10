@@ -49,9 +49,11 @@ export async function httpHandleMyPermission({ mod, req, res }) {
 
   if (!value) return res.status(400).send(ANSWERS.MY_PERMISSIONS_NOT_FOUND);
 
+  const newPermissions = await mod.getNewGroupPermission(client.id,groupId)
+
   delete value["_id"];
 
-  return res.json({ permissions: value });
+  return res.json({ permissions: value, newPermissions:newPermissions });
 }
 
 export async function httpHandleNoteUpdate({ mod, req, res }) {

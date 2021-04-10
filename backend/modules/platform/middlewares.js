@@ -410,14 +410,14 @@ export function httpCreatePlatformsPermissions({ mod, req, res }) {
   mod.dbManager.insertObject(mod.subcollections.newTemplatePermissions,template)
 }
 
-/** @param {MiddlewareParameters} param0 */
-export function httpAssignPermsToUser({ mod, req, res }) {
-  const platformId =  req.params.platformId || req.body.platformId || req.query.platformId;
-  const userId = req.body.userId
-  const permsId = req.body.permsId
+// /** @param {MiddlewareParameters} param0 */
+// export function httpAssignPermsToUser({ mod, req, res }) {
+//   const platformId =  req.params.platformId || req.body.platformId || req.query.platformId;
+//   const userId = req.body.userId
+//   const permsId = req.body.permsId
 
-  const connector = new ConnectorPlatformPermissionToUser(platformId,userId,permsId)
-  console.log({ConnectorPermsToUser:connector})
+//   const connector = new ConnectorPlatformPermissionToUser(platformId,userId,permsId)
+//   console.log({ConnectorPermsToUser:connector})
 
-  mod.dbManager.insertObject(mod.subcollections.newUserPermissions,connector)
-}
+//   mod.dbManager.insertObject(mod.subcollections.newUserPermissions,connector)
+// }

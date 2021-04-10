@@ -363,7 +363,40 @@ export default class GroupModule extends Module {
   saveNewGroupPermissionConnector = (connector) =>
   this.dbManager.insertObject(this.subcollections.newUserPermissions,connector)
 
-
+  getNewGroupPermission = (userId,groupId) =>
+  {
+  let newPerms = await this.dbManager.aggregate(
+    this.subcollections.newUserPermissions,
+   { pipeline: [ {
+      $match: {
+        $and: [
+          {
+            userId: {
+              $eq: userId
+            }
+          }, {
+            groupId: {
+              $eq: groupId
+            }
+          }
+        ]
+      }
+    }, {
+      $lookup: {
+        from: this.subcollections.newTemplatePermissions,
+        localField: `permissionId`,
+        foreignField: `id`,
+        as: `perms`
+      }
+    }, {
+      $unwind: {
+        path: `$perms`
+      }
+    }]}
+  ).toArray()
+  newPerms = newPerms[0]
+  return newPerms
+}
   getGroupPermissions = (userId, groupId) => {
     return this.dbManager.findOne(this.subcollections.userPermissions, {
       referenceId: { $eq: groupId },
