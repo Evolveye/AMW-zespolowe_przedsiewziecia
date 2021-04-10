@@ -133,6 +133,37 @@ export default class PlatformModule extends Module {
     if (!platformId)
       return res.status(400).json(ANSWERS.PLATFORM_PERMS_PE_ID_MISS);
 
+    let newPerms = await this.dbManager.aggregate(
+      this.subcollections.newUserPermissions,
+     { pipeline: [ {
+        $match: {
+          $and: [
+            {
+              userId: {
+                $eq: req.user.id
+              }
+            }, {
+              platformId: {
+                $eq: platformId
+              }
+            }
+          ]
+        }
+      }, {
+        $lookup: {
+          from: this.subcollections.newTemplatePermissions,
+          localField: `permissionId`,
+          foreignField: `id`,
+          as: `perms`
+        }
+      }, {
+        $unwind: {
+          path: `$perms`
+        }
+      }]}
+    ).toArray()
+    newPerms = newPerms[0]
+
     const perms = await this.dbManager.findOne(
       this.subcollections.userPermissions,
       {
@@ -267,7 +298,7 @@ export default class PlatformModule extends Module {
 
   createNewBaseRoles = ( platformId ) =>
   {
-    return [ 
+    return [
         PlatformPermissions.getLecturerPermissions(platformId),
         PlatformPermissions.getOwnerPermissions(platformId),
         PlatformPermissions.getStudentPermissions(platformId)
