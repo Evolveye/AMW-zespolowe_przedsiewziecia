@@ -366,11 +366,12 @@ export default class GroupModule extends Module {
   saveNewGroupPermissionConnector = (connector) =>
   this.dbManager.insertObject(this.subcollections.newUserPermissions,connector)
 
-  getNewGroupPermission = (userId,groupId) =>
+  getNewGroupPermission = async (userId,groupId) =>
   {
-  return this.dbManager.aggregate(
+  const perms =  this.dbManager.aggregate(
     this.subcollections.newUserPermissions,
-   { pipeline: [ {
+   { pipeline: [
+    {
       $match: {
         $and: [
           {
@@ -387,7 +388,7 @@ export default class GroupModule extends Module {
     }, {
       $lookup: {
         from: this.subcollections.newTemplatePermissions,
-        localField: `permissionId`,
+        localField: `permissionTemplateId`,
         foreignField: `id`,
         as: `perms`
       }
@@ -395,8 +396,11 @@ export default class GroupModule extends Module {
       $unwind: {
         path: `$perms`
       }
-    }]}
-  ).then(cursor=> cursor.toArray() ).then(array=> array[0])
+    }
+  ]}
+  )
+  const z = await perms.toArray()
+  return z[0]
 }
   getGroupPermissions = (userId, groupId) => {
     return this.dbManager.findOne(this.subcollections.userPermissions, {
