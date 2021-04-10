@@ -2,7 +2,7 @@
 import { Grade, Group, Task, File, TaskDone, Scale } from "./models.js";
 import dbManager from "../../src/dbManager.js";
 import { ANSWERS, MAX_LEN_GROUP_NAME, MAX_LEN_NOTE_DESCRIPTION } from "./consts.js";
-import GroupPermission, { GroupUserPermission } from "./permissions.js";
+import GroupPermission, { GroupAbilities, GroupUserPermission } from "./permissions.js";
 import multer from "multer"
 import { generateId,isDigit } from "../../src/utils.js";
 import filesystem from 'fs/promises'
@@ -967,4 +967,9 @@ export async function httpGetGroupScale({ mod, req, res, next })
   const scale = await mod.dbManager.findObject(mod.subcollections.scale,{groupId:{$eq:groupId}})
 
   return res.json({...ANSWERS.GET_GRADES_SUCCESS,scale:scale.grades})
+}
+
+
+export function httpGetGroupPermissionAbilities({ mod, req, res, next }) {
+  return res.json(new GroupAbilities())
 }

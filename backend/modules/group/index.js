@@ -35,6 +35,13 @@ export default class GroupModule extends Module {
 
     return new Map([
       [
+        `/groups/permissiontemplate`,
+        {
+           get: m.httpGetGroupPermissionAbilities,
+        },
+      ],
+
+      [
         `/groups/:groupId/scale`,
         {
            get: auth(this.runMid(m.httpGetGroupScale)),

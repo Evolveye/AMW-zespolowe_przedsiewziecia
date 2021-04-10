@@ -393,7 +393,7 @@ export async function httpDeletePlatform({ mod, req, res }) {
 }
 
 export function httpGetBasePlatformPermisionTemplate({ mod, req, res }){
-    return res.json(PlatformAbilities.getStudentAbilities())
+    return res.json(new PlatformAbilities())
 }
 
 /** @param {MiddlewareParameters} param0 */
