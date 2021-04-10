@@ -754,9 +754,8 @@ export async function httpGetTemplatePermissions({ mod, req, res }) {
     return res.status(400).json(ANSWERS.GET_TEMPLATE_PERMS_NOT_ALLOWED);
 
   const permissionList = await mod.getAllTemplatePerms(groupId);
-  const newPermissionList = await mod.getAllPermissionsTemplateFromGroup(groupId)
 
-  return res.json({ permissions: permissionList, newPermissions:newPermissionList });
+  return res.json({ permissions: permissionList });
 }
 
 /** @param {MiddlewareParameters} param0 */
