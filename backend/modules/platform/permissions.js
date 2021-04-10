@@ -88,7 +88,7 @@ export class PlatformAbilities{
   }
 }
 
-export class ConnectorPermissionToUser{
+export class ConnectorPlatformPermissionToUser{
   constructor(platformId,userId,permissionId)
   {
     this.id = `${Date.now()}t${Math.random().toString().slice(2)}r`

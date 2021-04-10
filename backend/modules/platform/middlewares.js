@@ -2,7 +2,7 @@ import { CREATE_USER_EMAIL_CONTENT, ANSWERS, MAX_LEN_PLATFORM_NAME } from "./con
 import { isEmailValid, isEveryChar, sameWords } from "./../../src/utils.js";
 import { APP_ROOT_DIR, DEBUG } from "./../../consts.js"
 import { Platform } from "./model.js"
-import { PlatformUserPermission, PlatformPermissions, PlatformAbilities, ConnectorPermissionToUser } from './permissions.js'
+import { PlatformUserPermission, PlatformPermissions, PlatformAbilities, ConnectorPlatformPermissionToUser } from './permissions.js'
 import filesystem from 'fs/promises'
 /** @typedef {import("./index.js").MiddlewareParameters} MiddlewareParameters */
 
@@ -101,7 +101,7 @@ export async function httpCreateNewUser({ mod, req, res }) {
 
   permission.userId = user.id;
 
-  const connector = new ConnectorPermissionToUser(targetPlatformId,user.id,newPermissions.id)
+  const connector = new ConnectorPlatformPermissionToUser(targetPlatformId,user.id,newPermissions.id)
   const task_connector_save =  mod.saveConnectorPermsToUser(connector)
 
   const task_perm_save = mod.saveUserPermission(permission);
@@ -306,7 +306,7 @@ export async function httpCreatePlatform({ mod, req, res }) {
     }
   );
   const newPerms = mod.createNewBaseRoles(newPlatform.id)
-  const ownerNewPermissions = new ConnectorPermissionToUser(newPlatform.id,req.user.id,newPerms.find(perm=> perm.name==`Owner`).id)
+  const ownerNewPermissions = new ConnectorPlatformPermissionToUser(newPlatform.id,req.user.id,newPerms.find(perm=> perm.name==`Owner`).id)
 
   const tasksToDo = [newPerms.map(item=> mod.saveNewPermissions(item))];
   tasksToDo.push(mod.createBaseRoles(newPlatform.id))
@@ -416,7 +416,7 @@ export function httpAssignPermsToUser({ mod, req, res }) {
   const userId = req.body.userId
   const permsId = req.body.permsId
 
-  const connector = new ConnectorPermissionToUser(platformId,userId,permsId)
+  const connector = new ConnectorPlatformPermissionToUser(platformId,userId,permsId)
   console.log({ConnectorPermsToUser:connector})
 
   mod.dbManager.insertObject(mod.subcollections.newUserPermissions,connector)

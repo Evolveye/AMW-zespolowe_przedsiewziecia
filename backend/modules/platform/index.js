@@ -1,5 +1,5 @@
 import Module from "../module.js";
-import Permissions, { ConnectorPermissionToUser, PlatformPermissions } from "./permissions.js";
+import Permissions, { ConnectorPlatformPermissionToUser, PlatformPermissions } from "./permissions.js";
 
 import { ANSWERS, MAX_PLATFORM_NUMBER } from "./consts.js";
 import * as middlewares from "./middlewares.js";
@@ -184,7 +184,7 @@ export default class PlatformModule extends Module {
       const inDbPermission = await this.getNewPermission(`Student`,platformId)
       req.user.platformPerms = inDbPermission
       req.user.platformPerms.platformId = platformId;
-      const connector = new ConnectorPermissionToUser(platformId,req.user.id,inDbPermission.id)
+      const connector = new ConnectorPlatformPermissionToUser(platformId,req.user.id,inDbPermission.id)
       await this.saveConnectorPermsToUser(connector)
     } else {
       req.user.newPlatformPerms = newPerms

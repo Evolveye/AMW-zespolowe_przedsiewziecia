@@ -59,12 +59,20 @@ export class GroupUserPermission extends GroupPermission {
 }
 
 export class GroupPermissions{
-  constructor(name,color,importance,abilities) {
+  constructor(groupId,name,color,importance,abilities) {
+    this.id = `${Date.now()}t${Math.random().toString().slice(2)}r`
+    this.groupId = groupId
     this.name = name || `Anonymous`
     this.color = color ||  0xFFFFFF
     this.importance = importance || 0
     this.abilities = abilities || new GroupAbilities()
   }
+  static getOwnerPerm = (groupId)=>
+    new GroupPermission(groupId,`Owner`,GroupAbilities.getOwnerAbilities())
+
+  static getStudentPerm = (groupId)=>
+    new GroupPermission(groupId,`Student`,GroupAbilities.getStudentAbilities())
+
 }
 
 export class GroupAbilities {
@@ -76,4 +84,19 @@ export class GroupAbilities {
     this.canManageMeets = canManageMeets  || false
     this.canManageRoles = canManageRoles  || false
   }
+
+  static getOwnerAbilities = () =>new GroupAbilities(true,true,true,true,true,true)
+
+  static getStudentAbilities = () => new GroupAbilities()
+
+}
+
+export class ConnectorGroupPermissionToUser{
+    constructor(groupId,userId,permissionTemplateId)
+    {
+      this.id = `${Date.now()}t${Math.random().toString().slice(2)}r`
+      this.groupId = groupId
+      this.userId = userId
+      this.permissionTemplateId = permissionTemplateId
+    }
 }
