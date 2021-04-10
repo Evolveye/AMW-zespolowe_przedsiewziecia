@@ -68,10 +68,10 @@ export class GroupPermissions{
     this.abilities = abilities || new GroupAbilities()
   }
   static getOwnerPerm = (groupId)=>
-    new GroupPermission(groupId,`Owner`,GroupAbilities.getOwnerAbilities())
+    new GroupPermissions(groupId,`Owner`,0xFFD700,9999, GroupAbilities.getOwnerAbilities())
 
   static getStudentPerm = (groupId)=>
-    new GroupPermission(groupId,`Student`,GroupAbilities.getStudentAbilities())
+    new GroupPermissions(groupId,`Student`,0x808080,10,GroupAbilities.getStudentAbilities())
 
 }
 

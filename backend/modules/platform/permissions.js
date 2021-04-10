@@ -61,7 +61,7 @@ export class PlatformPermissions{
       return new PlatformPermissions(`Owner`,0xFFD700,9999,PlatformAbilities.getOwnerAbilities(),platformId)
   }
   static getLecturerPermissions(platformId){
-      return new PlatformPermissions(`Lecturer`,0x808080 ,100,PlatformAbilities.getLecturerAbilities(),platformId)
+      return new PlatformPermissions(`Lecturer`,0x00ff00 ,100,PlatformAbilities.getLecturerAbilities(),platformId)
   }
   static getStudentPermissions(platformId){
       return new PlatformPermissions(`Student`,0x808080 ,10,PlatformAbilities.getStudentAbilities(),platformId)
@@ -70,10 +70,10 @@ export class PlatformPermissions{
 
 
 export class PlatformAbilities{
-  constructor(canManageUsers,canManagePlatform,canEditDetails,canManageGroups)
+  constructor(canManageUsers,canDeletePlatform,canEditDetails,canManageGroups)
   {
       this.canEditDetails = canEditDetails || false
-      this.canManagePlatform = canManagePlatform || false
+      this.canDeletePlatform = canDeletePlatform || false
       this.canManageGroups = canManageGroups || false
       this.canManageUsers = canManageUsers || false
   }
