@@ -155,19 +155,20 @@ export async function createUserMiddleware({ req, res }) {
  * @param {MiddlewareParameters} param0
  */
 export async function acctivateAccountMiddleware({ mod, req, res }) {
-    const accLogin = req.params.code
+    const accId = req.params.code
     // TODO:REFACTOR -> Login jest zbyt słaby do aktywacji konta.
 
-    if (!emailManager.isActiveActivationEmail(accLogin)) return res.status(200).json(ANSWERS.EMAIL_ACTIVATE_EXPIRED)
+    if (!emailManager.isActiveActivationEmail(accId))
+     return res.status(200).json(ANSWERS.EMAIL_ACTIVATE_EXPIRED)
 
     /** @type {User} */
     let targetUser = await mod.dbManager.findObject(mod.basecollectionName,
-        { login: accLogin }
+        { id: accId }
     )
 
-    targetUser = await mod.dbManager.findObject(mod.basecollectionName,
-        { login: accLogin }
-    )
+    // targetUser = await mod.dbManager.findObject(mod.basecollectionName,
+    //     { login: accLogin }
+    // )
 
     if (targetUser.activated === true) return res.status(200).json(ANSWERS.ACCOUNT_ALREADY_ACTIVATED)
 
