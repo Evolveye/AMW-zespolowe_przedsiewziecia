@@ -70,17 +70,15 @@ export class PlatformPermissions{
 
 
 export class PlatformAbilities{
-  constructor(canCreateUsers,canDeleteUsers,canDeletePlatform,canEditPlatform,canCreateGroups,canDeleteGroups)
+  constructor(canManageUsers,canManagePlatform,canEditDetails,canManageGroups)
   {
-      this.canCreateUsers = canCreateUsers || false
-      this.canDeleteUsers =canDeleteUsers || false
-      this.canDeletePlatform =canDeletePlatform || false
-      this.canEditPlatform =canEditPlatform || false
-      this.canCreateGroups = canCreateGroups || false
-      this.canDeleteGroups = canDeleteGroups || false
+      this.canEditDetails = canEditDetails || false
+      this.canManagePlatform = canManagePlatform || false
+      this.canManageGroups = canManageGroups || false
+      this.canManageUsers = canManageUsers || false
   }
   static getOwnerAbilities(){
-      return new PlatformAbilities(true,true,true,true,true,true)
+      return new PlatformAbilities(true,true,true,true)
   }
   static getLecturerAbilities(){
       return new PlatformAbilities()

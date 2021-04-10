@@ -17,7 +17,6 @@ export default class GroupPermission extends Permissions {
   constructor(groupId, permissionName, perms = {}) {
     super(groupId, permissionName, perms)
 
- 
     this.canManageUsers = perms.canManageUsers ?? false
     this.canManageNotes = perms.canManageNotes ?? false
     this.canManageMeets = perms.canManageMeets ?? false
@@ -50,15 +49,11 @@ export class GroupUserPermission extends GroupPermission {
     return new GroupUserPermission(groupId, userId, `student`)
   }
 
-
-
-
   static createOwnerPerm(groupId, userId) {
     return new GroupUserPermission(
-      groupId, 
-      userId, 
-      `lecturer`, 
+      groupId,
+      userId,
+      `lecturer`,
       GroupPermission.getOwnerPerm())
   }
-
 }
