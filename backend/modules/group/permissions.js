@@ -57,3 +57,23 @@ export class GroupUserPermission extends GroupPermission {
       GroupPermission.getOwnerPerm())
   }
 }
+
+export class GroupPermissions{
+  constructor(name,color,importance,abilities) {
+    this.name = name || `Anonymous`
+    this.color = color ||  0xFFFFFF
+    this.importance = importance || 0
+    this.abilities = abilities || new GroupAbilities()
+  }
+}
+
+export class GroupAbilities {
+  constructor(canEditDetails,canDelete,canManageUsers,canManageNotes,canManageMeets,canManageRoles){
+    this.canEditDetails = canEditDetails  || false
+    this.canDelete = canDelete  || false
+    this.canManageUsers = canManageUsers  || false
+    this.canManageNotes = canManageNotes  || false
+    this.canManageMeets = canManageMeets  || false
+    this.canManageRoles = canManageRoles  || false
+  }
+}
