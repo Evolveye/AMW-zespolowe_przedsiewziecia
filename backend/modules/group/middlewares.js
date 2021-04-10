@@ -732,6 +732,14 @@ export async function httpCreateGroup({ mod, req, res }) {
     { $push: { assignedGroups: group.id } }
   );
 
+  const newOwnerPerms = GroupPermissions.getOwnerPerm(group.id)
+  const newStudentPerms = GroupPermissions.getStudentPerm(group.id)
+  const connectorForOwner = new ConnectorGroupPermissionToUser(group.id,req.user.id,newOwnerPerms.id)
+
+  await mod.saveNewGroupPermissionTemplate(newOwnerPerms)
+  await mod.saveNewGroupPermissionTemplate(newStudentPerms)
+  await mod.saveNewGroupPermissionConnector(connectorForOwner)
+
   return res.status(200).json({ group });
 }
 
