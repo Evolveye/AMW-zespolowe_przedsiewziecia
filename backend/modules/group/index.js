@@ -209,6 +209,9 @@ export default class GroupModule extends Module {
       }
     );
 
+    const newPerms = await this.getNewGroupPermission(req.user.id,groupId)
+    req.user.newGroupPerms = newPerms
+
     if (!perms) {
       const groupMember = await this.checkIsUserAssigned(req.user.id, groupId);
 
