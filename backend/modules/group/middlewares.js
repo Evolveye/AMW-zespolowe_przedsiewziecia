@@ -985,3 +985,11 @@ export async function httpCreateGroupPermissions({ mod, req, res, next }) {
 
   return res.status(200).json({...ANSWERS.CREATE_GROUP_PERMISSION_SUCCESS,perms:newPerms})
 }
+
+export async function httpGetNewTemplatePermissions({ mod, req, res, next }) {
+  const groupId = req.params.groupId || req.body.groupId || req.query.groupId;
+
+  const permissions =  await mod.getAllPermissionsTemplateFromGroup(groupId)
+
+  return res.status(200).json({perms:permissions})
+}

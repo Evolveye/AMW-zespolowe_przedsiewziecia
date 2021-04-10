@@ -43,10 +43,16 @@ export default class GroupModule extends Module {
         },
       ],
       [
+        `/groups/:groupId/newpermissions`,
+        {
+          get: auth(this.perms(this.runMid(m.httpGetNewTemplatePermissions))),
+          post: auth(this.runMid(m.httpCreateGroupPermissions)), // TODO this.httpCreatePermissions
+        },
+      ],
+      [
         `/groups/:groupId/permissions`,
         {
-          get: auth(this.perms(this.runMid(m.httpGetTemplatePermissions))),
-          post: auth(this.runMid(m.httpCreateGroupPermissions)), // TODO this.httpCreatePermissions
+          get: auth(this.perms(this.runMid(m.httpGetTemplatePermissions)))
         },
       ],
 
