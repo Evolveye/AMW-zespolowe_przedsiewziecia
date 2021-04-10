@@ -368,7 +368,7 @@ export default class GroupModule extends Module {
 
   getNewGroupPermission = (userId,groupId) =>
   {
-  let newPerms = await this.dbManager.aggregate(
+  return this.dbManager.aggregate(
     this.subcollections.newUserPermissions,
    { pipeline: [ {
       $match: {
@@ -396,9 +396,7 @@ export default class GroupModule extends Module {
         path: `$perms`
       }
     }]}
-  ).toArray()
-  newPerms = newPerms[0]
-  return newPerms
+  ).then(cursor=> cursor.toArray() ).then(array=> array[0])
 }
   getGroupPermissions = (userId, groupId) => {
     return this.dbManager.findOne(this.subcollections.userPermissions, {
