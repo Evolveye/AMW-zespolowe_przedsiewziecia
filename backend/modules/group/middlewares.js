@@ -2,7 +2,7 @@
 import { Grade, Group, Task, File, TaskDone, Scale } from "./models.js";
 import dbManager from "../../src/dbManager.js";
 import { ANSWERS, MAX_LEN_GROUP_NAME, MAX_LEN_NOTE_DESCRIPTION } from "./consts.js";
-import GroupPermission, { GroupAbilities, GroupPermissions, GroupUserPermission } from "./permissions.js";
+import GroupPermission, { ConnectorGroupPermissionToUser, GroupAbilities, GroupPermissions, GroupUserPermission } from "./permissions.js";
 import multer from "multer"
 import { generateId,isDigit } from "../../src/utils.js";
 import filesystem from 'fs/promises'
@@ -641,6 +641,10 @@ export async function httpAddGroupMember({ mod, req, res }) {
     positiveIds.map((id) => mod.requiredModules.userModule.getUserById(id))
   );
 
+
+  const connector = new ConnectorGroupPermissionToUser(groupId,req.body.userId,req.body.permissionId)
+  await mod.saveNewGroupPermissionConnector(connector)
+
   const success = ANSWERS.ADD_GROUP_MEMBER_SUCCESS;
   const returndata = { data: asssignedUsers, ...success };
 
@@ -991,4 +995,16 @@ export async function httpGetNewTemplatePermissions({ mod, req, res, next }) {
   const permissions =  await mod.getAllPermissionsTemplateFromGroup(groupId)
 
   return res.status(200).json({perms:permissions})
+}
+
+export async function httpAssignUserToPermission({ mod, req, res, next }) {
+  const groupId = req.params.groupId || req.body.groupId || req.query.groupId;
+  const userId = req.body.userId
+  const permissionId = req.body.permissionId
+
+  const connector = new ConnectorGroupPermissionToUser(groupId,userId,permissionId)
+
+  await mod.saveNewGroupPermissionConnector(connector)
+
+  return res.status(200).json(ANSWERS.ASSIGN_PERMISSION_TO_USER_SUCCESS)
 }
