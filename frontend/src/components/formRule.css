@@ -1,0 +1,29 @@
+table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+  }
+table, thead th{
+    border-top: none;
+  }
+table, thead th:first-child, tbody td:first-child{
+    border-left:none; 
+  }
+table, thead th:last-child, tbody td:last-child{
+    border-right: none;
+}
+table, tfoot td{
+    border-bottom: none;
+}
+tfoot tr:last-child td{
+    border-left: none;
+    border-right: none;
+}
+tfoot tr:last-child td:last-child{
+    border-top: 1px solid black;
+    border-left: 1px solid black;
+}
+
+#tableRoles th{
+  padding-left: 3px;
+  padding-right: 3px;
+}

@@ -16,7 +16,7 @@ import FlatTile from "../models/flatTile.js"
 const navItems = [
   { urn: `settings`, name: `Ogólne`, permName: `isMaster` },
   { urn: `users`, name: `Użytkownicy`, permName: `isMaster` },
-  // { urn: `roles`, name: `Role`, permName: `isMaster` },
+  { urn: `roles`, name: `Role`, permName: `isMaster` },
   { urn: `groups`, name: `Grupy`, permName: `isMaster` },
 ]
 
