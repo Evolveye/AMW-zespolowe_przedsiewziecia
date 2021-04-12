@@ -13,6 +13,9 @@
     .table {
       width: 100%;
     }
+      .table.is-rotated {
+        padding-top: 115px;
+      }
       .actionButton {
         padding: 5px;
       }
@@ -30,6 +33,25 @@
       }
       .adder {
         width: 100%;
+        margin: 0;
+      }
+      .color[style] {
+        display: block;
+        margin: 0 auto;
+        width: 40px;
+        height: 10px;
+        outline: 1px solid #bbb;
+        outline-offset: 4px;
+      }
+      .checkbox {
+        display: block;
+        margin: 0 auto;
+      }
+      .ability {
+        transform: rotate( 325deg );
+        white-space: nowrap;
+        max-width: 60px;
+        padding-left: 20px;
       }
 
 .toggleBox {

@@ -50,20 +50,24 @@ const InputField = ({
   className = ``,
   type,
   getDataAddress,
-  validator = () => true,
   processor,
+  validator = () => true,
   validateInitialData = data => data,
   runAfterDataLoad,
 }) => {
+  const controlledProcessor = data => {
+    const processedData = processor( data )
+    return (typeof processedData === `object` && `value` in processedData && `label` in processedData)
+      ? processedData
+      : { label:processedData, value:processedData }
+  }
   const [ data, setData ] = useState()
   const standardProps = {
-    defaultValue: defaultValue ? processor( defaultValue )?.value : undefined,
+    defaultValue: defaultValue ? controlledProcessor( defaultValue )?.value : undefined,
     key: typeof data,
     onChange: ({ target }) => validator( target.value ),
     className,
   }
-
-  // standardProps[ `key` ] = typeof data
 
   useEffect( () => {
     runAfterDataLoad( () => {
@@ -71,9 +75,10 @@ const InputField = ({
     } )
   }, [] )
 
-
   switch (type) {
     case `text`: return <input type="text" {...standardProps} />
+    case `color`: return <input type="color" {...standardProps} />
+    case `checkbox`: return <input type="checkbox" {...standardProps} defaultChecked={standardProps.defaultValue} />
     case `datetime-local`: return <input type="datetime-local" {...standardProps} />
     case `textarea`: return <textarea {...standardProps} />
 
@@ -81,7 +86,7 @@ const InputField = ({
       <select {...standardProps}>
         {
           validateInitialData( Array.isArray( data ) ? data : [], {} ).map( field => {
-            const { value, label } = processor( field )
+            const { value, label } = controlledProcessor( field )
 
             return <option key={value} value={value}>{label}</option>
           } )
@@ -145,7 +150,7 @@ export default class DataTable extends React.Component {
     this.state = {
       tableHeaders: (
         <tr>
-          {this.fields.map( ({ label }) => <th key={label}>{label}</th> )}
+          {this.fields.map( ({ label, className = `` }) => <th className={className} key={label}>{label}</th> )}
           <th>{props.actionsLabel || `Actions`}</th>
         </tr>
       ),
@@ -212,10 +217,15 @@ export default class DataTable extends React.Component {
 
               const filler = editable ? this.tableAdderFields[ name ] : data => {
                 const processedData = processor( data )
-                return processedData.label ?? processedData
+                return processedData?.label ?? processedData
               }
 
-              return <td key={name}>{filler( field[ dataFieldname ] )}</td>
+              const data = filler( field[ dataFieldname ] )
+              const value = typeof data === `boolean`
+                ? <input disabled type="radio" defaultChecked={data} style={{ display:`block`, margin:`0 auto` }} />
+                : data
+
+              return <td key={name}>{value}</td>
             } )
           }
           <td>

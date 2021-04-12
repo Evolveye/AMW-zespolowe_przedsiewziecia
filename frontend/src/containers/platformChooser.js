@@ -114,7 +114,6 @@ const PlatformSettings = ({ queryData }) => (
               className={classes.adder}
               type="select"
               getDataAddress="fake.platformUsers"
-              validateInitialData={(data, { tableContent }) => data}
             />
           </Field>
         </DataTable>
@@ -134,6 +133,73 @@ const PlatformSettings = ({ queryData }) => (
 
           <Field label="Opis" name="description">
             <Adder className={classes.adder} type="textarea" />
+          </Field>
+        </DataTable>
+      </Tab>
+
+      <Tab className={settingsClasses.settingsTabSwitch} name="Role">
+        <DataTable {...dataTableProps} className={`${classes.table} ${classes.isRotated}`} getDataAddress="fake.platformRoles">
+          <Field label="Nazwa" name="name">
+            <Adder className={classes.adder} type="text" />
+          </Field>
+
+          <Field label="Kolor" name="color">
+            <Processor
+              render={color => (
+                <span className={classes.color} style={{ backgroundColor:`#` + color?.toString( 16 ).padStart( 6, 0 ) }} />
+              )}
+            />
+            <Adder className={classes.adder} type="color" />
+          </Field>
+
+          <Field
+            className={classes.ability}
+            label="Edycja szczegółów"
+            name="canEditDetails"
+            dataFieldname="abilities"
+          >
+            <Processor render={({ canEditDetails }) => canEditDetails} />
+            <Adder className={classes.adder} type="checkbox" />
+          </Field>
+
+          <Field
+            className={classes.ability}
+            label="Nauczanie"
+            name="canTeach"
+            dataFieldname="abilities"
+          >
+            <Processor render={({ canTeach }) => canTeach} />
+            <Adder className={classes.adder} type="checkbox" />
+          </Field>
+
+          <Field
+            className={classes.ability}
+            label="Zarządzanie użytkownikami"
+            name="canManageUsers"
+            dataFieldname="abilities"
+          >
+            <Processor render={({ canManageUsers }) => canManageUsers} />
+            <Adder className={classes.adder} type="checkbox" />
+          </Field>
+
+          <Field
+            className={classes.ability}
+            label="Zarządzanie rolami"
+            name="canManageRoles"
+            dataFieldname="abilities"
+          >
+            <Processor render={({ canManageRoles }) => canManageRoles} />
+            <Adder className={classes.adder} type="checkbox" />
+          </Field>
+
+          <Field
+            className={classes.ability}
+            label="Zarządzanie grupami"
+            name="canManageGroups"
+            dataFieldname="abilities"
+          >
+            <Processor render={({ canManageGroups }) => canManageGroups} />
+            <Adder className={classes.adder} type="checkbox" />
           </Field>
         </DataTable>
       </Tab>

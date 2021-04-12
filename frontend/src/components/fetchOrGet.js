@@ -19,25 +19,49 @@ const fakeGroupRoles = [
 const fakePlatformRoles = [
   {
     id: `1`,
-    color: 0xff0000,
+    color: 0xf64118,
     name: `Admin`,
     abilities: {
+      canEditDetails: true,
+      canTeach: true,
+      canManageUsers: true,
+      canManageRoles: true,
       canManageGroups: true,
     },
   },
   {
     id: `2`,
-    color: 0x00ff00,
+    color: 0xff5300,
     name: `Asystent`,
     abilities: {
+      canEditDetails: true,
+      canTeach: true,
+      canManageUsers: true,
+      canManageRoles: false,
       canManageGroups: true,
     },
   },
   {
     id: `3`,
+    color: 0x53f853,
+    name: `Prowadzący`,
+    abilities: {
+      canEditDetails: false,
+      canTeach: true,
+      canManageUsers: false,
+      canManageRoles: false,
+      canManageGroups: false,
+    },
+  },
+  {
+    id: `4`,
     color: null,
     name: `Student`,
     abilities: {
+      canEditDetails: false,
+      canTeach: false,
+      canManageUsers: false,
+      canManageRoles: false,
       canManageGroups: false,
     },
   },
