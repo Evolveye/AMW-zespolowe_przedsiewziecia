@@ -22,7 +22,7 @@ export async function httpGetUserPlatforms({ req, res, mod }) {
 
 export async function httpCreateNewUser({ mod, req, res }) {
   const client = req.user;
-  const { name, surname, email, roleName } = req.body;
+  let { name, surname, email, roleName } = req.body;
 
   if(!isEveryChar(name) || !isEveryChar(surname))
   return res.status(400).json(ANSWERS.CREATE_USER_NAMES_NOT_CHARS_ONLY)
@@ -83,13 +83,14 @@ export async function httpCreateNewUser({ mod, req, res }) {
   // if (!this.isPlatformOwner(client.id, platform))
   //   return res.status(400).json({ code: 209, error: "You dont have privilages to create new users on this platform." })
 
-  const baseRole = `student`;
+  let baseRole = `student`;
   const permission = await mod.getPermission(
     roleName ?? baseRole,
     targetPlatformId
   );
+  roleName = roleName.charAt(0).toUpperCase() + roleName.slice(1)
   const newPermissions = await mod.getNewPermission(
-    roleName ?? baseRole,
+    roleName,
     targetPlatformId
   )
 

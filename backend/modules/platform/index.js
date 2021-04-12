@@ -430,10 +430,10 @@ export default class PlatformModule extends Module {
   getPermissions = (platformId, userId) =>
     this.dbManager.findOne(this.subcollections.userPermissions, {
       $and: [{ referenceId: platformId }, { userId: userId }],
-    });
+    });updatePlatform
 
   getNewPermission = (permissionName, platformId) => {
-    return this.dbManager.findOne(this.subcollections.templatesPerm, {
+    return this.dbManager.findOne(this.subcollections.newTemplatePermissions, {
       $and: [
         { platformId: { $eq: platformId } },
         { name: { $eq: permissionName } },
