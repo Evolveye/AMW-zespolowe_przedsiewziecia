@@ -38,8 +38,10 @@ const URLS = {
   PLATFORM$ID_USERS_POST: `${HOST}/api/platforms/:platformId/users`,
   PLATFORM$ID_USERS_GET: `${HOST}/api/platforms/:platformId/users`,
   PLATFORM$ID_USERS$ID_DELETE: `${HOST}/api/platforms/:platformId/users/:userId`,
-  PLATFORM$ID_PERMISSIONS_GET: `${HOST}/api/platforms/:platformId/permissions`,
+  PLATFORM$ID_PERMISSIONS_GET: `${HOST}/api/platforms/:platformId/newpermissions`,
   PLATFORM$ID_PERMISSIONS_MY_GET: `${HOST}/api/platforms/:platformId/permissions/my`,
+  PLATFORM$ID_PERMISSIONS_POST: `${HOST}/api/platforms/:platformId/newpermissions`,
+  
 
   // Group scope
   GROUP_POST: `${HOST}/api/groups`,
