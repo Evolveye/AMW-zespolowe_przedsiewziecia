@@ -13,35 +13,32 @@ import UserField from "../containers/userField.js"
 import Logo from "../models/logo.js"
 
 import classes from "./base.module.css"
-import { isLogged } from "../utils/auth.js"
+import { isLogged, AuthContextProvider } from "../utils/auth.js"
 
-export default ({ className = ``, children, title }) => {
-  const headerNavigationElements = [
-    <Link key="link" className={classes.logo} to="/">
-      <Logo
-        size={50}
-        text=""
-      />
-    </Link>,
+export default ({ className = ``, children, title }) => (
+  <div className={`root ${classes.root}`}>
+    <SEO title={title} />
 
-    ...(!isLogged() ? [] : [
-      <PlatformChooser key="chooser" className={classes.platformNav} />,
-      ...PlatformSubPagesNav({ className:classes.platformSubPages }),
-    ]),
-  ].map( (link, i, arr) => (
-    <React.Fragment key={link.key}>
-      {link}
-      {i === arr.length - 1 ? null : <span className={classes.separator}>::</span>}
-    </React.Fragment>
-  ) )
-
-  return (
-    <div className={`root ${classes.root}`}>
-      <SEO title={title} />
-
+    <AuthContextProvider>
       <header className={classes.header}>
         <section className={classes.navigationPath}>
-          {headerNavigationElements}
+          {
+            [
+              <Link key="link" className={classes.logo} to="/">
+                <Logo size={50} text="" />
+              </Link>,
+
+              ...(!isLogged() ? [] : [
+                <PlatformChooser key="chooser" className={classes.platformNav} />,
+                ...PlatformSubPagesNav({ className:classes.platformSubPages }),
+              ]),
+            ].map( (link, i, arr) => (
+              <React.Fragment key={link.key}>
+                {link}
+                {i === arr.length - 1 ? null : <span className={classes.separator}>::</span>}
+              </React.Fragment>
+            ) )
+          }
         </section>
 
         {
@@ -55,6 +52,6 @@ export default ({ className = ``, children, title }) => {
       <div className={`${classes.contentWrapper} ${className}`}>
         {children}
       </div>
-    </div>
-  )
-}
+    </AuthContextProvider>
+  </div>
+)

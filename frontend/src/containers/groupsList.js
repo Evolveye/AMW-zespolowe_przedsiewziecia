@@ -6,32 +6,11 @@ import SwitchBox, { Tab } from "../components/switchBox.js"
 import ToggableBox from "../components/toggableBox.js"
 
 import TableList, { Tr, Td } from "../components/tableList.js"
-import { getUrnQuery } from "../utils/functions.js"
+import { fetchOrGet, getUrnQuery } from "../utils/functions.js"
 import { QueryLink } from "./link.js"
 
 import settingsClasses from "./settings.module.css"
 import classes from "./groupsList.module.css"
-
-const fakeGroups = {
-  1: [
-    { id:1, name:`Przyrka`, meets:[ 1, 2, 3 ] },
-    { id:2, name:`Fizka`, meets:[] },
-    { id:3, name:`Biolka`, meets:[ 4, 5 ] },
-    { id:4, name:`Relka`, meets:[ 6 ] },
-  ],
-  2: [
-    { id:1, name:`Poważna fizyka`, meets:[ 1, 2 ] },
-    { id:2, name:`Poważna matematyka`, meets:[] },
-    { id:3, name:`Najpoważniejsza informatyka`, meets:[ 3 ] },
-  ],
-  3: [
-    { id:1, name:`Sadzonki`, meets:[ 1, 2, 3 ] },
-    { id:2, name:`Sadzoneczki`, meets:[ 4, 5 ] },
-    { id:3, name:`Sadzeniunie`, meets:[ 6, 7, 8, 9 ] },
-    { id:4, name:`Doniczki`, meets:[] },
-    { id:5, name:`Korzonki`, meets:[ 10 ] },
-  ],
-}
 
 const query = graphql`
   query {
@@ -45,9 +24,8 @@ const query = graphql`
 
 export default ({ className = `` }) => {
   const queryData = useStaticQuery( query )
-  const { p, g } = getUrnQuery()
-  const groups = fakeGroups[ p ]
-  // const group = groups?.find( ({ id }) => id == g )
+  const { p } = getUrnQuery()
+  const groups = fetchOrGet( `fake://groups` ).filter( ({ platformId }) => platformId == p )
 
   return (
     <article className={className}>

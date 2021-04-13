@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react"
 import PropTypes from "prop-types"
 
-import fetchOrGet, { isData } from "./fetchOrGet.js"
+import { fetchOrGet, isData } from "../utils/functions.js"
 
 
 
@@ -42,6 +42,7 @@ Adder.propTypes = {
   type: PropTypes.string.isRequired,
   validator: PropTypes.func,
   getDataAddress: PropTypes.string,
+  validateInitialData: PropTypes.func,
 }
 
 
@@ -52,7 +53,7 @@ const InputField = ({
   getDataAddress,
   processor,
   validator = () => true,
-  validateInitialData = data => data,
+  validateInitialData = it => it,
   runAfterDataLoad,
 }) => {
   const controlledProcessor = data => {
@@ -85,7 +86,7 @@ const InputField = ({
     case `select`: return (
       <select {...standardProps}>
         {
-          validateInitialData( Array.isArray( data ) ? data : [], {} ).map( field => {
+          (Array.isArray( data ) ? data : []).map( validateInitialData ).filter( it => it != null ).map( field => {
             const { value, label } = controlledProcessor( field )
 
             return <option key={value} value={value}>{label}</option>
@@ -216,6 +217,7 @@ export default class DataTable extends React.Component {
               if (editableField && (abilities || abilities.edit)) editable = true
 
               const filler = editable ? this.tableAdderFields[ name ] : data => {
+                // TODO show error on null // console.log( field, dataFieldname, field[ dataFieldname ] )
                 const processedData = processor( data )
                 return processedData?.label ?? processedData
               }
