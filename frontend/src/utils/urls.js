@@ -57,7 +57,7 @@ const URLS = {
   GROUP$ID_NOTES_POST:  `${HOST}/api/groups/:groupId/notes`,
   GROUP$ID_NOTES_GET:  `${HOST}/api/groups/:groupId/notes`,
   GROUP$ID_NOTES$ID_PUT: `${HOST}/api/groups/notes/:noteId`,
-  GROUP$ID_PERMISSIONS_GET: `${HOST}/api/groups/:groupId/newpermissions`,
+  GROUP$ID_PERMISSIONS_GET: `${HOST}/api/groups/:groupId/permissions`,
   GROUP$ID_PERMISSIONS_POST: `${HOST}/api/groups/:groupId/newpermissions`,
   GROUP$ID_PERMISSIONS_MY_GET: `${HOST}/api/groups/:groupId/permissions/my`,
   GROUPS$ID_FILE_POST: `${HOST}/api/groups/:groupId/materials`,
