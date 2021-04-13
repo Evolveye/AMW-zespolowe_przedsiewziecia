@@ -127,8 +127,8 @@ export default class FormRulePlatform extends React.Component {
 
   postDataPermissions = (checked) =>{
     let perm = "";
-    if(checked == 1) perm = this.permissions
-    if(checked == 0) perm = {name: this.state.name}
+    if(checked === 1) perm = this.permissions
+    if(checked === 0) perm = {name: this.state.name}
     fetch(URLS.PLATFORM$ID_PERMISSIONS_POST.replace(`:platformId`,this.platformId),{
       method: `POST`,
       headers: {
