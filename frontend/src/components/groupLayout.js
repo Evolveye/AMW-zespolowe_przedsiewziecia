@@ -13,7 +13,7 @@ const menyItems = [
   { urn: `settings`, name: `Ustawienia grupy`, permName:`isMaster` },
   { urn: `notes`, name: `Oceny`, permName: `isMaster` },
   { urn: `users`, name: `Użytkownicy`, permName: `isMaster` },
-  // { urn: `roles`, name: `Role`, permName:`isMaster` },
+  { urn: `roles`, name: `Role`, permName:`isMaster` },
   { urn: `materials`, name: `Materiały`, permName: `isMaster` },
   { urn: `tasks`, name: `Zadania`, permName: `isMaster` },
   { urn: `meets`, name: `Spotkania`, permName: `isMaster` },
