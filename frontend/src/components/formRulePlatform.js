@@ -11,7 +11,6 @@ export default class FormRulePlatform extends React.Component {
     this.platformId = query.get(`platformId`)
   }
 
-
   state = {
     added: false,
     name: "",
@@ -20,6 +19,7 @@ export default class FormRulePlatform extends React.Component {
     permissions: [],
   }
 
+  permissions = [];
   
 
   handleInputChange = event => {
@@ -34,8 +34,8 @@ export default class FormRulePlatform extends React.Component {
 
   handleButtonAddRole = (e) =>{
     e.preventDefault();
-    console.log(this.platformId)
     if(this.state.added === false){
+      this.enableButton();
       const abilities = ["canEditDetails","canDeletePlatform","canManageGroups","canManageUsers"];
       const tableRef = document.getElementById('tableRoles').getElementsByTagName('tbody')[0];
       const newRow = tableRef.insertRow(tableRef.rows.length);
@@ -43,6 +43,8 @@ export default class FormRulePlatform extends React.Component {
       const inputTd = document.createElement(`input`);
       inputTd.type = `text`;
       inputTd.name = `name`;
+      inputTd.value = this.state.name;
+      inputTd.addEventListener('change', this.handleInputChange);
       nameTd.appendChild(inputTd);
       newRow.appendChild(nameTd);
       abilities.forEach(ability => {
@@ -62,8 +64,8 @@ export default class FormRulePlatform extends React.Component {
   }
 
   handleChange = (input, roleName) =>{
-    const permission = this.permissions.find(({name}) => name == roleName)
-    console.log(input.name)
+    this.enableButton();
+    const permission = this.permissions.find(({name}) => name === roleName)
     if(permission){
       permission.abilities[input.name] = input.checked
     }else{
@@ -77,7 +79,32 @@ export default class FormRulePlatform extends React.Component {
     console.log(this.permissions)
   }
 
-  permissions = [];
+  handleSubmit = (e) => {
+    e.preventDefault();
+    //check that Dodaj rolę button was clicked
+    if(this.state.added === false){
+      //not clicked
+      this.postDataPermissions();
+    }else{
+      //clicked
+      if(this.state.name.length <= 0){
+        //wrong - without name
+        alert("UWAGA! Nie można wysłać roli bez nazwy!")
+      }else{
+        this.postDataPermissions();
+      }
+    }
+  }
+
+  postDataPermissions = () =>{
+    fetch(URLS.PLATFORM$ID_PERMISSIONS_POST,{
+      method: `POST`,
+      headers: { Authentication: `Bearer ${getToken()}` },
+      body: this.permissions,
+    }).then(res => res.json()).then(response => console.log(response))
+    console.log(this.permissions)
+    console.log("poszło!")
+  }
 
   availableRoles = {
     canEditDetails: "Edycja szczegółów",
@@ -89,8 +116,14 @@ export default class FormRulePlatform extends React.Component {
     }
   }
 
+  enableButton = () =>{
+    const button =  document.querySelector('#button-Zapisz')
+    button.disabled = false;
+  }
   async componentDidMount(){
     console.log("adres GETa: ", URLS.PLATFORM$ID_PERMISSIONS_GET.replace(`:platformId`,this.platformId))
+    const button =  document.querySelector('#button-Zapisz')
+    button.disabled = true;
     const {permissions} = await fetch(URLS.PLATFORM$ID_PERMISSIONS_GET.replace(`:platformId`,this.platformId),{
       method: 'GET',
       headers: { Authentication: `Bearer ${getToken()}` }
@@ -106,10 +139,6 @@ export default class FormRulePlatform extends React.Component {
         </tr>
     ))
     this.setState({permissions: trs})
-    
-
-    
-
   }
   
   render = () => (
@@ -136,7 +165,7 @@ export default class FormRulePlatform extends React.Component {
             <td />
             <td />
             <td>
-                <button className={classes.button}>Zapisz</button>
+                <button className={classes.button} id="button-Zapisz" onClick={this.handleSubmit}>Zapisz</button>
             </td>
           </tr>
           </tfoot>
