@@ -79,6 +79,7 @@ export const ANSWERS = {
     GET_GRADES_NOT_ALLOWED:{code:341,error:`Only user with canTeach permission can get grade scale.`},
 
     CREATE_GROUP_PERMISSION_SUCCESS:{code:342,success:`Succesfully created group template permission`},
-    ASSIGN_PERMISSION_TO_USER_SUCCESS:{code:343,success:`User Assigned to permission Successfuly.`}
+    ASSIGN_PERMISSION_TO_USER_SUCCESS:{code:343,success:`User Assigned to permission Successfuly.`},
+    UPDATE_PERMISSIONS_SUCCESS:{code:345,success:`Permissions has been updated.`}
 }
 

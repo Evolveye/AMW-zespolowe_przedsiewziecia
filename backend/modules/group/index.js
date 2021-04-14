@@ -426,7 +426,7 @@ export default class GroupModule extends Module {
       {name:{$eq:permsName}}
     ]
   },
-  {$set:{abilities:{update}}},
+  {$set:update},
   {returnOriginal: false})
 
   toString() {

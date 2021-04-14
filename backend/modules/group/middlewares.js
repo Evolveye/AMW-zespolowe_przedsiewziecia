@@ -194,7 +194,6 @@ export async function httpHandleAllUsersInGroup({ mod, req, res }) {
     }
   );
 
-
   allUsers.forEach(user => user.perms = allPerms.find(perm => perm.userId === user.id))
 
   return res.json({ users: allUsers });
@@ -1025,11 +1024,30 @@ export async function httpAssignUserToPermission({ mod, req, res, next }) {
 }
 
 
-export async function httpUpdateGroupPermissions({mod,req,res,next}){
+export async function httpUpdateGroupPermissions({ mod, req, res })
+{
+  console.log("httpUpdateGroupPermissions --> ")
   const groupId = req.params.groupId || req.body.groupId || req.query.groupId;
-  const permsName = req.body.name
-  const newAbs = req.body.abilities
+  const arrayOfPermissions = req.body.array
 
-  await mod.updateGroupPermissions(permsName,groupId,newAbs)
+  const updateTasks = arrayOfPermissions.map(perms => {
+    const abilities = Object.entries( perms.abilities )
+      .map( ([ability, bool]) => ({ field:`abilities.${ability}`, value:bool }) )
+      .reduce( (obj, { field,value }) => ({ [field]:value, ...obj }), {} )
 
+    return mod.updateGroupPermissions(perms.name,groupId,abilities).then( ({ value }) => value )
+   } )
+
+  const newPerms = await Promise.all(updateTasks)
+
+  return res.json({...ANSWERS.UPDATE_PERMISSIONS_SUCCESS,perms:newPerms})
 }
+
+// export async function ({mod,req,res,next}){
+//   const groupId = req.params.groupId || req.body.groupId || req.query.groupId;
+//   const permsName = req.body.name
+//   const newAbs = req.body.abilities
+
+//   await mod.updateGroupPermissions(permsName,groupId,newAbs)
+
+// }

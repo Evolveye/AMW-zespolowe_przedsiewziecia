@@ -21,6 +21,8 @@ export async function httpGetUserPlatforms({ req, res, mod }) {
 }
 
 export async function httpCreateNewUser({ mod, req, res }) {
+
+  console.log({RecivedDataAboutUser:req.body})
   const client = req.user;
   let { name, surname, email, roleName } = req.body;
 
