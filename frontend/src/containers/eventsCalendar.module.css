@@ -1,0 +1,14 @@
+.day {
+  padding: 5px;
+  margin: 2px;
+  min-height: 60px;
+  font-family: monospace;
+}
+.day:not( :empty ) {
+  background-color: #0000000a;
+  border-radius: 5px;
+}
+
+.today:not( :empty ) {
+  background-color: gold;
+}
