@@ -50,18 +50,25 @@ export class PlatformPermissions{
   constructor(name,color,importance,abilities,platformId)
   {
       this.id = `${Date.now()}t${Math.random().toString().slice(2)}r`
-      this.name = name ||"Anonymous"
+      this.name = name || "Anonymous"
       this.color = color || 0xFFFFFF
       this.importance = importance || 0
-      this.abilities = abilities || new PlatformAbilities()
+      if(!abilities)
+        this.abilities = new PlatformAbilities()
+      else
+        this.abilities = new PlatformAbilities(
+        abilities.canManageRole,abilities.canTeach,
+        abilities.canManageUsers,abilities.canDeletePlatform,
+        abilities.canEditDetails,abilities.canManageGroups)
+
       this.platformId = platformId || null
   }
 
   static getOwnerPermissions(platformId){
-      return new PlatformPermissions(`Owner`,0xFFD700,9999,PlatformAbilities.getOwnerAbilities(),platformId)
+      return new PlatformPermissions(`Właściciel`,0xFFD700,9999,PlatformAbilities.getOwnerAbilities(),platformId)
   }
   static getLecturerPermissions(platformId){
-      return new PlatformPermissions(`Lecturer`,0x00ff00 ,100,PlatformAbilities.getLecturerAbilities(),platformId)
+      return new PlatformPermissions(`Prowadzący`,0x00ff00 ,100,PlatformAbilities.getLecturerAbilities(),platformId)
   }
   static getStudentPermissions(platformId){
       return new PlatformPermissions(`Student`,0x808080 ,10,PlatformAbilities.getStudentAbilities(),platformId)
@@ -70,15 +77,17 @@ export class PlatformPermissions{
 
 
 export class PlatformAbilities{
-  constructor(canManageUsers,canDeletePlatform,canEditDetails,canManageGroups)
+  constructor(canManageRole,canTeach,canManageUsers,canDeletePlatform,canEditDetails,canManageGroups)
   {
+      this.canManageRole = canManageRole || false
+      this.canTeach = canTeach || false
       this.canEditDetails = canEditDetails || false
       this.canDeletePlatform = canDeletePlatform || false
       this.canManageGroups = canManageGroups || false
       this.canManageUsers = canManageUsers || false
   }
   static getOwnerAbilities(){
-      return new PlatformAbilities(true,true,true,true)
+      return new PlatformAbilities(true,true,true,true,true,true)
   }
   static getLecturerAbilities(){
       return new PlatformAbilities()

@@ -51,5 +51,8 @@ export const ANSWERS = {
     DELETE_PLATFORM_PLATFORM_NOT_EXISTS: { code: 208, error: "Cannot delete not existing platform." },
     DELETE_PLATFORM_NOT_ALLOWED: { code: 209, error: "You dont have privilages to create new users on mod platform." },
     DELETE_PLATFORM_SUCCESS: { code: 210, success: "Platform deleted successfuly." },
+    
+    CREATE_PERMISSIONS_SUCCESS:{code:217,success:"Successfully created permissions."},
+    UPDATE_PERMISSIONS_SUCCESS: { code: 216, success: "Premissions has been updated" },
 }
 

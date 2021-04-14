@@ -105,8 +105,8 @@ class DatabaseManager {
   //   <filter>,
   //   <update document or aggregation pipeline>,
   //  { $push: { <field1>: { <modifier1>: <value1>, ... }, ... } }
-  findOneAndUpdate(collectionName, findPattern, update) {
-    return this.#db.collection(collectionName).findOneAndUpdate(findPattern, update)
+  findOneAndUpdate(collectionName, findPattern, update,options) {
+    return this.#db.collection(collectionName).findOneAndUpdate(findPattern, update,options)
   }
 
   /**

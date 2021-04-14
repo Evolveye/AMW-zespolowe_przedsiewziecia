@@ -75,6 +75,7 @@ export default class PlatformModule extends Module {
         {
           get: auth(this.runMid(m.httpGetNewPlatformsPermissions)),
           post: auth(this.runMid(m.httpCreatePlatformsPermissions)),
+          put: auth(this.runMid(m.httpUpdatePlatformsPermissions))
         },
       ],
 
@@ -430,7 +431,7 @@ export default class PlatformModule extends Module {
   getPermissions = (platformId, userId) =>
     this.dbManager.findOne(this.subcollections.userPermissions, {
       $and: [{ referenceId: platformId }, { userId: userId }],
-    });updatePlatform
+    });
 
   getNewPermission = (permissionName, platformId) => {
     return this.dbManager.findOne(this.subcollections.newTemplatePermissions, {
@@ -440,6 +441,16 @@ export default class PlatformModule extends Module {
       ],
     });
   };
+
+  updatePlatformPermission = (platformId, permName,update) =>
+    this.dbManager.findOneAndUpdate(this.subcollections.newTemplatePermissions,
+      {$and:[
+        {platformId:{$eq:platformId}},
+        {name:{$eq:permName}}
+      ]},
+      {$set:update},
+      { returnOriginal: false }
+    )
 
   saveNewPermissions = (obj)=>
   this.dbManager.insertObject(this.subcollections.newTemplatePermissions, obj)

@@ -108,6 +108,7 @@ export async function httpCreateNewUser({ mod, req, res }) {
   const task_perm_save = mod.saveUserPermission(permission);
 
   // dopistwanie do membersów.
+  console.log({mod})
   const task_platform_update = mod.updatePlatform(
     { id: targetPlatformId },
     { $push: { membersIds: user.id } }
@@ -307,7 +308,7 @@ export async function httpCreatePlatform({ mod, req, res }) {
     }
   );
   const newPerms = mod.createNewBaseRoles(newPlatform.id)
-  const ownerNewPermissions = new ConnectorPlatformPermissionToUser(newPlatform.id,req.user.id,newPerms.find(perm=> perm.name==`Owner`).id)
+  const ownerNewPermissions = new ConnectorPlatformPermissionToUser(newPlatform.id,req.user.id,newPerms.find(perm=> perm.name==`Właściciel`).id)
 
   const tasksToDo = [newPerms.map(item=> mod.saveNewPermissions(item))];
   tasksToDo.push(mod.createBaseRoles(newPlatform.id))
@@ -400,7 +401,12 @@ export function httpGetBasePlatformPermisionTemplate({ mod, req, res }){
 /** @param {MiddlewareParameters} param0 */
 export function httpCreatePlatformsPermissions({ mod, req, res }) {
   const platformId =  req.params.platformId || req.body.platformId || req.query.platformId;
-  const permissionObject = req.body
+  const permissionObject = req.body.perm
+  console.log(req.body)
+  if(!permissionObject)
+  return res.status(400).json({code:223,error:"Permission object not found"})
+
+  console.log({bodyOfRequest:req.body.perm})
 
   const template = new PlatformPermissions(
     permissionObject.name,permissionObject.color,permissionObject.importance,
@@ -409,7 +415,29 @@ export function httpCreatePlatformsPermissions({ mod, req, res }) {
   console.log({recivedObj:permissionObject,createdObj:template})
 
   mod.dbManager.insertObject(mod.subcollections.newTemplatePermissions,template)
+  return res.json({...ANSWERS.CREATE_PERMISSIONS_SUCCESS,perms:template})
 }
+
+
+export async function httpUpdatePlatformsPermissions({ mod, req, res })
+{
+  console.log("httpUpdatePlatformsPermissions --> ")
+  const platformId =  req.params.platformId || req.body.platformId || req.query.platformId;
+  const arrayOfPermissions = req.body.array
+
+  const updateTasks = arrayOfPermissions.map(perms => {
+    const abilities = Object.entries( perms.abilities )
+      .map( ([ability, bool]) => ({ field:`abilities.${ability}`, value:bool }) )
+      .reduce( (obj, { field,value }) => ({ [field]:value, ...obj }), {} )
+
+    return mod.updatePlatformPermission(platformId,perms.name,abilities).then( ({ value }) => value )
+   } )
+
+  const newPerms = await Promise.all(updateTasks)
+
+  return res.json({...ANSWERS.UPDATE_PERMISSIONS_SUCCESS,perms:newPerms})
+}
+
 
 // /** @param {MiddlewareParameters} param0 */
 // export function httpAssignPermsToUser({ mod, req, res }) {

@@ -745,7 +745,9 @@ export async function httpCreateGroup({ mod, req, res }) {
 
 export async function httpGetTemplatePermissions({ mod, req, res }) {
   const client = req.user;
-  const groupId = req.params.groupId;
+  const groupId = req.params.groupId || req.body.groupId || req.query.groupId;
+
+  console.log({groupId})
 
   if (!groupId)
     return res
@@ -768,8 +770,11 @@ export async function httpGetTemplatePermissions({ mod, req, res }) {
     return res.status(400).json(ANSWERS.GET_TEMPLATE_PERMS_NOT_ALLOWED);
 
   const permissionList = await mod.getAllTemplatePerms(groupId);
+  const newperms = await mod.getAllPermissionsTemplateFromGroup(groupId);
+  console.log({ permissions: newperms, oldPerms:permissionList })
 
-  return res.json({ permissions: permissionList });
+  // TODO: NOWE PERMISJE + STARE PERMISJE
+  return res.json({ permissions: newperms, oldPerms:permissionList });
 }
 
 /** @param {MiddlewareParameters} param0 */
@@ -1017,4 +1022,14 @@ export async function httpAssignUserToPermission({ mod, req, res, next }) {
   await mod.saveNewGroupPermissionConnector(connector)
 
   return res.status(200).json(ANSWERS.ASSIGN_PERMISSION_TO_USER_SUCCESS)
+}
+
+
+export async function httpUpdateGroupPermissions({mod,req,res,next}){
+  const groupId = req.params.groupId || req.body.groupId || req.query.groupId;
+  const permsName = req.body.name
+  const newAbs = req.body.abilities
+
+  await mod.updateGroupPermissions(permsName,groupId,newAbs)
+
 }

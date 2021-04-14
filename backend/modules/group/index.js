@@ -52,7 +52,9 @@ export default class GroupModule extends Module {
       [
         `/groups/:groupId/permissions`,
         {
-          get: auth(this.perms(this.runMid(m.httpGetTemplatePermissions)))
+          get: auth(this.perms(this.runMid(m.httpGetTemplatePermissions))),
+          post: auth(this.runMid(m.httpCreateGroupPermissions)),
+          put: auth(this.runMid(m.httpUpdateGroupPermissions)),
         },
       ],
 
@@ -416,6 +418,16 @@ export default class GroupModule extends Module {
         { membersIds: { $in: [memberId] } },
       ],
     });
+
+  updateGroupPermissions = (permsName,groupId,update)=>
+  this.dbManager.findOneAndUpdate(this.subcollections.newTemplatePermissions,{
+    $and:[
+      {groupId:{$eq:groupId}},
+      {name:{$eq:permsName}}
+    ]
+  },
+  {$set:{abilities:{update}}},
+  {returnOriginal: false})
 
   toString() {
     return "GroupModule";
