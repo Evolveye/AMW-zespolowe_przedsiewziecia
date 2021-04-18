@@ -1,10 +1,12 @@
 import React from "react"
 import { useState } from "react"
 
+const fakeStartDate = () => new Date( Date.now() + Math.floor( Math.random() * 1000 * 60 * 60 * 24 * 7 ) )
+const fakeExpirationDate = () => Date.now() + 1000 * 60 * 60 * 1
 
 const fakeGroupRoles = [
   {
-    id: `1`,
+    id: `0`,
     color: 0xff0000,
     name: `Admin`,
     abilities: {
@@ -12,7 +14,7 @@ const fakeGroupRoles = [
     },
   },
   {
-    id: `3`,
+    id: `1`,
     color: null,
     name: `Student`,
     abilities: {
@@ -22,7 +24,7 @@ const fakeGroupRoles = [
 ]
 const fakePlatformRoles = [
   {
-    id: `1`,
+    id: `0`,
     color: 0xf64118,
     name: `Admin`,
     abilities: {
@@ -34,7 +36,7 @@ const fakePlatformRoles = [
     },
   },
   {
-    id: `2`,
+    id: `1`,
     color: 0xff5300,
     name: `Asystent`,
     abilities: {
@@ -46,7 +48,7 @@ const fakePlatformRoles = [
     },
   },
   {
-    id: `3`,
+    id: `2`,
     color: 0x53f853,
     name: `Prowadzący`,
     abilities: {
@@ -58,7 +60,7 @@ const fakePlatformRoles = [
     },
   },
   {
-    id: `4`,
+    id: `3`,
     color: null,
     name: `Student`,
     abilities: {
@@ -72,19 +74,19 @@ const fakePlatformRoles = [
 ]
 const fakePlatformUsers = [
   {
-    id: `1`,
+    id: `0`,
     name: `Paweł`,
     surname: `Stolarski`,
     role: fakePlatformRoles.find( ({ name }) => name === `Admin` ),
   },
   {
-    id: `2`,
+    id: `1`,
     name: `Adam`,
     surname: `Szreiber`,
     role: fakePlatformRoles.find( ({ name }) => name === `Asystent` ),
   },
   {
-    id: `3`,
+    id: `2`,
     name: `Kamil`,
     surname: `Czarny`,
     role: fakePlatformRoles.find( ({ name }) => name === `Student` ),
@@ -191,39 +193,26 @@ const fakeGroups = [
   },
 ]
 const fakeMeets = [
-  {
-    id: `1`,
-    platformId: `1`,
-    groupId: `1`,
-    startDate: new Date( Date.now() + Math.floor( Math.random() * 1000 * 60 * 60 * 24 * 7 ) ),
-    expirationDate: Date.now() + 1000 * 60 * 60 * 1,
-    description: `Short Desc`,
-  },
-  {
-    id: `2`,
-    platformId: `1`,
-    groupId: `1`,
-    startDate: new Date( Date.now() + Math.floor( Math.random() * 1000 * 60 * 60 * 24 * 7 ) ),
-    expirationDate: Date.now() + 1000 * 60 * 60 * 1,
-    description: `Desc`,
-  },
-  {
-    id: `3`,
-    platformId: `2`,
-    groupId: `1`,
-    startDate: new Date( Date.now() + Math.floor( Math.random() * 1000 * 60 * 60 * 24 * 7 ) ),
-    expirationDate: Date.now() + 1000 * 60 * 60 * 1,
-    description: `Desc`,
-  },
-  {
-    id: `3`,
-    platformId: `2`,
-    groupId: `1`,
-    startDate: new Date( Date.now() + Math.floor( Math.random() * 1000 * 60 * 60 * 24 * 7 ) ),
-    expirationDate: Date.now() + 1000 * 60 * 60 * 1,
-    description: `Short desc`,
-  },
-]
+  { platformId:`0`, groupId:`0`, description:`Short Desc` },
+  { platformId:`0`, groupId:`0`, description:`Short Desc` },
+  { platformId:`0`, groupId:`1`, description:`Desc` },
+  { platformId:`0`, groupId:`2`, description:`Short Desc` },
+  { platformId:`0`, groupId:`3`, description:`Short Desc` },
+  { platformId:`0`, groupId:`3`, description:`Desc` },
+  { platformId:`1`, groupId:`4`, description:`Desc` },
+  { platformId:`1`, groupId:`5`, description:`Short description` },
+  { platformId:`1`, groupId:`5`, description:`Desc` },
+  { platformId:`1`, groupId:`5`, description:`Short Desc` },
+  { platformId:`1`, groupId:`6`, description:`Short Desc` },
+  { platformId:`1`, groupId:`6`, description:`Desc` },
+  { platformId:`2`, groupId:`7`, description:`Desc` },
+  { platformId:`2`, groupId:`8`, description:`Short description` },
+].map( (props, i) => ({
+  id: i,
+  startDate: fakeStartDate(),
+  expirationDate: fakeExpirationDate(),
+  ...props,
+}) )
 const fakeDataset = {
   platformUsers: fakePlatformUsers,
   platformRoles: fakePlatformRoles,
@@ -241,6 +230,7 @@ export function fetchOrGet( address, cb ) {
       .match( /(?<addressBase>\w+)(?:\/(?<index>\w*))?(?:\?(?<query>.*))?/ )
       .groups
     const fakeData = fakeDataset[ addressBase ]
+
     let data = index ? fakeData[ index ] : fakeData
 
     if (query && Array.isArray( data )) {
@@ -251,7 +241,6 @@ export function fetchOrGet( address, cb ) {
         queryParts.reduce( (bool, [ prop, value ]) => bool && it[ prop ] == value, true ),
       )
     }
-
 
     cb?.( data )
 

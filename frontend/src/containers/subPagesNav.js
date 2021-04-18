@@ -12,7 +12,7 @@ import classes from "./subPagesNav.module.css"
 const defaultQueryPaths = [
 // { name:`Platforma`, link:`/platform?p` },
   { name:`Grupa`, link:`/group?p&g` },
-  { name:`Spotkanie`, link:`/meet?p&g&m` },
+  { name:`Spotkanie`, link:`/meet?p&m` },
 ]
 
 /**

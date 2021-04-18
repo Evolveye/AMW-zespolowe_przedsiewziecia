@@ -34,7 +34,7 @@ export const AuthContextProvider = ({ children }) => {
         user: getUser(),
         platform: p ? fetchOrGet( `fake://platforms/${p}` ) : null,
         group: g ? fetchOrGet( `fake://groups/${g}` ) : null,
-        meet: m ? fetchOrGet( `fake://meet/${m}` ) : null,
+        meet: m ? fetchOrGet( `fake://meets/${m}` ) : null,
       }}
     >
       {children}

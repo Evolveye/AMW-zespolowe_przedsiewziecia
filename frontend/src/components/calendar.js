@@ -1,5 +1,6 @@
 import React from "react"
 import PropTypes from "prop-types"
+import { Link } from "gatsby"
 
 const months = [ `Jan`, `Feb`, `Mar`, `Apr`, `May`, `Jun`, `Jul`, `Aug`, `Sep`, `Oct`, `Nov`, `Dec` ]
 
@@ -26,7 +27,7 @@ Info.propTypes = {
 
 export default function Calendar({ classNames, children }) {
   const dayInfo = React.Children.map( children, ({ props }) => props )
-    .map( ({ year, month, day, children }) => ({ year, month, day, info:children }) )
+    .map( ({ children, ...props }) => ({ info:children, ...props }) )
 
   const rows = []
   let date = 1
@@ -35,19 +36,25 @@ export default function Calendar({ classNames, children }) {
     const tds = []
 
     for (let j = 0;  j < 7;  j++) {
-      const tdProps = { style:{ flexGrow:1, flexBasis:0, flexShrink:0 }, className:classNames?.day, key:j }
+      const tdProps = { style:{ verticalAlign:`top`, height:`3em` }, className:classNames?.day, key:j }
 
       if (i === 0 && j < firstDay) tds.push( <td {...tdProps} /> )
       else if (date > daysInMonth( month, year )) tds.push( <td {...tdProps} /> )
       else {
-        const { info } = dayInfo.find( info => date === info.day && info.month === month && info.year === year ) ?? {}
+        const currentDayInfo = dayInfo.filter( info => date === info.day && info.month === month && info.year === year ) ?? {}
         const isToday = date === today.getDate() && year === today.getFullYear() && month === today.getMonth()
+
+        const events = currentDayInfo.map( ({ link, title }) =>
+          !title ? null : (link
+            ? <Link className={classNames?.activeEventTitle} to={link}>{title}</Link>
+            : <span className={classNames?.eventTitle}>{title}</span>
+          ),
+        )
 
         tds.push(
           <td {...tdProps} className={isToday ? `${classNames?.day} ${classNames?.today}` : classNames?.day}>
-            {date}
-            <br />
-            {info}
+            <span>{date}</span>
+            {events}
           </td>,
         )
 
@@ -55,11 +62,11 @@ export default function Calendar({ classNames, children }) {
       }
     }
 
-    rows.push( <tr key={i} style={{ display:`flex` }}>{tds}</tr> )
+    rows.push( <tr key={i}>{tds}</tr> )
   }
 
   return (
-    <table className={classNames?.it}>
+    <table className={classNames?.it} style={{ tableLayout:`fixed`, width:`100%` }}>
       <tbody>
         {rows}
       </tbody>

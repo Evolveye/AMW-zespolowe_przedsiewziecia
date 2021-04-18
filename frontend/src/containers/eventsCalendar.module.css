@@ -12,3 +12,8 @@
 .today:not( :empty ) {
   background-color: gold;
 }
+
+.eventTitle {
+  display: block;
+  margin-top: 10px;
+}

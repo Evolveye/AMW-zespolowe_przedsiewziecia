@@ -1,21 +1,26 @@
 import React from "react"
 
 import Calendar, { Info } from "../components/calendar.js"
-import { fetchOrGet, getUrnQuery } from "../utils/functions.js"
+import { fetchOrGet, getDate, getUrnQuery } from "../utils/functions.js"
 
 import classes from "./eventsCalendar.module.css"
 
 export default ({ className = `` }) => {
-  const { p, g } = getUrnQuery()
-  const queryParts = [ p ? `platformId=${p}` : ``, g ? `groupId=${g}` : `` ].filter( Boolean )
+  const { p:platformId, g:groupId } = getUrnQuery()
+  const queryParts = [ platformId ? `platformId=${platformId}` : ``, groupId ? `groupId=${groupId}` : `` ].filter( Boolean )
   const events = fetchOrGet( `fake://meets?${queryParts.join( `&` )}` )
 
-  console.log( events, `fake://meets?${queryParts.join( `&` )}` )
-
   return (
-    <Calendar classNames={{ it:className, day:classes.day, today:classes.today }}>
+    <Calendar
+      classNames={{
+        it: className,
+        day: classes.day,
+        today: classes.today,
+        activeEventTitle: `neumorphizm is-button ${classes.eventTitle}`,
+      }}
+    >
       {
-        events.map( ({ startDate, description }) => {
+        events.map( ({ id, startDate, description }) => {
           const date = new Date( startDate )
           return (
             <Info
@@ -23,6 +28,8 @@ export default ({ className = `` }) => {
               year={date.getFullYear()}
               month={date.getMonth()}
               day={date.getDate()}
+              title={getDate( date, `hh:mm` )}
+              link={`/meet?p=${platformId}${groupId ? `&g=${groupId}` : ``}&m=${id}`}
               children={description}
             />
           )
