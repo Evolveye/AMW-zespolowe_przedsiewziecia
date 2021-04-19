@@ -53,7 +53,7 @@ export default function Calendar({ classNames, children }) {
           if (!title) return
 
           return (
-            <div className={classes.event}>
+            <div key={title} className={classes.event}>
               {
                 link
                   ? <Link className={`${classes.title} ${classNames?.activeEventTitle}`} to={link}>{title}</Link>

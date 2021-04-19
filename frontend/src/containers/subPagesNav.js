@@ -1,27 +1,17 @@
-import React from "react"
+import React, { useContext } from "react"
 import { Link } from "gatsby"
+
+import { AuthContext } from "../utils/auth.js"
 
 import classes from "./subPagesNav.module.css"
 
-/**
- * @typedef {object} QueryPath
- * @property {string} name
- * @property {link} link
- */
 
-const defaultQueryPaths = [
-// { name:`Platforma`, link:`/platform?p` },
-  { name:`Grupa`, link:`/group?p&g` },
-  { name:`Spotkanie`, link:`/meet?p&m` },
-]
+const queryPaths = [ `/group?p&g`, `/meet?p&m` ]
 
-/**
- * @param {object} param0
- * @param {QueryPath[]} param0.queryPaths
- */
-export default ({ queryPaths = defaultQueryPaths }) => {
+
+export default ({ classNames }) => {
   const search = Object.fromEntries( Array.from( new URLSearchParams( window.location.search ) ) )
-  const links = queryPaths.map( ({ name, link }) => {
+  const navItems =  queryPaths.map( link => {
     const linkParts = link.split( `?` )
 
     if (linkParts.length === 1) {
@@ -38,26 +28,28 @@ export default ({ queryPaths = defaultQueryPaths }) => {
     } )
 
     return paramsWithValues.includes( undefined ) ? null : (
-      <Link
-        key={link}
-        to={`${linkParts[ 0 ]}?${paramsWithValues.join( `&` )}`}
-        className={classes.link}
-      >
-        {name}
-      </Link>
+      <span className={classNames?.item}>
+        <Link
+          key={link}
+          to={`${linkParts[ 0 ]}?${paramsWithValues.join( `&` )}`}
+          className={classes.link}
+          children={getnavItemName( linkParts[ 0 ].slice( 1 ) )}
+        />
+      </span>
     )
   } ).filter( Boolean )
-  // .map( (link, i, arr) => (
-  //   <React.Fragment key={link.key}>
-  //     {link}
-  //     {i === arr.length - 1 ? null : <span className={classes.separator}>&gt;</span>}
-  //   </React.Fragment>
-  // ) )
 
-  return links
-  // return (
-  //   <article className={`${classes.nav} ${className}`}>
-  //     {links}
-  //   </article>
-  // )
+  return navItems
+}
+
+
+function getnavItemName( itemType ) {
+  const { group, meet } = useContext( AuthContext )
+
+  console.log( useContext( AuthContext ) )
+
+  switch (itemType) {
+    case `group`: return group.name
+    case `meet`: return meet.description
+  }
 }

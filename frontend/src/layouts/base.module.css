@@ -23,6 +23,7 @@
       display: flex;
       align-items: center;
     }
+        .navigationPathItem::before,
         .separator {
           transform: translateY( -3px );
           height: max-content;
@@ -30,6 +31,9 @@
           font-size: 30px;
           font-weight: bold;
           color: #aaa;
+        }
+        .navigationPathItem::before {
+          content: "::";
         }
         /* .navigationPath > :not( :last-child ) {
           position: relative;

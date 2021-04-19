@@ -39,7 +39,6 @@ export default ({ className = `` }) => {
   // const [ platform, setPlatforms ] = useState([])
   // const { platform } = useContext( AuthContext )
   const platforms = fetchOrGet( `fake://platforms` )
-  const groups = fetchOrGet( `fake://groups` )
   const { p } = getUrnQuery()
 
   return (

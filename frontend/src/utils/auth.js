@@ -28,17 +28,18 @@ export const logout = () => storage.clear()
 export const AuthContextProvider = ({ children }) => {
   const { p, g, m } = getUrnQuery()
 
+  console.log( `witaminki` )
+
   return (
     <AuthContext.Provider
+      children={children}
       value={{
         user: getUser(),
         platform: p ? fetchOrGet( `fake://platforms/${p}` ) : null,
         group: g ? fetchOrGet( `fake://groups/${g}` ) : null,
         meet: m ? fetchOrGet( `fake://meets/${m}` ) : null,
       }}
-    >
-      {children}
-    </AuthContext.Provider>
+    />
   )
 }
 
