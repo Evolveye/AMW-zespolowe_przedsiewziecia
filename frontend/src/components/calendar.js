@@ -2,6 +2,8 @@ import React from "react"
 import PropTypes from "prop-types"
 import { Link } from "gatsby"
 
+import classes from "./calendar.module.css"
+
 const months = [ `Jan`, `Feb`, `Mar`, `Apr`, `May`, `Jun`, `Jul`, `Aug`, `Sep`, `Oct`, `Nov`, `Dec` ]
 
 const daysInMonth = (year, month) => 32 - new Date( year, month, 32 ).getDate()
@@ -36,7 +38,10 @@ export default function Calendar({ classNames, children }) {
     const tds = []
 
     for (let j = 0;  j < 7;  j++) {
-      const tdProps = { style:{ verticalAlign:`top`, height:`3em` }, className:classNames?.day, key:j }
+      const tdProps = {
+        className: `${classes.td} ${classNames?.day} `,
+        key: j,
+      }
 
       if (i === 0 && j < firstDay) tds.push( <td {...tdProps} /> )
       else if (date > daysInMonth( month, year )) tds.push( <td {...tdProps} /> )
@@ -44,15 +49,25 @@ export default function Calendar({ classNames, children }) {
         const currentDayInfo = dayInfo.filter( info => date === info.day && info.month === month && info.year === year ) ?? {}
         const isToday = date === today.getDate() && year === today.getFullYear() && month === today.getMonth()
 
-        const events = currentDayInfo.map( ({ link, title }) =>
-          !title ? null : (link
-            ? <Link className={classNames?.activeEventTitle} to={link}>{title}</Link>
-            : <span className={classNames?.eventTitle}>{title}</span>
-          ),
-        )
+        const events = currentDayInfo.map( ({ link, title, info }) => {
+          if (!title) return
+
+          return (
+            <div className={classes.event}>
+              {
+                link
+                  ? <Link className={`${classes.title} ${classNames?.activeEventTitle}`} to={link}>{title}</Link>
+                  : <span className={`${classes.title} ${classNames?.eventTitle}`}>{title}</span>
+              }
+              <p className={`${classes.eventDescription} ${classNames?.eventDescription}`}>{info}</p>
+            </div>
+          )
+        } )
+
+        if (isToday) tdProps.className += classNames?.today
 
         tds.push(
-          <td {...tdProps} className={isToday ? `${classNames?.day} ${classNames?.today}` : classNames?.day}>
+          <td {...tdProps}>
             <span>{date}</span>
             {events}
           </td>,

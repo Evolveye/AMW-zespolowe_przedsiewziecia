@@ -17,6 +17,7 @@ export default ({ className = `` }) => {
         day: classes.day,
         today: classes.today,
         activeEventTitle: `neumorphizm is-button ${classes.eventTitle}`,
+        eventDescription: classes.eventDescription,
       }}
     >
       {
