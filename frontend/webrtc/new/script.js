@@ -179,7 +179,7 @@ const chatBox = () => {
   
 };
 
-/*
+
 function shareScreen() {
   //const actual = peer.call(user, stream)
   console.log("screensharing");
@@ -192,4 +192,4 @@ function shareScreen() {
       }
   })
 }
-*/
+
