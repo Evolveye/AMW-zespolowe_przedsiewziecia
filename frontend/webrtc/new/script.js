@@ -110,7 +110,7 @@ const addVideoStream = (videoEl, stream) => {
     }
   }
 };
-/*
+
 const playStop = () => {
   let enabled = myVideoStream.getVideoTracks()[0].enabled;
   if (enabled) {
@@ -121,8 +121,8 @@ const playStop = () => {
     myVideoStream.getVideoTracks()[0].enabled = true;
   }
 };
-*/
-/*
+
+
 const muteUnmute = () => {
   const enabled = myVideoStream.getAudioTracks()[0].enabled;
   if (enabled) {
@@ -133,7 +133,7 @@ const muteUnmute = () => {
     myVideoStream.getAudioTracks()[0].enabled = true;
   }
 };
-*/
+
 /*
 const setPlayVideo = () => {
   const html = `<i class="unmute fa fa-pause-circle"></i>
