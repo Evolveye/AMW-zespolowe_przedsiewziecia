@@ -134,7 +134,7 @@ const muteUnmute = () => {
   }
 };
 
-/*
+
 const setPlayVideo = () => {
   const html = `<i class="unmute fa fa-pause-circle"></i>
   <span class="unmute">Resume Video</span>`;
@@ -146,8 +146,8 @@ const setStopVideo = () => {
   <span class="">Pause Video</span>`;
   document.getElementById("playPauseVideo").innerHTML = html;
 };
-*/
-/*
+
+
 const setUnmuteButton = () => {
   const html = `<i class="unmute fa fa-microphone-slash"></i>
   <span class="unmute">Unmute</span>`;
@@ -158,8 +158,8 @@ const setMuteButton = () => {
   <span>Mute</span>`;
   document.getElementById("muteButton").innerHTML = html;
 };
-*/
-/*
+
+
 const chatBox = () => {
   console.log("elo byki")
   let main__right_chatbox = document.getElementsByClassName('main__right')[0]
@@ -178,7 +178,7 @@ const chatBox = () => {
   }
   
 };
-*/
+
 /*
 function shareScreen() {
   //const actual = peer.call(user, stream)
