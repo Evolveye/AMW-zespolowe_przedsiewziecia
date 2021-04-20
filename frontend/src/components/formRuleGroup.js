@@ -192,7 +192,7 @@ export default class FormRuleGroup extends React.Component {
   
   render = () => (
     <form className={classes.formStyle}>
-      <button className={classes.buttonRight} onClick={this.handleButtonAddRole}>Dodaj rolę</button>
+      <button disabled="true" className={classes.buttonRight} onClick={this.handleButtonAddRole}>Dodaj rolę</button>
       <br className={classes.clearBoth} />
       <table id="tableRoles">
         <thead>

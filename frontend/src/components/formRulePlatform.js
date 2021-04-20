@@ -43,7 +43,7 @@ export default class FormRulePlatform extends React.Component {
     e.preventDefault();
     if(this.state.added === false){
       this.enableButton();
-      const abilities = ["canEditDetails","canDeletePlatform","canManageGroups","canManageUsers"];
+      const abilities = ["canManageRole", "canTeach","canEditDetails","canDeletePlatform","canManageGroups","canManageUsers"];
       const tableRef = document.getElementById('tableRoles').getElementsByTagName('tbody')[0];
       const newRow = tableRef.insertRow(tableRef.rows.length);
       const nameTd = document.createElement(`td`);
@@ -142,6 +142,8 @@ export default class FormRulePlatform extends React.Component {
   }
 
   availableRoles = {
+    canManageRole: "Zarządzanie rolami",
+    canTeach: "Może nauczać",
     canEditDetails: "Edycja szczegółów",
     canDeletePlatform: "Usuwanie platformy",
     canManageGroups: "Zarządzanie grupami",
@@ -195,6 +197,8 @@ export default class FormRulePlatform extends React.Component {
             <th>{this.availableRoles.key(1)}</th>
             <th>{this.availableRoles.key(2)}</th>
             <th>{this.availableRoles.key(3)}</th>
+            <th>{this.availableRoles.key(4)}</th>
+            <th>{this.availableRoles.key(5)}</th>
           </tr>
         </thead>
         <tbody>
@@ -202,6 +206,8 @@ export default class FormRulePlatform extends React.Component {
           </tbody>
           <tfoot>
           <tr>
+            <td />
+            <td />
             <td />
             <td />
             <td />

@@ -59,13 +59,13 @@ export default class PlatformUsers extends React.Component {
             component: Select,
             props: {
               name: `roleName`,
-              disabled: true,
+              disabled: false,
               fetchDataAddress: URLS.PLATFORM$ID_PERMISSIONS_GET.replace(
                 `:platformId`,
                 this.platformId
               ),
               fetchGetDataName: `permissions`,
-              fetchDataFilter: ({ name }) => name !== `owner`,
+              fetchDataFilter: ({ name }) => name !== `Właściciel`,
               fetchDataProcessor: ({ name }) => ({
                 value: name,
                 text: translateRole(name),

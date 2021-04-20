@@ -37,12 +37,14 @@ export function getDate(format = ``, date = Date.now()) {
 
 export function translateRole(roleName, defaultValue = ` = nieznana = `) {
   switch (roleName) {
-    case `owner`:
+    case `Właściciel`:
       return `Właściciel`
-    case `lecturer`:
+    case `Prowadzący`:
       return `Prowadzący`
-    case `student`:
+    case `Student`:
       return `Student`
+    case roleName:
+      return roleName
 
     default:
       return defaultValue

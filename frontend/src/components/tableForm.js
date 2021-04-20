@@ -102,7 +102,7 @@ export default class TableForm extends React.Component {
         body.append(k, v)
       })
     } else headers["Content-Type"] = `application/json`
-
+    console.log("wysyłam body: ", body)
     fetchWithStatusProcessing(this.props.fetchPostAddress, {
       method: `POST`,
       headers,
