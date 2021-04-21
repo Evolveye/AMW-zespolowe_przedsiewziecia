@@ -1,6 +1,3 @@
-import React from "react"
-import { useState } from "react"
-
 const fakeStartDate = () => new Date( Date.now() + Math.floor( Math.random() * 1000 * 60 * 60 * 24 * 7 ) )
 const fakeExpirationDate = () => Date.now() + 1000 * 60 * 60 * 1
 
@@ -272,12 +269,6 @@ export const isBrowser = () => window !== undefined
 export const getUrnQuery = () => isBrowser()
   ? Object.fromEntries( Array.from( new URLSearchParams( window.location.search ) ) )
   : {}
-
-export const useForceUpdate = () => {
-  const [ v, setV ] = useState( 0 )
-
-  return () => setV( v + 1 )
-}
 
 export function getDate( date = Date.now(), format = `YYYY.MM.DD hh:mm` ) {
   if (typeof date != `number`) date = new Date(date)

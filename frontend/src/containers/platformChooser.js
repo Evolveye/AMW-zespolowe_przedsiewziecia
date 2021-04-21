@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react"
+import React from "react"
 import { graphql, Link, useStaticQuery } from "gatsby"
 import Image from "gatsby-image"
 
@@ -6,8 +6,7 @@ import Select, { Item } from "../components/select.js"
 import ToggableBox from "../components/toggableBox.js"
 import SwitchBox, { Tab } from "../components/switchBox.js"
 import DataTable, { Adder, Field, Processor } from "../components/dataTable.js"
-import { fetchOrGet, getUrnQuery, getDate } from "../utils/functions"
-import { AuthContext } from "../utils/auth.js"
+import { fetchOrGet, getUrnQuery } from "../utils/functions"
 
 import settingsClasses from "./settings.module.css"
 import classes from "./platformChooser.module.css"
