@@ -34,9 +34,6 @@ const query = graphql`
 
 export default ({ className = `` }) => {
   const queryData = useStaticQuery( query )
-
-  // const [ platform, setPlatforms ] = useState([])
-  // const { platform } = useContext( AuthContext )
   const platforms = fetchOrGet( `fake://platforms` )
   const { p } = getUrnQuery()
 
@@ -48,7 +45,7 @@ export default ({ className = `` }) => {
       btnClassName={`neumorphizm is-button ${classes.navSwitch}`}
       btnIsActiveClassname="is-active"
       renderChoosedItem={
-        () => !p ? `Wybierz platformę...` : <>
+        () => !p ? <span className={`tag ${classes.linkTag}`}>Wybierz platformę...</span> : <>
           <Link className={classes.platform} to={`/platform?p=${p}`}>
             {platforms.find( ({ id }) => id == p ).name}
           </Link>

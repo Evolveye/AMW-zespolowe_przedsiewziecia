@@ -23,6 +23,10 @@
       display: flex;
       align-items: center;
     }
+        .navigationPathItem {
+          display: flex;
+          align-items: center;
+        }
         .navigationPathItem::before,
         .separator {
           transform: translateY( -3px );

@@ -1,7 +1,5 @@
-import React, { useContext } from "react"
+import React from "react"
 import { Link } from "gatsby"
-
-import { AuthContext } from "../utils/auth.js"
 
 import classes from "./subPagesNav.module.css"
 import { getWebsiteContext } from "../utils/functions.js"
@@ -13,7 +11,17 @@ const queryPaths = [ `/group?p&g`, `/meet?p&m` ]
 export default ({ classNames }) => {
   const websiteContext = getWebsiteContext()
   const search = Object.fromEntries( Array.from( new URLSearchParams( window.location.search ) ) )
-  const navItems =  queryPaths.map( link => {
+
+
+  const getnavItemName = (websiteContext, itemType) => {
+    switch (itemType) {
+      case `group`: return { tag:`Grupa`, text:websiteContext.group?.name }
+      case `meet`: return { tag:`Opis wybranego spotkania`, text:websiteContext.meet?.description }
+    }
+  }
+
+
+  return queryPaths.map( link => {
     const linkParts = link.split( `?` )
 
     if (linkParts.length === 1) {
@@ -29,24 +37,18 @@ export default ({ classNames }) => {
       return `${param}=${value}`
     } )
 
+    const { tag, text } = getnavItemName( websiteContext, linkParts[ 0 ].slice( 1 ) )
+
     return paramsWithValues.includes( undefined ) ? null : (
       <span key={link} className={classNames?.item}>
         <Link
           to={`${linkParts[ 0 ]}?${paramsWithValues.join( `&` )}`}
           className={classes.link}
-          children={getnavItemName( websiteContext, linkParts[ 0 ].slice( 1 ) )}
-        />
+        >
+          <span className={`tag ${classes.linkTag}`}>{tag}</span>
+          <span className={classes.linkText}>{text}</span>
+        </Link>
       </span>
     )
   } ).filter( Boolean )
-
-  return navItems
-}
-
-
-function getnavItemName( websiteContext, itemType ) {
-  switch (itemType) {
-    case `group`: return websiteContext.group.name
-    case `meet`: return websiteContext.meet.description
-  }
 }

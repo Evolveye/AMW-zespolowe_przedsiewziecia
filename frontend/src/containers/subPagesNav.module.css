@@ -3,6 +3,14 @@
   align-items: center;
 }
 .link {
+  display: flex;
+  flex-direction: column;
   margin: 10px;
   font-weight: bold;
 }
+    .link-tag {
+      font-size: 12px;
+    }
+    .link-text {
+      padding-left: 10px;
+    }
