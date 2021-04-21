@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useContext, useEffect, useState } from "react"
 import { navigate } from "gatsby"
 import { fetchOrGet, getUrnQuery, isBrowser } from "./functions.js"
 
@@ -27,8 +27,6 @@ export const logout = () => storage.clear()
 
 export const AuthContextProvider = ({ children }) => {
   const { p, g, m } = getUrnQuery()
-
-  console.log( `witaminki` )
 
   return (
     <AuthContext.Provider

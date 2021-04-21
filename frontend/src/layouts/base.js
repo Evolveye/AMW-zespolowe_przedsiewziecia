@@ -2,6 +2,7 @@ import React from "react"
 import { Link } from "gatsby"
 
 import "../css/sanitize.css"
+import "../css/main.css"
 import "../css/neumorphizm.css"
 
 import SEO from "../components/seo.js"
