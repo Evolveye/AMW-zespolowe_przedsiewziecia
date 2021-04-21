@@ -125,7 +125,7 @@ export default class DataTable extends React.Component {
         }
       } )
 
-    const abilities = props.actionPosibility()
+    const abilities = props.actionPosibility?.()
     let colspanCounter = 1
 
     this.tableAdderFields = this.fields.reduce( (obj, { name, adder, processor }) => {
@@ -157,7 +157,7 @@ export default class DataTable extends React.Component {
       tableHeaders: (
         <tr>
           {this.fields.map( ({ label, className = `` }) => <th className={className} key={label}>{label}</th> )}
-          <th>{props.actionsLabel || `Actions`}</th>
+          {!props.noActions && <th>{props.actionsLabel || `Actions`}</th>}
         </tr>
       ),
 
@@ -183,15 +183,19 @@ export default class DataTable extends React.Component {
               )
             } )
           }
-          <td>
-            {
-              (abilities || abilities.create) && (
-                <button className={props.create?.className || ``}>
-                  {props.create?.label || `Create`}
-                </button>
-              )
-            }
-          </td>
+          {
+            !props.noActions && (
+              <td>
+                {
+                  (abilities || abilities?.create) && (
+                    <button className={props.create?.className || ``}>
+                      {props.create?.label || `Create`}
+                    </button>
+                  )
+                }
+              </td>
+            )
+          }
         </>
       ),
 
@@ -208,6 +212,7 @@ export default class DataTable extends React.Component {
       delete: del,
       edit,
       actionPosibility = () => false,
+      noActions,
     } = this.props
 
     const data = await fetchOrGet( getDataAddress )
@@ -235,19 +240,23 @@ export default class DataTable extends React.Component {
               return <td key={name}>{value}</td>
             } )
           }
-          <td>
-            {(abilities ?? abilities.delete) && (
-              <button className={del?.className || ``}>
-                {del?.label || `Delete`}
-              </button>
-            )}
+          {
+            !noActions && (
+              <td>
+                {(abilities ?? abilities.delete) && (
+                  <button className={del?.className || ``}>
+                    {del?.label || `Delete`}
+                  </button>
+                )}
 
-            {editable && (
-              <button className={edit?.className || ``}>
-                {edit?.label || `Edit`}
-              </button>
-            )}
-          </td>
+                {editable && (
+                  <button className={edit?.className || ``}>
+                    {edit?.label || `Edit`}
+                  </button>
+                )}
+              </td>
+            )
+          }
         </tr>
       )
     } )

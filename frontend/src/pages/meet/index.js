@@ -2,16 +2,10 @@ import React, { useContext, useEffect, useState } from "react"
 
 import Layout from "../../layouts/platform.js"
 import { AuthContext } from "../../utils/auth.js"
-import { fetchOrGet } from "../../utils/functions.js"
+import { fetchOrGet, getWebsiteContext } from "../../utils/functions.js"
 
-export default () => (
-  <Layout title="Grupa" showMeets={true}>
-    <Pgae />
-  </Layout>
-)
-
-function Pgae() {
-  const { meet } = useContext( AuthContext )
+export default () => {
+  const { meet } = getWebsiteContext()
   const [ participants, setParticipants ] = useState([])
 
   useEffect( () => {
@@ -19,12 +13,12 @@ function Pgae() {
   }, [] )
 
   return (
-    <>
-      <h1 className="h1">
-        <span className="tag">Spotkanie</span>
-        {` `}
-        {meet?.description}
+    <Layout title="Grupa" showMeets={true}>
+      <h1 className="h1 tag">
+        Szczegóły spotkania
       </h1>
+
+      <p>{meet.description}</p>
 
       <ul>
         {participants.map( ({ id, name, surname }) => (
@@ -35,6 +29,6 @@ function Pgae() {
           </li>
         ) )}
       </ul>
-    </>
+    </Layout>
   )
 }

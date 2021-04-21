@@ -4,12 +4,14 @@ import { Link } from "gatsby"
 import { AuthContext } from "../utils/auth.js"
 
 import classes from "./subPagesNav.module.css"
+import { getWebsiteContext } from "../utils/functions.js"
 
 
 const queryPaths = [ `/group?p&g`, `/meet?p&m` ]
 
 
 export default ({ classNames }) => {
+  const websiteContext = getWebsiteContext()
   const search = Object.fromEntries( Array.from( new URLSearchParams( window.location.search ) ) )
   const navItems =  queryPaths.map( link => {
     const linkParts = link.split( `?` )
@@ -32,7 +34,7 @@ export default ({ classNames }) => {
         <Link
           to={`${linkParts[ 0 ]}?${paramsWithValues.join( `&` )}`}
           className={classes.link}
-          children={getnavItemName( linkParts[ 0 ].slice( 1 ) )}
+          children={getnavItemName( websiteContext, linkParts[ 0 ].slice( 1 ) )}
         />
       </span>
     )
@@ -42,13 +44,9 @@ export default ({ classNames }) => {
 }
 
 
-function getnavItemName( itemType ) {
-  const { group, meet } = useContext( AuthContext )
-
-  console.log( useContext( AuthContext ) )
-
+function getnavItemName( websiteContext, itemType ) {
   switch (itemType) {
-    case `group`: return group.name
-    case `meet`: return meet.description
+    case `group`: return websiteContext.group.name
+    case `meet`: return websiteContext.meet.description
   }
 }

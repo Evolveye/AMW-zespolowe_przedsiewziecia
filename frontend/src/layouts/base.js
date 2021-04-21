@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useEffect, useState } from "react"
 import { Link } from "gatsby"
 
 import "../css/sanitize.css"
@@ -13,60 +13,67 @@ import UserField from "../containers/userField.js"
 
 import Logo from "../models/logo.js"
 
+import { isLogged } from "../utils/auth.js"
+import { getWebsiteContext } from "../utils/functions.js"
+
 import classes from "./base.module.css"
-import { isLogged, AuthContextProvider } from "../utils/auth.js"
+
 
 export default ({ className = ``, children, title }) => {
-  // const platformSubPagesNav = <PlatformSubPagesNav className={classes.platformSubPages} />
-  // const platformSubPagesNavWithSeparators = React.Children.map( platformSubPagesNav.props.children, child => (
-  //   <>
-  //     <span className={classes.separator}>::</span>
-  //     {child}
-  //   </>
-  // ) )
+  const [ websiteContext, setWebsiteContext ] = useState( getWebsiteContext() )
 
-  // console.log( { platformSubPagesNavWithSeparators }, platformSubPagesNav.props )
+  useEffect( () => {
+    if (!(websiteContext instanceof Promise)) return
+
+    let mounted = true
+
+    websiteContext.then( ctx => mounted && setWebsiteContext( ctx ) )
+
+    return () => mounted = false
+  }, [] )
 
   return (
     <div className={`root ${classes.root}`}>
       <SEO title={title} />
-
-      <AuthContextProvider>
-        <header className={classes.header}>
-          <section className={classes.navigationPath}>
-            <Link className={classes.logo} to="/">
-              <Logo size={50} text="" />
-            </Link>
-            {
-              isLogged() && <>
-                <span className={classes.separator}>::</span>
-                <PlatformChooser className={classes.platformNav} />
-                <PlatformSubPagesNav classNames={{ item:classes.navigationPathItem }} />
-              </>
-            }
-          </section>
-
-          {
-            isLogged() && <>
-              {/* <SearchBar className={`${classes.search} is-centered`} /> */}
-              <UserField className={classes.userField} />
-            </>
-          }
-        </header>
-
-        <div className={`${classes.contentWrapper} ${className}`}>
-          {children}
-        </div>
-      </AuthContextProvider>
+      {websiteContext instanceof Promise ? <Loading /> : <PageContent className={className} children={children} />}
     </div>
   )
 }
 
 
-// .map( (link, i, arr) => (
-//   <React.Fragment key={link.key}>
-//     {console.log({ link, i, arr })}
-//     {link}
-//     {i === arr.length - 1 ? null : <span className={classes.separator}>::</span>}
-//   </React.Fragment>
-// ) )
+const Loading = () => (
+  <div>
+    <span>Ładowanie</span>
+  </div>
+)
+
+
+const PageContent = ({ className, children }) => (
+  <>
+    <header className={classes.header}>
+      <section className={classes.navigationPath}>
+        <Link className={classes.logo} to="/">
+          <Logo size={50} text="" />
+        </Link>
+        {
+          isLogged() && <>
+            <span className={classes.separator}>::</span>
+            <PlatformChooser className={classes.platformNav} />
+            <PlatformSubPagesNav classNames={{ item:classes.navigationPathItem }} />
+          </>
+        }
+      </section>
+
+      {
+        isLogged() && <>
+          {/* <SearchBar className={`${classes.search} is-centered`} /> */}
+          <UserField className={classes.userField} />
+        </>
+      }
+    </header>
+
+    <div className={`${classes.contentWrapper} ${className}`}>
+      {children}
+    </div>
+  </>
+)

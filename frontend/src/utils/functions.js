@@ -301,4 +301,25 @@ export function getDate( date = Date.now(), format = `YYYY.MM.DD hh:mm` ) {
     .replace( /mm/, mm )
 }
 
-// export const getActivePlatform = () => fetchOrGet()
+export function getWebsiteContext() {
+  const { p, g, m } = getUrnQuery()
+
+  const reducer = arr => arr.reduce( (obj, { key, value }) => ({ ...obj, [ key ]:value }), {} )
+  const contextItems = [
+    { key:`platform`, value:fetchOrGet( `fake://platforms/${p}` ) },
+    { key:`group`,    value:fetchOrGet( `fake://groups/${g}` ) },
+    { key:`meet`,     value:fetchOrGet( `fake://meets/${m}` ) },
+  ]
+
+  if (contextItems.some( ({ value }) => value instanceof Promise )) {
+    return Promise.all(
+      contextItems.map( ({ key, value }) => new Promise( r =>
+        value instanceof Promise
+          ? value.then( resolvedValue => r({ key, value:resolvedValue }) )
+          : r({ key, value }),
+      ) ),
+    ).then( reducer )
+  }
+
+  return reducer( contextItems )
+}
