@@ -43,7 +43,7 @@ export default ({ classNames }) => {
       <span key={link} className={classNames?.item}>
         <Link
           to={`${linkParts[ 0 ]}?${paramsWithValues.join( `&` )}`}
-          className={classes.link}
+          className={`is-highlightable ${classes.link}`}
         >
           <span className={`tag ${classes.linkTag}`}>{tag}</span>
           <span className={classes.linkText}>{text}</span>

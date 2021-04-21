@@ -48,7 +48,7 @@ export default ({ className = `` }) => {
       <TableList className={classes.list}>
         {
           groups?.map( ({ id }) => (
-            <Tr key={id} className={classes.field}>
+            <Tr key={id} className={`is-highlightable ${classes.field}`}>
               <Td>
                 {
                   Math.random() > .5 ? null : (

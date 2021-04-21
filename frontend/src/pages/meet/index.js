@@ -1,11 +1,10 @@
-import React, { useContext, useEffect, useState } from "react"
+import React, { useEffect, useState } from "react"
+import List from "../../containers/list.js"
 
 import Layout from "../../layouts/platform.js"
-import { AuthContext } from "../../utils/auth.js"
-import { fetchOrGet, getWebsiteContext } from "../../utils/functions.js"
+import { fetchOrGet } from "../../utils/functions.js"
 
 export default () => {
-  const { meet } = getWebsiteContext()
   const [ participants, setParticipants ] = useState([])
 
   useEffect( () => {
@@ -14,21 +13,13 @@ export default () => {
 
   return (
     <Layout title="Grupa" showMeets={true}>
-      <h1 className="h1 tag">
-        Szczegóły spotkania
-      </h1>
+      <h1 className="h1 tag">Szczegóły spotkania</h1>
 
-      <p>{meet.description}</p>
+      <br />
+      <br />
 
-      <ul>
-        {participants.map( ({ id, name, surname }) => (
-          <li key={id} className="participants">
-            {name}
-            {` `}
-            {surname}
-          </li>
-        ) )}
-      </ul>
+      <h2>Lista uczestników</h2>
+      <List array={participants.map( ({ name, surname }) => `${name} ${surname}` )} />
     </Layout>
   )
 }

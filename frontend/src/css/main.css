@@ -8,3 +8,12 @@
   background-color: #0000000a;
   width: 200px;
 }
+
+.is-highlightable {
+  transition: background-color 0.1s;
+}
+.is-highlightable:hover,
+.highlighted {
+  background-color: white;
+  border-radius: 10px;
+}
