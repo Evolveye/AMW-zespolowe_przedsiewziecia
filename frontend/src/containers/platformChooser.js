@@ -87,6 +87,12 @@ const PlatformSettings = ({ queryData, platformId }) => {
           activeSwitch: `is-active`,
         }}
       >
+        <Tab className={settingsClasses.settingsTabSwitch} name="Ogólne">
+          Opis
+          <br />
+          Kasowanie
+        </Tab>
+
         <Tab className={settingsClasses.settingsTabSwitch} name="Użytkownicy">
           <DataTable {...dataTableProps} getDataAddress="fake://platformUsers">
             <Field label="Imię" name="name">
@@ -94,6 +100,10 @@ const PlatformSettings = ({ queryData, platformId }) => {
             </Field>
 
             <Field label="Nazwisko" name="surname">
+              <Adder className={classes.adder} type="text" />
+            </Field>
+
+            <Field label="Email" name="email">
               <Adder className={classes.adder} type="text" />
             </Field>
 
@@ -117,24 +127,6 @@ const PlatformSettings = ({ queryData, platformId }) => {
                 type="select"
                 getDataAddress="fake://platformUsers"
               />
-            </Field>
-          </DataTable>
-        </Tab>
-
-        <Tab className={settingsClasses.settingsTabSwitch} name="Spotkania">
-          <DataTable {...dataTableProps} getDataAddress="fake://meets">
-            <Field label="Czas rozpoczęcia" name="startDate">
-              <Processor render={getDate} />
-              <Adder className={classes.adder} type="datetime-local" />
-            </Field>
-
-            <Field label="Czas zakończenia" name="expirationDate">
-              <Processor render={getDate} />
-              <Adder className={classes.adder} type="datetime-local" />
-            </Field>
-
-            <Field label="Opis" name="description">
-              <Adder className={classes.adder} type="textarea" />
             </Field>
           </DataTable>
         </Tab>

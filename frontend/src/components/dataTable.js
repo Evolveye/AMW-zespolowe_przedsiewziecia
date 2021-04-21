@@ -77,8 +77,10 @@ const InputField = ({
   }, [] )
 
   switch (type) {
+    case `file`: return <input type="file" {...standardProps} />
     case `text`: return <input type="text" {...standardProps} />
     case `color`: return <input type="color" {...standardProps} />
+    case `number`: return <input type="number" {...standardProps} />
     case `checkbox`: return <input type="checkbox" {...standardProps} defaultChecked={standardProps.defaultValue} />
     case `datetime-local`: return <input type="datetime-local" {...standardProps} />
     case `textarea`: return <textarea {...standardProps} />
@@ -113,10 +115,13 @@ export default class DataTable extends React.Component {
           .toArray( props.children )
           .filter( ({ type }) => type === Component.type )[ 0 ]
 
+        const processor = childrenFilter( Processor )
+
         return {
           ...props,
           adder: childrenFilter( Adder ),
-          processor: childrenFilter( Processor )?.props.render || (it => it),
+          processor: processor?.props.render || (it => it),
+          processEntireField: processor?.props.entire || false,
         }
       } )
 
@@ -213,7 +218,7 @@ export default class DataTable extends React.Component {
       return (
         <tr key={field.id}>
           {
-            this.fields.map( ({ editable:editableField, name, dataFieldname = name, processor }) => {
+            this.fields.map( ({ editable:editableField, name, dataFieldname = name, processEntireField, processor }) => {
               if (editableField && (abilities || abilities.edit)) editable = true
 
               const filler = editable ? this.tableAdderFields[ name ] : data => {
@@ -222,7 +227,7 @@ export default class DataTable extends React.Component {
                 return processedData?.label ?? processedData
               }
 
-              const data = filler( field[ dataFieldname ] )
+              const data = filler( processEntireField ? field : field[ dataFieldname ] )
               const value = typeof data === `boolean`
                 ? <input disabled type="radio" defaultChecked={data} style={{ display:`block`, margin:`0 auto` }} />
                 : data

@@ -28,9 +28,8 @@ export default ({ classNames }) => {
     } )
 
     return paramsWithValues.includes( undefined ) ? null : (
-      <span className={classNames?.item}>
+      <span key={link} className={classNames?.item}>
         <Link
-          key={link}
           to={`${linkParts[ 0 ]}?${paramsWithValues.join( `&` )}`}
           className={classes.link}
           children={getnavItemName( linkParts[ 0 ].slice( 1 ) )}
