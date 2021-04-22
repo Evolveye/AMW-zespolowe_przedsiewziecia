@@ -1,10 +1,16 @@
 .content {
   padding: 100px;
 }
+.section {
+  padding: 100px 0;
+}
 .content:not( .is-centered-and-splited ) {
   flex-direction: column;
 }
-.content.is-centered-and-splited > * {
+.is-centered-and-splited {
+  display: flex;
+}
+.is-centered-and-splited > * {
   flex-grow: 1;
   flex-basis: 0;
 }
