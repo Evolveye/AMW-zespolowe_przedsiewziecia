@@ -4,8 +4,10 @@ import NotLoggedForm from "../containers/notLoggedForm.js"
 import Layout from "../layouts/main.js"
 import { useUser } from "../utils/auth.js"
 
+import classes from "../css/page.module.css"
+
 export default () => (
-  <Layout title="Strona główna">
+  <Layout className={`${classes.content} ${classes.isCenteredAndSplited}`} title="Strona główna">
     <article className="is-centered">
       <h1 className="h1">
           Platforma edukacyjna

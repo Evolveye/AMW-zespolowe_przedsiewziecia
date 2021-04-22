@@ -224,7 +224,7 @@ const fakeMeets = [
 }) )
 const fakeNotes = [
   { id:`0`, groupId:`0`, userId:`0`, value:`1`, description:`Bad` },
-  { id:`0`, groupId:`0`, userId:`1`, value:`6`, description:`Great` },
+  { id:`1`, groupId:`0`, userId:`1`, value:`6`, description:`Great` },
 ]
 const fakeDataset = {
   platformUsers: fakePlatformUsers,

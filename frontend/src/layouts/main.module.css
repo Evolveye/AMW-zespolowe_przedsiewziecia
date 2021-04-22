@@ -9,10 +9,6 @@
   grid-area: main;
   display: flex;
 }
-.main > * {
-  flex-grow: 1;
-  flex-basis: 0;
-}
 
 .footer {
   grid-area: footer;

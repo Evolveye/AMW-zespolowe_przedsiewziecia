@@ -15,9 +15,6 @@ export default () => {
     <Layout title="Grupa" showMeets={true}>
       <h1 className="h1 tag">Szczegóły spotkania</h1>
 
-      <br />
-      <br />
-
       <h2>Lista uczestników</h2>
       <List array={participants.map( ({ name, surname }) => `${name} ${surname}` )} />
     </Layout>

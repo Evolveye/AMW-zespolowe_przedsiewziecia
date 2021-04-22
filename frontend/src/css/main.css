@@ -2,13 +2,6 @@
   color: #aaa;
 }
 
-.participants {
-  margin: 5px;
-  padding: 5px;
-  background-color: #0000000a;
-  width: 200px;
-}
-
 .is-highlightable {
   transition: background-color 0.1s;
 }

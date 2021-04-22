@@ -1,0 +1,34 @@
+.spoiler {
+  background-color: #00000005;
+  margin: 5px;
+}
+.summary {
+  position: relative;
+  display: flex;
+  padding: 10px 40px;
+  cursor: pointer;
+  background-color: #0000000a;
+}
+.summary:hover {
+  background-color: #0001;
+}
+.summary::before {
+  --rotate: -45deg;
+  content: "";
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY( -50% ) rotate( var( --rotate ) );
+  width: 10px;
+  height: 10px;
+  border: 2px solid transparent;
+  border-right-color: #aaa;
+  border-bottom-color: #aaa;
+  transition: transform 0.1s;
+}
+.spoiler[open] .summary::before {
+  --rotate: 45deg;
+}
+.content {
+  padding: 10px;
+}

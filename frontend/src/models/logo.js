@@ -14,7 +14,7 @@ const query = graphql`
   }
 `
 
-export default ({ className=``, size, text=`Platforma edukacyjna` }) => {
+export default ({ className = ``, size, text = `Platforma edukacyjna` }) => {
   const { logo } = useStaticQuery( query )
 
   return (

@@ -2,11 +2,13 @@ import React from "react"
 
 import Layout from "../../layouts/main.js"
 import Form, { Text, Password, Submit } from "../../components/form.js"
+
+import pageClasses from "../../css/page.module.css"
 import classes from "../../containers/form.module.css"
 
 export default () => {
   return (
-    <Layout title="Ustawienia">
+    <Layout className={`${pageClasses.content} ${pageClasses.isCenteredAndSplited}`} title="Ustawienia">
       <Form classNames={{ it:classes.centered }}>
         <Text className={classes.input} name="name">Imię</Text>
         <Text className={classes.input} name="surname">Nazwisko</Text>

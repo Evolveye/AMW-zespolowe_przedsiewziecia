@@ -129,6 +129,7 @@ export default class DataTable extends React.Component {
     let colspanCounter = 1
 
     this.tableAdderFields = this.fields.reduce( (obj, { name, adder, processor }) => {
+      if (!obj || !adder) return null
       if (colspanCounter !== 1) {
         colspanCounter--
         return obj
@@ -164,7 +165,7 @@ export default class DataTable extends React.Component {
       tableAdder: (
         <>
           {
-            this.fields.map( ({ label, name, children }) => {
+            this.tableAdderFields && this.fields.map( ({ label, name, children }) => {
               const adder = React.Children
                 .toArray( children )
                 .filter( ({ type }) => type === Adder.type )[ 0 ]
@@ -208,6 +209,7 @@ export default class DataTable extends React.Component {
 
   async componentDidMount() {
     const {
+      data: initialData,
       getDataAddress,
       delete: del,
       edit,
@@ -215,7 +217,7 @@ export default class DataTable extends React.Component {
       noActions,
     } = this.props
 
-    const data = await fetchOrGet( getDataAddress )
+    const data = initialData || await fetchOrGet( getDataAddress )
     const tableRows = data.map( field => {
       const abilities = actionPosibility( field )
       let editable = false
@@ -297,6 +299,8 @@ DataTable.propTypes = {
   className: PropTypes.string,
   actionPosibility: PropTypes.func,
   actionsLabel: PropTypes.string,
+  noActions: PropTypes.bool,
+  data: PropTypes.arrayOf( PropTypes.object ),
   create: PropTypes.shape({ label:PropTypes.string, className:PropTypes.string }),
   delete: PropTypes.shape({ label:PropTypes.string, className:PropTypes.string }),
   edit: PropTypes.shape({ label:PropTypes.string, className:PropTypes.string }),
