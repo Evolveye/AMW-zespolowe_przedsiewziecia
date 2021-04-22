@@ -3,16 +3,13 @@
   --logo-width: 75px;
   --platform-nav-width: 250px;
 
-  display: grid;
-  grid-template:
-    "header"  var( --top-height )
-    "wrapper" calc( 100vh - var( --top-height ) )
+  display: flex;
+  flex-direction: column;
 }
 
 
 
 .header {
-  grid-area: header;
   display: grid;
   grid-template:
     "path         .   search      user"       var( --top-height ) /
@@ -57,9 +54,3 @@
     .userField {
       grid-area: user;
     }
-
-
-
-.contentWrapper {
-  grid-area: wrapper;
-}

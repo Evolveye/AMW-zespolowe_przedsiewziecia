@@ -1,7 +1,9 @@
 .content {
+  width: 100%;
   padding: 100px;
 }
 .section {
+  width: 100%;
   padding: 100px 0;
 }
 .content:not( .is-centered-and-splited ) {
@@ -20,4 +22,15 @@
 }
 .flexList {
   display: flex;
+}
+
+@media screen and (max-width:1000px) {
+  .content {
+    padding: 50px;
+  }
+  .reducedWidthContent {
+    margin: 0 auto;
+    min-width: unset;
+    width: 100%;
+  }
 }

@@ -1,15 +1,13 @@
 .root {
-  display: grid;
-  grid-template:
-    "main"   calc( 100vh - var( --top-height ) - 30px )
-    "footer" 30px
+  display: flex;
+  flex-direction: column;
 }
 
 .main {
-  grid-area: main;
   display: flex;
+  min-height: calc( 100vh - var( --top-height ) - 50px );
 }
 
 .footer {
-  grid-area: footer;
+  height: 50px;
 }

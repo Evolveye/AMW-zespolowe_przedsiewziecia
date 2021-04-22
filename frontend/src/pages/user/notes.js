@@ -1,9 +1,6 @@
 import React from "react"
 
-// import Form from "../../components/form.js"
 import Layout from "../../layouts/main.js"
-// import { fakeLogin, isLogged } from "../../utils/auth.js"
-// import { useForceUpdate } from "../../utils/functions.js"
 import Note from "../../containers/note.js"
 import DataTable, { Field, Processor } from "../../components/dataTable.js"
 

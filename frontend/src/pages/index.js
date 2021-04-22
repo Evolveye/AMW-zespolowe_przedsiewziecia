@@ -12,8 +12,8 @@ export default () => {
   const isLogged = !!useUser()
 
   return (
-    <Layout className={`${classes.content}`} title="Strona główna">
-      <article className={classes.isCenteredAndSplited}>
+    <Layout className={`${classes.content} is-centered`} title="Strona główna">
+      <article className={`${classes.section} ${classes.isCenteredAndSplited}`}>
         <section className="is-centered">
           <h1 className="h1">Platforma edukacyjna</h1>
           <small className="h1-small">Edukacja, szkolenia, spotkania, kursy</small>
@@ -34,9 +34,7 @@ export default () => {
                   <Text className={boxClasses.input} name="login" validator={() => true}>Login</Text>
                   <Password className={boxClasses.input} name="password" validator={() => true}>Hasło</Password>
 
-                  <Submit className={`neumorphizm is-button ${boxClasses.button}`} handler={fakeLogin}>
-                  Zaloguj
-                  </Submit>
+                  <Submit className={`neumorphizm is-button ${boxClasses.button}`} handler={fakeLogin}>Zaloguj</Submit>
                 </Tab>
 
                 <Tab className={boxClasses.tab} name="Rejestracja">
@@ -49,9 +47,7 @@ export default () => {
                     <Password className={boxClasses.input} name="password2" validator={() => true}>Powtórne hasło</Password>
                   </div>
 
-                  <Submit className={`neumorphizm is-button ${boxClasses.button}`}>
-                  Zarejestruj
-                  </Submit>
+                  <Submit className={`neumorphizm is-button ${boxClasses.button}`}>Zarejestruj</Submit>
                 </Tab>
               </Form>
             </section>
