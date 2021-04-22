@@ -3,6 +3,7 @@
   height: unset;
   padding: 10px;
 }
+.centered,
 .tab {
   display: flex;
   min-height: 200px;

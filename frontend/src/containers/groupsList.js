@@ -5,6 +5,7 @@ import Image from "gatsby-image"
 import SwitchBox, { Tab } from "../components/switchBox.js"
 import ToggableBox from "../components/toggableBox.js"
 
+import Form, { Text, Submit } from "../components/form.js"
 import TableList, { Tr, Td } from "../components/tableList.js"
 import DataTable, { Adder, Field, Processor } from "../components/dataTable.js"
 import { fetchOrGet, getDate, getUrnQuery } from "../utils/functions.js"
@@ -67,8 +68,11 @@ export default ({ className = `` }) => {
                           activeSwitch: `is-active`,
                         }}
                       >
-                        <Tab className={settingsClasses.settingsTabSwitch} name="Ogólne">
-                          Skala ocen
+                        <Tab className={`is-centered ${settingsClasses.settingsTabSwitch}`} name="Ogólne">
+                          <Form classNames={{ it:classes.centered }}>
+                            <Text className={classes.input} name="notes-scale">Skala ocen</Text>
+                            <Submit className={`neumorphizm is-button ${classes.button}`}>Zaktualizuj</Submit>
+                          </Form>
                         </Tab>
 
                         <Tab className={settingsClasses.settingsTabSwitch} name="Oceny">

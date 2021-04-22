@@ -6,6 +6,7 @@ import Select, { Item } from "../components/select.js"
 import ToggableBox from "../components/toggableBox.js"
 import SwitchBox, { Tab } from "../components/switchBox.js"
 import DataTable, { Adder, Field, Processor } from "../components/dataTable.js"
+import Form, { Text, Password, Submit } from "../components/form.js"
 import { fetchOrGet, getUrnQuery } from "../utils/functions"
 
 import settingsClasses from "./settings.module.css"
@@ -17,9 +18,9 @@ const dataTableProps = {
   className: classes.table,
   actionPosibility: () => true, // same as { create:true, delete:true, edit:true, }
   actionsLabel: `Akcje`,
-  create: { label:`Dodaj`, className:`${dataTableButtonsClassName} ${classes.isCreate}` },
-  delete: { label:`Usuń`, className:`${dataTableButtonsClassName} ${classes.isDelete}` },
-  edit: { label:`Edytuj`, className:`${dataTableButtonsClassName} ${classes.isEdit}` },
+  create: { label:`Dodaj`, className:`${dataTableButtonsClassName} ${classes.isSoftCreate}` },
+  delete: { label:`Usuń`, className:`${dataTableButtonsClassName} ${classes.isSoftDelete}` },
+  edit: { label:`Edytuj`, className:`${dataTableButtonsClassName} ${classes.isSoftEdit}` },
 }
 
 const query = graphql`
@@ -83,10 +84,24 @@ const PlatformSettings = ({ queryData, platformId }) => {
           activeSwitch: `is-active`,
         }}
       >
-        <Tab className={settingsClasses.settingsTabSwitch} name="Ogólne">
-          Opis
-          <br />
-          Kasowanie
+        <Tab className={`is-centered ${settingsClasses.settingsTabSwitch}`} name="Ogólne">
+          <Form classNames={{ it:classes.centered }}>
+            <Text className={classes.input} name="description">Opis</Text>
+            <Submit className={`neumorphizm is-button ${classes.button}`}>Zaktualizuj</Submit>
+          </Form>
+
+          <ToggableBox
+            boxClassName={settingsClasses.popup}
+            btnClassName={`${dataTableButtonsClassName} ${classes.isDelete}`}
+            btnIsActiveClassname="is-active"
+            btnContent="Skasuj platformę"
+            fullScreened
+          >
+            <Form classNames={{ it:classes.centered }}>
+              <Password className={classes.input} name="password">Podaj hasło</Password>
+              <Submit className={`${dataTableButtonsClassName} ${classes.isDelete}`}>Skasuj</Submit>
+            </Form>
+          </ToggableBox>
         </Tab>
 
         <Tab className={settingsClasses.settingsTabSwitch} name="Użytkownicy">

@@ -24,24 +24,28 @@ export default function SwitchBox({ classNames, children }) {
 
   return (
     <article className={css.it}>
-      <section className={css.switches}>
-        {
-          tabs.map( tab => {
-            const { name } = tab.props
-            const activeClassname = activeProps.name === name ? css.activeSwitch : ``
+      {
+        (tabs.length > 1 || tabs[ 0 ].props.name != ``) && (
+          <section className={css.switches}>
+            {
+              tabs.map( tab => {
+                const { name } = tab.props
+                const activeClassname = activeProps.name === name ? css.activeSwitch : ``
 
-            return (
-              <button
-                key={name}
-                className={`${css.switch} ${activeClassname}`}
-                onClick={() => setActiveTab( tab )}
-              >
-                {name}
-              </button>
-            )
-          } )
-        }
-      </section>
+                return (
+                  <button
+                    key={name}
+                    className={`${css.switch} ${activeClassname}`}
+                    onClick={() => setActiveTab( tab )}
+                  >
+                    {name}
+                  </button>
+                )
+              } )
+            }
+          </section>
+        )
+      }
 
       <article key={activeProps.name} className={activeProps.className}>
         {activeTab.props.children}

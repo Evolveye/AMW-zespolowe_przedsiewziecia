@@ -48,23 +48,26 @@ export default function Form({ classNames, children }) {
     if (typeof handler === `function`) handler( fieldsValues )
   }
 
+  const tabs = React.Children
+    .toArray( children )
+    .filter( c => c.type === Tab.type )
+
+  if (!tabs.length) tabs.push( <Tab name="">{children}</Tab> )
+
   return (
     <SwitchBox classNames={classNames}>
       {
-        React.Children
-          .toArray( children )
-          .filter( c => c.type === Tab.type )
-          .map( tab => (
-            <SwitchTab
-              key={tab.props.name}
-              name={tab.props.name}
-              className={tab.props.className}
-            >
-              <form>
-                {processFormChildren( tab, updateValues, onSubmit )}
-              </form>
-            </SwitchTab>
-          ) )
+        tabs.map( tab => (
+          <SwitchTab
+            key={tab.props.name}
+            name={tab.props.name}
+            className={tab.props.className}
+          >
+            <form>
+              {processFormChildren( tab, updateValues, onSubmit )}
+            </form>
+          </SwitchTab>
+        ) )
       }
     </SwitchBox>
   )
