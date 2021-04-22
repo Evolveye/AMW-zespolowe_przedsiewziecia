@@ -21,7 +21,7 @@ export default ({ className = `` }) => {
       }}
     >
       {
-        events.map( ({ id, groupId, startDate, description }) => {
+        events.map( ({ id, platformId, groupId, startDate, description }) => {
           const date = new Date( startDate )
           return (
             <Info
