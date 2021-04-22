@@ -4,7 +4,7 @@ import Layout from "../../layouts/main.js"
 import Form, { Text, Password, Submit } from "../../components/form.js"
 
 import pageClasses from "../../css/page.module.css"
-import classes from "../../containers/form.module.css"
+import classes from "../../css/box.module.css"
 
 export default () => {
   return (

@@ -1,7 +1,7 @@
 import { Link } from "gatsby"
 import React from "react"
 
-export const QueryLink = ({ className = ``, to, requiredParams, params, children }) => {
+export default ({ className = ``, to, requiredParams, params, children }) => {
   const search = Object.fromEntries( Array.from( new URLSearchParams( window.location.search ) ) )
   const processedQueryParams = requiredParams.map( p => {
     if (!(p in search)) throw `Missing required param ${p}`

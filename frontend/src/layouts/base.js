@@ -11,7 +11,7 @@ import PlatformSubPagesNav from "../containers/subPagesNav.js"
 // import SearchBar from "../components/searchBar.js"
 import UserField from "../containers/userField.js"
 
-import Logo from "../models/logo.js"
+import Logo from "../containers/logo.js"
 
 import { isLogged } from "../utils/auth.js"
 import { getWebsiteContext } from "../utils/functions.js"

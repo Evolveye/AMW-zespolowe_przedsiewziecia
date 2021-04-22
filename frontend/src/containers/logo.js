@@ -2,8 +2,6 @@ import React from "react"
 import { useStaticQuery, graphql } from "gatsby"
 import Img from "gatsby-image"
 
-// import classes from "./logo.module.css"
-
 const query = graphql`
   query {
     logo: file( relativePath:{ eq:"logo.png" } ) {

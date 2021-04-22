@@ -5,7 +5,7 @@ import Img from "gatsby-image"
 import ToggableBox from "../components/toggableBox.js"
 import { getUser } from "../utils/auth"
 
-import settingsClasses from "./settings.module.css"
+import boxesClasses from "../css/box.module.css"
 import classes from "./userField.module.css"
 
 const query = graphql`
@@ -27,7 +27,7 @@ export default ({ className = `` }) => {
       className={`${classes.userField} ${className}`}
       btnClassName={`neumorphizm is-button ${classes.activator}`}
       btnIsActiveClassname="is-active"
-      boxClassName={`${settingsClasses.settings} ${classes.data}`}
+      boxClassName={`${boxesClasses.wrapper} ${classes.data}`}
       btnContent={
         <Img
           className={classes.avatar}

@@ -9,7 +9,7 @@ import DataTable, { Adder, Field, Processor } from "../components/dataTable.js"
 import Form, { Text, Password, Submit } from "../components/form.js"
 import { fetchOrGet, getUrnQuery } from "../utils/functions"
 
-import settingsClasses from "./settings.module.css"
+import boxesClasses from "../css/box.module.css"
 import classes from "./platformChooser.module.css"
 
 const buttonsClasname = `neumorphizm is-button`
@@ -51,7 +51,15 @@ export default ({ className = `` }) => {
             {platforms.find( ({ id }) => id == p ).name}
           </Link>
 
-          <PlatformSettings queryData={queryData} platformId={p} />
+          <ToggableBox
+            boxClassName={boxesClasses.wrapper}
+            btnClassName={`${buttonsClasname} ${boxesClasses.switch}`}
+            btnIsActiveClassname="is-active"
+            btnContent={<Image fluid={queryData.cog.childImageSharp.fluid} />}
+            fullScreened
+          >
+            <SettingsTabs platformId={p} />
+          </ToggableBox>
         </>
       }
     >
@@ -66,149 +74,138 @@ export default ({ className = `` }) => {
   )
 }
 
-const PlatformSettings = ({ queryData, platformId }) => {
-  // const platform = ()
 
-  return (
-    <ToggableBox
-      boxClassName={settingsClasses.settings}
-      btnClassName={`${buttonsClasname} ${settingsClasses.settingsSwitch}`}
-      btnIsActiveClassname="is-active"
-      btnContent={<Image fluid={queryData.cog.childImageSharp.fluid} />}
-      fullScreened
-    >
-      <SwitchBox
-        classNames={{
-          switches: settingsClasses.settingsTabsSwitches,
-          switch: `${buttonsClasname} ${settingsClasses.settingsTabSwitch}`,
-          activeSwitch: `is-active`,
-        }}
+const SettingsTabs = ({ platformId }) => (
+  <SwitchBox
+    classNames={{
+      switches: boxesClasses.tabsSwitches,
+      switch: `${buttonsClasname} ${boxesClasses.tabSwitch}`,
+      activeSwitch: `is-active`,
+    }}
+  >
+    <Tab className={`is-centered ${boxesClasses.tabSwitch}`} name="Ogólne">
+      <Form classNames={{ it:classes.centered }}>
+        <Text className={classes.input} name="description">Opis</Text>
+        <Submit className={`neumorphizm is-button ${classes.button}`}>Zaktualizuj</Submit>
+      </Form>
+
+      <ToggableBox
+        boxClassName={boxesClasses.popup}
+        btnClassName={`${dataTableButtonsClassName} ${classes.isDelete}`}
+        btnIsActiveClassname="is-active"
+        btnContent="Skasuj platformę"
+        fullScreened
       >
-        <Tab className={`is-centered ${settingsClasses.settingsTabSwitch}`} name="Ogólne">
-          <Form classNames={{ it:classes.centered }}>
-            <Text className={classes.input} name="description">Opis</Text>
-            <Submit className={`neumorphizm is-button ${classes.button}`}>Zaktualizuj</Submit>
-          </Form>
+        <Form classNames={{ it:classes.centered }}>
+          <Password className={classes.input} name="password">Podaj hasło</Password>
+          <Submit className={`${dataTableButtonsClassName} ${classes.isDelete}`}>Skasuj</Submit>
+        </Form>
+      </ToggableBox>
+    </Tab>
 
-          <ToggableBox
-            boxClassName={settingsClasses.popup}
-            btnClassName={`${dataTableButtonsClassName} ${classes.isDelete}`}
-            btnIsActiveClassname="is-active"
-            btnContent="Skasuj platformę"
-            fullScreened
-          >
-            <Form classNames={{ it:classes.centered }}>
-              <Password className={classes.input} name="password">Podaj hasło</Password>
-              <Submit className={`${dataTableButtonsClassName} ${classes.isDelete}`}>Skasuj</Submit>
-            </Form>
-          </ToggableBox>
-        </Tab>
+    <Tab className={boxesClasses.tabSwitch} name="Użytkownicy">
+      <DataTable {...dataTableProps} getDataAddress="fake://platformUsers">
+        <Field label="Imię" name="name">
+          <Adder className={classes.adder} type="text" />
+        </Field>
 
-        <Tab className={settingsClasses.settingsTabSwitch} name="Użytkownicy">
-          <DataTable {...dataTableProps} getDataAddress="fake://platformUsers">
-            <Field label="Imię" name="name">
-              <Adder className={classes.adder} type="text" />
-            </Field>
+        <Field label="Nazwisko" name="surname">
+          <Adder className={classes.adder} type="text" />
+        </Field>
 
-            <Field label="Nazwisko" name="surname">
-              <Adder className={classes.adder} type="text" />
-            </Field>
+        <Field label="Email" name="email">
+          <Adder className={classes.adder} type="text" />
+        </Field>
 
-            <Field label="Email" name="email">
-              <Adder className={classes.adder} type="text" />
-            </Field>
+        <Field label="Rola" name="role" editable>
+          <Processor render={({ id, name }) => ({ label:name, value:id })} />
+          <Adder className={classes.adder} type="select" getDataAddress="fake://platformRoles" />
+        </Field>
+      </DataTable>
+    </Tab>
 
-            <Field label="Rola" name="role" editable>
-              <Processor render={({ id, name }) => ({ label:name, value:id })} />
-              <Adder className={classes.adder} type="select" getDataAddress="fake://platformRoles" />
-            </Field>
-          </DataTable>
-        </Tab>
+    <Tab className={boxesClasses.tabSwitch} name="Grupy">
+      <DataTable {...dataTableProps} getDataAddress={`fake://groups?platformId=${platformId}`}>
+        <Field label="Nazwa" name="name">
+          <Adder className={classes.adder} type="text" />
+        </Field>
 
-        <Tab className={settingsClasses.settingsTabSwitch} name="Grupy">
-          <DataTable {...dataTableProps} getDataAddress={`fake://groups?platformId=${platformId}`}>
-            <Field label="Nazwa" name="name">
-              <Adder className={classes.adder} type="text" />
-            </Field>
+        <Field label="Prowadzący" name="lecturer">
+          <Processor render={({ id, name, surname }) => ({ label:`${name} ${surname}`, value:id })} />
+          <Adder
+            className={classes.adder}
+            type="select"
+            getDataAddress="fake://platformUsers"
+          />
+        </Field>
+      </DataTable>
+    </Tab>
 
-            <Field label="Prowadzący" name="lecturer">
-              <Processor render={({ id, name, surname }) => ({ label:`${name} ${surname}`, value:id })} />
-              <Adder
-                className={classes.adder}
-                type="select"
-                getDataAddress="fake://platformUsers"
-              />
-            </Field>
-          </DataTable>
-        </Tab>
+    <Tab className={boxesClasses.tabSwitch} name="Role">
+      <DataTable {...dataTableProps} className={`${classes.table} ${classes.isRotated}`} getDataAddress="fake://platformRoles">
+        <Field label="Nazwa" name="name">
+          <Adder className={classes.adder} type="text" />
+        </Field>
 
-        <Tab className={settingsClasses.settingsTabSwitch} name="Role">
-          <DataTable {...dataTableProps} className={`${classes.table} ${classes.isRotated}`} getDataAddress="fake://platformRoles">
-            <Field label="Nazwa" name="name">
-              <Adder className={classes.adder} type="text" />
-            </Field>
+        <Field label="Kolor" name="color">
+          <Processor
+            render={color => (
+              <span className={classes.color} style={{ backgroundColor:`#` + color?.toString( 16 ).padStart( 6, 0 ) }} />
+            )}
+          />
+          <Adder className={classes.adder} type="color" />
+        </Field>
 
-            <Field label="Kolor" name="color">
-              <Processor
-                render={color => (
-                  <span className={classes.color} style={{ backgroundColor:`#` + color?.toString( 16 ).padStart( 6, 0 ) }} />
-                )}
-              />
-              <Adder className={classes.adder} type="color" />
-            </Field>
+        <Field
+          className={classes.ability}
+          label="Edycja szczegółów"
+          name="canEditDetails"
+          dataFieldname="abilities"
+        >
+          <Processor render={({ canEditDetails }) => canEditDetails} />
+          <Adder className={classes.adder} type="checkbox" />
+        </Field>
 
-            <Field
-              className={classes.ability}
-              label="Edycja szczegółów"
-              name="canEditDetails"
-              dataFieldname="abilities"
-            >
-              <Processor render={({ canEditDetails }) => canEditDetails} />
-              <Adder className={classes.adder} type="checkbox" />
-            </Field>
+        <Field
+          className={classes.ability}
+          label="Nauczanie"
+          name="canTeach"
+          dataFieldname="abilities"
+        >
+          <Processor render={({ canTeach }) => canTeach} />
+          <Adder className={classes.adder} type="checkbox" />
+        </Field>
 
-            <Field
-              className={classes.ability}
-              label="Nauczanie"
-              name="canTeach"
-              dataFieldname="abilities"
-            >
-              <Processor render={({ canTeach }) => canTeach} />
-              <Adder className={classes.adder} type="checkbox" />
-            </Field>
+        <Field
+          className={classes.ability}
+          label="Zarządzanie użytkownikami"
+          name="canManageUsers"
+          dataFieldname="abilities"
+        >
+          <Processor render={({ canManageUsers }) => canManageUsers} />
+          <Adder className={classes.adder} type="checkbox" />
+        </Field>
 
-            <Field
-              className={classes.ability}
-              label="Zarządzanie użytkownikami"
-              name="canManageUsers"
-              dataFieldname="abilities"
-            >
-              <Processor render={({ canManageUsers }) => canManageUsers} />
-              <Adder className={classes.adder} type="checkbox" />
-            </Field>
+        <Field
+          className={classes.ability}
+          label="Zarządzanie rolami"
+          name="canManageRoles"
+          dataFieldname="abilities"
+        >
+          <Processor render={({ canManageRoles }) => canManageRoles} />
+          <Adder className={classes.adder} type="checkbox" />
+        </Field>
 
-            <Field
-              className={classes.ability}
-              label="Zarządzanie rolami"
-              name="canManageRoles"
-              dataFieldname="abilities"
-            >
-              <Processor render={({ canManageRoles }) => canManageRoles} />
-              <Adder className={classes.adder} type="checkbox" />
-            </Field>
-
-            <Field
-              className={classes.ability}
-              label="Zarządzanie grupami"
-              name="canManageGroups"
-              dataFieldname="abilities"
-            >
-              <Processor render={({ canManageGroups }) => canManageGroups} />
-              <Adder className={classes.adder} type="checkbox" />
-            </Field>
-          </DataTable>
-        </Tab>
-      </SwitchBox>
-    </ToggableBox>
-  )
-}
+        <Field
+          className={classes.ability}
+          label="Zarządzanie grupami"
+          name="canManageGroups"
+          dataFieldname="abilities"
+        >
+          <Processor render={({ canManageGroups }) => canManageGroups} />
+          <Adder className={classes.adder} type="checkbox" />
+        </Field>
+      </DataTable>
+    </Tab>
+  </SwitchBox>
+)

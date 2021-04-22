@@ -1,0 +1,65 @@
+/* WRAPPERS */
+
+.switch {
+  padding: 2px;
+  width: 25px;
+  height: 25px;
+}
+
+.smallWrapper {
+  min-width: 250px;
+  height: unset;
+  padding: 10px;
+}
+.smallWrapper,
+.wrapper,
+.popup {
+  border-radius: 10px;
+  background-color: var( --background-color );
+  border: 2px solid var( --green );
+  overflow: hidden;
+}
+.wrapper {
+  min-width: min( 100vw, 850px );
+  height: 90%;
+}
+.popup {
+  padding: 10px;
+}
+
+
+/* SKELETON */
+
+
+.tabsSwitches {
+  display: flex;
+}
+.tabSwitch {
+  padding: 10px;
+  margin: 7px 25px;
+  flex-grow: 1;
+}
+.activeTabSwitch {
+  font-weight: bold;
+  background-color: var( --green );
+}
+
+
+/* ELEMENTS */
+
+
+.centered,
+.tab {
+  display: flex;
+  min-height: 200px;
+  align-items: center;
+  justify-content: center;
+}
+.input {
+  display: block;
+  margin: 5px;
+}
+.button {
+  display: block;
+  margin: 15px;
+}
