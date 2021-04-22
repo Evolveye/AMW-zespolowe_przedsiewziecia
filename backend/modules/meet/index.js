@@ -33,12 +33,93 @@ export default class MeetModule extends Module {
     const pPerms = platformModule.perms;
     const auth = userModule.auth;
 
+    return { meets: {
+      get: auth(this.runMid(this.httpHandleGetAllMeets)),
+      post: auth(pPerms(gPerms(this.runMid(this.httpHandleCreateMeet)))),
+
+      ":meetId": {
+          get: auth(this.runMid(this.httpHandleMeetInfo)),
+          delete: auth(this.runMid(this.httpHandleDeleteMeet)),
+          // TODO: put, date start,end, link, desc,link, public
+          // canEditDetails.
+
+          "permissions": {
+              get: auth(this.runMid(this.httpHandleMeetPerms)), // TODO templates
+
+              "my": {
+                  get: auth(this.runMid(this.httpHandleMyMeetPermissions)), // TODO 1 perm of client
+              },
+          },
+
+          "users": {
+            get: auth(pPerms(this.runMid(this.handleGetAllMeetingMembers))), // TODO: dolaczyc permsy
+            post: auth(pPerms(gPerms(this.runMid(this.httpHandleAddUsers)))),
+
+            ":userId": {
+                delete: auth(this.runMid(this.httpHandleDeleteUserFromMeeting)),
+            }
+          },
+      },
+
+      "group": {
+          ":groupId": {
+              get: auth(pPerms(this.runMid(this.httpHandleGetAllMeetingFromGroup))),
+          },
+      },
+
+      "public": {
+          get: auth(this.runMid(this.httpHandlePublicMeets)),
+      },
+
+      "groupless": {
+          get: auth(this.runMid(this.httpHandleGrouplessMeetings)),
+      }
+    }}
+
+    /*
     return new Map([
       [
-        `/meets`,
-        {
-          get: auth(this.runMid(this.httpHandleGetAllMeets)),
-          post: auth(pPerms(gPerms(this.runMid(this.httpHandleCreateMeet)))),
+        "/meets", {
+            get: auth(this.runMid(this.httpHandleGetAllMeets)),
+            post: auth(pPerms(gPerms(this.runMid(this.httpHandleCreateMeet)))),
+
+            ":meetId": {
+                get: auth(this.runMid(this.httpHandleMeetInfo)),
+                delete: auth(this.runMid(this.httpHandleDeleteMeet)),
+                // TODO: put, date start,end, link, desc,link, public
+                // canEditDetails.
+
+                "permissions": {
+                    get: auth(this.runMid(this.httpHandleMeetPerms)), // TODO templates
+
+                    "my": {
+                        get: auth(this.runMid(this.httpHandleMyMeetPermissions)), // TODO 1 perm of client
+                    },
+                },
+
+                "users": {
+                  get: auth(pPerms(this.runMid(this.handleGetAllMeetingMembers))), // TODO: dolaczyc permsy
+                  post: auth(pPerms(gPerms(this.runMid(this.httpHandleAddUsers)))),
+
+                  ":userId": {
+                      delete: auth(this.runMid(this.httpHandleDeleteUserFromMeeting)),
+                  }
+                },
+            },
+
+            "group": {
+                ":groupId": {
+                    get: auth(pPerms(this.runMid(this.httpHandleGetAllMeetingFromGroup))),
+                },
+            },
+
+            "public": {
+                get: auth(this.runMid(this.httpHandlePublicMeets)),
+            },
+
+            "groupless": {
+                get: auth(this.runMid(this.httpHandleGrouplessMeetings)),
+            }
         },
       ],
 
@@ -102,6 +183,7 @@ export default class MeetModule extends Module {
         },
       ],
     ]);
+    */
   }
 
   httpHandleMeetPerms = async ({ req, res, mod }) => {
