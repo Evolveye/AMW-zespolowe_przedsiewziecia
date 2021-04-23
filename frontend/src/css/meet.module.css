@@ -1,0 +1,41 @@
+.layout {
+  display: flex;
+  padding-top: 10px;
+  height: calc( 100vh - var( --top-height ) );
+}
+
+.screen {
+  flex: 1;
+  padding-top: 50px;
+  background-color: black;
+  border-top-right-radius: 10px;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  width: 300px;
+  padding: 10px;
+}
+    .users {
+      flex: 1;
+    }
+        .user {
+          padding: 10px;
+        }
+
+    .buttons {
+      display: flex;
+      justify-content: space-around;
+    }
+
+.nav {
+  position: absolute;
+  left: 0;
+  right: 300px;
+  bottom: 0;
+  padding: 25px;
+  margin: 50px;
+  border-radius: 10px;
+  background-color: var( --background-color );
+}

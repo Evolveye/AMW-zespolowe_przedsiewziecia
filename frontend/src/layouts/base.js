@@ -72,7 +72,7 @@ const PageContent = ({ className, children }) => (
       }
     </header>
 
-    <div className={`${classes.contentWrapper} ${className}`}>
+    <div className={className}>
       {children}
     </div>
   </>
