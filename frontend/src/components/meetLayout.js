@@ -16,8 +16,6 @@ const menyItems = [
 const participantsLisMap = ({ id, name, surname, avatar }) => (
   <li key={id}>
     <FlatTile
-      src={processUrn(avatar)}
-      alt={`${name}'s avatar`}
       title={`${name} ${surname}`}
       color={`#3e8bff`}
     />

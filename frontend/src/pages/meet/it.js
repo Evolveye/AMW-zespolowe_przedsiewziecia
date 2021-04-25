@@ -34,7 +34,9 @@ export default () => {
 
       <h1>Spotkanie</h1>
       <div><a href={meet.externalUrl} target="_blank" rel="noreferrer">Link do spotkania</a></div>
-      <p>{meet.description}</p>
+      <p>Link: {meet.externalUrl}</p>
+      <p>Opis: {meet.description}</p>
+      
     </Layout>
   )
 }
