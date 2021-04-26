@@ -1,16 +1,16 @@
 import React from "react"
-import { Link } from "gatsby"
 
 export default class extends React.Component {
   operationsHistory = new History()
 
-  state = {
-    currentTool: `brush`,
-  }
-
   defaults = {
     color: `#ffffff`,
     lineWidth: 2,
+  }
+
+  state = {
+    currentTool: `brush`,
+    lineWidth: this.defaults.lineWidth,
   }
 
   toolbar = {
@@ -30,6 +30,11 @@ export default class extends React.Component {
 
   setToolbarNodeRef = (refName, ref) => {
     this.toolbar[ refName ] = ref
+  }
+
+
+  setBrushSize = size => {
+    this.setState({ lineWidth:size })
   }
 
 
@@ -53,12 +58,13 @@ export default class extends React.Component {
 
     ctx.clearRect( 0, 0, ctx.canvas.width, ctx.canvas.height )
 
-    operations.forEach( ({ color, coords }) => {
+    operations.forEach( ({ size, color, coords }) => {
       ctx.beginPath()
       ctx.moveTo( operations[ 0 ].coords.x, operations[ 0 ].coords.y )
 
       coords.forEach( ({ x, y }) => ctx.lineTo( x, y ) )
 
+      ctx.lineWidth = size
       ctx.strokeStyle = color
       ctx.stroke()
     } )
@@ -93,10 +99,13 @@ export default class extends React.Component {
 
     switch (this.state.currentTool) {
       case `brush`: {
-        ctx.strokeStyle = this.toolbar.color.value
-        ctx.lineWidth = this.defaults.lineWidth
+        const color = this.toolbar.color.value
+        const brushSize = this.state.lineWidth
 
-        this.operationsHistory.add( x, y, this.toolbar.color.value )
+        ctx.strokeStyle = color
+        ctx.lineWidth = brushSize
+
+        this.operationsHistory.add( x, y, color, brushSize )
         break
       }
 
@@ -190,6 +199,13 @@ export default class extends React.Component {
 
         <button onClick={this.undo}>&lt;-</button>
         <button onClick={this.redo}>-&gt;</button>
+        <input
+          type="number"
+          value={this.state.lineWidth}
+          min={1}
+          max={20}
+          onChange={({ target }) => this.setBrushSize( target.value )}
+        />
       </section>
 
       <canvas
@@ -214,10 +230,10 @@ class History {
   reversedHistory = []
 
 
-  add( x, y, color ) {
+  add( x, y, color, size ) {
     if (this.reversedHistory.length) this.reversedHistory.splice( 0 )
 
-    this.data.push( new Operation( x, y, color ) )
+    this.data.push( new Operation( x, y, color, size ) )
   }
 
 
@@ -259,7 +275,8 @@ class Operation {
   /** @type {{ x:number y:number }[]}*/
   coords = []
 
-  constructor( initialX, initialY, color ) {
+  constructor( initialX, initialY, color, size ) {
+    this.size = size
     this.color = color
     this.coords.push({ x:initialX, y:initialY })
   }
