@@ -3,6 +3,14 @@ import { Link } from "gatsby"
 
 export default class extends React.Component {
   operationsHistory = new History()
+  defaults = {
+    color: `#ffffff`,
+    lineWidth: 2,
+  }
+
+  toolbar = {
+    color: null,
+  }
 
   /** @param {HTMLCanvasElement} canvas */
   start = canvas => {
@@ -20,6 +28,11 @@ export default class extends React.Component {
   }
 
 
+  setToolbarNodeRef = (refName, ref) => {
+    this.toolbar[ refName ] = ref
+  }
+
+
   /* EVENTS */
 
 
@@ -29,8 +42,9 @@ export default class extends React.Component {
 
     console.log( `clickerd coords:`, { x, y } )
 
-    this.ctx.strokeStyle = `white`
-    // this.ctx.moveTo( x, y )
+    this.ctx.strokeStyle = this.toolbar.color.value
+    this.ctx.lineWidth = this.defaults.lineWidth
+
     this.operationsHistory.add( x, y )
   }
 
@@ -78,14 +92,24 @@ export default class extends React.Component {
 
 
   render = () => (
-    <canvas
-      ref={this.start}
-      className={this.props.className || ``}
-      onPointerDown={this.onPointerDown}
-      onPointerUp={this.onPointerUp}
-      onPointerLeave={this.onPointerLeave}
-      onPointerMove={this.onPointerMove}
-    />
+    <article className={this.props.className || ``}>
+      <section>
+        <input
+          ref={ref => this.setToolbarNodeRef( `color`, ref )}
+          type="color"
+          defaultValue={this.defaults.color}
+        />
+      </section>
+
+      <canvas
+        ref={this.start}
+        style={{ width:`100%`, height:`100%` }}
+        onPointerDown={this.onPointerDown}
+        onPointerUp={this.onPointerUp}
+        onPointerLeave={this.onPointerLeave}
+        onPointerMove={this.onPointerMove}
+      />
+    </article>
   )
 }
 
