@@ -3,6 +3,11 @@ import { Link } from "gatsby"
 
 export default class extends React.Component {
   operationsHistory = new History()
+
+  state = {
+    currentTool: `brush`,
+  }
+
   defaults = {
     color: `#ffffff`,
     lineWidth: 2,
@@ -10,16 +15,16 @@ export default class extends React.Component {
 
   toolbar = {
     color: null,
+    brush: null,
+    pipette: null,
   }
+
 
   /** @param {HTMLCanvasElement} canvas */
   start = canvas => {
     this.ctx = canvas.getContext( `2d` )
 
     this.onResize()
-
-    // canvas.addEventListener( `pointerdown`, this.onPointerDown )
-    // canvas.addEventListener( `pointerup` )
   }
 
 
@@ -33,19 +38,45 @@ export default class extends React.Component {
   }
 
 
+  changeTool = ({ target }) => {
+    this.setState({ currentTool:target.value })
+  }
+
+
+  switchToolTo = toolName => {
+    this.changeTool({ target:this.toolbar[ toolName ] })
+  }
+
+
   /* EVENTS */
 
 
   /** @param {React.PointerEvent} e */
   onPointerDown = e => {
     const { layerX:x, layerY:y } = e.nativeEvent
+    const { ctx } = this
 
     console.log( `clickerd coords:`, { x, y } )
 
-    this.ctx.strokeStyle = this.toolbar.color.value
-    this.ctx.lineWidth = this.defaults.lineWidth
+    switch (this.state.currentTool) {
+      case `brush`: {
+        ctx.strokeStyle = this.toolbar.color.value
+        ctx.lineWidth = this.defaults.lineWidth
 
-    this.operationsHistory.add( x, y )
+        this.operationsHistory.add( x, y )
+        break
+      }
+
+      case `pipette`: {
+        const { data } = ctx.getImageData( x, y, 1, 1 )
+        const hexColor = (data[ 0 ] << 16 | data[ 1 ] << 8 | data[ 2 ]).toString( 16 )
+
+        this.toolbar.color.value = `#${hexColor}`
+        this.switchToolTo( `brush` )
+        break
+      }
+    }
+
   }
 
 
@@ -94,6 +125,24 @@ export default class extends React.Component {
   render = () => (
     <article className={this.props.className || ``}>
       <section>
+        {[
+          { label:`Pędzel`, name:`brush` },
+          { label:`Pipeta`, name:`pipette` },
+        ].map( ({ label, name }) => (
+          <label key={name}>
+            {label}
+            :
+            <input
+              ref={ref => this.setToolbarNodeRef( name, ref )}
+              type="radio"
+              name="tool"
+              onChange={this.changeTool}
+              value={name}
+              checked={this.state.currentTool == name}
+            />
+          </label>
+        ) )}
+
         <input
           ref={ref => this.setToolbarNodeRef( `color`, ref )}
           type="color"
