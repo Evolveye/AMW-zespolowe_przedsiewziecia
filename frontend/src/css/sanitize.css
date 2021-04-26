@@ -88,6 +88,7 @@ button {
   border: unset;
   background-color: unset;
   cursor: pointer;
+  color: inherit;
 }
 
 figure {

@@ -28,11 +28,6 @@ export default class extends React.Component {
   }
 
 
-  componentWillUnmount = () => {
-    clearInterval( this.interval )
-  }
-
-
   setToolbarNodeRef = (refName, ref) => {
     this.toolbar[ refName ] = ref
   }
@@ -45,6 +40,28 @@ export default class extends React.Component {
 
   switchToolTo = toolName => {
     this.changeTool({ target:this.toolbar[ toolName ] })
+  }
+
+
+  undo = () => {
+    const { ctx, operationsHistory } = this
+    const operations = operationsHistory.getOperations()
+
+    if (!operations.length) return
+
+    operationsHistory.undo()
+
+    ctx.clearRect( 0, 0, ctx.canvas.width, ctx.canvas.height )
+
+    operations.forEach( ({ color, coords }) => {
+      ctx.beginPath()
+      ctx.moveTo( operations[ 0 ].coords.x, operations[ 0 ].coords.y )
+
+      coords.forEach( ({ x, y }) => ctx.lineTo( x, y ) )
+
+      ctx.strokeStyle = color
+      ctx.stroke()
+    } )
   }
 
 
@@ -63,7 +80,7 @@ export default class extends React.Component {
         ctx.strokeStyle = this.toolbar.color.value
         ctx.lineWidth = this.defaults.lineWidth
 
-        this.operationsHistory.add( x, y )
+        this.operationsHistory.add( x, y, this.toolbar.color.value )
         break
       }
 
@@ -148,6 +165,8 @@ export default class extends React.Component {
           type="color"
           defaultValue={this.defaults.color}
         />
+
+        <button onClick={this.undo}>&lt;-</button>
       </section>
 
       <canvas
@@ -165,18 +184,28 @@ export default class extends React.Component {
 
 class History {
   /** @type {Operation[]} */
-  memory = []
+  data = []
 
 
-  add( x, y ) {
-    this.memory.push( new Operation( x, y ) )
+  add( x, y, color ) {
+    this.data.push( new Operation( x, y, color ) )
+  }
+
+
+  undo() {
+    this.data.splice( -1 )
   }
 
 
   getCurrent() {
-    const lastOperation = this.memory[ this.memory.length - 1 ]
+    const lastOperation = this.data[ this.data.length - 1 ]
 
     return lastOperation?.state === Operation.states.CREATING ? lastOperation : null
+  }
+
+
+  getOperations() {
+    return this.data
   }
 }
 
@@ -185,9 +214,11 @@ class Operation {
   static states = { CREATING:0, DONE:1 }
 
   state = Operation.states.CREATING
+  /** @type {{ x:number y:number }[]}*/
   coords = []
 
-  constructor( initialX, initialY ) {
+  constructor( initialX, initialY, color ) {
+    this.color = color
     this.coords.push({ x:initialX, y:initialY })
   }
 
