@@ -87,6 +87,15 @@ export default class extends React.Component {
   }
 
 
+  download = () => {
+    const link = document.createElement( `a` )
+
+    link.download = `canvas.png`
+    link.href = this.ctx.canvas.toDataURL( `image/png` )
+    link.click()
+  }
+
+
   /* EVENTS */
 
 
@@ -209,8 +218,6 @@ export default class extends React.Component {
           defaultValue={this.defaults.color}
         />
 
-        <button onClick={this.undo}>&lt;-</button>
-        <button onClick={this.redo}>-&gt;</button>
         <input
           type="number"
           value={this.state.lineWidth}
@@ -218,6 +225,10 @@ export default class extends React.Component {
           max={20}
           onChange={({ target }) => this.setBrushSize( target.value )}
         />
+
+        <button onClick={this.undo}>&lt;-</button>
+        <button onClick={this.redo}>-&gt;</button>
+        <button onClick={this.download}>v</button>
       </section>
 
       <canvas
