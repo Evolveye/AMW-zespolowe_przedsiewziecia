@@ -65,6 +65,24 @@ export default class extends React.Component {
   }
 
 
+  redo = () => {
+    const { ctx, operationsHistory } = this
+    const restoredOperation = operationsHistory.redo()
+
+    console.log( restoredOperation )
+
+    if (!restoredOperation) return
+
+    ctx.beginPath()
+    ctx.moveTo( restoredOperation.coords.x, restoredOperation.coords.y )
+
+    restoredOperation.coords.forEach( ({ x, y }) => ctx.lineTo( x, y ) )
+
+    ctx.strokeStyle = restoredOperation.color
+    ctx.stroke()
+  }
+
+
   /* EVENTS */
 
 
@@ -167,6 +185,7 @@ export default class extends React.Component {
         />
 
         <button onClick={this.undo}>&lt;-</button>
+        <button onClick={this.redo}>-&gt;</button>
       </section>
 
       <canvas
@@ -185,15 +204,32 @@ export default class extends React.Component {
 class History {
   /** @type {Operation[]} */
   data = []
+  /** @type {Operation[]} */
+  reversedHistory = []
 
 
   add( x, y, color ) {
+    if (this.reversedHistory.length) this.reversedHistory.splice( 0 )
+
     this.data.push( new Operation( x, y, color ) )
   }
 
 
   undo() {
-    this.data.splice( -1 )
+    const operation = this.data.splice( -1 )[ 0 ]
+
+    if (operation) this.reversedHistory.push( operation )
+  }
+
+
+  redo() {
+    const operation = this.reversedHistory.splice( -1 )[ 0 ]
+
+    if (!operation) return null
+
+    this.data.push( operation )
+
+    return operation
   }
 
 
