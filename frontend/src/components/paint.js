@@ -102,6 +102,7 @@ export default class extends React.Component {
         const color = this.toolbar.color.value
         const brushSize = this.state.lineWidth
 
+        ctx.globalCompositeOperation = `source-over`
         ctx.strokeStyle = color
         ctx.lineWidth = brushSize
 
@@ -115,6 +116,16 @@ export default class extends React.Component {
 
         this.toolbar.color.value = `#${hexColor}`
         this.switchToolTo( `brush` )
+        break
+      }
+
+      case `rubber`: {
+        const brushSize = this.state.lineWidth
+
+        ctx.globalCompositeOperation = `destination-out`
+        ctx.lineWidth = brushSize
+
+        this.operationsHistory.add( x, y, `transparent`, brushSize )
         break
       }
     }
@@ -176,6 +187,7 @@ export default class extends React.Component {
         {[
           { label:`Pędzel`, name:`brush` },
           { label:`Pipeta`, name:`pipette` },
+          { label:`Gumka`,  name:`rubber` },
         ].map( ({ label, name }) => (
           <label key={name}>
             {label}
