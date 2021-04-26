@@ -69,8 +69,6 @@ export default class extends React.Component {
     const { ctx, operationsHistory } = this
     const restoredOperation = operationsHistory.redo()
 
-    console.log( restoredOperation )
-
     if (!restoredOperation) return
 
     ctx.beginPath()
@@ -120,6 +118,7 @@ export default class extends React.Component {
   }
 
 
+  /** @param {React.PointerEvent} e */
   onPointerMove = e => {
     const { layerX:x, layerY:y } = e.nativeEvent
     const operation = this.operationsHistory.getCurrent()
@@ -144,10 +143,15 @@ export default class extends React.Component {
   }
 
 
+  /** @param {React.KeyboardEvent} e */
+  onKeyDown = e => {
+    if (e.ctrlKey && e.key === `z`) return this.undo()
+    if (e.ctrlKey && e.key === `y`) return this.redo()
+  }
+
+
   onResize = () => {
     const { canvas } = this.ctx
-
-    console.log( canvas.clientWidth, canvas.clientHeight )
 
     canvas.width = canvas.clientWidth
     canvas.height = canvas.clientHeight
@@ -159,7 +163,7 @@ export default class extends React.Component {
 
   render = () => (
     <article className={this.props.className || ``}>
-      <section>
+      <section style={{ position:`absolute` }}>
         {[
           { label:`Pędzel`, name:`brush` },
           { label:`Pipeta`, name:`pipette` },
@@ -190,11 +194,13 @@ export default class extends React.Component {
 
       <canvas
         ref={this.start}
+        tabIndex={0}
         style={{ width:`100%`, height:`100%` }}
         onPointerDown={this.onPointerDown}
         onPointerUp={this.onPointerUp}
         onPointerLeave={this.onPointerLeave}
         onPointerMove={this.onPointerMove}
+        onKeyDown={this.onKeyDown}
       />
     </article>
   )
