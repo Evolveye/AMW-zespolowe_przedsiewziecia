@@ -6,6 +6,7 @@ export default class extends React.Component {
   defaults = {
     color: `#ffffff`,
     lineWidth: 2,
+    maxBrushSize: 30,
   }
 
   state = {
@@ -22,6 +23,8 @@ export default class extends React.Component {
 
   /** @param {HTMLCanvasElement} canvas */
   start = canvas => {
+    if (!canvas) return console.log( `no canvas` )
+
     this.ctx = canvas.getContext( `2d` )
 
     this.onResize()
@@ -191,14 +194,14 @@ export default class extends React.Component {
 
 
   render = () => (
-    <article className={this.props.className || ``}>
-      <section style={{ position:`absolute` }}>
+    <article className={this.props.classNames?.it || ``}>
+      <section className={this.props.classNames?.nav || ``} style={{ position:`absolute` }}>
         {[
           { label:`Pędzel`, name:`brush` },
           { label:`Pipeta`, name:`pipette` },
           { label:`Gumka`,  name:`rubber` },
         ].map( ({ label, name }) => (
-          <label key={name}>
+          <label key={name} className={this.props.classNames?.tool || ``}>
             {label}
             :
             <input
@@ -214,21 +217,23 @@ export default class extends React.Component {
 
         <input
           ref={ref => this.setToolbarNodeRef( `color`, ref )}
+          className={this.props.classNames?.tool || ``}
           type="color"
           defaultValue={this.defaults.color}
         />
 
         <input
           type="number"
+          className={this.props.classNames?.tool || ``}
           value={this.state.lineWidth}
           min={1}
-          max={20}
+          max={this.defaults.maxBrushSize}
           onChange={({ target }) => this.setBrushSize( target.value )}
         />
 
-        <button onClick={this.undo}>&lt;-</button>
-        <button onClick={this.redo}>-&gt;</button>
-        <button onClick={this.download}>v</button>
+        <button className={this.props.classNames?.tool || ``} onClick={this.undo}>&lt;-</button>
+        <button className={this.props.classNames?.tool || ``} onClick={this.redo}>-&gt;</button>
+        <button className={this.props.classNames?.tool || ``} onClick={this.download}>v</button>
       </section>
 
       <canvas

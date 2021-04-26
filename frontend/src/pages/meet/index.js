@@ -17,14 +17,27 @@ export default () => {
 
   return (
     <Layout className={classes.layout} title="Grupa">
-      {/* <article className={classes.column}></article> */}
-      <article className={classes.screen}>
-        <Paint className={classes.canvas} />
-      </article>
+      <SwitchBox
+        classNames={{
+          it: classes.screen,
+          switches: `${classes.nav} ${classes.mainNav}`,
+          switch: `neumorphizm is-button`,
+        }}
+      >
+        <Tab className={classes.tab} name="Tablica">
+          <Paint
+            classNames={{
+              it: classes.tabContent,
+              nav: classes.nav,
+              tool: classes.tool,
+            }}
+          />
+        </Tab>
 
-      <article className={classes.nav}>
+        <Tab className={classes.tab} name="Ekran">
 
-      </article>
+        </Tab>
+      </SwitchBox>
 
       <SwitchBox
         classNames={{
