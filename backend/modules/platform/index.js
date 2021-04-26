@@ -34,7 +34,49 @@ export default class PlatformModule extends Module {
     const auth = userModule.auth;
     const m = middlewares;
 
-    return new Map([
+    return { platforms: {
+      get: auth(this.runMid(m.httpGetUserPlatforms)),
+      post: auth(this.runMid(m.httpCreatePlatform)),
+
+      ":platformId": {
+        delete: auth(this.perms(this.runMid(m.httpDeletePlatform))),
+
+        "users": {
+          get: auth(this.runMid(m.httpGetUsersOfPlatform)),
+          post: auth(this.perms(this.runMid(m.httpCreateNewUser))),
+
+          ":userId": {
+            delete: auth(this.perms(this.runMid(m.httpDeleteUserFromPlatform))),
+          },
+        },
+
+        "newpermissions": {
+          get: auth(this.runMid(m.httpGetNewPlatformsPermissions)),
+          post: auth(this.runMid(m.httpCreatePlatformsPermissions)),
+        },
+
+        "permissions": {
+          get: auth(this.runMid(m.httpGetPlatformsPermissions)),
+          // post: auth(this.runMid(m.httpCreatePlatformsPermissions)),
+
+          "my": {
+            get: auth(this.runMid(m.httpHandleMyPermission)),
+          },
+          ":permissionId": {
+            delete: auth(this.perms(this.runMid(m.httpDeletePlatformPermission))), // TODO this.httpDeletePlatformPermission
+            put: auth(this.runMid(m.httpEditPlatformPermission)), // TODO this.httpEditPlatformPermission
+          },
+        },
+      },
+
+      "permissiontemplate": {
+        get: m.httpGetBasePlatformPermisionTemplate,
+      },
+
+
+    } }
+    /*
+    new Map([
       [
         `platforms`,
         {
@@ -102,6 +144,7 @@ export default class PlatformModule extends Module {
         },
       ],
     ]);
+    */
   }
 
   httpDeletePlatformPermission = async ({ req, res }) => {

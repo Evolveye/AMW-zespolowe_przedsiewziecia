@@ -35,7 +35,89 @@ export default class GroupModule extends Module {
     const pPerms = this.requiredModules.platformModule.perms;
     const m = middlewares;
 
-    return new Map([ // httpCreateGroupPermissions
+    return { groups: {
+      get: auth(this.runMid(m.httpHandleMyGroups)),
+      post: auth(pPerms(this.runMid(m.httpCreateGroup))),
+
+      ":groupId": {
+        delete: auth(pPerms(this.perms(this.runMid(m.httpDeleteGroup)))),
+
+        "newpermissions": { // TODO: dwa wyrazy, powinien być jeden -- źle zrobiona scieżka
+          get: auth(this.perms(this.runMid(m.httpGetNewTemplatePermissions))),
+          post: auth(this.runMid(m.httpCreateGroupPermissions)), // TODO this.httpCreatePermissions
+        },
+
+        "permissions": {
+          get: auth(this.perms(this.runMid(m.httpGetTemplatePermissions))),
+
+          "my": {
+            get: auth(this.runMid(m.httpHandleMyPermission)),
+          },
+        },
+
+        "scale": {
+          get: auth(this.runMid(m.httpGetGroupScale)),
+          put: auth(pPerms(this.runMid(m.httpChangeScale))),
+        },
+
+        "tasks": {
+          get: auth(this.runMid(m.httpGetAllGroupTasks)),
+          post: auth(pPerms(this.runMid(m.httpCreateTask))),
+
+          ":taskId": {
+            delete: auth(this.runMid(m.HttpHandleDeleteTask)),
+
+            "done": {
+              get:auth(this.runMid(m.httpGetAllTasksDone)),
+              post: auth(this.runMid(m.httpDoneTask)),
+            },
+          },
+        },
+
+        "materials": {
+          get: auth(this.perms(this.runMid(m.httpHandleAllFilesInGroup))),
+          post: auth(pPerms(this.perms(this.runMid(m.httpAddFile)))),
+
+          ":materialId": {
+            delete: auth(pPerms(this.perms(this.runMid(m.httpHandleDeleteFile)))),
+          }
+        },
+
+        "users": {
+          get: auth(this.perms(this.runMid(m.httpHandleAllUsersInGroup))),
+          post: auth(pPerms(this.perms(this.runMid(m.httpAddGroupMember)))),
+
+          ":userId": {
+            delete: auth(this.perms(this.runMid(m.httpHandleDeleteUserFromGroup))),
+          }
+        },
+
+        "notes": {
+          get: auth(this.runMid(m.httpGetAllMyNotes)),
+
+          ":noteId": {
+            delete: auth(this.perms(this.runMid(m.httpHandleDeleteNote))),
+            put: auth(this.perms(this.runMid(m.httpHandleNoteUpdate))),
+          }
+        }
+      },
+
+      "permissiontemplate": {
+        get: this.runMid(m.httpGetGroupPermissionAbilities),
+      },
+
+      "permissions": {
+        get: auth(this.runMid(m.httpHandleGroupPerms)),
+      },
+
+      "platform": {
+        ":platformId": {
+          get: auth(pPerms(this.runMid(m.httpHandleAllGroupsInPlatform))),
+        },
+      },
+    } }
+    /*
+    new Map([ // httpCreateGroupPermissions
       [
         `/groups/:groupId/permissions/my`,
         {
@@ -132,9 +214,7 @@ export default class GroupModule extends Module {
       [
         `/groups/:groupId/users/:userId`,
         {
-          delete: auth(
-            this.perms(this.runMid(m.httpHandleDeleteUserFromGroup))
-          ),
+          delete: auth(this.perms(this.runMid(m.httpHandleDeleteUserFromGroup))),
         },
       ],
 
@@ -184,6 +264,7 @@ export default class GroupModule extends Module {
       // ],
 
     ]);
+    //*/
   }
 
 

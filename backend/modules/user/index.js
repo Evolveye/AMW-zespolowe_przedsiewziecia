@@ -79,7 +79,53 @@ export default class UserModule extends Module {
     }, REFRESHING_INTERVAL_TIME_IN_MINUTES);
   }
 
-  getApi = () =>
+  getApi = () => ({
+    "register": {
+      post: this.runMid(midds.registerMiddleware),
+    },
+
+    /* TODO: czynnościami są metody, nie adres. Adres tworzą rzeczowniki
+     * To powinno zostać rpzeniesione do "users" */
+    "create": {
+      "user": {
+        post: this.runMid(midds.createUserMiddleware),
+      },
+    },
+
+    "login": {
+      post: this.runMid(midds.loginMiddleware),
+    },
+
+    "logout": {
+      post: this.auth(this.runMid(midds.logoutMiddleware)),
+    },
+
+    "activate": {
+      ":code": {
+        get: this.runMid(midds.acctivateAccountMiddleware),
+      }
+    },
+
+    "users": {
+      get: this.auth(this.runMid(midds.getAllUser)),
+
+      "me": {
+        get: this.auth(this.runMid(midds.httpAmIMiddleware)),
+        put: this.auth(this.runMid(midds.updateUserSettings)),
+      },
+    },
+
+    "password": {
+      "remind": {
+        post: this.runMid(midds.passwordRemindMiddleware),
+      },
+
+      "reset": {
+        post: this.runMid(midds.passwordResetMiddleware),
+      }
+    }
+  })
+  /*
     new Map([
       [
         `/register`,
@@ -145,6 +191,7 @@ export default class UserModule extends Module {
         },
       ],
     ]);
+  */
 
   /**
    * @param {(req:Request res:Response next:NextFunction) => void} cb

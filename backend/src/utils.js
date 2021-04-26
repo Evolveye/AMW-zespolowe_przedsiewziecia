@@ -162,3 +162,45 @@ export function validateDate(date, maxYearsAhead) {
 
   return true
 }
+
+export function buildRestFromMap( app, map, logLine=null ) {
+  map.forEach((methods, path) => {
+    path = path.match( /\/?(?:api)?\/?(.+)/ )[ 1 ]
+
+    if (typeof methods === `function`) {
+      logLine( `[fgYellow]/api/${path}[] :: GET`)
+
+      return app.get(`/api/${path}`, methods )
+    }
+
+    const includedMethods = Object.keys(methods)
+      .filter(method => [`post`,`get`,`put`,`delete`].includes( method ))
+      .filter(method => typeof methods[method] === `function`)
+      .map(method => {
+        app[method](`/api/${path}`, methods[method] )
+
+        return method.toUpperCase()
+      })
+
+    logLine?.( `[fgYellow]/api/${path}[] :: ${includedMethods.join( ` ` )}`)
+  })
+}
+
+export function buildRestFromNestedObj( app, obj, rootPath=``, logLine=null ) {
+  const buildRest = (obj, rootPath=`` ) => {
+    const isKeyPredictedMethod = str => [`post`,`get`,`put`,`delete`].includes( str )
+    const entries = Object.entries( obj )
+    const methods = entries.filter( ([ key, value ]) => isKeyPredictedMethod( key ) && typeof value === `function` )
+    const paths = entries.filter( ([ key, value ]) => !isKeyPredictedMethod( key ) && typeof value === `object` )
+
+    methods.forEach( ([ method, caller ]) => app[ method ](`/api${rootPath}`, caller ) )
+
+    if (methods.length) {
+      logLine?.( `[fgYellow]/api${rootPath}[] :: ${methods.map( ([ method ]) => method ).join( ` ` )}`)
+    }
+
+    paths.forEach( ([ path, config ]) => buildRest( config, `${rootPath}/${path}` ))
+  }
+
+  buildRest( obj, rootPath )
+}

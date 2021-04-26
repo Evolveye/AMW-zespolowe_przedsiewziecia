@@ -10,6 +10,7 @@ import {
   doWsLogShouldBePrinted as doWsLog,
   logUnderControl as log,
   addNextLineToLog as logLine,
+  buildRestFromNestedObj,
 } from "./src/utils.js"
 
 /** @typedef {import("./modules/module.js").default[]} Module */
@@ -75,9 +76,6 @@ modulesInstances.forEach( (instance, modName) =>
     .forEach( instance.addAdditionalModule )
 )
 
-// app.use((req, _, next) => next(
-//   console.log( req.query )
-// ))
 app.use((req, _, next) => next( //logging middleware
   doHttpLog(req) ? log(LOGGERS.newRequest, `HTTP`, req.method, req.url) : undefined
 ))
@@ -91,29 +89,7 @@ app.use(express.json())
 
 modulesInstances.forEach(mod => {
   log(LOGGERS.server, `[fgYellow]LOADING MODULE[] ${mod.toString()}`)
-
-  mod.getApi().forEach((methods, path) => {
-    path = path.match( /\/?(?:api)?\/?(.+)/ )[ 1 ]
-
-    if (typeof methods === `function`) {
-      logLine( `[fgYellow]/api/${path}[] :: GET`)
-
-      return app.get(`/api/${path}`, methods )
-    }
-
-    const includedMethods = Object.keys(methods)
-      .filter(method => method in app)
-      .filter(method => typeof methods[method] === `function`)
-      .map(method => {
-        app[method](`/api/${path}`, methods[method] )
-
-        return method.toUpperCase()
-      })
-
-    logLine( `[fgYellow]/api/${path}[] :: ${includedMethods.join( ` ` )}`)
-  })
-
-  // mod.configure(app)
+  buildRestFromNestedObj( app, mod.getApi(), ``, logLine )
 })
 
 app.use((_, res) => res.status( 404 ).json( { code:0, error:`Endpoint not found` } ) )
