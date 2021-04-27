@@ -865,6 +865,11 @@ export async function httpAddFile({ mod, req, res, next }) {
 
 /** @param {MiddlewareParameters} param0 */
 export async function httpCreateTask({ mod, req, res, next }) {
+
+  const toTimestamp = (strDate) => {
+    var datum = Date.parse(strDate);
+    return datum/1000;
+ }
   // 2 tabele ?
   // 1 na zadania  idgryop/ idzad /
   // 2 oddane prace id / idzad / osoba / data oddania /
@@ -874,14 +879,17 @@ export async function httpCreateTask({ mod, req, res, next }) {
 
   const groupId = req.params.groupId || req.body.groupId || req.query.groupId;
 
-  const { title, description, expireDate, type, mandatory } = req.body
+  let { title, description, expireDate, type, mandatory } = req.body
   console.log({body:req.body})
 
   if(description?.length>255)
     return res.status(400).json(ANSWERS.TASK_DESCRIPTION_OVER_LEN)
 
   if(!title)
-  return res.status(400).json(ANSWERS.TASK_NO_TITLE)
+   return res.status(400).json(ANSWERS.TASK_NO_TITLE)
+
+  if(typeof expireDate == `string`)
+    expireDate = toTimestamp(expireDate)
 
   const t = new Task(title, description, groupId, expireDate, req.user, type, mandatory)
 
