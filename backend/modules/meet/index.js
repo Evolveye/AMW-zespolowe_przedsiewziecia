@@ -1,4 +1,4 @@
-import Meet, { BoardImgs } from "./model.js";
+import Meet, { BoardImgs, ChatMessage } from "./model.js";
 import Module from "../module.js";
 import multer from "multer"
 import { sameWords } from "../../src/utils.js";
@@ -34,6 +34,7 @@ export default class MeetModule extends Module {
 
 
   subcollections = {
+    chatMessages:`messages`,
     boards:`boards`,
     templatesPerm: `permissions`,
     userPermissions: `permissions.users`,
@@ -249,18 +250,22 @@ export default class MeetModule extends Module {
 
     socket.on( `chat message`, msg => {
       const user = socket.userScope.user
+      const {roomId,content} = msg
 
       const msgData = {
-        author:{name:user.name,surname:user.surname},
-        content: msg
+        author:user,
+        content: content
       }
 
-      socket.emitToRoom(msgData.roomId,`new message`,msgData)
+      socket.emitToRoom(roomId,`new message`,msgData)
       // socket.emit( `chat message`, msgData )
       // socket.broadcast.emit( `chat message`, msgData )
     }),
 
     socket.on(`leave room`,msg=>{
+
+      // zawiadomic czat, że ktoś opuszcza spotkanie.
+      socket.emitToRoom(roomId,`new message`,)
       socket.leaveRoom(msg.room)
     })
 
@@ -692,8 +697,24 @@ export default class MeetModule extends Module {
     await this.saveTemplatePermissions(templatePermsList);
     await this.saveUserPermissions(userPermsList);
 
+
     return res.json({ meet: meeting });
   };
+
+  saveChatMessage = (messageObj) =>
+  this.dbManager.insertObject(this.subcollections.chatMessages,messageObj)
+
+  getAllMessagesFromMeet = (meetId) =>
+  this.dbManager.findManyObjects(this.subcollections.chatMessages,{meetId:{$eq:meetId}})
+
+  deleteMessage = (messageId) =>
+  this.dbManager.deleteObject(this.subcollections.chatMessages,{id:{$eq:messageId}})
+
+  updateMessage = (messageId,newTextMessage) =>
+  this.dbManager.updateObject(
+    this.subcollections.chatMessages,
+    {id:{$eq:messageId}},
+    { $set:{message:newTextMessage}} )
 
   getAllMeets = (memberId) =>
     this.dbManager.findManyObjects(this.basecollectionName, {

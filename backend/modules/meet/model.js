@@ -90,3 +90,14 @@ export class BoardImgs{
         return true
     }
 }
+
+export class ChatMessage {
+    constructor(userObj,meetId,message) // time
+    {
+        this.id = `${Date.now()}t${Math.random().toString().slice(2)}r`
+        this.author = userObj
+        this.meetId = meetId
+        this.message = message
+        this.date = Date.now().valueOf()
+    }
+}
