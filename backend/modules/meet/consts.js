@@ -39,5 +39,6 @@ export const ANSWERS = {
     CREATE_MEETING_BAD_DATE:{ code: 401, error: "Date is not correct." },
     CREATE_MEETING_BAD_DESCRIPTION_LEN:{ code: 456, error: `Maximum length of meet description is ${MAX_LEN_MEETING_DESCRIPTION} characters.` },
     
+    UPLOAD_BOARD_INVALID_FILE_EXT:{ code:420, error:"Images extensions are not allwed." },
 
 }

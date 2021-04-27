@@ -362,8 +362,8 @@ export default class MeetModule extends Module {
 
       const boardObj = new BoardImgs(meetId,arrayOfFileNames,arrayOfFilePaths)
 
-      if(! boardObj.validate())
-      res.json({ code:420, error:"Images extensions are not allwed." })
+      if(!boardObj.validate())
+      res.status(400).json(ANSWERS.UPLOAD_BOARD_INVALID_FILE_EXT)
 
       await this.saveMeetingBoardInDb(boardObj)
 
