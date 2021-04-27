@@ -22,7 +22,7 @@ import { ANSWERS, MAX_LEN_MEETING_DESCRIPTION } from "./consts.js";
   }
 })
 
-let upload = multer({ storage: storage }).array("boards");
+let upload = multer({ storage: storage }).array("boards"); // <input type="file" name="boards" accept='image/*' multiple>
 
 export default class MeetModule extends Module {
   static requiredModules = [`UserModule`, `PlatformModule`];

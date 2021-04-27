@@ -82,14 +82,10 @@ export class BoardImgs{
 
 
 
-        if(! this.filesName.every(
-             name => imgFileExtensions.some( ext => name.endsWith(ext) )
+        if(!this.filesName.every(
+            name => imgFileExtensions.some( ext => name.endsWith(ext) )
             ))
             return false
-
-        // if(!imgFileExtensions.some( ext => this.fileName.endsWith(ext) ))
-        //     throw new Error("file extension is not allowed.")
-
 
         return true
     }
