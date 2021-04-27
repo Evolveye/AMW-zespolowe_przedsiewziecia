@@ -284,9 +284,9 @@ export default class MeetModule extends Module {
     app.delete(`/api/meets/:meetId`, this.httpHandleDeleteMeet);
   }
 
-  httpHandleUploadBoards = async ({ req, res })=>
+  httpHandleUploadBoards = ({ req, res })=>
   {
-    upload(req, res, function (err) {
+    upload(req, res, async function (err) {
       if (err instanceof multer.MulterError) console.error(`Please upload a file: ${err}`)
       else if (err) console.error(`Unknown error: ${err}`)
 

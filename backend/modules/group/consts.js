@@ -1,6 +1,7 @@
 
 export const MAX_LEN_GROUP_NAME = 32
 export const MAX_LEN_NOTE_DESCRIPTION = 255
+export const MAX_LEN_TASK_DESCRIPTION = 255
 
 export const ANSWERS = {
     MY_PERMISSIONS_NOT_GROUP_ID:{code:397,error:"Cannot get permissions without prividing groupId"},
@@ -68,6 +69,8 @@ export const ANSWERS = {
     GET_TEMPLATE_PERMS_MISS_GROUP_ID:{ code: 334, error: "Cannot find groupId in request params." },
     GET_TEMPLATE_PERMS_NOT_ALLOWED:{ code: 333, erorr: "can not get list of group perms, because u are not  -> PE master or group member." },
 
+    TASK_DESCRIPTION_OVER_LEN:{code:346,error:"Title of task has been not provied"},
+    TASK_NO_TITLE:{code:347,error:"Title of task has been not provied"},
     TASK_CREATE_SUCCESS:{code:335,success:"Task has been created."},
     TASK_DONE_SUCCESS:{code:334,success:"Your task has been correctly handled "},
     TASK_DELETE_SUCCESS:{code:336,success:"Task has been deleted with all files assigned to task."},
@@ -81,5 +84,7 @@ export const ANSWERS = {
     CREATE_GROUP_PERMISSION_SUCCESS:{code:342,success:`Succesfully created group template permission`},
     ASSIGN_PERMISSION_TO_USER_SUCCESS:{code:343,success:`User Assigned to permission Successfuly.`},
     UPDATE_PERMISSIONS_SUCCESS:{code:345,success:`Permissions has been updated.`}
+
+
 }
 
