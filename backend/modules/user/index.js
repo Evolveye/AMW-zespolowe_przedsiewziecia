@@ -287,12 +287,13 @@ export default class UserModule extends Module {
   socketConfigurator = (socket) => {
     socket.userScope = { token: `` };
 
-    socket.on("authenticate", (token) => {
+    socket.on("authenticate",async (token) => {
       this.refreshToken(token);
       // this.logger({ AuthToken: token })
       const session = this.getSessionByToken(token);
 
       socket.userScope.token = token;
+      socket.userScope.user = await this.getUserByToken(token)
     });
 
     socket.on("api.get.users.me", (data) =>

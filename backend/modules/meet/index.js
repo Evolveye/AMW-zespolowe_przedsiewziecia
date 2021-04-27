@@ -5,6 +5,10 @@ import { sameWords } from "../../src/utils.js";
 import { MeetUserPermission, MeetPermission } from "./permissions.js";
 import { ANSWERS, MAX_LEN_MEETING_DESCRIPTION } from "./consts.js";
 
+
+/** @typedef {import("../../src/ws.js").WS} Socket  */
+/** @typedef {Socket | { userScope:{ user:object token:string } }} AuthorizedSocket  */
+
 /**
  * @typedef {object} MiddlewareParameters
  * @property {UserRequest} req
@@ -233,8 +237,34 @@ export default class MeetModule extends Module {
     return res.json({ permissions: perms });
   };
 
-  /** @param {import("socket.io").Socket} socket */
-  socketConfigurator(socket) { }
+  // /** @param {import("socket.io").Socket} socket */
+   /** @param {AuthorizedSocket} socket  */
+  socketConfigurator(socket) {
+    console.log( `Socket ${socket.id}, user ${socket.userScope.user}` )
+
+    socket.on( `join room`, msg => {
+      const roomId = msg
+      socket.join(roomId)
+    },
+
+    socket.on( `chat message`, msg => {
+      const user = socket.userScope.user
+
+      const msgData = {
+        author:{name:user.name,surname:user.surname},
+        content: msg
+      }
+
+      socket.emitToRoom(msgData.roomId,`new message`,msgData)
+      // socket.emit( `chat message`, msgData )
+      // socket.broadcast.emit( `chat message`, msgData )
+    }),
+
+    socket.on(`leave room`,msg=>{
+      socket.leaveRoom(msg.room)
+    })
+
+  }
 
   configure(app) {
     // Tworzenie spotkania /api/meets

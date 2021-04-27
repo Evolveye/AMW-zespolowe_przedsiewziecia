@@ -23,6 +23,9 @@ export class WS {
   #commands = new Map()
   #middlewares = []
   #defaultListener = () => {}
+  #rooms = []
+
+
 
   /**@type {WebSocketServer} */
   #server = null
@@ -113,6 +116,41 @@ export class WS {
     }
   }
 
+  /**
+   * @param {string} room
+   * @param {string} event
+   * @param {*} data
+   */
+  emitToRoom( room, event, data ) {
+    this.#server.getClients()
+      .filter( s => s.isInRoom( room ) )
+      .forEach( s => s.emit( event, data ) )
+  }
+
+  /** @param {string} room */
+  joinToRoom( room ) {
+    this.#rooms.push( room )
+  }
+
+  /** @param {string} room */
+  isInRoom( room ) {
+    return this.#rooms.some( r => r === room )
+  }
+
+  getRooms() {
+    return [ ...this.#rooms ]
+  }
+
+  /** @param {string} room */
+  leaveRoom( room ) {
+    const roomIndex = this.#rooms.indexOf( room )
+
+    if (roomIndex < 0) return
+
+    this.#rooms.splice( roomIndex, 1 )
+  }
+
+  /** @param {Function} listener */
   setDefaultListener( listener ) {
     if (typeof listener != `function`) throw new Error( `Listener should be the function type` )
 
