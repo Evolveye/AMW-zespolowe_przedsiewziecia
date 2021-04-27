@@ -248,52 +248,51 @@ export default class MeetModule extends Module {
 
       socket.join(roomId)
       socket.emitToRoom(roomId,`member joined`,socket.userScope.user)
-    },
+    }),
 
     socket.on( `chat message`, async msg => {
-       // roomId === meetId
-      const user = socket.userScope.user
-      const {roomId,content} = msg
+      // roomId === meetId
+     const user = socket.userScope.user
+     const {roomId,content} = msg
 
-      const message = new ChatMessage(user,roomId,content)
-      await this.saveChatMessage(message)
+     const message = new ChatMessage(user,roomId,content)
+     await this.saveChatMessage(message)
 
-      const msgData = {
-        messageId:message.id,
-        author:user,
-        content: content
-      }
+     const msgData = {
+       messageId:message.id,
+       author:user,
+       content: content
+     }
 
-      socket.emitToRoom(roomId,`new message`,msgData)
-      // socket.emit( `chat message`, msgData )
-      // socket.broadcast.emit( `chat message`, msgData )
-    }),
+     socket.emitToRoom(roomId,`new message`,msgData)
+     // socket.emit( `chat message`, msgData )
+     // socket.broadcast.emit( `chat message`, msgData )
+   }),
 
-    socket.on(`edit message`,async msg => {
-        const {messageId,content,roomId} = msg
+   socket.on(`edit message`,async msg => {
+       const {messageId,content,roomId} = msg
 
-        await this.updateMessage(messageId,content)
+       await this.updateMessage(messageId,content)
 
-        socket.emitToRoom(roomId,`update message`,{messageId, content})
-    }),
+       socket.emitToRoom(roomId,`update message`,{messageId, content})
+   }),
 
-    socket.on(`delete message`,async msg =>{
-        const {messageId,roomId} = msg
+   socket.on(`delete message`,async msg => {
+       const {messageId,roomId} = msg
 
-        await this.deleteMessage(messageId)
+       await this.deleteMessage(messageId)
 
-        socket.emitToRoom(roomId,`remove message`,{messageId})
-    }),
+       socket.emitToRoom(roomId,`remove message`,{messageId})
+   }),
 
-    socket.on(`leave room`,msg=>{
+   socket.on(`leave room`, msg => {
 
-      const user = socket.userScope.user
+     const user = socket.userScope.user
 
-      // zawiadomic czat, że ktoś opuszcza czat/spotkanie whatever.
-      socket.emitToRoom(msg.roomId,`member leaved`, user)
-      socket.leaveRoom(msg.roomId)
-    })
-
+     // zawiadomic czat, że ktoś opuszcza czat/spotkanie whatever.
+     socket.emitToRoom(msg.roomId,`member leaved`, user)
+     socket.leaveRoom(msg.roomId)
+   })
   }
 
   configure(app) {
