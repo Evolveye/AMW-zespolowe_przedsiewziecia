@@ -255,18 +255,24 @@ export default class MeetModule extends Module {
       const user = socket.userScope.user
       const {roomId,content} = msg
 
+      const message = new ChatMessage(user,roomId,content)
+      await this.saveChatMessage(message)
+
       const msgData = {
+        messageId:message.id,
         author:user,
         content: content
       }
 
-      const message = new ChatMessage(user,roomId,content)
-
-      await this.saveChatMessage(message)
-
       socket.emitToRoom(roomId,`new message`,msgData)
       // socket.emit( `chat message`, msgData )
       // socket.broadcast.emit( `chat message`, msgData )
+    }),
+
+    socket.on(`edit message`,async msg => {
+        const {messageId,content,roomId} = msg
+        await this.updateMessage(messageId,content)
+        socket.emitToRoom(roomId,`update message`,{messageId, content})
     }),
 
     socket.on(`leave room`,msg=>{
