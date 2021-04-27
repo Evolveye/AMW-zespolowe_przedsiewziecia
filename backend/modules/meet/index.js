@@ -1,5 +1,6 @@
-import Meet from "./model.js";
+import Meet, { BoardImgs } from "./model.js";
 import Module from "../module.js";
+import multer from "multer"
 import { sameWords } from "../../src/utils.js";
 import { MeetUserPermission, MeetPermission } from "./permissions.js";
 import { ANSWERS, MAX_LEN_MEETING_DESCRIPTION } from "./consts.js";
@@ -12,11 +13,24 @@ import { ANSWERS, MAX_LEN_MEETING_DESCRIPTION } from "./consts.js";
  * @property {MeetModule} mod
  */
 
+ let storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/boards')
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + '-' + file.originalname)
+  }
+})
+
+let upload = multer({ storage: storage }).array("boards");
+
 export default class MeetModule extends Module {
   static requiredModules = [`UserModule`, `PlatformModule`];
   static additionalModules = [`GroupModule`];
 
+
   subcollections = {
+    boards:`boards`,
     templatesPerm: `permissions`,
     userPermissions: `permissions.users`,
   };
@@ -42,6 +56,11 @@ export default class MeetModule extends Module {
           delete: auth(this.runMid(this.httpHandleDeleteMeet)),
           // TODO: put, date start,end, link, desc,link, public
           // canEditDetails.
+          "boards":{
+            get:this.httpHandleGetBoards,
+            post:this.httpHandleUploadBoards,
+
+          },
 
           "permissions": {
               get: auth(this.runMid(this.httpHandleMeetPerms)), // TODO templates
@@ -263,6 +282,48 @@ export default class MeetModule extends Module {
     // //Kasowanie spotkania /api/meets/:meetId
     // //DELETE { "authenthication": "string" } // header
     app.delete(`/api/meets/:meetId`, this.httpHandleDeleteMeet);
+  }
+
+  httpHandleUploadBoards = async ({ req, res })=>
+  {
+    upload(req, res, function (err) {
+      if (err instanceof multer.MulterError) console.error(`Please upload a file: ${err}`)
+      else if (err) console.error(`Unknown error: ${err}`)
+
+      const groupId = req.params.groupId || req.body.groupId || req.query.groupId;
+      const meetId = req.params.meetId || req.body.meetId || req.query.meetId;
+      const boardsImg = req.files
+
+      console.log({boardsImg})
+
+      debugger;
+
+      arrayOfFileNames = boardsImg.map(item => item.filename)
+      arrayOfFilePaths = boardsImg.map(item => item.path)
+
+      const boardObj = new BoardImgs(meetId,arrayOfFileNames,arrayOfFilePaths)
+
+      if(! boardObj.validate())
+      res.json({ code:420, error:"Images extensions are not allwed." })
+
+      await this.saveMeetingBoardInDb(boardObj)
+
+
+     return res.json({ board: boardObj })
+    });
+  }
+
+
+  httpHandleGetBoards = async ({ req, res }) =>
+  {
+    const groupId = req.params.groupId || req.body.groupId || req.query.groupId;
+    const meetId = req.params.meetId || req.body.meetId || req.query.meetId;
+
+    const BoardImgs = await this.findMeetingBoard(meetId)
+    if(!BoardImgs)
+    return res.status(400).json({code:432,error:"Board of meeting not found"})
+
+   return res.json({board:BoardImgs})
   }
 
   httpHandleGrouplessMeetings = async ({ req, res }) => {
@@ -639,6 +700,12 @@ export default class MeetModule extends Module {
 
   saveMeetingInDb = (meet) =>
     this.dbManager.insertObject(this.basecollectionName, meet);
+
+  saveMeetingBoardInDb = (boardImgsObj) =>
+    this.dbManager.insertObject(this.subcollections.boards,boardImgsObj)
+
+  findMeetingBoard = (meetingId) =>
+    this.dbManager.findOne(this.subcollections.boards,{meetId:{$eq:meetingId}})
 
   getMeetingById = (meetId) =>
     this.dbManager.findObject(this.basecollectionName, { id: { $eq: meetId } });

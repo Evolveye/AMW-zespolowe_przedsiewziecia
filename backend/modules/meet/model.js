@@ -7,12 +7,12 @@ import { MEETING_DATE_MAX_YEARS_AHEAD } from "./consts.js"
  * @property {object} lecturer Head of group id
  * @property {string} description Name of goroup
  * @property {string} platformId Head of group i
- * @property {string} groupId 
- * @property {string[]} membersIds 
+ * @property {string} groupId
+ * @property {string[]} membersIds
  * @property {object}  param0
- * @property {param0.meetingUrl} meetingUrl 
- * @property {param0.dateStart} membersIds 
- * @property {param0.dateEnd} membersIds 
+ * @property {param0.meetingUrl} meetingUrl
+ * @property {param0.dateStart} membersIds
+ * @property {param0.dateEnd} membersIds
 
  */
 export default class Meet {
@@ -54,6 +54,43 @@ export default class Meet {
         if (this.dateStart > this.dateEnd)
             return false
 
-        return true 
+        return true
+    }
+}
+
+/**
+ * @typedef {object} BoardImgs
+ * @property {string} meetId Head of group id
+ * @property {string[]} filesName Name of goroup
+ * @property {string[]} filesPath
+ */
+export class BoardImgs{
+    constructor(
+        meetId,
+        filesName,
+        filesPath,
+    ){
+        this.id = `${Date.now()}t${Math.random().toString().slice(2)}r`
+        this.meetId = meetId
+        this.filesName = filesName
+        this.filesPath = filesPath
+    }
+
+    validate()
+    {
+        const imgFileExtensions = [`.jpg`,`.jpeg`,`.bmp`,`.png`,`.gif`,`.tif`,`.tiff`]
+
+
+
+        if(! this.filesName.every(
+             name => imgFileExtensions.some( ext => name.endsWith(ext) )
+            ))
+            return false
+
+        // if(!imgFileExtensions.some( ext => this.fileName.endsWith(ext) ))
+        //     throw new Error("file extension is not allowed.")
+
+
+        return true
     }
 }

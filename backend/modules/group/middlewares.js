@@ -787,10 +787,6 @@ export async function httpHandleDeleteFile({ mod, req, res }) {
 
   console.log({ path: fileDoc.value.path })
   let fileExists = true;
-  // fs.access(fileToDelete,(err)=>{
-  //   console.log(err);
-  //   fileExists=false;
-  // })
 
   const fullFilePath = APP_ROOT_DIR + `/` + fileDoc.value.path
 
@@ -839,7 +835,7 @@ export async function httpAddFile({ mod, req, res, next }) {
     const file = req.file;
     //console.log(req.file, req.files);
 
-    console.log(file)
+    console.log({file})
 
     const { mimetype, filename, path } = req.file
 
