@@ -244,11 +244,14 @@ export default class MeetModule extends Module {
     console.log( `Socket ${socket.id}, user ${socket.userScope.user}` )
 
     socket.on( `join room`, msg => {
-      const roomId = msg
+      const {roomId} = msg
+
       socket.join(roomId)
+      socket.emitToRoom(roomId,`member joined`,socket.userScope.user)
     },
 
-    socket.on( `chat message`, msg => {
+    socket.on( `chat message`, async msg => {
+       // roomId === meetId
       const user = socket.userScope.user
       const {roomId,content} = msg
 
@@ -257,6 +260,10 @@ export default class MeetModule extends Module {
         content: content
       }
 
+      const message = new ChatMessage(user,roomId,content)
+
+      await this.saveChatMessage(message)
+
       socket.emitToRoom(roomId,`new message`,msgData)
       // socket.emit( `chat message`, msgData )
       // socket.broadcast.emit( `chat message`, msgData )
@@ -264,9 +271,11 @@ export default class MeetModule extends Module {
 
     socket.on(`leave room`,msg=>{
 
-      // zawiadomic czat, że ktoś opuszcza spotkanie.
-      socket.emitToRoom(roomId,`new message`,)
-      socket.leaveRoom(msg.room)
+      const user = socket.userScope.user
+
+      // zawiadomic czat, że ktoś opuszcza czat/spotkanie whatever.
+      socket.emitToRoom(msg.roomId,`memebr leaved`, user)
+      socket.leaveRoom(msg.roomId)
     })
 
   }

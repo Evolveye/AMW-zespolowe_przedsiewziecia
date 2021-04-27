@@ -79,9 +79,22 @@ export class WS {
     this.#server.getClients().forEach( s => s.emit( event, data ) )
   }
 
+  /**
+   * @param {string} event
+   * @param {(data:any) => void} listener
+   */
   on( event, listener ) {
     if (event === `disconnect`) this.ws.on( `close`, listener )
     else this.#commands.set( event, listener )
+  }
+
+  /**
+   * @param {string} room
+   * @param {string} event
+   * @param {(data:any) => void} listener
+   */
+  onInRoom( room, event, listener ) {
+    this.on( event, data => this.#rooms.includes( room ) && listener( data ) )
   }
 
   // onmessage = data => console.log( data )
