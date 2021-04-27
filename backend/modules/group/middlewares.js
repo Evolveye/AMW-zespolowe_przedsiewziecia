@@ -879,7 +879,7 @@ export async function httpCreateTask({ mod, req, res, next }) {
 
   const groupId = req.params.groupId || req.body.groupId || req.query.groupId;
 
-  let { title, description, expireDate, type, mandatory } = req.body
+  let { title, description, expire, type, mandatory, created } = req.body
   console.log({body:req.body})
 
   if(description?.length>255)
@@ -888,10 +888,10 @@ export async function httpCreateTask({ mod, req, res, next }) {
   if(!title)
    return res.status(400).json(ANSWERS.TASK_NO_TITLE)
 
-  if(typeof expireDate == `string`)
-    expireDate = toTimestamp(expireDate)
+  if(typeof expire == `string`)
+      expire = toTimestamp(expire)
 
-  const t = new Task(title, description, groupId, expireDate, req.user, type, mandatory)
+  const t = new Task(title, description, groupId, expire, req.user, type, mandatory)
 
   await mod.dbManager.insertObject(mod.subcollections.tasks, t)
 

@@ -6,3 +6,4 @@ temp-*
 backend/uploads/materials
 backend/resources
 backend/public/*
+*.zip
