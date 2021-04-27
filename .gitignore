@@ -4,3 +4,4 @@ frontend/*
 temp-*
 *-temp
 backend/uploads/materials
+backend/resources

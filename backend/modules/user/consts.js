@@ -66,7 +66,6 @@ export const PASSWORD_RESTRICTIONS = {
     maxLen: 128,
     bannedChars: ``,
     bannedWords: ['password'],
-    requireSpacialChar: true,
     requireUpperCaseLetter: true,
     requireLowerCaseLetter: true,
     requireDigit: true,

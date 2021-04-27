@@ -78,13 +78,14 @@ export const validateWord = (word, config) => {
     requireUpperCaseLetter,
     requireLowerCaseLetter,
     requireDigit,
-    requireSpacialChar,
     specialChars
   } = config
 
   let noWords = true
+
   if (bannedWords) {
-    const wordsArrayCorrect = Array.isArray(bannedWords) && bannedWords.every(word => typeof word == 'string')
+    const wordsArrayCorrect = Array.isArray(bannedWords) &&
+       bannedWords.every(word => typeof word == 'string')
     noWords = wordsArrayCorrect ? bannedWords.every((banned) => banned != word) : false
   }
 
@@ -100,40 +101,56 @@ export const validateWord = (word, config) => {
 }
 
 
-export function randomString(numbersCount = 10, chars_Count = 5) {
-  const alphabet = `abcdefghijklmnouprstwxyz!@#$%^&*-+<>`
+export function randomString(length=8,countOfSpecChars=1,countOfNumbers=1) {
+  const alphabet = `abcdefghijklmnouprstwxyz`
+  const ALPHABET = alphabet.toUpperCase()
   const specChars = `!@#$%^&*-+<>`
 
-  const { random, floor } = Math
-  const rand = str => floor(random() * str.length)
+ const alp_len = length - countOfSpecChars - countOfNumbers
 
-  //TODO: REFACTOR
-  let passwLen = numbersCount
-  let charsCount = chars_Count
+ const randomBoolean = () => Math.random() >= 0.5 ? true : false
+ const randomChar = (alph)=> alph.charAt( Math.floor(Math.random()*alph.length))
+ const randomSpecChar = () => specChars.charAt( Math.floor(Math.random()*specChars.length))
+ const randomPosition = (password) => Math.floor( Math.random()*password.length )
+ const insertCharIntoString = (char,string,startPos)=>
+      string.substring(0, startPos) + char + string.substr(startPos);
+  const randomNumber = () => Math.floor(Math.random()*10)
+
+
   let password = ``
 
-  if (passwLen < charsCount) [passwLen, charsCount] = [passwLen, charsCount]
+  for(let i=0;i<alp_len/2;i++)
+  {
+      password = insertCharIntoString(
+          randomChar(ALPHABET),
+          password,
+          randomPosition(password))
 
-  for (let i = 0; i < passwLen; ++i) password += floor(random() * 10)
-
-  for (let i = 0; i < charsCount; ++i) {
-    const index = rand(password)
-    let char = alphabet[rand(alphabet)]
-    if (random() > .5) char = char.toUpperCase()
-
-    password = password.slice(0, index) + char + password.slice(index)
+      password = insertCharIntoString(
+          randomChar(alphabet),
+          password,
+          randomPosition(password))
   }
 
-  const passwContainSpecChar = password.split('').some(char => specChars.split('').some(spec => spec === char))
-  if (!passwContainSpecChar)
-    password = changeCharInString(
-      password,
-      Math.random().toString()[4],
-      specChars[Math.random().toString()[4]]
-    )
+  for(let i = 0; i<countOfSpecChars; i++)
+  {
+      password = insertCharIntoString(
+          randomChar(specChars),
+          password,
+          randomPosition(password))
+  }
+  for (let index = 0; index < countOfNumbers; index++) {
+      password = insertCharIntoString(
+          randomNumber(),
+          password,
+          randomPosition(password)
+      )
+  }
 
   return password
 }
+
+
 
 export function changeCharInString(string, index, newChar) {
   let str = string.split('');
