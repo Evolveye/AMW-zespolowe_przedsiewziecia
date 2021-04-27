@@ -271,8 +271,18 @@ export default class MeetModule extends Module {
 
     socket.on(`edit message`,async msg => {
         const {messageId,content,roomId} = msg
+
         await this.updateMessage(messageId,content)
+
         socket.emitToRoom(roomId,`update message`,{messageId, content})
+    }),
+
+    socket.on(`delete message`,async msg =>{
+        const {messageId,roomId} = msg
+
+        await this.deleteMessage(messageId)
+
+        socket.emitToRoom(roomId,`remove message`,{messageId})
     }),
 
     socket.on(`leave room`,msg=>{
@@ -280,7 +290,7 @@ export default class MeetModule extends Module {
       const user = socket.userScope.user
 
       // zawiadomic czat, że ktoś opuszcza czat/spotkanie whatever.
-      socket.emitToRoom(msg.roomId,`memebr leaved`, user)
+      socket.emitToRoom(msg.roomId,`member leaved`, user)
       socket.leaveRoom(msg.roomId)
     })
 
