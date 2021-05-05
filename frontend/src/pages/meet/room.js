@@ -1,11 +1,13 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react"
 // import io from "socket.io-client";
-import ws from "../../utils/webSocket";
-import Peer from "simple-peer";
-import styled from "styled-components";
-import { isBrowser } from "../../utils/functions";
-import {getUser} from "../../utils/auth";
+import ws from "../../utils/webSocket"
+import Peer from "simple-peer"
+import styled from "styled-components"
+import { isBrowser } from "../../utils/functions"
+import { getUser } from "../../utils/auth"
 
+import "font-awesome/css/font-awesome.min.css"
+import "./style.css"
 /** @typedef {Peer.Instance & { id:string }} BetterPeer */
 
 const Container = styled.div`
@@ -18,24 +20,32 @@ const Container = styled.div`
 `
 
 const StyledVideo = styled.video`
-  height: 40%;
-  width: 50%;
+  height: 150px;
+  width: 100%;
 `
-
+function changeMainVideo(ref) {
+  alert("zmieniono")
+  const mainVideo = document.querySelector("#video-right")
+  alert(mainVideo)
+  mainVideo.innerHTML = `<StyledVideo ref=${ref} playsInline autoPlay />`;
+}
 
 const Video = ({ peer }) => {
   const ref = useRef()
 
   useEffect(() => {
-    peer.on("stream", stream => ref.current.srcObject = stream )
-  }, [ peer ])
+    peer.on("stream", stream => (ref.current.srcObject = stream))
+  }, [peer])
 
-  return <StyledVideo ref={ref} playsInline autoPlay />
+  return (
+    <StyledVideo ref={ref} playsInline autoPlay onClick={changeMainVideo(ref)} />
+  )
 }
 
-
 export default class extends React.Component {
-  roomId = new URL( isBrowser() ? window.location.href : "http://www.google.pl" ).searchParams.get("roomID")
+  roomId = new URL(
+    isBrowser() ? window.location.href : "http://www.google.pl"
+  ).searchParams.get("roomID")
 
   state = {
     /** @type {BetterPeer[]} */
@@ -44,9 +54,8 @@ export default class extends React.Component {
 
   videoConstraints = {
     height: window.innerHeight / 2,
-    width: window.innerWidth / 2
+    width: window.innerWidth / 2,
   }
-
 
   /** @return {BetterPeer} */
   createPeer(id, callerID, stream) {
@@ -57,11 +66,12 @@ export default class extends React.Component {
     })
 
     peer.id = id
-    peer.on("signal", signal => ws.emit("sending signal", { userToSignal:id, callerID, signal }) )
+    peer.on("signal", signal =>
+      ws.emit("sending signal", { userToSignal: id, callerID, signal })
+    )
 
     return peer
   }
-
 
   /** @return {BetterPeer} */
   addPeer(incomingSignal, callerID, stream) {
@@ -72,67 +82,139 @@ export default class extends React.Component {
     })
 
     peer.id = callerID
-    peer.on("signal", signal => ws.emit("returning signal", { signal, callerID }) )
-    peer.signal( incomingSignal )
+    peer.on("signal", signal =>
+      ws.emit("returning signal", { signal, callerID })
+    )
+    peer.signal(incomingSignal)
 
     return peer
   }
 
-
   /** @param {StyledVideo} video */
   handleVideoRef = async video => {
-    const stream = await navigator.mediaDevices.getUserMedia({ video:this.videoConstraints, audio:true })
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: this.videoConstraints,
+      audio: true,
+    })
 
     video.srcObject = stream
 
-    ws.emit( "join room", this.roomId )
+    ws.emit("join room", this.roomId)
 
     ws.on("all users", socketsIds => {
-      const peers = socketsIds.map( id => this.createPeer(id, ws.id, stream) )
+      const peers = socketsIds.map(id => this.createPeer(id, ws.id, stream))
 
       this.setState({ peers })
     })
 
     ws.on("user joined", payload => {
-      const peer = this.addPeer( payload.signal, payload.callerID, stream )
+      const peer = this.addPeer(payload.signal, payload.callerID, stream)
 
-      this.setState( ({ peers }) => ({ peers:[ ...peers, peer ] }) )
+      this.setState(({ peers }) => ({ peers: [...peers, peer] }))
     })
 
     ws.on("receiving returned signal", payload => {
-      const peer = this.state.peers.find( ({ id }) => id === payload.id )
+      const peer = this.state.peers.find(({ id }) => id === payload.id)
 
-      if (peer) peer.signal( payload.signal )
-      else console.error( `receiving returned signal, wrong payload ID` )
+      if (peer) peer.signal(payload.signal)
+      else console.error(`receiving returned signal, wrong payload ID`)
     })
   }
 
-  render = () => (
-    <Container>
-        <StyledVideo ref={this.handleVideoRef} muted autoPlay playsInline data-peer-id={ws.id} />
+  // render = () => (
+  //   <Container>
+  //       <StyledVideo ref={this.handleVideoRef} muted autoPlay playsInline data-peer-id={ws.id} />
 
-        {this.state.peers.map((peer, index) => <Video key={index} peer={peer} /> )}
-    </Container>
+  //       {this.state.peers.map((peer, index) => <Video key={index} peer={peer} /> )}
+  //   </Container>
+  // )
+
+  render = () => (
+    <div className="main">
+      <div className="main__left">
+        <div className="main__videos">
+          <div className="main__video__left">
+            <div id="video-grid">
+              <StyledVideo
+                ref={this.handleVideoRef}
+                muted
+                autoPlay
+                playsInline
+                data-peer-id={ws.id}
+                onClick={changeMainVideo(this.handleVideoRef)}
+              />
+              {this.state.peers.map((peer, index) => (
+                <Video key={index} peer={peer} />
+              ))}
+            </div>
+          </div>
+          <div className="main__video__right" id="video-right">
+          <span>Kliknij w wideo po lewej aby wyświetlić tutaj</span>
+          </div>
+                
+        </div>
+        <div className="main__controls">
+          <div className="main__controls_block">
+            <div
+              role="button"
+              className="main__controls_button"
+              id="muteButton"
+              tabIndex={0}
+            >
+              <i className="fa fa-microphone"></i>
+              <span>Mikrofon</span>
+            </div>
+            <div
+              role="button"
+              className="main__controls_button"
+              id="playPauseVideo"
+              tabIndex={-1}
+            >
+              <i className="fa fa-video-camera"></i>
+              <span>Wideo</span>
+            </div>
+          </div>
+
+          <div className="main__controls_block">
+            <div role="button" className="main__controls_button" tabIndex={-2}>
+              <i className="fa fa-desktop"></i>
+              <span>Udostępnij ekran</span>
+            </div>
+            <div className="main__controls_button">
+              <i className="fa fa-users"></i>
+              <span>Członkowie</span>
+            </div>
+            <div role="button" className="main__controls_button" tabIndex={-3}>
+              <i className="fa fa-comment"></i>
+              <span>Chat</span>
+            </div>
+          </div>
+
+          <div className="main__controls_block">
+            <div
+              className="main__controls_button leaveMeeting"
+              id="leave-meeting"
+            >
+              <i className="fa fa-times"></i>
+              <span className="">Opuść spotkanie</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="main__right" id="chatBox">
+        <div className="main__header">
+          <h6>Chat</h6>
+        </div>
+        <div className="main__chat__window" id="main__chat__window">
+          <ul className="messages" id="all_messages"></ul>
+        </div>
+        <div className="main__message_container">
+          <input type="text" id="chat_message" placeholder="Pisz tutaj.." />
+        </div>
+      </div>
+    </div>
   )
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // import React from "react"
 // //import css
@@ -140,7 +222,6 @@ export default class extends React.Component {
 // import "font-awesome/css/font-awesome.min.css"
 // import { isBrowser } from "../../utils/functions"
 // import "./style.css"
-
 
 // const chatInputBox = isBrowser()
 //   ? document.querySelector("#chat_message")
@@ -156,25 +237,14 @@ export default class extends React.Component {
 // let myVideoStream = null
 // let checboxCheck = true
 
-
-
-
-
-
 // const url_string = isBrowser() ?window.location.href: "http://www.google.pl"
 // const url = new URL(url_string)
 // const ROOM_ID = url.searchParams.get("roomId")
-
-
-
 
 // export default class Room extends React.Component {
 //   nodes = {
 //     videoGrid: React.createRef(),
 //   }
-
-
-
 
 //   componentDidMount() {
 //     console.log(this.nodes)
