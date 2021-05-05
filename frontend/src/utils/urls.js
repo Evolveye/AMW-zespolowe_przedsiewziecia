@@ -1,9 +1,9 @@
 import { isBrowser, urlSearchParams } from "./functions.js"
 
 //export const HOST = isBrowser() ? window.location.origin : `http://localhost:3000`
-export const HOST = isBrowser() ? `http://localhost:3000` : `http://localhost:3000`
+export const HOST = isBrowser() ? `http://${window.location.hostname}:3000` : `http://localhost:3000`
 
-export const WS_HOST = "ws://localhost:3000"
+export const WS_HOST = `ws://${window.location.hostname}:3000`
 export function getSocketEventFromHttp( method, httpUrl ) {
   const uri = httpUrl.match( /api\/(.*)/ )[ 1 ]
   const dottedUri = uri.replace( /\//g, `.` )
@@ -41,7 +41,7 @@ const URLS = {
   PLATFORM$ID_PERMISSIONS_GET: `${HOST}/api/platforms/:platformId/newpermissions`,
   PLATFORM$ID_PERMISSIONS_MY_GET: `${HOST}/api/platforms/:platformId/permissions/my`,
   PLATFORM$ID_PERMISSIONS_POST: `${HOST}/api/platforms/:platformId/newpermissions`,
-  
+
 
   // Group scope
   GROUP_POST: `${HOST}/api/groups`,

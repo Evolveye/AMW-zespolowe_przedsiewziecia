@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from "react"
 import { Link } from "gatsby"
 
-import TableForm from "../../components/tableForm" 
+import TableForm from "../../components/tableForm"
 import Layout from "../../components/groupLayout.js"
 import { urlSearchParams } from "../../utils/functions.js"
 import URLS from "../../utils/urls.js"
@@ -22,7 +22,7 @@ class FileInput extends React.Component {
 
   class DisabledInput extends React.Component {
     state = { user:null }
-  
+
     componentDidMount() {
       getUser().then( user => this.setState({ user }) )
     }
@@ -38,15 +38,6 @@ class FileInput extends React.Component {
 
 export default () => {
   const [ perms, setPerm ] = useState(null)
-
-  useEffect( () => { getGroupPerms(groupId, console.log)}, [ setPerm ] )
-  //console.log("getGroupPerms",perms)
-
-  const [ user, setUser ] = useState(null)
-
-  useEffect( () => { getUser().then( setUser ) }, [ setUser ] )
-  //console.log("user:", user)
-  
   const query = urlSearchParams()
   const href = `/group/it?platformId=${query.get(
     "platformId"
@@ -54,10 +45,20 @@ export default () => {
   const groupId = query.get(`groupId`)
   const taskId = query.get("taskId")
 
+  useEffect( () => { getGroupPerms( groupId, console.log)}, [ setPerm, groupId ] )
+  //console.log("getGroupPerms",perms)
+
+  const [ user, setUser ] = useState(null)
+
+  useEffect( () => { getUser().then( setUser ) }, [ setUser ] )
+  //console.log("user:", user)
+
+  console.log({ perms, user })
+
   return (
     <Layout className="is-centered">
       <Link className="return_link" to={href}>
-      
+
         Powrót do widoku grupy
       </Link>
       <h1>Oddawanie zadań</h1>
@@ -75,7 +76,7 @@ export default () => {
         objectsFields={
           [
           { name: `file`, alt:`filePath`, entire:true, processor: file =>
-              
+
             //console.log(file.user.id)
             <a download href={`/` + file.filepath}>{file.filename}</a>
           },

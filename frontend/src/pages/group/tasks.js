@@ -8,7 +8,7 @@ import Layout from "../../components/groupLayout.js"
 import TableForm from "../../components/tableForm.js"
 
 
-
+/*
 class DateInput extends React.Component{
   
   render = () => <input 
@@ -16,9 +16,9 @@ class DateInput extends React.Component{
     onChange={({ target }) => this.props.onChange(target.name, target.value)}
     />
 }
+*/
 
-
-//const DateInput = props => <input type="datetime-local" {...props} />
+const DateInput = props => <input type="datetime-local" {...props} />
 
 
 /*

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react"
 import { Link } from "gatsby"
 
 import { authFetch, AuthorizedContent, getMeetPerms } from "../utils/auth.js"
-import { processUrn, urlSearchParams } from "../utils/functions.js"
+import { urlSearchParams } from "../utils/functions.js"
 import URLS from "../utils/urls.js"
 
 import Layout from "./layout.js"

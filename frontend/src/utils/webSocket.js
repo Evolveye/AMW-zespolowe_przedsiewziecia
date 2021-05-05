@@ -6,8 +6,19 @@ let ws = null
 
 if (isBrowser()) {
   class WS extends WebSocket {
+    #id = null
     #listeners = new Map()
     #defaultListener = () => {}
+
+    constructor( host ) {
+      super( host )
+
+      this.on( `__init`, id => this.#id = id )
+    }
+
+    get id() {
+      return this.#id
+    }
 
     emit(event, data) {
       if (!isBrowser()) return
@@ -53,12 +64,15 @@ if (isBrowser()) {
       } else this.#defaultListener(jsonData)
     }
 
+
     setDefaultListener(listener) {
       if (typeof listener != `function`)
         throw new Error(`Listener should be the function type`)
 
       this.#defaultListener = listener
     }
+
+
   }
 
   const token = getToken()
