@@ -30,7 +30,6 @@
     "styled-components": "^5.2.3"
   },
   "devDependencies": {
-    "cypress": "^6.5.0",
     "prettier": "2.1.2"
   },
   "keywords": [
