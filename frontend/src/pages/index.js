@@ -3,7 +3,7 @@ import React from "react"
 import EventsCalendar from "../containers/eventsCalendar.js"
 import Form, { Tab, Text, Password, Submit } from "../components/form.js"
 import Layout from "../layouts/main.js"
-import { useUser, fakeLogin } from "../utils/auth.js"
+import { useUser, fakeLogin, register } from "../utils/auth.js"
 
 import boxClasses from "../css/box.module.css"
 import classes from "../css/page.module.css"
@@ -47,7 +47,7 @@ export default () => {
                     <Password className={boxClasses.input} name="password2" validator={() => true}>Powtórne hasło</Password>
                   </div>
 
-                  <Submit className={`neumorphizm is-button ${boxClasses.button}`}>Zarejestruj</Submit>
+                  <Submit className={`neumorphizm is-button ${boxClasses.button}`} handler={register}>Zarejestruj</Submit>
                 </Tab>
               </Form>
             </section>

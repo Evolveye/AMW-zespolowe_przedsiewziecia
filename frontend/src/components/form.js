@@ -37,17 +37,30 @@ Submit.propTypes = {
 }
 
 
-export default function Form({ classNames, children }) {
+const Form = ({ tab }) => {
   const [ fieldsValues, setValues ] = useState({})
-  const updateValues = ({ target }) => setValues({
-    [ target.name ]: target.value,
-    ...fieldsValues,
-  })
+
+  const updateValues = ({ target }) => {
+    setValues( currentValues => ({
+      ...currentValues,
+      [ target.name ]: target.value,
+    }) )
+  }
+
   const onSubmit = (e, { handler }) => {
     e.preventDefault()
     if (typeof handler === `function`) handler( fieldsValues )
   }
 
+  return (
+    <form>
+      {processFormChildren( tab, updateValues, onSubmit )}
+    </form>
+  )
+}
+
+
+export default function FormWrapper({ classNames, children }) {
   const tabs = React.Children
     .toArray( children )
     .filter( c => c.type === Tab.type )
@@ -63,30 +76,19 @@ export default function Form({ classNames, children }) {
             name={tab.props.name}
             className={tab.props.className}
           >
-            <form>
-              {processFormChildren( tab, updateValues, onSubmit )}
-            </form>
+            <Form tab={tab} />
           </SwitchTab>
         ) )
       }
     </SwitchBox>
   )
 }
-Form.propTypes = {
-  classNames: PropTypes.shape({
-    it: PropTypes.string,
-    switch: PropTypes.string,
-    switcher: PropTypes.string,
-    switches: PropTypes.string,
-    activeSwitch: PropTypes.string,
-  }),
-}
 
 
 function processFormChildren( element, updateValues, onSubmit ) {
   return React.Children.map( element.props.children, child => {
     if (typeof child.type === `string`) {
-      return React.cloneElement( child, child.props, processFormChildren( child ) )
+      return React.cloneElement( child, child.props, processFormChildren( child, updateValues, onSubmit ) )
     }
 
     const { props } = child
@@ -96,7 +98,7 @@ function processFormChildren( element, updateValues, onSubmit ) {
       autoComplete: `${element.name} ${props.name}`,
       className: props.className,
       placeholder: props.children,
-      onChange: updateValues,
+      onInput: updateValues,
     }
 
     switch (child.type) {

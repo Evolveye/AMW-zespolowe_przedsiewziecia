@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from "react"
 import { navigate } from "gatsby"
 import { fetchOrGet, getUrnQuery, isBrowser } from "./functions.js"
+import URLS from "./urls.js"
 
 const fakeUser = {
   login: `fakelogin`,
@@ -48,4 +49,15 @@ export const useUser = () => {
   changedUserSetters.push( setUser )
 
   return user
+}
+
+
+export const register = async data => {
+  const { user } = await fetch( URLS.REGISTER_POST, {
+    method: `POST`,
+    body: JSON.stringify( data ),
+    headers: { "Content-Type":`application/json` },
+  } ).then( res => res.json() )
+
+  if (user) setUser( user )
 }
