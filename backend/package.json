@@ -6,7 +6,8 @@
   "main": "server.js",
   "scripts": {
     "test": "node ./node_modules/mocha/bin/mocha ./server.test.js",
-    "start": "node server.js"
+    "start": "node server.js",
+    "watch": "nodemon ./../server.js"
   },
   "author": "",
   "license": "ISC",

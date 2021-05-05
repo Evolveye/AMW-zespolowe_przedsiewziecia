@@ -2,9 +2,8 @@ import Meet, { BoardImgs, ChatMessage } from "./model.js";
 import Module from "../module.js";
 import multer from "multer"
 import { sameWords } from "../../src/utils.js";
-import { MeetUserPermission, MeetPermission } from "./permissions.js";
+import { MeetUserPermission, MeetPermission, LivePermissions, LiveAbilities } from "./permissions.js";
 import { ANSWERS, MAX_LEN_MEETING_DESCRIPTION } from "./consts.js";
-
 
 /** @typedef {import("../../src/ws.js").WS} Socket  */
 /** @typedef {Socket | { userScope:{ user:object token:string } }} AuthorizedSocket  */
@@ -38,6 +37,7 @@ export default class MeetModule extends Module {
     boards:`boards`,
     templatesPerm: `permissions`,
     userPermissions: `permissions.users`,
+    livePermissions:`permissions.live`
   };
 
   constructor(...params) {
@@ -217,6 +217,8 @@ export default class MeetModule extends Module {
     if (!meetId)
       return res.status(400).json(ANSWERS.GET_PERMS_MISS_MEET_ID);
 
+
+
     const templates = await this.getTemplatePermissions(meetId);
 
     return res.json({ permissions: templates });
@@ -243,16 +245,31 @@ export default class MeetModule extends Module {
   socketConfigurator(socket) {
     console.log( `Socket ${socket.id}, user ${socket.userScope.user}` )
 
-    socket.on( `join room`, msg => {
+    socket.on( `join room`, async msg => {
       const {roomId} = msg
+
+      const perms = await this.getLivePermissions(socket.userScope.user.id,roomId); // TODO:
+      if(!perms)
+      throw new Error("Live - perms not found")
+
+      socket.userScope.user.livePermissions = perms
+
 
       socket.join(roomId)
       socket.emitToRoom(roomId,`member joined`,socket.userScope.user)
     }),
 
+    socket.on(`change permission`,async msg => {
+      const {roomId,targetUserId,abilities} = msg
+
+      const permission = await this.updateLivePermissions(targetUserId,roomId,abilities)
+
+      socket.emitToRoom(roomId,`update permission`,permission)
+    })
+
     socket.on( `chat message`, async msg => {
       // roomId === meetId
-     const user = socket.userScope.user
+     const user = socket.userScope.user // tutaj wysyłającym jest user czy jak?
      const {roomId,content} = msg
 
      const message = new ChatMessage(user,roomId,content)
@@ -267,10 +284,11 @@ export default class MeetModule extends Module {
      socket.emitToRoom(roomId,`new message`,msgData)
      // socket.emit( `chat message`, msgData )
      // socket.broadcast.emit( `chat message`, msgData )
-   }),
+   })
 
    socket.on(`edit message`,async msg => {
        const {messageId,content,roomId} = msg
+
 
        await this.updateMessage(messageId,content)
 
@@ -283,6 +301,16 @@ export default class MeetModule extends Module {
        await this.deleteMessage(messageId)
 
        socket.emitToRoom(roomId,`remove message`,{messageId})
+   }),
+
+   socket.on(`change permission`, msg =>{
+    const {targetuserId,changedPermissions,roomId} = msg // roomId też ?
+
+
+    //TODO, update perms in db
+
+
+      socket.emitToRoom(roomId,`update permission`,msg)
    }),
 
    socket.on(`leave room`, msg => {
@@ -717,6 +745,20 @@ export default class MeetModule extends Module {
       MeetPermission.createStudentTemplate(meeting.id),
     ];
 
+
+    const LivePermsList = ids.map(userId =>
+     {
+      let perms = null
+      if(userId===client.id)
+           perms = LivePermissions(userId, meeting.id ,LiveAbilities.getLecturerAbilities())
+      else
+          perms = LivePermissions(userId,meeting.id,LiveAbilities.getStudentAbilities())
+
+       return this.saveLivePermissionsList(perms)
+     })
+
+
+    await this.saveLivePermissionsList(LivePermsList);
     await this.saveMeetingInDb(meeting);
     await this.saveTemplatePermissions(templatePermsList);
     await this.saveUserPermissions(userPermsList);
@@ -724,6 +766,54 @@ export default class MeetModule extends Module {
 
     return res.json({ meet: meeting });
   };
+
+
+
+  saveLivePermissionsList = (livePermissions) =>
+  {
+    if(Array.isArray(livePermissions))
+      return this.dbManager.insetMany(this.subcollections.livePermissions,livePermissions)
+
+    throw new Error("not array of permission")
+  }
+
+  getLivePermissions = (userId,meetId) =>
+  this.dbManager.findObject(this.subcollections.livePermissions,{$and:[
+    {meetId:{$eq:meetId}},
+    {userId:{$eq:userId}}
+  ]})
+
+
+  findAndUpdateLivePermissions = (userId,meetId,newAbilities) =>{
+    const abilities = newAbilities
+      .map( ([ability, bool]) => ({ field:`abilities.${ability}`, value:bool }) )
+      .reduce( (obj, { field,value }) => ({ [field]:value, ...obj }), {} )
+
+    this.dbManager.findOneAndUpdate(this.subcollections.livePermissions,
+      {$and:[
+        {userId:{$eq:userId}},
+        {meetId:{$eq:meetId}}
+      ]},
+      abilities,
+      {returnOriginal: false} )
+  }
+
+  updateLivePermissions = (userId,meetId,newAbilities) =>
+  {
+    //const newabilities = { this_canReadChat:true, this_canWriteOnChat:true}
+    // cos jak tutaj
+    const abilities = newAbilities
+      .map( ([ability, bool]) => ({ field:`abilities.${ability}`, value:bool }) )
+      .reduce( (obj, { field,value }) => ({ [field]:value, ...obj }), {} )
+
+    return this.dbManager.updateObject(this.subcollections.livePermissions,
+      {$and:[
+        {userId:{$eq:userId}},
+        {meetId:{$eq:meetId}}
+      ]},
+      abilities)
+  }
+  //getLivePermissions = ()
 
   saveChatMessage = (messageObj) =>
   this.dbManager.insertObject(this.subcollections.chatMessages,messageObj)
