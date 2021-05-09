@@ -7,7 +7,7 @@
 
 
 export default class Fetcher {
-  headers = { "Content-Type":`application/json` }
+  headers = {}
 
 
   /** @param {RequestInit & ExternalFunctions} [init] */
@@ -29,20 +29,19 @@ export default class Fetcher {
    */
   _fetch( input, init = {} ) {
     /** @param {{ type:string status:number data:any }} err */
-    const erhandleError = err => this.init.processError( err )
+    const erhandleError = err => this.init.processError?.( err )
 
     if (!init.headers) init.headers = {}
     Object.assign( init.headers, this.init.getHeaders?.( this.headers ) ?? this.headers )
 
     return fetch( input, init )
-      .catch( erhandleError )
       .then( async res => {
         let data = await res.text()
 
         try {
           data = JSON.parse( data )
         } catch {
-          throw { type:`noJson`, status:res.status, data }
+          throw new Error( { type:`noJson`, status:res.status, data } )
         }
 
         if (Math.floor( res.status / 100 ) == 4) {
@@ -57,6 +56,7 @@ export default class Fetcher {
 
         return data
       } )
+      .catch( erhandleError )
   }
 
 
@@ -66,7 +66,11 @@ export default class Fetcher {
    * @param {RequestInit} headers
    */
   post( address, data, headers ) {
-    return this._fetch( address, { method:`POST`, headers, body:JSON.stringify( data ) } )
+    return this._fetch( address, {
+      method: `POST`,
+      headers: { "Content-Type":`application/json`, ...headers },
+      body: JSON.stringify( data ),
+    } )
   }
 
 

@@ -48,6 +48,17 @@ export const AuthContextProvider = ({ children }) => {
 }
 
 
+export const authFetcher = new Proxy( fetcher, {
+  get( fetcher, key ) {
+    const methods = [ `post`, `get`, `pust`, `delete` ]
+
+    if (methods.includes( key )) return address => fetcher[ key ]( address, getAuthHeaders() )
+
+    return fetcher[ key ]
+  },
+} )
+
+
 export const useUser = () => {
   const [ user, setUser ] = useState( getUser() )
 

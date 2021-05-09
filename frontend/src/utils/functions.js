@@ -1,4 +1,5 @@
 import Fetcher from "./fetch"
+import { navigate } from "gatsby"
 
 const fakeStartDate = () => new Date( Date.now() + Math.floor( Math.random() * 1000 * 60 * 60 * 24 * 7 ) )
 const fakeExpirationDate = () => Date.now() + 1000 * 60 * 60 * 1
@@ -239,10 +240,10 @@ const fakeDataset = {
 }
 
 
-export const fetcher = new Fetcher()
+export const fetcher = new Fetcher({ processError:({ data }) => data.code === 110 && navigate( `/logout` ) })
 
 /** @param {string} address */
-export function fetchOrGet( address, cb ) {
+export function fetchOrGet( address, headersOrCb = {}, cb = (typeof headersOrCb == `function` ? headersOrCb : null) ) {
   if (address.startsWith( `fake://` )) {
     const { addressBase, index, query } = address.slice( 7 )
       .match( /(?<addressBase>\w+)(?:\/(?<index>\w*))?(?:\?(?<query>.*))?/ )
@@ -265,10 +266,11 @@ export function fetchOrGet( address, cb ) {
     return data
   }
 
-  throw new Error( `Unknown data "${address}"` )
+  return fetcher.get( address, typeof headersOrCb == `object` ? headersOrCb : null )
 }
 
 export const isData = data => !(data instanceof Promise)
+export const isDataLoading = data => !isData( data )
 export const isBrowser = () => window !== undefined
 export const getUrnQuery = () => isBrowser()
   ? Object.fromEntries( Array.from( new URLSearchParams( window.location.search ) ) )
@@ -303,27 +305,4 @@ export function getDate( date = Date.now(), format = `YYYY.MM.DD hh:mm` ) {
     .replace( /DD/, DD )
     .replace( /hh/, hh )
     .replace( /mm/, mm )
-}
-
-export function getWebsiteContext() {
-  const { p, g, m } = getUrnQuery()
-
-  const reducer = arr => arr.reduce( (obj, { key, value }) => ({ ...obj, [ key ]:value }), {} )
-  const contextItems = [
-    { key:`platform`, value:fetchOrGet( `fake://platforms/${p}` ) },
-    { key:`group`,    value:fetchOrGet( `fake://groups/${g}` ) },
-    { key:`meet`,     value:fetchOrGet( `fake://meets/${m}` ) },
-  ]
-
-  if (contextItems.some( ({ value }) => value instanceof Promise )) {
-    return Promise.all(
-      contextItems.map( ({ key, value }) => new Promise( r =>
-        value instanceof Promise
-          ? value.then( resolvedValue => r({ key, value:resolvedValue }) )
-          : r({ key, value }),
-      ) ),
-    ).then( reducer )
-  }
-
-  return reducer( contextItems )
 }

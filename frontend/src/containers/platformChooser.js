@@ -11,7 +11,7 @@ import { fetcher, fetchOrGet, getUrnQuery } from "../utils/functions"
 
 import boxesClasses from "../css/box.module.css"
 import classes from "./platformChooser.module.css"
-import { authFetcher, getAuthHeaders } from "../utils/auth.js"
+import { authFetcher, getAuthHeaders, isLogged } from "../utils/auth.js"
 import URLS from "../utils/urls.js"
 
 const buttonsClasname = `neumorphizm is-button`
@@ -37,11 +37,11 @@ const query = graphql`
 
 export default ({ className = `` }) => {
   const queryData = useStaticQuery( query )
-  const [ platforms, setPlatforms ] = useState([])
+  const [ platforms, setPlatforms ] = useState( null )
   const { p } = getUrnQuery()
 
   useEffect( () => {
-    fetcher.get( URLS.PLATFORM_GET, getAuthHeaders() ).then( ({ platforms }) => setPlatforms( platforms ) )
+    authFetcher.get( URLS.PLATFORM_GET ).then( ({ platforms }) => setPlatforms( platforms ) )
   }, [] )
 
   return (
@@ -52,7 +52,7 @@ export default ({ className = `` }) => {
       btnClassName={`${buttonsClasname} ${classes.navSwitch}`}
       btnIsActiveClassname="is-active"
       renderChoosedItem={
-        () => !p ? <span className={`tag ${classes.linkTag}`}>Wybierz platformę...</span> : <>
+        () => !p || !platforms ? <span className={`tag ${classes.linkTag}`}>Wybierz platformę...</span> : <>
           <Link className={classes.platform} to={`/platform?p=${p}`}>
             {platforms.find( ({ id }) => id == p ).name}
           </Link>
@@ -70,7 +70,7 @@ export default ({ className = `` }) => {
       }
     >
       {
-        platforms.map( ({ id, name }) => (
+        platforms?.map( ({ id, name }) => (
           <Item key={id} className={classes.item} linkTo={`/platform?p=${id}`}>
             {name}
           </Item>

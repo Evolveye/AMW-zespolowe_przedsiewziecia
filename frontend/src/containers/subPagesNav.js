@@ -2,7 +2,7 @@ import React from "react"
 import { Link } from "gatsby"
 
 import classes from "./subPagesNav.module.css"
-import { getWebsiteContext } from "../utils/functions.js"
+import getWebsiteContext from "../utils/websiteContext.js"
 
 
 const queryPaths = [ `/group?p&g`, `/meet?p&m` ]

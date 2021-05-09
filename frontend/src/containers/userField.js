@@ -20,7 +20,6 @@ const query = graphql`
 
 export default ({ className = `` }) => {
   const { defaultAvatar } = useStaticQuery( query )
-  console.log( getUser() )
   const { name, surname } = getUser()
 
   return (
