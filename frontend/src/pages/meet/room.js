@@ -2,15 +2,12 @@ import React, { useEffect, useRef } from "react"
 // import io from "socket.io-client";
 import ws from "../../utils/webSocket"
 import Peer from "simple-peer"
-import styled from "styled-components"
 import { isBrowser } from "../../utils/functions"
 //import { getUser } from "../../utils/auth"
 
 import "font-awesome/css/font-awesome.min.css"
 import "./style.css"
 /** @typedef {Peer.Instance & { id:string }} BetterPeer */
-
-const StyledVideo = styled.video``
 
 const Video = ({ peer }) => {
   const ref = useRef()
@@ -19,13 +16,13 @@ const Video = ({ peer }) => {
     peer.on("stream", stream => (ref.current.srcObject = stream))
   }, [peer])
 
-  return <StyledVideo ref={ref} playsInline autoPlay />
+  return <video ref={ref} playsInline autoPlay><track kind="captions" /></video>
 }
 
 let myVideoStream = ""
 let chatInputBox = ""
-let all_messages = ""
-let main__chat__window = ""
+//let all_messages = ""
+//let main__chat__window = ""
 const setUnmuteButton = () => {
   const html = `<i class="unmute fa fa-microphone-slash"></i>
     <span class="unmute">Unmute</span>`
@@ -59,25 +56,31 @@ const createFullName = (name, surname) => {
 let editedMessage = false
 let editedMessageId = ""
 
-export default class extends React.Component {
-  componentDidMount() {
-    chatInputBox = document.getElementById("chat_message")
-    all_messages = document.getElementById("all_messages")
-    main__chat__window = document.getElementById("main__chat__window")
-  }
 
+export default class extends React.Component {
   roomId = new URL(
     isBrowser() ? window.location.href : "http://www.google.pl"
   ).searchParams.get("roomID")
 
   state = {
+    activeVideo: null,
     /** @type {BetterPeer[]} */
     peers: [],
+    /** @type {ReactElement[]} */
+    messages: [],
   }
 
   videoConstraints = {
     height: window.innerHeight / 2,
     width: window.innerWidth / 2,
+  }
+
+  chatWindow = null
+  videoStream = null
+  initialized = false
+
+  componentDidMount() {
+    chatInputBox = document.getElementById("chat_message")
   }
 
   /** @return {BetterPeer} */
@@ -89,9 +92,10 @@ export default class extends React.Component {
     })
 
     peer.id = id
-    peer.on("signal", signal =>
+    peer.once("signal", signal => {
+      console.log( `sending signal`, { signal } )
       ws.emit("sending signal", { userToSignal: id, callerID, signal })
-    )
+    } )
 
     return peer
   }
@@ -105,7 +109,7 @@ export default class extends React.Component {
     })
 
     peer.id = callerID
-    peer.on("signal", signal =>
+    peer.once("signal", signal =>
       ws.emit("returning signal", { signal, callerID })
     )
     peer.signal(incomingSignal)
@@ -114,24 +118,36 @@ export default class extends React.Component {
   }
 
   /** @param {StyledVideo} video */
-  handleVideoRef = async video => {
+  handleMainVideoRef = async video => {
     const stream = await navigator.mediaDevices.getUserMedia({
       video: this.videoConstraints,
       audio: true,
     })
-    myVideoStream = stream
-    video.srcObject = stream
+
+    this.videoStream = stream
+
+    if (!this.initialized) {
+      video.srcObject = stream
+      this.init()
+    }
+  }
+
+  init = () => {
+    this.initialized = true
 
     ws.emit("join room", this.roomId)
 
+    // // TODO
+    // // ws.on("join", ({ messages }) => messages.forEach( message => this.addMessageToChat( messsage ))
+
     ws.on("all users", socketsIds => {
-      const peers = socketsIds.map(id => this.createPeer(id, ws.id, stream))
+      const peers = socketsIds.map(id => this.createPeer(id, ws.id, this.videoStream))
 
       this.setState({ peers })
     })
 
     ws.on("user joined", payload => {
-      const peer = this.addPeer(payload.signal, payload.callerID, stream)
+      const peer = this.addPeer(payload.signal, payload.callerID, this.videoStream)
 
       this.setState(({ peers }) => ({ peers: [...peers, peer] }))
     })
@@ -163,59 +179,44 @@ export default class extends React.Component {
           ws.emit(`edit message`, data)
           editedMessage = false
           editedMessageId = ""
-          
         }
       }
     })
 
-    ws.on("new message", msgData => {
-      console.log(msgData)
-      let message =
-        createFullName(msgData.author.name, msgData.author.surname) +
-        " napisał: " +
-        msgData.content
-      console.log("message: ", message)
-      let li = document.createElement("li")
-      li.id = msgData.messageId
+    ws.on("new message", this.addMessageToChat)
+    ws.on("remove message", this.removeMessageFromChat)
+  }
 
-      //div new_message
-      let div_new_message = document.createElement("div")
-      div_new_message.className = "new_message"
-      //span author
-      let span_author = document.createElement("span")
-      span_author.className = "new_message_author"
-      span_author.innerHTML =
-        createFullName(msgData.author.name, msgData.author.surname) + ":"
-      //span content
-      let span_content = document.createElement("span")
-      span_content.className = "new_message_content"
-      span_content.innerHTML = msgData.content
-      //div new_message_actions
-      let div_new_message_actions = document.createElement("div")
-      div_new_message_actions.className = "new_message_actions"
-      //span delete
-      let span_delete = document.createElement("span")
-      span_delete.onclick = () => this.remoteMessageById(msgData.messageId)
-      span_delete.innerHTML = "Usuń"
-      //span edit
-      let span_edit = document.createElement("span")
-      span_edit.onclick = () =>
-        this.editMessageById(msgData.messageId, msgData.content)
-      span_edit.innerHTML = "Edytuj"
+  addMessageToChat = ({ author, content, messageId }) => {
+    const message = (
+      <li key={messageId} data-key={messageId} className="new_message">
+        <span className="new_message_author">{createFullName(author.name, author.surname)}:</span>
+        <span className="new_message_content">{content}</span>
+        <div className="new_message_actions">
+          <button onClick={() => this.remoteMessageById(messageId)}>Usuń</button>
+          <button onClick={() => this.editMessageById(messageId, content)}>Edytuj</button>
+        </div>
+      </li>
+    )
 
-      //div new_message_actions -> {span_delete , span_edit}
-      div_new_message_actions.appendChild(span_delete)
-      div_new_message_actions.appendChild(span_edit)
-      //div new_message -> {span_author, span_content, div_new_message_actions}
-      div_new_message.appendChild(span_author)
-      div_new_message.appendChild(span_content)
-      div_new_message.appendChild(div_new_message_actions)
+    this.setState(({ messages }) => ({ messages:[ ...messages, message ] }) )
+    this.chatWindow.scrollTop = this.chatWindow.scrollHeight
+  }
 
-      let newMessage = div_new_message
-      li.appendChild(newMessage)
-      all_messages.append(li)
-      main__chat__window.scrollTop = main__chat__window.scrollHeight
-    })
+  removeMessageFromChat = messageId => {
+    const { messages } = this.state
+    const updatedMessages = messages.filter( ele => ele.props[ `data-key` ] !== messageId )
+
+    this.setState(({ messages }) => ({ messages:updatedMessages }) )
+    this.chatWindow.scrollTop = this.chatWindow.scrollHeight
+  }
+
+  removeMPeerFromRoom = messageId => {
+    const { messages } = this.state
+    const updatedMessages = messages.filter( ele => ele.props[ `data-key` ] !== messageId )
+
+    this.setState(({ messages }) => ({ messages:updatedMessages }) )
+    this.chatWindow.scrollTop = this.chatWindow.scrollHeight
   }
 
   editMessageById = (id, content) => {
@@ -227,13 +228,13 @@ export default class extends React.Component {
 
   remoteMessageById = id => {
     alert("kliknales usuń")
+
     const msg = {
       messageId: id,
       roomId: this.roomId,
     }
+
     ws.emit(`delete message`, msg)
-    const elem = document.getElementById(id)
-    elem.parentNode.removeChild(elem)
   }
 
   muteUnmute = () => {
@@ -259,36 +260,54 @@ export default class extends React.Component {
   }
 
   shareScreen = () => {
-    navigator.mediaDevices.getDisplayMedia({ cursor: true }).then(stream => {
-      ws.emit("join room", this.roomId)
-      ws.on("user joined", payload => {
-        const peer = this.addPeer(payload.signal, payload.callerID, stream)
+    // navigator.mediaDevices.getDisplayMedia({ cursor: true }).then(stream => {
+    //   ws.emit("join room", this.roomId)
+    //   ws.on("user joined", payload => {
+    //     const peer = this.addPeer(payload.signal, payload.callerID, stream)
 
-        this.setState(({ peers }) => ({ peers: [...peers, peer] }))
-      })
+    //     this.setState(({ peers }) => ({ peers: [...peers, peer] }))
+    //   })
 
-      ws.on("receiving returned signal", payload => {
-        const peer = this.state.peers.find(({ id }) => id === payload.id)
+    //   ws.on("receiving returned signal", payload => {
+    //     const peer = this.state.peers.find(({ id }) => id === payload.id)
 
-        if (peer) peer.signal(payload.signal)
-        else console.error(`receiving returned signal, wrong payload ID`)
-      })
-    })
+    //     if (peer) peer.signal(payload.signal)
+    //     else console.error(`receiving returned signal, wrong payload ID`)
+    //   })
+    // })
+  }
+
+  setActiveVideo = id => {
+    this.setState({ activeVideo:id })
   }
 
   render = () => {
-    // const mapa = new Map()
-    // mapa.set( id, <StyledVideo ref={this.handleVideoRef} muted autoPlay playsInline data-peer-id={ws.id} /> )
+    const videosObjects = []
 
-    // inneVidelo.forEach( v => mapa.set( v.id, v ) )
+    videosObjects.push({
+      id: ws.id,
+      video: (
+        <video
+          ref={this.handleMainVideoRef}
+          muted
+          autoPlay
+          playsInline
+          data-peer-id={ws.id}
+        />
+      ),
+    })
 
-    // return (
-    //   <>
-    //     {mapa} ALBO {Array.from(mapa)}
+    this.state.peers.forEach( (peer, index) =>
+      videosObjects.push({ id:peer.id, video:<Video peer={peer} /> })
+    )
 
-    //     {inneVideło.get( aktywneId )}
-    //   </>
-    // )
+    const activeVideo = this.state.activeVideo
+      ? videosObjects.find( ({ id }) => id === this.state.activeVideo )?.video
+      : null
+
+    const clickableVideos = videosObjects
+      .filter( ({ id, video }) => activeVideo ? activeVideo == video : true )
+      .map( ({ id, video }) => <button key={id} onClick={() => this.setActiveVideo( id )}>{video}</button> )
 
     return (
       <div className="main">
@@ -296,23 +315,15 @@ export default class extends React.Component {
           <div className="main__videos">
             <div className="main__video__left">
               <div id="video-grid">
-                <StyledVideo
-                  ref={this.handleVideoRef}
-                  muted
-                  autoPlay
-                  playsInline
-                  data-peer-id={ws.id}
-                />
-                {this.state.peers.map((peer, index) => (
-                  <Video key={index} peer={peer} />
-                ))}
+                {videosObjects.map( ({ video }) => video )}
+                {/* {clickableVideos} */}
               </div>
             </div>
             <div className="main__video__right" id="video-right">
               <div className="center_the_item_wrapper">
-                <span className="center_the_item">
-                  Kliknij w wideło po lewej aby wyświetlić tutaj
-                </span>
+                <div className="center_the_item">
+                  {/* {activeVideo || `Kliknij w wideło po lewej aby wyświetlić tutaj`} */}
+                </div>
               </div>
             </div>
           </div>
@@ -382,8 +393,8 @@ export default class extends React.Component {
           <div className="main__header">
             <h6>Chat</h6>
           </div>
-          <div className="main__chat__window" id="main__chat__window">
-            <ul className="messages" id="all_messages"></ul>
+          <div className="main__chat__window" ref={ele => this.chatWindow = ele}>
+            <ul className="messages" id="all_messages">{this.state.messages}</ul>
           </div>
           <div className="main__message_container">
             <input type="text" id="chat_message" placeholder="Pisz tutaj.." />
