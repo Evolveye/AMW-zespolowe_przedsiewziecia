@@ -1,7 +1,8 @@
 import React, { useContext, useEffect, useState } from "react"
 import { navigate } from "gatsby"
-import { fetchOrGet, getUrnQuery, isBrowser } from "./functions.js"
+import { fetchJson, fetchOrGet, getUrnQuery, isBrowser } from "./functions.js"
 import URLS from "./urls.js"
+import Fetcher from "./fetch.js"
 
 const fakeUser = {
   login: `fakelogin`,
@@ -10,17 +11,23 @@ const fakeUser = {
   email: `fake@email.com`,
 }
 
+const fetcher = new Fetcher()
 const changedUserSetters = []
 const storage = isBrowser() ? window.sessionStorage : null
+const getJsonFromStorage = key => JSON.parse( storage?.getItem( key ) )
+const setJsonInStorage = (key, value) => storage?.setItem( key, JSON.stringify( value ) )
+const setToken = token => setJsonInStorage( `token`, token )
 const setUser = user => {
-  storage?.setItem( `user`, JSON.stringify( user ) )
+  setJsonInStorage( `user`, user )
 
   changedUserSetters.forEach( setter => setter( user ) )
 }
 
 export const AuthContext = React.createContext({ user:null, platform:null, group:null, meet:null })
+export const getAuthHeaders = () => ({ Authentication:`Bearer ${getToken()}` })
 export const Authorized = ({ children }) => isLogged() ? children : navigate( `/unauthorized` )
-export const getUser = () => JSON.parse( storage?.getItem( `user` ) )
+export const getUser = () => getJsonFromStorage( `user` )
+export const getToken = () => getJsonFromStorage( `token` )
 export const fakeLogin = () => setUser( fakeUser )
 export const isLogged = () => !!getUser()
 export const logout = () => storage.clear()
@@ -52,12 +59,26 @@ export const useUser = () => {
 }
 
 
-export const register = async data => {
-  const { user } = await fetch( URLS.REGISTER_POST, {
-    method: `POST`,
-    body: JSON.stringify( data ),
-    headers: { "Content-Type":`application/json` },
-  } ).then( res => res.json() )
+export const authFetch = (input, init) => {
+  if (`headers` in init) init.headers = {}
 
-  if (user) setUser( user )
+  fetchJson
+}
+
+
+export const register = data => {
+  fetcher.post( URLS.REGISTER_POST, data )
+}
+
+
+export const login = async data => {
+  const { token } = await fetcher.post( URLS.LOGIN_POST, data )
+
+  if (!token) return
+
+  setToken( token )
+
+  const { user } = await fetcher.get( URLS.USER_ME_GET, getAuthHeaders() )
+
+  if (user) return setUser( user )
 }
