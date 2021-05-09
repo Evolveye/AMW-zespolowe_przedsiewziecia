@@ -1,3 +1,5 @@
+import Fetcher from "./fetch"
+
 const fakeStartDate = () => new Date( Date.now() + Math.floor( Math.random() * 1000 * 60 * 60 * 24 * 7 ) )
 const fakeExpirationDate = () => Date.now() + 1000 * 60 * 60 * 1
 
@@ -236,6 +238,8 @@ const fakeDataset = {
   notes: fakeNotes,
 }
 
+
+export const fetcher = new Fetcher()
 
 /** @param {string} address */
 export function fetchOrGet( address, cb ) {

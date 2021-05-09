@@ -1,8 +1,7 @@
-import React, { useContext, useEffect, useState } from "react"
+import React, { useState } from "react"
 import { navigate } from "gatsby"
-import { fetchJson, fetchOrGet, getUrnQuery, isBrowser } from "./functions.js"
+import { fetcher, fetchOrGet, getUrnQuery, isBrowser } from "./functions.js"
 import URLS from "./urls.js"
-import Fetcher from "./fetch.js"
 
 const fakeUser = {
   login: `fakelogin`,
@@ -11,7 +10,6 @@ const fakeUser = {
   email: `fake@email.com`,
 }
 
-const fetcher = new Fetcher()
 const changedUserSetters = []
 const storage = isBrowser() ? window.sessionStorage : null
 const getJsonFromStorage = key => JSON.parse( storage?.getItem( key ) )
@@ -56,13 +54,6 @@ export const useUser = () => {
   changedUserSetters.push( setUser )
 
   return user
-}
-
-
-export const authFetch = (input, init) => {
-  if (`headers` in init) init.headers = {}
-
-  fetchJson
 }
 
 

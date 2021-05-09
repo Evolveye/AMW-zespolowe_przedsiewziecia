@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useEffect, useState } from "react"
 import { graphql, Link, useStaticQuery } from "gatsby"
 import Image from "gatsby-image"
 
@@ -7,10 +7,12 @@ import ToggableBox from "../components/toggableBox.js"
 import SwitchBox, { Tab } from "../components/switchBox.js"
 import DataTable, { Adder, Field, Processor } from "../components/dataTable.js"
 import Form, { Text, Password, Submit } from "../components/form.js"
-import { fetchOrGet, getUrnQuery } from "../utils/functions"
+import { fetcher, fetchOrGet, getUrnQuery } from "../utils/functions"
 
 import boxesClasses from "../css/box.module.css"
 import classes from "./platformChooser.module.css"
+import { authFetcher, getAuthHeaders } from "../utils/auth.js"
+import URLS from "../utils/urls.js"
 
 const buttonsClasname = `neumorphizm is-button`
 const dataTableButtonsClassName = `${buttonsClasname} ${classes.actionButton}`
@@ -35,15 +37,19 @@ const query = graphql`
 
 export default ({ className = `` }) => {
   const queryData = useStaticQuery( query )
-  const platforms = fetchOrGet( `fake://platforms` )
+  const [ platforms, setPlatforms ] = useState([])
   const { p } = getUrnQuery()
+
+  useEffect( () => {
+    fetcher.get( URLS.PLATFORM_GET, getAuthHeaders() ).then( ({ platforms }) => setPlatforms( platforms ) )
+  }, [] )
 
   return (
     <Select
       className={`${classes.nav} ${className}`}
       selectedItemClassName={classes.selectedPlatform}
       itemsClassName={classes.items}
-      btnClassName={`neumorphizm is-button ${classes.navSwitch}`}
+      btnClassName={`${buttonsClasname} ${classes.navSwitch}`}
       btnIsActiveClassname="is-active"
       renderChoosedItem={
         () => !p ? <span className={`tag ${classes.linkTag}`}>Wybierz platformę...</span> : <>
@@ -70,9 +76,35 @@ export default ({ className = `` }) => {
           </Item>
         ) )
       }
+
+      <AddNewPlatformItem />
     </Select>
   )
 }
+
+
+const createNewPlatform = async data => {
+  const platform = await fetcher.post( URLS.PLATFORM_POST, data, getAuthHeaders() )
+  console.log( platform )
+}
+const AddNewPlatformItem = () => (
+  <Item>
+    <ToggableBox
+      boxClassName={boxesClasses.popup}
+      btnClassName={`${buttonsClasname} ${classes.isCenteredButton}`}
+      btnIsActiveClassname="is-active"
+      btnContent="Stwórz nową platformę"
+      fullScreened
+    >
+      <Form classNames={{ it:classes.centered }}>
+        <Text className={classes.input} name="name">Nazwa paltformy</Text>
+        <Submit className={`${dataTableButtonsClassName} ${classes.isSoftCreate}`} handler={createNewPlatform}>
+          Stwórz
+        </Submit>
+      </Form>
+    </ToggableBox>
+  </Item>
+)
 
 
 const SettingsTabs = ({ platformId }) => (

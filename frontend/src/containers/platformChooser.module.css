@@ -64,6 +64,10 @@
         max-width: 60px;
         padding-left: 20px;
       }
+      .isCenteredButton {
+        display: block;
+        margin: 10px auto;
+      }
 
 .toggleBox {
   background-color: var( --background-color );
@@ -88,7 +92,7 @@
 
     .item {
       display: block;
-      padding: 5px;
+      padding: 10px;
     }
 
         .item:not( :last-child ) {

@@ -33,6 +33,6 @@ export default ({
 
 export const Item = ({ className, children, linkTo }) => (
   linkTo
-    ? <Link className={`${classes.item} ${className}`} to={linkTo}>{children}</Link>
-    : <span className={`${classes.item} ${className}`}>{children}</span>
+    ? <Link className={className} to={linkTo}>{children}</Link>
+    : <span className={className}>{children}</span>
 )

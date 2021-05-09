@@ -18,6 +18,11 @@ export default class Fetcher {
   }
 
 
+  getHeaders() {
+    return { ...this.init.headers ?? {} }
+  }
+
+
   /**
    * @param {RequestInfo} input
    * @param {RequestInit} [init]
