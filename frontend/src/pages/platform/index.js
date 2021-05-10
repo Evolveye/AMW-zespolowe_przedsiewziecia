@@ -7,7 +7,6 @@ import { isDataLoading } from "../../utils/functions.js"
 
 export default () => {
   const ctx = getWebsiteContext()
-  console.log( ctx )
 
   return isDataLoading( ctx ) ? null : (
     <Layout title="Grupa" showMeets={true}>

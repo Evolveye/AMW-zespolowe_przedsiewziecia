@@ -10,7 +10,7 @@ export default function getWebsiteContext() {
   const reducer = arr => arr.reduce( (obj, { key, value }) => ({ ...obj, [ key ]:value }), {} )
   const getData = address => fetchOrGet( address, getAuthHeaders() )
   const [ ctx, setCtx ] = useState([
-    { key:`platform`, value:p ? getData( URLS.PLATFORM$ID_GET.replace( `:platformId`, p ) ) : null },
+    { key:`platform`, value:p ? getData( URLS.PLATFORM$ID_GET( p ) ) : null },
     { key:`group`,    value:getData( `fake://groups/${g}` ) },
     { key:`meet`,     value:getData( `fake://meets/${m}` ) },
   ])

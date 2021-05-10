@@ -41,7 +41,7 @@ export default ({ className = `` }) => {
   const { p } = getUrnQuery()
 
   useEffect( () => {
-    authFetcher.get( URLS.PLATFORM_GET ).then( ({ platforms }) => setPlatforms( platforms ) )
+    authFetcher.get( URLS.PLATFORM_GET() ).then( ({ platforms }) => setPlatforms( platforms ) )
   }, [] )
 
   return (
@@ -84,7 +84,7 @@ export default ({ className = `` }) => {
 
 
 const createNewPlatform = async data => {
-  const platform = await fetcher.post( URLS.PLATFORM_POST, data, getAuthHeaders() )
+  const platform = await fetcher.post( URLS.PLATFORM_POST(), data, getAuthHeaders() )
   console.log( platform )
 }
 const AddNewPlatformItem = () => (

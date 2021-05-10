@@ -69,18 +69,18 @@ export const useUser = () => {
 
 
 export const register = data => {
-  fetcher.post( URLS.REGISTER_POST, data )
+  fetcher.post( URLS.REGISTER_POST(), data )
 }
 
 
 export const login = async data => {
-  const { token } = await fetcher.post( URLS.LOGIN_POST, data )
+  const { token } = await fetcher.post( URLS.LOGIN_POST(), data )
 
   if (!token) return
 
   setToken( token )
 
-  const { user } = await fetcher.get( URLS.USER_ME_GET, getAuthHeaders() )
+  const { user } = await fetcher.get( URLS.USER_ME_GET(), getAuthHeaders() )
 
   if (user) return setUser( user )
 }
