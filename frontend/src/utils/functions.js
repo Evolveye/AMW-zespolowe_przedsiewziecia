@@ -240,7 +240,11 @@ const fakeDataset = {
 }
 
 
-export const fetcher = new Fetcher({ processError:({ data }) => data.code === 110 && navigate( `/logout` ) })
+export const fetcher = new Fetcher({ processError: ({ data }) => {
+  if (data.code === 110) return navigate( `/logout` )
+
+  console.error( data )
+} })
 
 /** @param {string} address */
 export function fetchOrGet( address, headersOrCb = {}, cb = (typeof headersOrCb == `function` ? headersOrCb : null) ) {

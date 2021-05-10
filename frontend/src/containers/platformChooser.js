@@ -136,7 +136,14 @@ const SettingsTabs = ({ platformId }) => (
     </Tab>
 
     <Tab className={boxesClasses.tabSwitch} name="Użytkownicy">
-      <DataTable {...dataTableProps} getDataAddress="fake://platformUsers">
+      <DataTable
+        {...dataTableProps}
+        getData={{
+          address: URLS.PLATFORM$ID_USERS_GET( platformId ),
+          headers: getAuthHeaders(),
+          responseField: `users`,
+        }}
+      >
         <Field label="Imię" name="name">
           <Adder className={classes.adder} type="text" />
         </Field>

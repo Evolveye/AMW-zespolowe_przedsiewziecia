@@ -210,15 +210,20 @@ export default class DataTable extends React.Component {
   async componentDidMount() {
     const {
       data: initialData,
-      getDataAddress,
+      getData,
+      getDataAddress = getData?.address,
       delete: del,
       edit,
       actionPosibility = () => false,
       noActions,
     } = this.props
 
-    const data = initialData || await fetchOrGet( getDataAddress )
-    const tableRows = data.map( field => {
+    const data = initialData || await fetchOrGet( getDataAddress, getData?.headers || {} )
+
+    if (!data) return
+
+    const dataArr = Array.isArray( data ) ? data : data[ getData.responseField ]
+    const tableRows = dataArr.map( field => {
       const abilities = actionPosibility( field )
       let editable = false
 
