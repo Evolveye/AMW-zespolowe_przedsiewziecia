@@ -270,7 +270,10 @@ export function fetchOrGet( address, headersOrCb = {}, cb = (typeof headersOrCb 
     return data
   }
 
-  return fetcher.get( address, typeof headersOrCb == `object` ? headersOrCb : null )
+  return fetcher.get( address, typeof headersOrCb == `object` ? headersOrCb : null ).then( data => {
+    cb?.( data )
+    return data
+  } )
 }
 
 export const isData = data => !(data instanceof Promise)

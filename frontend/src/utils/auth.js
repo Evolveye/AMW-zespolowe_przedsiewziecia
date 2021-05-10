@@ -50,9 +50,13 @@ export const AuthContextProvider = ({ children }) => {
 
 export const authFetcher = new Proxy( fetcher, {
   get( fetcher, key ) {
-    const methods = [ `post`, `get`, `pust`, `delete` ]
+    if ([ `get`, `delete` ].includes( key )) {
+      return address => fetcher[ key ]( address, getAuthHeaders() )
+    }
 
-    if (methods.includes( key )) return address => fetcher[ key ]( address, getAuthHeaders() )
+    if ([ `post`, `put` ].includes( key )) {
+      return (address, data) => fetcher[ key ]( address, data, getAuthHeaders() )
+    }
 
     return fetcher[ key ]
   },

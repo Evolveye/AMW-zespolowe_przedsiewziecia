@@ -136,14 +136,7 @@ const SettingsTabs = ({ platformId }) => (
     </Tab>
 
     <Tab className={boxesClasses.tabSwitch} name="Użytkownicy">
-      <DataTable
-        {...dataTableProps}
-        getData={{
-          address: URLS.PLATFORM$ID_USERS_GET( platformId ),
-          headers: getAuthHeaders(),
-          responseField: `users`,
-        }}
-      >
+      <DataTable {...dataTableProps} getData={authFetcher.get( URLS.PLATFORM$ID_USERS_GET( platformId ) ).then( d => d.users )} >
         <Field label="Imię" name="name">
           <Adder className={classes.adder} type="text" />
         </Field>
@@ -164,17 +157,21 @@ const SettingsTabs = ({ platformId }) => (
     </Tab>
 
     <Tab className={boxesClasses.tabSwitch} name="Grupy">
-      <DataTable {...dataTableProps} getDataAddress={`fake://groups?platformId=${platformId}`}>
+      <DataTable
+        {...dataTableProps}
+        getData={authFetcher.get( URLS.GROUP_FROM_PLATFORM$ID_GET( platformId ) ).then( d => d.groups )}
+        onCreate={data => authFetcher.post( URLS.GROUP_POST(), { platformId, ...data } )}
+      >
         <Field label="Nazwa" name="name">
           <Adder className={classes.adder} type="text" />
         </Field>
 
-        <Field label="Prowadzący" name="lecturer">
+        <Field label="Prowadzący" dataFieldname="lecturer" name="lecturerId">
           <Processor render={({ id, name, surname }) => ({ label:`${name} ${surname}`, value:id })} />
           <Adder
             className={classes.adder}
             type="select"
-            getDataAddress="fake://platformUsers"
+            getData={authFetcher.get( URLS.PLATFORM$ID_USERS_GET( platformId ) ).then( d => d.users )}
           />
         </Field>
       </DataTable>

@@ -50,8 +50,11 @@ const InputField = ({
   defaultValue,
   className = ``,
   type,
-  getDataAddress,
+  name,
+  getData,
+  getDataAddress = getData?.address,
   processor,
+  updateValue,
   validator = () => true,
   validateInitialData = it => it,
   runAfterDataLoad,
@@ -67,12 +70,24 @@ const InputField = ({
     defaultValue: defaultValue ? controlledProcessor( defaultValue )?.value : undefined,
     key: typeof data,
     onChange: ({ target }) => validator( target.value ),
+    onInput: ({ target }) => updateValue( target.name, target.value ),
     className,
+    name,
   }
 
   useEffect( () => {
+    updateValue( name, standardProps.defaultValue )
+
+    const setNewData = data => {
+      setData( data )
+      if (typeof data != `object`) updateValue( name, data )
+    }
+
     runAfterDataLoad( () => {
-      if (getDataAddress) fetchOrGet( getDataAddress, setData )
+      if (getData instanceof Promise) getData.then( setNewData )
+      else if (getDataAddress) fetchOrGet( getDataAddress, getData?.headers || {}, data =>
+        setNewData( Array.isArray( data ) ? data : data[ getData?.responseField ] ),
+      )
     } )
   }, [] )
 
@@ -85,17 +100,18 @@ const InputField = ({
     case `datetime-local`: return <input type="datetime-local" {...standardProps} />
     case `textarea`: return <textarea {...standardProps} />
 
-    case `select`: return (
-      <select {...standardProps}>
-        {
-          (Array.isArray( data ) ? data : []).map( validateInitialData ).filter( it => it != null ).map( field => {
-            const { value, label } = controlledProcessor( field )
+    case `select`:
+      return (
+        <select {...standardProps} ref={select => select && updateValue( name, select.value )}>
+          {
+            (Array.isArray( data ) ? data : []).map( validateInitialData ).filter( it => it != null ).map( field => {
+              const { value, label } = controlledProcessor( field )
 
-            return <option key={value} value={value}>{label}</option>
-          } )
-        }
-      </select>
-    )
+              return <option key={value} value={value}>{label}</option>
+            } )
+          }
+        </select>
+      )
 
     default: null
   }
@@ -141,9 +157,13 @@ export default class DataTable extends React.Component {
         [ name ]: defaultValue => (
           <InputField
             {...{
+              name,
               defaultValue,
               processor,
               ...adder.props,
+              updateValue: (name, value) => {
+                this.setState( ({ inputs }) => ({ inputs:{ ...inputs, [ name ]:value } }) )
+              },
               runAfterDataLoad: this.runAfterDataLoad,
             }}
           />
@@ -189,7 +209,7 @@ export default class DataTable extends React.Component {
               <td>
                 {
                   (abilities || abilities?.create) && (
-                    <button className={props.create?.className || ``}>
+                    <button className={props.create?.className || ``} onClick={() => props.onCreate?.( this.state.inputs )}>
                       {props.create?.label || `Create`}
                     </button>
                   )
@@ -218,7 +238,9 @@ export default class DataTable extends React.Component {
       noActions,
     } = this.props
 
-    const data = initialData || await fetchOrGet( getDataAddress, getData?.headers || {} )
+    const data = initialData || await (
+      getData instanceof Promise ? getData : fetchOrGet( getDataAddress, getData?.headers || {} )
+    )
 
     if (!data) return
 
@@ -234,7 +256,7 @@ export default class DataTable extends React.Component {
               if (editableField && (abilities || abilities.edit)) editable = true
 
               const filler = editable ? this.tableAdderFields[ name ] : data => {
-                // TODO show error on null // console.log( field, dataFieldname, field[ dataFieldname ] )
+                // console.log( field, dataFieldname, field[ dataFieldname ] ) // TODO show error on null
                 const processedData = processor( data )
                 return processedData?.label ?? processedData
               }
@@ -309,4 +331,5 @@ DataTable.propTypes = {
   create: PropTypes.shape({ label:PropTypes.string, className:PropTypes.string }),
   delete: PropTypes.shape({ label:PropTypes.string, className:PropTypes.string }),
   edit: PropTypes.shape({ label:PropTypes.string, className:PropTypes.string }),
+  onCreate: PropTypes.func,
 }
