@@ -42,6 +42,10 @@ Adder.propTypes = {
   type: PropTypes.string.isRequired,
   validator: PropTypes.func,
   getDataAddress: PropTypes.string,
+  getData: PropTypes.oneOf([
+    PropTypes.instanceOf( Promise ),
+    PropTypes.shape({ address:PropTypes.string, headers:PropTypes.object, responseField:PropTypes.string }),
+  ]),
   validateInitialData: PropTypes.func,
 }
 

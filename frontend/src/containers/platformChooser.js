@@ -7,11 +7,11 @@ import ToggableBox from "../components/toggableBox.js"
 import SwitchBox, { Tab } from "../components/switchBox.js"
 import DataTable, { Adder, Field, Processor } from "../components/dataTable.js"
 import Form, { Text, Password, Submit } from "../components/form.js"
-import { fetcher, fetchOrGet, getUrnQuery } from "../utils/functions"
+import { fetcher, getUrnQuery } from "../utils/functions"
 
 import boxesClasses from "../css/box.module.css"
 import classes from "./platformChooser.module.css"
-import { authFetcher, getAuthHeaders, isLogged } from "../utils/auth.js"
+import { authFetcher, getAuthHeaders } from "../utils/auth.js"
 import URLS from "../utils/urls.js"
 
 const buttonsClasname = `neumorphizm is-button`
@@ -34,6 +34,13 @@ const query = graphql`
     }
   }
 `
+
+const authFetch = (method, dataField, ...args) => authFetcher[ method ]( ...args ).
+  then( data => data && dataField ? data[ dataField ] : data )
+
+const get  = (address, dataField) =>       authFetch( `get`,  dataField, address )
+const post = (address, data, dataField) => authFetch( `post`, dataField, address, data )
+
 
 export default ({ className = `` }) => {
   const queryData = useStaticQuery( query )
@@ -136,7 +143,7 @@ const SettingsTabs = ({ platformId }) => (
     </Tab>
 
     <Tab className={boxesClasses.tabSwitch} name="Użytkownicy">
-      <DataTable {...dataTableProps} getData={authFetcher.get( URLS.PLATFORM$ID_USERS_GET( platformId ) ).then( d => d.users )} >
+      <DataTable {...dataTableProps} getData={get( URLS.PLATFORM$ID_USERS_GET( platformId ), `users` )} >
         <Field label="Imię" name="name">
           <Adder className={classes.adder} type="text" />
         </Field>
@@ -150,8 +157,12 @@ const SettingsTabs = ({ platformId }) => (
         </Field>
 
         <Field label="Rola" name="role" editable>
-          <Processor render={({ id, name }) => ({ label:name, value:id })} />
-          <Adder className={classes.adder} type="select" getDataAddress="fake://platformRoles" />
+          <Processor render={({ id, name }) => { console.log({ label:name, value:id });return ({ label:name, value:id }) }} />
+          <Adder
+            className={classes.adder}
+            type="select"
+            getData={get( URLS.PLATFORM$ID_PERMISSIONS_GET( platformId ), `permissions` )} // .then( console.log )
+          />
         </Field>
       </DataTable>
     </Tab>
@@ -159,8 +170,8 @@ const SettingsTabs = ({ platformId }) => (
     <Tab className={boxesClasses.tabSwitch} name="Grupy">
       <DataTable
         {...dataTableProps}
-        getData={authFetcher.get( URLS.GROUP_FROM_PLATFORM$ID_GET( platformId ) ).then( d => d.groups )}
-        onCreate={data => authFetcher.post( URLS.GROUP_POST(), { platformId, ...data } )}
+        getData={get( URLS.GROUP_FROM_PLATFORM$ID_GET( platformId ), `groups` )}
+        onCreate={data => post( URLS.GROUP_POST(), { platformId, ...data } )}
       >
         <Field label="Nazwa" name="name">
           <Adder className={classes.adder} type="text" />
@@ -171,7 +182,7 @@ const SettingsTabs = ({ platformId }) => (
           <Adder
             className={classes.adder}
             type="select"
-            getData={authFetcher.get( URLS.PLATFORM$ID_USERS_GET( platformId ) ).then( d => d.users )}
+            getData={get( URLS.PLATFORM$ID_USERS_GET( platformId ), `users` )}
           />
         </Field>
       </DataTable>

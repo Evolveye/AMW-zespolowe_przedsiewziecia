@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useEffect, useState } from "react"
 import { graphql, useStaticQuery } from "gatsby"
 import Image from "gatsby-image"
 
@@ -9,10 +9,12 @@ import TableList, { Tr, Td } from "../components/tableList.js"
 import DataTable, { Adder, Field, Processor } from "../components/dataTable.js"
 import QueryLink from "../components/link.js"
 
-import { fetchOrGet, getDate, getUrnQuery } from "../utils/functions.js"
+import { getDate, getUrnQuery } from "../utils/functions.js"
 
 import boxesClasses from "../css/box.module.css"
 import classes from "./groupsList.module.css"
+import { authFetcher } from "../utils/auth.js"
+import URLS from "../utils/urls.js"
 
 
 const buttonsClasname = `neumorphizm is-button`
@@ -41,7 +43,11 @@ const query = graphql`
 export default ({ className = `` }) => {
   const queryData = useStaticQuery( query )
   const { p, g } = getUrnQuery()
-  const groups = fetchOrGet( `fake://groups` ).filter( ({ platformId }) => platformId == p )
+  const [ groups, setGroups ] = useState([])
+
+  useEffect( () => {
+    authFetcher.get( URLS.GROUP_FROM_PLATFORM$ID_GET( p ) ).then( ({ groups }) => setGroups( groups ) )
+  }, [ p ] )
 
   return (
     <article className={className}>

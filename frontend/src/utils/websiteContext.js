@@ -11,7 +11,12 @@ export default function getWebsiteContext() {
   const getData = address => fetchOrGet( address, getAuthHeaders() )
   const [ ctx, setCtx ] = useState([
     { key:`platform`, value:p ? getData( URLS.PLATFORM$ID_GET( p ) ) : null },
-    { key:`group`,    value:getData( `fake://groups/${g}` ) },
+    {
+      key: `group`,
+      value: p && g
+        ? getData( URLS.GROUP_GET() + `?platformId=${p}` ).then( ({ groups }) => ({ group:groups[ 0 ] }) )
+        : null,
+    },
     { key:`meet`,     value:getData( `fake://meets/${m}` ) },
   ])
 
