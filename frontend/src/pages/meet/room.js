@@ -16,7 +16,11 @@ const Video = ({ peer }) => {
     peer.on("stream", stream => (ref.current.srcObject = stream))
   }, [peer])
 
-  return <video ref={ref} playsInline autoPlay><track kind="captions" /></video>
+  return (
+    <video ref={ref} playsInline autoPlay>
+      <track kind="captions" />
+    </video>
+  )
 }
 
 let myVideoStream = ""
@@ -46,6 +50,7 @@ const setStopVideo = () => {
 }
 
 const firstUpperLetter = text => {
+  //alert(text)
   return text.charAt(0).toUpperCase() + text.slice(1)
 }
 
@@ -55,7 +60,7 @@ const createFullName = (name, surname) => {
 
 let editedMessage = false
 let editedMessageId = ""
-
+let toCompare = ""
 
 export default class extends React.Component {
   roomId = new URL(
@@ -93,9 +98,9 @@ export default class extends React.Component {
 
     peer.id = id
     peer.once("signal", signal => {
-      console.log( `sending signal`, { signal } )
+      console.log(`sending signal`, { signal })
       ws.emit("sending signal", { userToSignal: id, callerID, signal })
-    } )
+    })
 
     return peer
   }
@@ -141,13 +146,19 @@ export default class extends React.Component {
     // // ws.on("join", ({ messages }) => messages.forEach( message => this.addMessageToChat( messsage ))
 
     ws.on("all users", socketsIds => {
-      const peers = socketsIds.map(id => this.createPeer(id, ws.id, this.videoStream))
+      const peers = socketsIds.map(id =>
+        this.createPeer(id, ws.id, this.videoStream)
+      )
 
       this.setState({ peers })
     })
 
     ws.on("user joined", payload => {
-      const peer = this.addPeer(payload.signal, payload.callerID, this.videoStream)
+      const peer = this.addPeer(
+        payload.signal,
+        payload.callerID,
+        this.videoStream
+      )
 
       this.setState(({ peers }) => ({ peers: [...peers, peer] }))
     })
@@ -169,61 +180,87 @@ export default class extends React.Component {
           ws.emit("chat message", data)
           console.log("wysłane: ", data)
           chatInputBox.value = ""
-        }else{
-          let tempMsg = chatInputBox.value + "- edytowane"
-          let data = {
-            roomId: this.roomId,
-            content: tempMsg,
-            messageId: editedMessageId,
+        } else {
+          if (toCompare != chatInputBox.value && chatInputBox.value != "") {
+            let tempMsg = chatInputBox.value + "- edytowane"
+            let data = {
+              roomId: this.roomId,
+              content: tempMsg,
+              messageId: editedMessageId,
+            }
+            ws.emit(`edit message`, data)
           }
-          ws.emit(`edit message`, data)
           editedMessage = false
           editedMessageId = ""
+          chatInputBox.value = ""
         }
       }
     })
 
     ws.on("new message", this.addMessageToChat)
     ws.on("remove message", this.removeMessageFromChat)
+    ws.on(`update message`, ({ messageId, content }) => {
+      //alert("nowa wiadomosc: " + content)
+      let changedMessage = document.querySelectorAll(
+        `[data-key="${messageId}"]`
+      )[0]
+      console.log("changedMessage:", changedMessage)
+      let editedMessage = changedMessage.getElementsByClassName(
+        "new_message_content"
+      )[0]
+      console.log("editedMessage:", editedMessage)
+      editedMessage.innerHTML = content
+    })
   }
 
   addMessageToChat = ({ author, content, messageId }) => {
     const message = (
       <li key={messageId} data-key={messageId} className="new_message">
-        <span className="new_message_author">{createFullName(author.name, author.surname)}:</span>
+        <span className="new_message_author">
+          {createFullName(author.name, author.surname)}:
+        </span>
         <span className="new_message_content">{content}</span>
         <div className="new_message_actions">
-          <button onClick={() => this.remoteMessageById(messageId)}>Usuń</button>
-          <button onClick={() => this.editMessageById(messageId, content)}>Edytuj</button>
+          <button onClick={() => this.remoteMessageById(messageId)}>
+            Usuń
+          </button>
+          <button onClick={() => this.editMessageById(messageId, content)}>
+            Edytuj
+          </button>
         </div>
       </li>
     )
 
-    this.setState(({ messages }) => ({ messages:[ ...messages, message ] }) )
+    this.setState(({ messages }) => ({ messages: [...messages, message] }))
     this.chatWindow.scrollTop = this.chatWindow.scrollHeight
   }
 
   removeMessageFromChat = messageId => {
     const { messages } = this.state
-    const updatedMessages = messages.filter( ele => ele.props[ `data-key` ] !== messageId )
+    const updatedMessages = messages.filter(
+      ele => ele.props[`data-key`] !== messageId
+    )
 
-    this.setState(({ messages }) => ({ messages:updatedMessages }) )
+    this.setState(({ messages }) => ({ messages: updatedMessages }))
     this.chatWindow.scrollTop = this.chatWindow.scrollHeight
   }
 
   removeMPeerFromRoom = messageId => {
     const { messages } = this.state
-    const updatedMessages = messages.filter( ele => ele.props[ `data-key` ] !== messageId )
+    const updatedMessages = messages.filter(
+      ele => ele.props[`data-key`] !== messageId
+    )
 
-    this.setState(({ messages }) => ({ messages:updatedMessages }) )
+    this.setState(({ messages }) => ({ messages: updatedMessages }))
     this.chatWindow.scrollTop = this.chatWindow.scrollHeight
   }
 
   editMessageById = (id, content) => {
     alert("Tekst do edycji\npojawił się w polu\ndo wpisywania wiadomości")
+    toCompare = content
     chatInputBox.value = content
-    editedMessageId = id;
-    editedMessage = true;
+    editedMessageId = id
+    editedMessage = true
   }
 
   remoteMessageById = id => {
@@ -264,13 +301,10 @@ export default class extends React.Component {
     //   ws.emit("join room", this.roomId)
     //   ws.on("user joined", payload => {
     //     const peer = this.addPeer(payload.signal, payload.callerID, stream)
-
     //     this.setState(({ peers }) => ({ peers: [...peers, peer] }))
     //   })
-
     //   ws.on("receiving returned signal", payload => {
     //     const peer = this.state.peers.find(({ id }) => id === payload.id)
-
     //     if (peer) peer.signal(payload.signal)
     //     else console.error(`receiving returned signal, wrong payload ID`)
     //   })
@@ -278,7 +312,7 @@ export default class extends React.Component {
   }
 
   setActiveVideo = id => {
-    this.setState({ activeVideo:id })
+    this.setState({ activeVideo: id })
   }
 
   render = () => {
@@ -297,17 +331,21 @@ export default class extends React.Component {
       ),
     })
 
-    this.state.peers.forEach( (peer, index) =>
-      videosObjects.push({ id:peer.id, video:<Video peer={peer} /> })
+    this.state.peers.forEach((peer, index) =>
+      videosObjects.push({ id: peer.id, video: <Video peer={peer} /> })
     )
 
     const activeVideo = this.state.activeVideo
-      ? videosObjects.find( ({ id }) => id === this.state.activeVideo )?.video
+      ? videosObjects.find(({ id }) => id === this.state.activeVideo)?.video
       : null
 
     const clickableVideos = videosObjects
-      .filter( ({ id, video }) => activeVideo ? activeVideo == video : true )
-      .map( ({ id, video }) => <button key={id} onClick={() => this.setActiveVideo( id )}>{video}</button> )
+      .filter(({ id, video }) => (activeVideo ? activeVideo == video : true))
+      .map(({ id, video }) => (
+        <button key={id} onClick={() => this.setActiveVideo(id)}>
+          {video}
+        </button>
+      ))
 
     return (
       <div className="main">
@@ -315,7 +353,7 @@ export default class extends React.Component {
           <div className="main__videos">
             <div className="main__video__left">
               <div id="video-grid">
-                {videosObjects.map( ({ video }) => video )}
+                {videosObjects.map(({ video }) => video)}
                 {/* {clickableVideos} */}
               </div>
             </div>
@@ -393,8 +431,13 @@ export default class extends React.Component {
           <div className="main__header">
             <h6>Chat</h6>
           </div>
-          <div className="main__chat__window" ref={ele => this.chatWindow = ele}>
-            <ul className="messages" id="all_messages">{this.state.messages}</ul>
+          <div
+            className="main__chat__window"
+            ref={ele => (this.chatWindow = ele)}
+          >
+            <ul className="messages" id="all_messages">
+              {this.state.messages}
+            </ul>
           </div>
           <div className="main__message_container">
             <input type="text" id="chat_message" placeholder="Pisz tutaj.." />
