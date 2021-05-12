@@ -14,10 +14,11 @@
 .smallWrapper,
 .wrapper,
 .popup {
+  position: relative;
   border-radius: 10px;
   background-color: var( --background-color );
   border: 2px solid var( --green );
-  overflow: hidden;
+  /* overflow: hidden; */
 }
 .wrapper {
   min-width: min( 100vw, 850px );
@@ -26,6 +27,22 @@
 .popup {
   padding: 10px;
 }
+.closeButton {
+  position: absolute;
+  right: -10px;
+  top: -10px;
+  padding: 8px;
+  border-radius: 10px;
+  box-shadow: 0 5px 5px #0004;
+  background-color: #ff5353;
+  color: white;
+  font-weight: bold;
+  transition: all 0.2s;
+}
+  .closeButton:hover {
+    box-shadow: 0 5px 10px #0007;
+    background-color: #ff0000;
+  }
 
 
 /* SKELETON */

@@ -65,6 +65,8 @@ export default ({ className = `` }) => {
                       btnClassName={`neumorphizm is-button ${boxesClasses.switch}`}
                       btnIsActiveClassname="is-active"
                       btnContent={<Image fluid={queryData.cog.childImageSharp.fluid} />}
+                      closeLabel="Zamknij"
+                      closeBtnClassName={boxesClasses.close}
                       fullScreened
                     >
                       <GroupSettings groupId={g} />

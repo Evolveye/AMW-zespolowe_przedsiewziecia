@@ -64,17 +64,18 @@ const InputField = ({
   runAfterDataLoad,
 }) => {
   const controlledProcessor = data => {
-    const processedData = processor( data )
+    const processedData = processor.process?.( data ) ?? processor.render( data )
     return (typeof processedData === `object` && `value` in processedData && `label` in processedData)
       ? processedData
       : { label:processedData, value:processedData }
   }
+  const checkable = [ `radio`, `checkbox` ].includes( type )
   const [ data, setData ] = useState()
   const standardProps = {
     defaultValue: defaultValue ? controlledProcessor( defaultValue )?.value : undefined,
     key: typeof data,
-    onChange: ({ target }) => validator( target.value ),
-    onInput: ({ target }) => updateValue( target.name, target.value ),
+    onChange: ({ target:{ checked, value } }) => validator( checkable ? checked : value ),
+    onInput: ({ target:{ name, checked, value } }) => updateValue( name, checkable ? checked : value ),
     className,
     name,
   }
@@ -140,7 +141,10 @@ export default class DataTable extends React.Component {
         return {
           ...props,
           adder: childrenFilter( Adder ),
-          processor: processor?.props.render || (it => it),
+          processor: {
+            render: processor?.props.render || (it => it),
+            process: processor?.props.process,
+          },
           processEntireField: processor?.props.entire || false,
         }
       } )
@@ -158,16 +162,25 @@ export default class DataTable extends React.Component {
       colspanCounter = adder.props.colspan || 1
 
       return {
-        [ name ]: defaultValue => (
+        [ name ]: (defaultValue, rowId = null) => (
           <InputField
             {...{
               name,
               defaultValue,
               processor,
               ...adder.props,
-              updateValue: (name, value) => {
-                this.setState( ({ inputs }) => ({ inputs:{ ...inputs, [ name ]:value } }) )
-              },
+              updateValue: (name, value) => this.setState( state => {
+                if (rowId) {
+                  return { editableRows: {
+                    ...state.editableRows,
+                    [ rowId ]: {
+                      ...state.editableRows[ rowId ],
+                      [ name ]: value },
+                  } }
+                } else {
+                  return { inputs:{ ...state.inputs, [ name ]:value } }
+                }
+              } ),
               runAfterDataLoad: this.runAfterDataLoad,
             }}
           />
@@ -226,6 +239,7 @@ export default class DataTable extends React.Component {
 
       tableRows: [],
       waitingForDataCbs: [],
+      editableRows: {},
       inputs: {},
     }
   }
@@ -240,6 +254,8 @@ export default class DataTable extends React.Component {
       edit,
       actionPosibility = () => false,
       noActions,
+      onDelete = () => {},
+      onEdit = () => {},
     } = this.props
 
     const data = initialData || await (
@@ -259,13 +275,16 @@ export default class DataTable extends React.Component {
             this.fields.map( ({ editable:editableField, name, dataFieldname = name, processEntireField, processor }) => {
               if (editableField && (abilities || abilities.edit)) editable = true
 
-              const filler = editable ? this.tableAdderFields[ name ] : data => {
-                // console.log( field, dataFieldname, field[ dataFieldname ] ) // TODO show error on null
-                const processedData = processor( data )
-                return processedData?.label ?? processedData
+              const dataField = processEntireField ? field : field[ dataFieldname ]
+              let data = null
+
+              if (editable) data = this.tableAdderFields[ name ]( dataField, field.id )
+              else {
+                const processedData = processor.render( dataField )
+
+                data = processedData?.label ?? processedData
               }
 
-              const data = filler( processEntireField ? field : field[ dataFieldname ] )
               const value = typeof data === `boolean`
                 ? <input disabled type="radio" defaultChecked={data} style={{ display:`block`, margin:`0 auto` }} />
                 : data
@@ -277,13 +296,13 @@ export default class DataTable extends React.Component {
             !noActions && (
               <td>
                 {(abilities ?? abilities.delete) && (
-                  <button className={del?.className || ``}>
+                  <button className={del?.className || ``} onClick={() => onDelete( field )}>
                     {del?.label || `Delete`}
                   </button>
                 )}
 
                 {editable && (
-                  <button className={edit?.className || ``}>
+                  <button className={edit?.className || ``} onClick={() => onEdit( field.id, this.state.editableRows[ field.id ] )}>
                     {edit?.label || `Edit`}
                   </button>
                 )}
@@ -336,4 +355,6 @@ DataTable.propTypes = {
   delete: PropTypes.shape({ label:PropTypes.string, className:PropTypes.string }),
   edit: PropTypes.shape({ label:PropTypes.string, className:PropTypes.string }),
   onCreate: PropTypes.func,
+  onDelete: PropTypes.func,
+  onEdit: PropTypes.func,
 }

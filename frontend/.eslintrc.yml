@@ -17,3 +17,5 @@ rules:
     - SwitchCase: 1
   no-async-promise-executor:
     - off
+  no-unreachable:
+    - off

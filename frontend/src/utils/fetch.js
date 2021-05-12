@@ -89,7 +89,11 @@ export default class Fetcher {
    * @param {RequestInit} headers
    */
   put( address, data, headers ) {
-    return this._fetch( address, { method:`PUT`, headers, data:JSON.stringify( data ) } )
+    return this._fetch( address, {
+      method: `PUT`,
+      headers: { "Content-Type":`application/json`, ...headers },
+      body: JSON.stringify( data ),
+    } )
   }
 
 
@@ -97,7 +101,11 @@ export default class Fetcher {
    * @param {string} address
    * @param {RequestInit} headers
    */
-  delete( address, headers ) {
-    return this._fetch( address, { method:`DELETE`, headers } )
+  delete( address, data, headers ) {
+    return this._fetch( address, {
+      method: `DELETE`,
+      headers: { "Content-Type":`application/json`, ...headers },
+      body: JSON.stringify( data ),
+    } )
   }
 }

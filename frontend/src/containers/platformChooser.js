@@ -24,6 +24,11 @@ const dataTableProps = {
   delete: { label:`Usuń`, className:`${dataTableButtonsClassName} ${classes.isSoftDelete}` },
   edit: { label:`Edytuj`, className:`${dataTableButtonsClassName} ${classes.isSoftEdit}` },
 }
+const toggleBoxProps = {
+  btnIsActiveClassname: `is-active`,
+  closeBtnClassName: boxesClasses.closeButton,
+  closeLabel: `X`,
+}
 
 const query = graphql`
   query {
@@ -38,8 +43,10 @@ const query = graphql`
 const authFetch = (method, dataField, ...args) => authFetcher[ method ]( ...args ).
   then( data => data && dataField ? data[ dataField ] : data )
 
-const get  = (address, dataField) =>       authFetch( `get`,  dataField, address )
-const post = (address, data, dataField) => authFetch( `post`, dataField, address, data )
+const get   = (address, dataField)        => authFetch( `get`,    dataField, address )
+const post  = (address, data, dataField)  => authFetch( `post`,   dataField, address, data )
+const del   = (address, data, dataField)  => authFetch( `delete`, dataField, address, data )
+const put   = (address, data, dataField)  => authFetch( `put`, dataField, address, data )
 
 
 export default ({ className = `` }) => {
@@ -65,9 +72,9 @@ export default ({ className = `` }) => {
           </Link>
 
           <ToggableBox
+            {...toggleBoxProps}
             boxClassName={boxesClasses.wrapper}
             btnClassName={`${buttonsClasname} ${boxesClasses.switch}`}
-            btnIsActiveClassname="is-active"
             btnContent={<Image fluid={queryData.cog.childImageSharp.fluid} />}
             fullScreened
           >
@@ -90,169 +97,238 @@ export default ({ className = `` }) => {
 }
 
 
-const createNewPlatform = async data => {
-  const platform = await fetcher.post( URLS.PLATFORM_POST(), data, getAuthHeaders() )
-  console.log( platform )
-}
-const AddNewPlatformItem = () => (
-  <Item>
-    <ToggableBox
-      boxClassName={boxesClasses.popup}
-      btnClassName={`${buttonsClasname} ${classes.isCenteredButton}`}
-      btnIsActiveClassname="is-active"
-      btnContent="Stwórz nową platformę"
-      fullScreened
-    >
-      <Form classNames={{ it:classes.centered }}>
-        <Text className={classes.input} name="name">Nazwa paltformy</Text>
-        <Submit className={`${dataTableButtonsClassName} ${classes.isSoftCreate}`} handler={createNewPlatform}>
-          Stwórz
-        </Submit>
-      </Form>
-    </ToggableBox>
-  </Item>
-)
+const AddNewPlatformItem = () => {
+  const createNewPlatform = async data => {
+    const platform = await fetcher.post( URLS.PLATFORM_POST(), data, getAuthHeaders() )
+    console.log( platform )
+  }
 
-
-const SettingsTabs = ({ platformId }) => (
-  <SwitchBox
-    classNames={{
-      switches: boxesClasses.tabsSwitches,
-      switch: `${buttonsClasname} ${boxesClasses.tabSwitch}`,
-      activeSwitch: `is-active`,
-    }}
-  >
-    <Tab className={`is-centered ${boxesClasses.tabSwitch}`} name="Ogólne">
-      <Form classNames={{ it:classes.centered }}>
-        <Text className={classes.input} name="description">Opis</Text>
-        <Submit className={`neumorphizm is-button ${classes.button}`}>Zaktualizuj</Submit>
-      </Form>
-
+  return (
+    <Item>
       <ToggableBox
+        {...toggleBoxProps}
         boxClassName={boxesClasses.popup}
-        btnClassName={`${dataTableButtonsClassName} ${classes.isDelete}`}
-        btnIsActiveClassname="is-active"
-        btnContent="Skasuj platformę"
+        btnClassName={`${buttonsClasname} ${classes.isCenteredButton}`}
+        btnContent="Stwórz nową platformę"
         fullScreened
       >
         <Form classNames={{ it:classes.centered }}>
-          <Password className={classes.input} name="password">Podaj hasło</Password>
-          <Submit className={`${dataTableButtonsClassName} ${classes.isDelete}`}>Skasuj</Submit>
+          <Text className={classes.input} name="name">Nazwa paltformy</Text>
+          <Submit className={`${dataTableButtonsClassName} ${classes.isSoftCreate}`} handler={createNewPlatform}>
+          Stwórz
+          </Submit>
         </Form>
       </ToggableBox>
-    </Tab>
+    </Item>
+  )
+}
 
-    <Tab className={boxesClasses.tabSwitch} name="Użytkownicy">
-      <DataTable {...dataTableProps} getData={get( URLS.PLATFORM$ID_USERS_GET( platformId ), `users` )} >
-        <Field label="Imię" name="name">
-          <Adder className={classes.adder} type="text" />
-        </Field>
+const SettingsTabs = ({ platformId }) => {
+  const deletePlatform = async data => {
+    const response = await del( URLS.PLATFORM$ID_DELETE( platformId ), data )
+    console.log( response )
+  }
+  const createUser = async data => {
+    const response = await post( URLS.PLATFORM$ID_USERS_POST( platformId ), data )
+    console.log( response )
+  }
+  const editUser = async(id, data) => {
+    const response = await put( URLS.PLATFORM$ID_USERS$ID_PUT( platformId, id ), data )
+    console.log( response )
+  }
+  const deleteUser = async data => {
+    const response = await del( URLS.PLATFORM$ID_USERS$ID_DELETE( platformId, data.id ) )
+    console.log( response )
+  }
+  const createGroup = async data => {
+    const response = await post( URLS.GROUP_POST(), { platformId, ...data } )
+    console.log( response )
+  }
+  const deleteGroup = async data => {
+    const response = await del( URLS.GROUP$ID_DELETE( data.id ), { platformId, ...data } )
+    console.log( response )
+  }
+  const createRole = async data => {
+    const { name, color, ...abilities } = data
+    const response = await post( URLS.PLATFORM$ID_PERMISSIONS_POST( platformId ), { name, color, abilities } )
+    console.log( response )
+  }
+  const deleteRole = async data => {
+    const response = await del( URLS.PLATFORM$ID_PERMISSIONS$ID_DELETE( platformId, data.id ) )
+    console.log( response )
+  }
+  const editRole = async(id, data) => {
+    const { name, color, ...abilities } = data
+    const response = await put( URLS.PLATFORM$ID_PERMISSIONS$ID_PUT( platformId, id ), {
+      name,
+      color: color ? parseInt( color.slice( 1 ), 16 ) : undefined,
+      abilities,
+    } )
+    console.log( response, data )
+  }
 
-        <Field label="Nazwisko" name="surname">
-          <Adder className={classes.adder} type="text" />
-        </Field>
+  return (
+    <SwitchBox
+      classNames={{
+        switches: boxesClasses.tabsSwitches,
+        switch: `${buttonsClasname} ${boxesClasses.tabSwitch}`,
+        activeSwitch: `is-active`,
+      }}
+    >
+      <Tab className={`is-centered ${boxesClasses.tabSwitch}`} name="Ogólne">
+        {/* <Form classNames={{ it:classes.centered }}>
+          <Text className={classes.input} name="description">Opis</Text>
+          <Submit className={`neumorphizm is-button ${classes.button}`}>Zaktualizuj</Submit>
+        </Form> */}
 
-        <Field label="Email" name="email">
-          <Adder className={classes.adder} type="text" />
-        </Field>
-
-        <Field label="Rola" name="role" editable>
-          <Processor render={({ id, name }) => { console.log({ label:name, value:id });return ({ label:name, value:id }) }} />
-          <Adder
-            className={classes.adder}
-            type="select"
-            getData={get( URLS.PLATFORM$ID_PERMISSIONS_GET( platformId ), `permissions` )} // .then( console.log )
-          />
-        </Field>
-      </DataTable>
-    </Tab>
-
-    <Tab className={boxesClasses.tabSwitch} name="Grupy">
-      <DataTable
-        {...dataTableProps}
-        getData={get( URLS.GROUP_FROM_PLATFORM$ID_GET( platformId ), `groups` )}
-        onCreate={data => post( URLS.GROUP_POST(), { platformId, ...data } )}
-      >
-        <Field label="Nazwa" name="name">
-          <Adder className={classes.adder} type="text" />
-        </Field>
-
-        <Field label="Prowadzący" dataFieldname="lecturer" name="lecturerId">
-          <Processor render={({ id, name, surname }) => ({ label:`${name} ${surname}`, value:id })} />
-          <Adder
-            className={classes.adder}
-            type="select"
-            getData={get( URLS.PLATFORM$ID_USERS_GET( platformId ), `users` )}
-          />
-        </Field>
-      </DataTable>
-    </Tab>
-
-    <Tab className={boxesClasses.tabSwitch} name="Role">
-      <DataTable {...dataTableProps} className={`${classes.table} ${classes.isRotated}`} getDataAddress="fake://platformRoles">
-        <Field label="Nazwa" name="name">
-          <Adder className={classes.adder} type="text" />
-        </Field>
-
-        <Field label="Kolor" name="color">
-          <Processor
-            render={color => (
-              <span className={classes.color} style={{ backgroundColor:`#` + color?.toString( 16 ).padStart( 6, 0 ) }} />
-            )}
-          />
-          <Adder className={classes.adder} type="color" />
-        </Field>
-
-        <Field
-          className={classes.ability}
-          label="Edycja szczegółów"
-          name="canEditDetails"
-          dataFieldname="abilities"
+        <ToggableBox
+          {...toggleBoxProps}
+          boxClassName={boxesClasses.popup}
+          btnClassName={`${dataTableButtonsClassName} ${classes.isDelete}`}
+          btnContent="Skasuj platformę"
+          fullScreened
         >
-          <Processor render={({ canEditDetails }) => canEditDetails} />
-          <Adder className={classes.adder} type="checkbox" />
-        </Field>
+          <Form classNames={{ it:classes.centered }}>
+            <Password className={classes.input} name="password">Podaj hasło</Password>
+            <Submit className={`${dataTableButtonsClassName} ${classes.isDelete}`} handler={deletePlatform}>
+              Skasuj
+            </Submit>
+          </Form>
+        </ToggableBox>
+      </Tab>
 
-        <Field
-          className={classes.ability}
-          label="Nauczanie"
-          name="canTeach"
-          dataFieldname="abilities"
+      <Tab className={boxesClasses.tabSwitch} name="Użytkownicy">
+        <DataTable
+          {...dataTableProps}
+          getData={get( URLS.PLATFORM$ID_USERS_GET( platformId ), `users` )}
+          onCreate={createUser}
+          onDelete={deleteUser}
+          onEdit={editUser}
         >
-          <Processor render={({ canTeach }) => canTeach} />
-          <Adder className={classes.adder} type="checkbox" />
-        </Field>
+          <Field label="Imię" name="name">
+            <Adder className={classes.adder} type="text" />
+          </Field>
 
-        <Field
-          className={classes.ability}
-          label="Zarządzanie użytkownikami"
-          name="canManageUsers"
-          dataFieldname="abilities"
-        >
-          <Processor render={({ canManageUsers }) => canManageUsers} />
-          <Adder className={classes.adder} type="checkbox" />
-        </Field>
+          <Field label="Nazwisko" name="surname">
+            <Adder className={classes.adder} type="text" />
+          </Field>
 
-        <Field
-          className={classes.ability}
-          label="Zarządzanie rolami"
-          name="canManageRoles"
-          dataFieldname="abilities"
-        >
-          <Processor render={({ canManageRoles }) => canManageRoles} />
-          <Adder className={classes.adder} type="checkbox" />
-        </Field>
+          <Field label="Email" name="email">
+            <Adder className={classes.adder} type="text" />
+          </Field>
 
-        <Field
-          className={classes.ability}
-          label="Zarządzanie grupami"
-          name="canManageGroups"
-          dataFieldname="abilities"
+          <Field label="Rola" name="roleId" dataFieldname="role" editable>
+            <Processor render={({ id, name }) => ({ label:name, value:id })} />
+            <Adder
+              className={classes.adder}
+              type="select"
+              getData={get( URLS.PLATFORM$ID_PERMISSIONS_GET( platformId ), `permissions` )} // .then( console.log )
+            />
+          </Field>
+        </DataTable>
+      </Tab>
+
+      <Tab className={boxesClasses.tabSwitch} name="Grupy">
+        <DataTable
+          {...dataTableProps}
+          getData={get( URLS.GROUP_FROM_PLATFORM$ID_GET( platformId ), `groups` )}
+          onCreate={createGroup}
+          onDelete={deleteGroup}
         >
-          <Processor render={({ canManageGroups }) => canManageGroups} />
-          <Adder className={classes.adder} type="checkbox" />
-        </Field>
-      </DataTable>
-    </Tab>
-  </SwitchBox>
-)
+          <Field label="Nazwa" name="name">
+            <Adder className={classes.adder} type="text" />
+          </Field>
+
+          <Field label="Prowadzący" dataFieldname="lecturer" name="lecturerId">
+            <Processor render={({ id, name, surname }) => ({ label:`${name} ${surname}`, value:id })} />
+            <Adder
+              className={classes.adder}
+              type="select"
+              getData={get( URLS.PLATFORM$ID_USERS_GET( platformId ), `users` )}
+            />
+          </Field>
+        </DataTable>
+      </Tab>
+
+      <Tab className={boxesClasses.tabSwitch} name="Role">
+        <DataTable
+          {...dataTableProps}
+          className={`${classes.table} ${classes.isRotated}`}
+          getData={get( URLS.PLATFORM$ID_PERMISSIONS_GET( platformId ), `permissions` )}
+          onCreate={createRole}
+          onDelete={deleteRole}
+          onEdit={editRole}
+        >
+          <Field label="Nazwa" name="name">
+            <Adder className={classes.adder} type="text" />
+          </Field>
+
+          <Field label="Kolor" name="color" editable>
+            <Processor
+              process={color => `#` + color.toString( 16 ).padStart( 6, 0 )}
+              render={color => (
+                <span className={classes.color} style={{ backgroundColor:`#` + color?.toString( 16 ).padStart( 6, 0 ) }} />
+              )}
+            />
+            <Adder className={classes.adder} type="color" />
+          </Field>
+
+          <Field
+            className={classes.ability}
+            label="Edycja szczegółów"
+            name="canEditDetails"
+            dataFieldname="abilities"
+            editable
+          >
+            <Processor render={({ canEditDetails }) => canEditDetails} />
+            <Adder className={classes.adder} type="checkbox" />
+          </Field>
+
+          <Field
+            className={classes.ability}
+            label="Nauczanie"
+            name="canTeach"
+            dataFieldname="abilities"
+            editable
+          >
+            <Processor render={({ canTeach }) => canTeach} />
+            <Adder className={classes.adder} type="checkbox" />
+          </Field>
+
+          <Field
+            className={classes.ability}
+            label="Zarządzanie użytkownikami"
+            name="canManageUsers"
+            dataFieldname="abilities"
+            editable
+          >
+            <Processor render={({ canManageUsers }) => canManageUsers} />
+            <Adder className={classes.adder} type="checkbox" />
+          </Field>
+
+          <Field
+            className={classes.ability}
+            label="Zarządzanie rolami"
+            name="canManageRoles"
+            dataFieldname="abilities"
+            editable
+          >
+            <Processor render={({ canManageRoles }) => canManageRoles} />
+            <Adder className={classes.adder} type="checkbox" />
+          </Field>
+
+          <Field
+            className={classes.ability}
+            label="Zarządzanie grupami"
+            name="canManageGroups"
+            dataFieldname="abilities"
+            editable
+          >
+            <Processor render={({ canManageGroups }) => canManageGroups} />
+            <Adder className={classes.adder} type="checkbox" />
+          </Field>
+        </DataTable>
+      </Tab>
+    </SwitchBox>
+  )
+}

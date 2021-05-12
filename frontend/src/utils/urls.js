@@ -37,10 +37,13 @@ const URLS = {
   PLATFORM$ID_DELETE: platformId => `${HOST}/api/platforms/${platformId}`,
   PLATFORM$ID_USERS_POST: platformId => `${HOST}/api/platforms/${platformId}/users`,
   PLATFORM$ID_USERS_GET: platformId => `${HOST}/api/platforms/${platformId}/users`,
+  PLATFORM$ID_USERS$ID_PUT: (platformId, userId) => `${HOST}/api/platforms/${platformId}/users/${userId}`,
   PLATFORM$ID_USERS$ID_DELETE: (platformId, userId) => `${HOST}/api/platforms/${platformId}/users/${userId}`,
+  PLATFORM$ID_PERMISSIONS_POST: platformId => `${HOST}/api/platforms/${platformId}/newpermissions`,
   PLATFORM$ID_PERMISSIONS_GET: platformId => `${HOST}/api/platforms/${platformId}/newpermissions`,
   PLATFORM$ID_PERMISSIONS_MY_GET: platformId => `${HOST}/api/platforms/${platformId}/permissions/my`,
-  PLATFORM$ID_PERMISSIONS_POST: platformId => `${HOST}/api/platforms/${platformId}/newpermissions`,
+  PLATFORM$ID_PERMISSIONS$ID_PUT: (platformId, roleId) => `${HOST}/api/platforms/${platformId}/newpermissions/${roleId}`,
+  PLATFORM$ID_PERMISSIONS$ID_DELETE: (platformId, roleId) => `${HOST}/api/platforms/${platformId}/newpermissions/${roleId}`,
 
 
   // Group scope

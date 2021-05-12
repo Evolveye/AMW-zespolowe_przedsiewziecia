@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { navigate } from "gatsby"
 import { fetcher, fetchOrGet, getUrnQuery, isBrowser } from "./functions.js"
 import URLS from "./urls.js"
@@ -21,7 +21,7 @@ const setUser = user => {
   changedUserSetters.forEach( setter => setter( user ) )
 }
 
-export const AuthContext = React.createContext({ user:null, platform:null, group:null, meet:null })
+// export const AuthContext = React.createContext({ user:null, platform:null, group:null, meet:null })
 export const getAuthHeaders = () => ({ Authentication:`Bearer ${getToken()}` })
 export const Authorized = ({ children }) => isLogged() ? children : navigate( `/unauthorized` )
 export const getUser = () => getJsonFromStorage( `user` )
@@ -31,30 +31,30 @@ export const isLogged = () => !!getUser()
 export const logout = () => storage.clear()
 
 
-export const AuthContextProvider = ({ children }) => {
-  const { p, g, m } = getUrnQuery()
+// export const AuthContextProvider = ({ children }) => {
+//   const { p, g, m } = getUrnQuery()
 
-  return (
-    <AuthContext.Provider
-      children={children}
-      value={{
-        user: getUser(),
-        platform: p ? fetchOrGet( `fake://platforms/${p}` ) : null,
-        group: g ? fetchOrGet( `fake://groups/${g}` ) : null,
-        meet: m ? fetchOrGet( `fake://meets/${m}` ) : null,
-      }}
-    />
-  )
-}
+//   return (
+//     <AuthContext.Provider
+//       children={children}
+//       value={{
+//         user: getUser(),
+//         platform: p ? fetchOrGet( `fake://platforms/${p}` ) : null,
+//         group: g ? fetchOrGet( `fake://groups/${g}` ) : null,
+//         meet: m ? fetchOrGet( `fake://meets/${m}` ) : null,
+//       }}
+//     />
+//   )
+// }
 
 
 export const authFetcher = new Proxy( fetcher, {
   get( fetcher, key ) {
-    if ([ `get`, `delete` ].includes( key )) {
+    if ([ `get` ].includes( key )) {
       return address => fetcher[ key ]( address, getAuthHeaders() )
     }
 
-    if ([ `post`, `put` ].includes( key )) {
+    if ([ `post`, `put`, `delete` ].includes( key )) {
       return (address, data) => fetcher[ key ]( address, data, getAuthHeaders() )
     }
 
@@ -67,6 +67,10 @@ export const useUser = () => {
   const [ user, setUser ] = useState( getUser() )
 
   changedUserSetters.push( setUser )
+
+  useEffect( () =>
+    () => changedUserSetters.splice( changedUserSetters.indexOf( setUser ), 1 )
+  , [] )
 
   return user
 }

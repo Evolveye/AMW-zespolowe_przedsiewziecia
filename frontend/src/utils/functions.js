@@ -241,7 +241,7 @@ const fakeDataset = {
 
 
 export const fetcher = new Fetcher({ processError: ({ data }) => {
-  if (data.code === 110) return navigate( `/logout` )
+  if (data?.code === 110) return navigate( `/logout` )
 
   console.error( data )
 } })

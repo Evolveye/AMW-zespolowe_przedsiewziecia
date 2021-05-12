@@ -6,8 +6,10 @@ export default ({
   className = ``,
   btnClassName = ``,
   boxClassName = ``,
+  closeBtnClassName = ``,
   btnIsActiveClassname = ``,
   btnContent,
+  closeLabel,
   fullScreened,
   children,
 }) => {
@@ -45,6 +47,9 @@ export default ({
             <div className={`${classes.box}`}>
               <div className={classes.fullscreen}>
                 <div className={boxClassName}>
+                  <button className={`${classes.closeButton} ${closeBtnClassName}`} onClick={() => setBoxVisibility( false )}>
+                    {closeLabel || `Close`}
+                  </button>
                   {children}
                 </div>
               </div>
