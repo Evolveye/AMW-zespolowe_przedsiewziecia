@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react"
-import { graphql, Link, useStaticQuery } from "gatsby"
+import { graphql, Link, navigate, useStaticQuery } from "gatsby"
 import Image from "gatsby-image"
 
 import Select, { Item } from "../components/select.js"
@@ -99,8 +99,9 @@ export default ({ className = `` }) => {
 
 const AddNewPlatformItem = () => {
   const createNewPlatform = async data => {
-    const platform = await fetcher.post( URLS.PLATFORM_POST(), data, getAuthHeaders() )
-    console.log( platform )
+    const response = await fetcher.post( URLS.PLATFORM_POST(), data, getAuthHeaders() )
+
+    if (response?.platform) navigate( `/platform?p=${response.platform.id}` )
   }
 
   return (
@@ -115,7 +116,7 @@ const AddNewPlatformItem = () => {
         <Form classNames={{ it:classes.centered }}>
           <Text className={classes.input} name="name">Nazwa paltformy</Text>
           <Submit className={`${dataTableButtonsClassName} ${classes.isSoftCreate}`} handler={createNewPlatform}>
-          Stwórz
+            Stwórz
           </Submit>
         </Form>
       </ToggableBox>
@@ -126,45 +127,56 @@ const AddNewPlatformItem = () => {
 const SettingsTabs = ({ platformId }) => {
   const deletePlatform = async data => {
     const response = await del( URLS.PLATFORM$ID_DELETE( platformId ), data )
-    console.log( response )
+
+    if (response.success) navigate( `/` )
   }
-  const createUser = async data => {
+  const createUser = async(data, addToTable) => {
     const response = await post( URLS.PLATFORM$ID_USERS_POST( platformId ), data )
-    console.log( response )
+
+    if (response?.user) addToTable( response.user )
   }
   const editUser = async(id, data) => {
-    const response = await put( URLS.PLATFORM$ID_USERS$ID_PUT( platformId, id ), data )
-    console.log( response )
+    await put( URLS.PLATFORM$ID_USERS$ID_PUT( platformId, id ), data )
+    // console.log( response )
   }
-  const deleteUser = async data => {
+  const deleteUser = async(data, removeFromTable) => {
     const response = await del( URLS.PLATFORM$ID_USERS$ID_DELETE( platformId, data.id ) )
-    console.log( response )
+
+    if (response?.success) removeFromTable()
   }
-  const createGroup = async data => {
+  const createGroup = async(data, addToTable) => {
     const response = await post( URLS.GROUP_POST(), { platformId, ...data } )
-    console.log( response )
+
+    if (response?.group) addToTable( response.group )
   }
-  const deleteGroup = async data => {
+  const deleteGroup = async(data, removeFromTable) => {
     const response = await del( URLS.GROUP$ID_DELETE( data.id ), { platformId, ...data } )
-    console.log( response )
+
+    if (response?.success) removeFromTable()
   }
-  const createRole = async data => {
+  const createRole = async(data, addToTable) => {
     const { name, color, ...abilities } = data
-    const response = await post( URLS.PLATFORM$ID_PERMISSIONS_POST( platformId ), { name, color, abilities } )
-    console.log( response )
-  }
-  const deleteRole = async data => {
-    const response = await del( URLS.PLATFORM$ID_PERMISSIONS$ID_DELETE( platformId, data.id ) )
-    console.log( response )
-  }
-  const editRole = async(id, data) => {
-    const { name, color, ...abilities } = data
-    const response = await put( URLS.PLATFORM$ID_PERMISSIONS$ID_PUT( platformId, id ), {
+    const response = await post( URLS.PLATFORM$ID_PERMISSIONS_POST( platformId ), {
       name,
       color: color ? parseInt( color.slice( 1 ), 16 ) : undefined,
       abilities,
     } )
-    console.log( response, data )
+
+    if (response?.role) addToTable( response.role )
+  }
+  const deleteRole = async(data, removeFromTable) => {
+    const response = await del( URLS.PLATFORM$ID_PERMISSIONS$ID_DELETE( platformId, data.id ) )
+
+    if (response?.success) removeFromTable()
+  }
+  const editRole = async(id, data) => {
+    const { name, color, ...abilities } = data
+    await put( URLS.PLATFORM$ID_PERMISSIONS$ID_PUT( platformId, id ), {
+      name,
+      color: color ? parseInt( color.slice( 1 ), 16 ) : undefined,
+      abilities,
+    } )
+    // console.log( response, data )
   }
 
   return (

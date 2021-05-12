@@ -226,9 +226,11 @@ export default class DataTable extends React.Component {
               <td>
                 {
                   (abilities || abilities?.create) && (
-                    <button className={props.create?.className || ``} onClick={() => props.onCreate?.( this.state.inputs )}>
-                      {props.create?.label || `Create`}
-                    </button>
+                    <button
+                      className={props.create?.className || ``}
+                      onClick={() => props.onCreate?.( this.state.inputs, this.addFieldToTable )}
+                      children={props.create?.label || `Create`}
+                    />
                   )
                 }
               </td>
@@ -250,12 +252,6 @@ export default class DataTable extends React.Component {
       data: initialData,
       getData,
       getDataAddress = getData?.address,
-      delete: del,
-      edit,
-      actionPosibility = () => false,
-      noActions,
-      onDelete = () => {},
-      onEdit = () => {},
     } = this.props
 
     const data = initialData || await (
@@ -265,56 +261,72 @@ export default class DataTable extends React.Component {
     if (!data) return
 
     const dataArr = Array.isArray( data ) ? data : data[ getData.responseField ]
-    const tableRows = dataArr.map( field => {
-      const abilities = actionPosibility( field )
-      let editable = false
 
-      return (
-        <tr key={field.id}>
-          {
-            this.fields.map( ({ editable:editableField, name, dataFieldname = name, processEntireField, processor }) => {
-              if (editableField && (abilities || abilities.edit)) editable = true
+    dataArr.forEach( this.addFieldToTable )
 
-              const dataField = processEntireField ? field : field[ dataFieldname ]
-              let data = null
-
-              if (editable) data = this.tableAdderFields[ name ]( dataField, field.id )
-              else {
-                const processedData = processor.render( dataField )
-
-                data = processedData?.label ?? processedData
-              }
-
-              const value = typeof data === `boolean`
-                ? <input disabled type="radio" defaultChecked={data} style={{ display:`block`, margin:`0 auto` }} />
-                : data
-
-              return <td key={name}>{value}</td>
-            } )
-          }
-          {
-            !noActions && (
-              <td>
-                {(abilities ?? abilities.delete) && (
-                  <button className={del?.className || ``} onClick={() => onDelete( field )}>
-                    {del?.label || `Delete`}
-                  </button>
-                )}
-
-                {editable && (
-                  <button className={edit?.className || ``} onClick={() => onEdit( field.id, this.state.editableRows[ field.id ] )}>
-                    {edit?.label || `Edit`}
-                  </button>
-                )}
-              </td>
-            )
-          }
-        </tr>
-      )
-    } )
-
-    this.setState({ tableRows })
     this.runAfterDataLoad()
+  }
+
+
+  addFieldToTable = field => {
+    const {
+      delete: del,
+      edit,
+      actionPosibility = () => false,
+      noActions,
+      onDelete = () => {},
+      onEdit = () => {},
+    } = this.props
+
+    const abilities = actionPosibility( field )
+    let editable = false
+
+    const row = (
+      <tr key={field.id}>
+        {
+          this.fields.map( ({ editable:editableField, name, dataFieldname = name, processEntireField, processor }) => {
+            if (editableField && (abilities || abilities.edit)) editable = true
+
+            const dataField = processEntireField ? field : field[ dataFieldname ]
+            let data = null
+
+            if (editable) data = this.tableAdderFields[ name ]( dataField, field.id )
+            else {
+              const processedData = processor.render( dataField )
+
+              data = processedData?.label ?? processedData
+            }
+
+            const value = typeof data === `boolean`
+              ? <input disabled type="radio" defaultChecked={data} style={{ display:`block`, margin:`0 auto` }} />
+              : data
+
+            return <td key={name}>{value}</td>
+          } )
+        }
+        {
+          !noActions && (
+            <td>
+              {(abilities ?? abilities.delete) && (
+                <button
+                  className={del?.className || ``}
+                  onClick={() => onDelete( field, () => this.setState( s => ({ tableRows:[ ...s.tableRows.filter( r => r !== row ) ]  }) ) )}
+                  children={del?.label || `Delete`}
+                />
+              )}
+
+              {editable && (
+                <button className={edit?.className || ``} onClick={() => onEdit( field.id, this.state.editableRows[ field.id ] )}>
+                  {edit?.label || `Edit`}
+                </button>
+              )}
+            </td>
+          )
+        }
+      </tr>
+    )
+
+    this.setState( s => ({ tableRows:[ ...s.tableRows, row ]  }) )
   }
 
 
