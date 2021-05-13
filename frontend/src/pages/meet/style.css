@@ -96,7 +96,7 @@ video {
 .leaveMeeting {
   background-color: red;
   color: #fff;
-  pointer-events:none;
+  /* pointer-events:none; */
 }
 .main__header {
   color: #f5f5f5;

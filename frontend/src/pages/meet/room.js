@@ -17,7 +17,7 @@ const Video = ({ peer }) => {
   }, [peer])
 
   return (
-    <video ref={ref} playsInline autoPlay>
+    <video ref={ref} playsInline autoPlay data-peer-id={peer.id}> 
       <track kind="captions" />
     </video>
   )
@@ -181,7 +181,7 @@ export default class extends React.Component {
           console.log("wysłane: ", data)
           chatInputBox.value = ""
         } else {
-          if (toCompare != chatInputBox.value && chatInputBox.value != "") {
+          if (toCompare !== chatInputBox.value && chatInputBox.value !== "") {
             let tempMsg = chatInputBox.value + "- edytowane"
             let data = {
               roomId: this.roomId,
@@ -195,6 +195,10 @@ export default class extends React.Component {
           chatInputBox.value = ""
         }
       }
+    })
+
+    ws.on(`leave meeting`, (leave) =>{
+      this.removeDisconnectedPeer(leave)
     })
 
     ws.on("new message", this.addMessageToChat)
@@ -221,7 +225,7 @@ export default class extends React.Component {
         </span>
         <span className="new_message_content">{content}</span>
         <div className="new_message_actions">
-          <button onClick={() => this.remoteMessageById(messageId)}>
+          <button onClick={() => this.removeMessageById(messageId)}>
             Usuń
           </button>
           <button onClick={() => this.editMessageById(messageId, content)}>
@@ -233,6 +237,11 @@ export default class extends React.Component {
 
     this.setState(({ messages }) => ({ messages: [...messages, message] }))
     this.chatWindow.scrollTop = this.chatWindow.scrollHeight
+  }
+
+  removeDisconnectedPeer = (id) => {
+    const elem = document.querySelectorAll(`[data-peer-id="${id}"]`)[0]
+    return elem.parentNode.removeChild(elem);
   }
 
   removeMessageFromChat = messageId => {
@@ -263,7 +272,7 @@ export default class extends React.Component {
     editedMessage = true
   }
 
-  remoteMessageById = id => {
+  removeMessageById = id => {
     alert("kliknales usuń")
 
     const msg = {
@@ -294,6 +303,12 @@ export default class extends React.Component {
       setStopVideo()
       myVideoStream.getVideoTracks()[0].enabled = true
     }
+  }
+
+  leaveMeeting = () => {
+    window.opener = null
+    window.open("", "_self")
+    window.close()
   }
 
   shareScreen = () => {
@@ -340,7 +355,7 @@ export default class extends React.Component {
       : null
 
     const clickableVideos = videosObjects
-      .filter(({ id, video }) => (activeVideo ? activeVideo == video : true))
+      .filter(({ id, video }) => (activeVideo ? activeVideo === video : true))
       .map(({ id, video }) => (
         <button key={id} onClick={() => this.setActiveVideo(id)}>
           {video}
@@ -418,8 +433,12 @@ export default class extends React.Component {
 
             <div className="main__controls_block">
               <div
+                role="button"
                 className="main__controls_button leaveMeeting"
                 id="leave-meeting"
+                tabIndex={-3}
+                onClick={this.leaveMeeting}
+                onKeyDown={this.leaveMeeting}
               >
                 <i className="fa fa-times"></i>
                 <span className="">Opuść spotkanie</span>
