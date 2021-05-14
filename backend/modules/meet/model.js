@@ -16,7 +16,7 @@ import { MEETING_DATE_MAX_YEARS_AHEAD } from "./consts.js"
 
  */
 export default class Meet {
-    constructor(lecturer, description, platformId, membersIds, externalUrl, { meetingUrl, groupId, dateStart, dateEnd, historyId }) {
+    constructor(lecturer, description, membersIds, platformId, externalUrl, { meetingUrl, groupId, dateStart, dateEnd, historyId }) {
 
         this.id = `${Date.now()}t${Math.random().toString().slice(2)}r`
         this.created = Date.now()
@@ -28,7 +28,6 @@ export default class Meet {
 
         this.lecturer = lecturer
         this.description = description
-        this.platformId = platformId
         this.externalUrl = externalUrl ?? ""
 
 
@@ -37,7 +36,7 @@ export default class Meet {
         else
             this.membersIds = membersIds
 
-
+        this.platformId = platformId ?? ""
         this.groupId = groupId ?? ""
         this.url = meetingUrl ?? ""
         this.historyId = historyId ?? ""
@@ -54,6 +53,7 @@ export default class Meet {
         if (this.dateStart > this.dateEnd)
             return false
 
+        console.log("date OK")
         return true
     }
 }

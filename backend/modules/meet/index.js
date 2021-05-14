@@ -29,7 +29,7 @@ let upload = multer({ storage: storage }).array("boards"); // <input type="file"
 
 export default class MeetModule extends Module {
   static requiredModules = [`UserModule`, `PlatformModule`];
-  static additionalModules = [`GroupModule`];
+  static additionalModules = [`GroupModule`]; //`GroupModule`
 
 
   subcollections = {
@@ -47,14 +47,14 @@ export default class MeetModule extends Module {
   getApi() {
     const userModule = this.requiredModules.userModule;
     const platformModule = this.requiredModules.platformModule;
-    const groupModule = this.addAdditionalModule.groupModule;
+    const groupModule = this.additionalModules.groupModule;
     const gPerms = groupModule?.perms || ((cb) => cb);
     const pPerms = platformModule.perms;
     const auth = userModule.auth;
 
     return { meets: {
       get: auth(this.runMid(this.httpHandleGetAllMeets)),
-      post: auth(pPerms(gPerms(this.runMid(this.httpHandleCreateMeet)))),
+      post: auth(gPerms(this.runMid(this.httpHandleCreateMeet))),
 
       ":meetId": {
           get: auth(this.runMid(this.httpHandleMeetInfo)),
@@ -87,7 +87,7 @@ export default class MeetModule extends Module {
 
       "group": {
           ":groupId": {
-              get: auth(pPerms(this.runMid(this.httpHandleGetAllMeetingFromGroup))),
+              get: auth(gPerms(this.runMid(this.httpHandleGetAllMeetingFromGroup))),
           },
       },
 
@@ -323,53 +323,53 @@ export default class MeetModule extends Module {
    })
   }
 
-  configure(app) {
-    // Tworzenie spotkania /api/meets
-    app.post(`/api/meets`, this.httpHandleCreateMeet);
+  // configure(app) {
+  //   // Tworzenie spotkania /api/meets
+  //   app.post(`/api/meets`, this.httpHandleCreateMeet);
 
-    // Odczytywanie wszystkich spotkań /api/meets
-    app.get(`/api/meets`, this.httpHandleGetAllMeets);
+  //   // Odczytywanie wszystkich spotkań /api/meets
+  //   app.get(`/api/meets`, this.httpHandleGetAllMeets);
 
-    //GET {{host}}/api/meets/:meetId
-    app.get(`/api/meets/:meetId`, this.httpHandleMeetInfo);
+  //   //GET {{host}}/api/meets/:meetId
+  //   app.get(`/api/meets/:meetId`, this.httpHandleMeetInfo);
 
-    // Odczytywanie wszystkich spotkań z danej grupy /api/meets/group/:groupId
-    // GET{ "authenthication": "string" } // header{ // body  "meets": [    "<Meet>"  ]}
-    app.get(`/api/meets/group/:groupId`, this.httpHandleGetAllMeetingFromGroup);
+  //   // Odczytywanie wszystkich spotkań z danej grupy /api/meets/group/:groupId
+  //   // GET{ "authenthication": "string" } // header{ // body  "meets": [    "<Meet>"  ]}
+  //   app.get(`/api/meets/group/:groupId`, this.httpHandleGetAllMeetingFromGroup);
 
-    // Odczytywanie uczestników spotkania /api/meets/:meetId/users
-    // GET // header { "authenthication": "string" }
-    //  / response  { / "participants": [    "<User>"  ]}
-    app.get(`/api/meets/:meetId/users`, this.handleGetAllMeetingMembers);
+  //   // Odczytywanie uczestników spotkania /api/meets/:meetId/users
+  //   // GET // header { "authenthication": "string" }
+  //   //  / response  { / "participants": [    "<User>"  ]}
+  //   app.get(`/api/meets/:meetId/users`, this.handleGetAllMeetingMembers);
 
-    // Odczytywanie wszystkich publicznych spotkań /api/meets/public
-    // GET // header { "authenthication": "string" } // body {   "meets": [    "<Meet>"  ]}
-    //  wszystkie meet.public === true
-    //  WSZYSCY - nie ważne od zapytania.
-    app.get(`/api/meets/public`, this.httpHandlePublicMeets);
+  //   // Odczytywanie wszystkich publicznych spotkań /api/meets/public
+  //   // GET // header { "authenthication": "string" } // body {   "meets": [    "<Meet>"  ]}
+  //   //  wszystkie meet.public === true
+  //   //  WSZYSCY - nie ważne od zapytania.
+  //   app.get(`/api/meets/public`, this.httpHandlePublicMeets);
 
-    // Odczytywanie wszystkich spotkań nieprzypisanych do grupy /api/meets/groupless
-    // GET // header  { "authenthication": "string" } // body { "meets": [ "<Meet>" ] }
-    // memersIds => contain user
-    // admin widzi.
-    app.get(`/api/meets/groupless`, this.httpHandleGrouplessMeetings);
+  //   // Odczytywanie wszystkich spotkań nieprzypisanych do grupy /api/meets/groupless
+  //   // GET // header  { "authenthication": "string" } // body { "meets": [ "<Meet>" ] }
+  //   // memersIds => contain user
+  //   // admin widzi.
+  //   app.get(`/api/meets/groupless`, this.httpHandleGrouplessMeetings);
 
-    // //Dodawanie uczestników do spotkania /api/meets/:meetId/users
-    // // // header POST{ "authenthication": "string" }
-    // // // body {   "participantsIds": [    "<string>"  ]}
-    app.post(`/api/meets/:meetId/users`, this.httpHandleAddUsers);
+  //   // //Dodawanie uczestników do spotkania /api/meets/:meetId/users
+  //   // // // header POST{ "authenthication": "string" }
+  //   // // // body {   "participantsIds": [    "<string>"  ]}
+  //   app.post(`/api/meets/:meetId/users`, this.httpHandleAddUsers);
 
-    // // Usuwanie uczestnika ze spotkania
-    // // DELETE{ "authenthication": "string" } // header
-    app.delete(
-      `/api/meets/:meetId/users/:userId`,
-      this.httpHandleDeleteUserFromMeeting
-    );
+  //   // // Usuwanie uczestnika ze spotkania
+  //   // // DELETE{ "authenthication": "string" } // header
+  //   app.delete(
+  //     `/api/meets/:meetId/users/:userId`,
+  //     this.httpHandleDeleteUserFromMeeting
+  //   );
 
-    // //Kasowanie spotkania /api/meets/:meetId
-    // //DELETE { "authenthication": "string" } // header
-    app.delete(`/api/meets/:meetId`, this.httpHandleDeleteMeet);
-  }
+  //   // //Kasowanie spotkania /api/meets/:meetId
+  //   // //DELETE { "authenthication": "string" } // header
+  //   app.delete(`/api/meets/:meetId`, this.httpHandleDeleteMeet);
+  // }
 
   httpHandleUploadBoards = ({ req, res })=>
   {
@@ -582,19 +582,28 @@ export default class MeetModule extends Module {
     const meetingId = req.params.meetId;
 
     const meetingObj = await this.getMeetingById(meetingId);
+
+    const platformModule = this.requiredModules.platformModule
+    const groupModule = this.additionalModules.groupModule
+
     if (!meetingObj)
       return res.status(400).json(ANSWERS.DELETE_MEETING_BAD_MEET_ID);
-    const isLecturer = this.isUserLecturer(client.id, meetingObj);
 
-    const isOwner = await this.requiredModules.platformModule.checkUserOwner(
-      client.id,
-      meetingObj.platformId
-    );
+    await platformModule.includePermsIntoReq(req,res,meetingObj.platformId)
+    await groupModule.includePermsIntoReq(req,res,meetingObj.groupId)
 
-    if (!isLecturer && !isOwner)
+    console.log(JSON.stringify(req.user,null,2))
+
+    // const isOwner = await this.requiredModules.platformModule.checkUserOwner(
+    //   client.id,
+    //   meetingObj.platformId
+    // );
+
+    if (!req.user.newGroupPerms.perms.abilities.canManageMeets &&
+      !req.user.newPlatformPermissions.perms.abilities.canManageGroups)
       return res.status(400).json(ANSWERS.DELETE_MEETING_NOT_ALLOWED);
 
-    await this.deleteMeetingById(meetingObj.id);
+    await this.deleteMeetingById(meetingId);
 
     return res.json(ANSWERS.DELETE_MEETING_SUCCESS);
   };
@@ -613,24 +622,25 @@ export default class MeetModule extends Module {
     const client = req.user;
     const groupId = req.params.groupId;
 
-    const groupObj = await this.additionalModules.groupModule.getGroupObject(
-      groupId
-    );
+    // const groupObj = await this.additionalModules.groupModule.getGroupObject(
+    //   groupId
+    // );
 
-    if (!groupObj)
-      return res.status(400).json(ANSWERS.GET_ALL_MEETINGS_BAD_MEET_ID);
+    // if (!groupObj)
+    //   return res.status(400).json(ANSWERS.GET_ALL_MEETINGS_BAD_MEET_ID);
 
-    const isMember = this.additionalModules.groupModule.isUserAssigned(
-      client.id,
-      groupObj
-    );
-    const isOwner = await this.requiredModules.platformModule.checkIsOwner(
-      client.id,
-      groupObj.platformId
-    );
+    // const isMember = this.additionalModules.groupModule.isUserAssigned(
+    //   client.id,
+    //   groupObj
+    // );
 
-    if (!isMember && !isOwner)
-      return res.status(400).json(ANSWERS.GET_ALL_MEETINGS_NOT_ALLOWED);
+    // const isOwner = await this.requiredModules.platformModule.checkIsOwner(
+    //   client.id,
+    //   groupObj.platformId
+    // );
+
+    // if (!isMember && !isOwner)
+    //   return res.status(400).json(ANSWERS.GET_ALL_MEETINGS_NOT_ALLOWED);
 
     const meetingList = await this.getMeetingsByGroupId(groupId);
 
@@ -659,16 +669,30 @@ export default class MeetModule extends Module {
     if (!member && !isOwner)
       return res.status(400).json(ANSWERS.GET_MEET_INFO_NOT_ALLOWED);
 
+    const perms = await this.getLivePermissions(client.id,meetId); // TODO:
+
+    if(!perms)
+    throw new Error("Live - perms not found")
+
+    meetingObj.myRole = perms
+
     return res.json({ meet: meetingObj });
   };
 
   httpHandleGetAllMeets = async ({ req, res }) => {
-    // "meets": [
-    //     "<Meet>"
-    //   ]
     const client = req.user;
+    const { platformId, groupId } = req.query
+    //JUMP
 
-    const meets = await this.getAllMeets(client.id);
+
+    let meets = await this.getAllMeetsAssignedToUserId(client.id)
+
+   // console.log({query:req.query})
+   // console.log({TUTAJ: meets})
+    //const meets = await this.getAllMeets(client.id);
+
+    if (platformId) meets = meets.filter( m => m.platformId === platformId )
+    if (groupId)    meets = meets.filter( m => m.groupId    === groupId )
 
     return res.json({ meets });
   };
@@ -678,25 +702,31 @@ export default class MeetModule extends Module {
 
     const client = req.user;
 
+    console.log({body:req.body.newGroupPermissions})
+    console.log(JSON.stringify(client,null,2))
+
     let { dateStart, dateEnd } = req.body;
-    const { description, externalUrl, platformId, groupId } = req.body;
+    const { description, externalUrl, groupId, platformId } = req.body;
 
-    if (!dateStart || !dateEnd || !description || !externalUrl || !platformId)
+    if (!dateStart || !dateEnd || !description || !platformId)
       return res.status(400).json(ANSWERS.CREATE_MEETING_MISSING_DATA);
-
 
     if (description.length > MAX_LEN_MEETING_DESCRIPTION)
       return res.status(400).json(ANSWERS.CREATE_MEETING_BAD_DESCRIPTION_LEN)
 
-    if (!externalUrl.startsWith(`http`) && !externalUrl.startsWith(`https`))
-      return res.status(400).json(ANSWERS.CREATE_MEETING_BAD_LINK);
+    // if (!externalUrl.startsWith(`http`) && !externalUrl.startsWith(`https`))
+    //   return res.status(400).json(ANSWERS.CREATE_MEETING_BAD_LINK);
 
     dateStart = new Date(dateStart).getTime();
-    dateEnd = new Date(dateEnd).getTime();
+    dateEnd = (() => {
+      // return new Date(dateEnd).getTime();
+      const endTime = dateEnd.split(`:`)
+      return dateStart + 1000 * 60 * (endTime[ 1 ] + 60 * endTime[ 0 ])
+    })()
 
-    const platfromObj = await this.requiredModules.platformModule.getPlatform(
-      platformId
-    );
+    // const platfromObj = await this.requiredModules.platformModule.getPlatform(
+    //   platformId
+    // );
     // const isAssigned = await this.requiredModules.platformModule.checkUserAssigned(
     //   client.id,
     //   platformId
@@ -705,27 +735,32 @@ export default class MeetModule extends Module {
     if (!groupId)
       return res.status(400).json(ANSWERS.CREATE_MEETING_MISS_GROUP_ID);
 
-    if (groupId != "") {
-      const isGroupAssignedToPlatform = platfromObj.assignedGroups.some(
-        (id) => id === groupId
-      );
+    // if (groupId != "") {
+    //   const isGroupAssignedToPlatform = platfromObj.assignedGroups.some(
+    //     (id) => id === groupId
+    //   );
 
-      if (!isGroupAssignedToPlatform)
-        return res.status(400).json(ANSWERS.CREATE_MEETING_MISSING_GROUP_IN_PLATFORM);
-    }
+    //   if (!isGroupAssignedToPlatform)
+    //     return res.status(400).json(ANSWERS.CREATE_MEETING_MISSING_GROUP_IN_PLATFORM);
+    // }
 
-    if (!client.platformPerms.isPersonel)
+    const targetGroup = await this.additionalModules.groupModule.getGroupObject(groupId)
+
+    console.log(targetGroup)
+
+
+    if (!client.newGroupPerms.perms.abilities.canManageMeets)
       return res.status(400).json(ANSWERS.CREATE_MEETING_NOT_ALLOWED);
 
     let ids = groupId
-      ? (await this.additionalModules.groupModule.getGroupObject(groupId))
-        .membersIds
+      ? targetGroup.membersIds
       : [client.id];
 
     if (!ids.some((id) => id === client.id)) ids = ids.concat(client.id);
 
     const { platformPerms, avatar, createdDatetime, activated, ...lector } = client
-    let meeting = new Meet(lector, description, platformId, ids, externalUrl, {
+
+    let meeting = new Meet(lector, description, ids, platformId, externalUrl, {
       dateStart: dateStart,
       dateEnd: dateEnd,
       groupId: groupId,
@@ -736,35 +771,42 @@ export default class MeetModule extends Module {
 
     const userPermsList = ids.map((value) =>
       value != client.id
-        ? MeetUserPermission.createStudentPerms(value, meeting.id)
-        : MeetUserPermission.createOwnerPerms(value, meeting.id)
+        ? new LivePermissions(value,meeting.id,LiveAbilities.getStudentAbilities())
+        : new LivePermissions(value,meeting.id,LiveAbilities.getLecturerAbilities())
     );
 
-    const templatePermsList = [
-      MeetPermission.createOwnerTemplate(meeting.id),
-      MeetPermission.createStudentTemplate(meeting.id),
-    ];
+    // const templatePermsList = [
+    //   MeetPermission.createOwnerTemplate(meeting.id),
+    //   MeetPermission.createStudentTemplate(meeting.id),
+    // ];
+
+    // const saveLivePermTasks = userPermsList.map(livePermission =>
+    //   this.saveLivePermissionsList(perms)
+    //   )
+
+    // const LivePermsList = ids.map(userId =>
+    //  {
+    //   let perms = null
+    //   if(userId===client.id)
+    //        perms = LivePermissions(userId, meeting.id ,LiveAbilities.getLecturerAbilities())
+    //   else
+    //       perms = LivePermissions(userId,meeting.id,LiveAbilities.getStudentAbilities())
+
+    //    return this.saveLivePermissionsList(perms)
+    //  })
 
 
-    const LivePermsList = ids.map(userId =>
-     {
-      let perms = null
-      if(userId===client.id)
-           perms = LivePermissions(userId, meeting.id ,LiveAbilities.getLecturerAbilities())
-      else
-          perms = LivePermissions(userId,meeting.id,LiveAbilities.getStudentAbilities())
+    // await this.saveLivePermissionsList(LivePermsList);
+    //await this.saveTemplatePermissions(templatePermsList);
+    // await this.saveUserPermissions(userPermsList);
 
-       return this.saveLivePermissionsList(perms)
-     })
-
-
-    await this.saveLivePermissionsList(LivePermsList);
+    console.log(userPermsList)
+    await this.saveLivePermissionsList(userPermsList)
     await this.saveMeetingInDb(meeting);
-    await this.saveTemplatePermissions(templatePermsList);
-    await this.saveUserPermissions(userPermsList);
 
 
-    return res.json({ meet: meeting });
+    console.log({ meet: meeting, ...ANSWERS.CREATE_MEETING_SUCCESS })
+    return res.json({ meet: meeting, ...ANSWERS.CREATE_MEETING_SUCCESS });
   };
 
 
@@ -871,6 +913,14 @@ export default class MeetModule extends Module {
 
   findMeetingBoard = (meetingId) =>
     this.dbManager.findOne(this.subcollections.boards,{meetId:{$eq:meetingId}})
+
+  getAllMeetsAssignedToUserId = (userId) =>
+  {
+    console.log({user_as_memb:userId})
+    return this.dbManager.findManyObjects(this.basecollectionName,
+      { membersIds: userId }
+      )
+  }
 
   getMeetingById = (meetId) =>
     this.dbManager.findObject(this.basecollectionName, { id: { $eq: meetId } });

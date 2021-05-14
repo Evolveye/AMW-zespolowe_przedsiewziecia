@@ -17,7 +17,6 @@ export async function loginMiddleware({ mod, req, res, next }) {
         return res.status(400).json(ANSWERS.USER_NOT_EXIST)
     }
 
-
     mod.logger(`REQUEST LOG-IN CREDENTIALS\n${JSON.stringify({ user: { login, password } })}`)
 
     /**@type {User} userObj */
@@ -81,6 +80,7 @@ export async function registerMiddleware({ mod, req, res }) {
     // mod.logger(`REQUEST REGISTER ${JSON.stringify(req.body)}`)
 
     const { name, surname, email, password1, password2 } = stringifyObjValues(req.body)
+    console.log( req.body )
 
     if (!(name && surname && email && password1 && password2))
         return res.status(400).json(ANSWERS.REGISTER_CREDENTIAL_NOT_PROVIDED)

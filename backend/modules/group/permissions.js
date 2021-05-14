@@ -60,12 +60,14 @@ export class GroupUserPermission extends GroupPermission {
 
 export class GroupPermissions{
   constructor(groupId,name,color,importance,abilities) {
+
+
     this.id = `${Date.now()}t${Math.random().toString().slice(2)}r`
     this.groupId = groupId
     if(!name)
       throw new Error("name is not provided")
     this.name = name
-    this.color = color ||  null
+    this.color = color ??  null
     this.importance = importance || 5
     this.abilities = abilities || new GroupAbilities()
   }
@@ -73,7 +75,7 @@ export class GroupPermissions{
     new GroupPermissions(groupId,`Prowadzący`,0xF64118,5, GroupAbilities.getOwnerAbilities())
 
   static getStudentPerm = (groupId)=>
-    new GroupPermissions(groupId,`Student`,null,5,GroupAbilities.getStudentAbilities())
+    new GroupPermissions(groupId,`Student`,0x000000,5,GroupAbilities.getStudentAbilities())
 
 }
 

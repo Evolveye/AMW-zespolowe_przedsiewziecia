@@ -8,6 +8,7 @@ import * as middlewares from "./middlewares.js";
 /** @typedef {import('express').Request} Request */
 /** @typedef {import('express').Response} Response */
 /** @typedef {import('express').NextFunction} NextFunction */
+/** @typedef {import('./permissions').PlatformPermissions} PlatformPermissions */
 
 /**
  * @typedef {object} MiddlewareParameters
@@ -28,6 +29,11 @@ export default class PlatformModule extends Module {
     userPermissions: `permissions.users`,
   };
 
+  //** @return {PlatformPermissions} */
+  logPerms( req ) {
+    console.log(JSON.stringify(req.user,null,2))
+  }
+
   getApi() {
     /** @type {import("../user/index.js").default} */
     const userModule = this.requiredModules.userModule;
@@ -40,6 +46,7 @@ export default class PlatformModule extends Module {
 
       ":platformId": {
         delete: auth(this.perms(this.runMid(m.httpDeletePlatform))),
+        get: auth(this.perms(this.runMid(m.httpGetUserPlatform))),
 
         "users": {
           get: auth(this.runMid(m.httpGetUsersOfPlatform)),
@@ -47,12 +54,18 @@ export default class PlatformModule extends Module {
 
           ":userId": {
             delete: auth(this.perms(this.runMid(m.httpDeleteUserFromPlatform))),
+            put: auth(this.perms(this.runMid(m.httpAssignPermsToUser))),
           },
         },
 
         "newpermissions": {
-          get: auth(this.runMid(m.httpGetNewPlatformsPermissions)),
-          post: auth(this.runMid(m.httpCreatePlatformsPermissions)),
+          get: auth(this.perms(this.runMid(m.httpGetNewPlatformsPermissions))),
+          post: auth(this.perms(this.runMid(m.httpCreatePlatformsPermissions))),
+
+          ":roleId":{
+            delete: auth(this.perms(this.runMid(m.httpDeletePlatformPermission))),
+            put: auth(this.perms(this.runMid(m.httpUpdatePlatformsPermissions))),
+          }
         },
 
         "permissions": {
@@ -63,8 +76,10 @@ export default class PlatformModule extends Module {
             get: auth(this.runMid(m.httpHandleMyPermission)),
           },
           ":permissionId": {
-            delete: auth(this.perms(this.runMid(m.httpDeletePlatformPermission))), // TODO this.httpDeletePlatformPermission
-            put: auth(this.runMid(m.httpEditPlatformPermission)), // TODO this.httpEditPlatformPermission
+            put: auth(this.runMid(m.httpUpdatePlatformsPermissions))
+
+            // delete: auth(this.perms(this.runMid(m.httpDeletePlatformPermission))), // TODO this.httpDeletePlatformPermission
+            // put: auth(this.runMid(m.httpEditPlatformPermission)), // TODO this.httpEditPlatformPermission
           },
         },
       },
@@ -175,6 +190,8 @@ export default class PlatformModule extends Module {
    * @param {string} platformId
    */
   async includePermsIntoReq(req, res, platformId) {
+
+
     if (!platformId)
       return res.status(400).json(ANSWERS.PLATFORM_PERMS_PE_ID_MISS);
 
@@ -290,7 +307,6 @@ export default class PlatformModule extends Module {
 
     if (!platform) throw new Error("Drop Platform cascade has been refused.");
 
-    console.log({ platform });
     const query = { platformId: { $eq: platformId } };
     const deleteUsersTask = this.dbManager.deleteMany(`userModule`, {
       id: { $in: platform.membersIds },
@@ -323,6 +339,24 @@ export default class PlatformModule extends Module {
     });
   };
 
+  getPermissionByPermId = (permissionId, platformId) => {
+    return this.dbManager.findOne(this.subcollections.templatesPerm, {
+      $and: [
+        { referenceId: { $eq: platformId } },
+        { id: { $eq: permissionId } },
+      ],
+    });
+  };
+
+  getNewPermissionByPermId = (permissionId, platformId) => {
+    return this.dbManager.findOne(this.subcollections.newTemplatePermissions, {
+      $and: [
+        { platformId: { $eq: platformId } },
+        { id: { $eq: permissionId } },
+      ],
+    });
+  };
+
   platformExist = (id) => {
     return this.dbManager.findObject(this.basecollectionName, {
       id: { $eq: id },
@@ -340,17 +374,17 @@ export default class PlatformModule extends Module {
 
     if (student)
       basePerms.push(
-        new Permissions(platformId, `student`, { canTeach: true })
+        new Permissions(platformId, `Student`, { canTeach: true })
       );
     if (lecturer)
       basePerms.push(
-        new Permissions(platformId, `lecturer`, {
+        new Permissions(platformId, `Prowadzący`, {
           isPersonel: true,
           canTeach: true,
         })
       );
     if (owner)
-      basePerms.push(new Permissions(platformId, `owner`, { isMaster: true }));
+      basePerms.push(new Permissions(platformId, `Właściciel`, { isMaster: true }));
 
     return this.dbManager.insetMany(
       this.subcollections.templatesPerm,
@@ -440,16 +474,17 @@ export default class PlatformModule extends Module {
       assignedGroups: groupId,
     });
 
-  updatePlatformPermissions = (findShema, newValues) =>
-    this.dbManager.findOneAndUpdate(
-      this.subcollections.userPermissions,
-      findShema,
-      newValues
-    );
+  // updatePlatformPermissions = (findShema, newValues) =>
+  //   this.dbManager.findOneAndUpdate(
+  //     this.subcollections.userPermissions,
+  //     findShema,
+  //     newValues
+  //   );
 
   async checkUserOwner(userId, platformId) {
     const platform = await this.getPlatform(platformId);
-    return platform.owner.id === userId;
+    return platform.ownerId === userId;
+    // return platform.owner.id === userId;
   }
 
   async checkUserAssigned(userId, platformId) {
@@ -458,6 +493,9 @@ export default class PlatformModule extends Module {
 
     return platform.membersIds.some((id) => id === userId);
   }
+
+  getNewPermissionById = (permissionId) =>
+  this.dbManager.findOne( this.subcollections.newTemplatePermissions, {id: {$eq: permissionId}} )
 
   getPlatfromByName=(name)=>
   this.dbManager.findOne(this.basecollectionName,{name:{$eq:name}})
@@ -486,19 +524,88 @@ export default class PlatformModule extends Module {
     });
   };
 
-  updatePlatformPermission = (platformId, permName,update) =>
-    this.dbManager.findOneAndUpdate(this.subcollections.newTemplatePermissions,
-      {$and:[
-        {platformId:{$eq:platformId}},
-        {name:{$eq:permName}}
-      ]},
-      {$set:update},
-      { returnOriginal: false }
+
+
+  getNewPermissionsByPlatfromIdAndUserId = (platformId,userId) =>
+  {
+   return this.dbManager.aggregate(this.subcollections.newUserPermissions,
+     { pipeline:
+      [
+        {
+          $match: {
+            $and: [
+              {
+                userId: {  $eq: userId }
+              }, {
+                platformId: {  $eq: platformId }
+              }
+            ]
+          }
+        }, {
+          $lookup: {
+            from: 'platformModule.newPermissionsTemplates',
+            localField: 'permissionId',
+            foreignField: 'id',
+            as: 'role'
+          }
+        }, {
+          $unwind: {path: '$role'}
+        }
+      ]
+    }
+      ).toArray().then(data=>data[0])
+  }
+
+  updatePlatformPermission = (roleId, update) =>
+  {
+    //console.log("PLATFORM PERMS UPDATE",{roleId, update})
+     return  this.dbManager.findOneAndUpdate(this.subcollections.newTemplatePermissions,
+      { id:{$eq:roleId} },
+      { $set:update },
+      { new: true }
     )
+  }
+
+  getPlatformWithOwnerObj = (targetPlatformId) =>
+  {
+    return this.dbManager.aggregate(this.basecollectionName,{
+      pipeline:[
+        {
+          $match: {
+            id: {$eq: targetPlatformId}
+          }
+        }, {
+          $lookup: {
+            from: 'userModule',
+            localField: 'ownerId',
+            foreignField: 'id',
+            as: 'owner'
+          }
+        }, {
+          $unwind: {
+            path: '$owner'
+          }
+        }
+      ]
+    }).toArray().then(data => data[0])
+  }
+
+  getTargetPlatform = (targetPlatformId) =>
+    this.dbManager.findObject(this.basecollectionName,{id:{$eq:targetPlatformId}})
+
+
 
   saveNewPermissions = (obj)=>
   this.dbManager.insertObject(this.subcollections.newTemplatePermissions, obj)
 
+  deleteTemplateOfNewPermissions = (permissionId) =>
+  this.dbManager.findOneAndDelete(this.subcollections.newTemplatePermissions,{id:{$eq:permissionId}})
+
+  deleteConnectorUserPermission = (userId, platformId) =>
+  this.dbManager.deleteObject(this.subcollections.newUserPermissions,{$and:[
+    {userId:{$eq:userId}},
+    {platformId:{$eq:platformId}}
+  ]})
 
   saveConnectorPermsToUser =(obj)=>
     this.dbManager.insertObject(this.subcollections.newUserPermissions, obj)

@@ -26,15 +26,14 @@ export class Group {
 }
 
 export class TaskDone{
-    constructor(taskId,user,file,description,name,fileId)
+    constructor(taskId,user,file,description,name)
     {
         // id / idzad / osoba / data oddania /
-        this.taskId=taskId
+        this.taskId = taskId
         this.id = `${Date.now()}t${Math.random().toString().slice(2)}r`
         this.created = Date.now().valueOf()
         this.user = user
         this.filepath = file
-        this.fileId = fileId
         this.description = description
         this.filename = name
     }
@@ -56,13 +55,14 @@ export class File{
 }
 
 export class Task{
-    constructor(title,description,groupId,expireDate,author,type = "zadanie",mandatory = true)
+    constructor(title,description,groupId,author,startDate,expireDate,type = "zadanie",mandatory = true)
     {
         this.id = `${Date.now()}t${Math.random().toString().slice(2)}r`
         this.title = title
-        this.description = description
+        this.description = description || ""
         this.groupId = groupId
         this.created = Date.now().valueOf()
+        this.start = startDate ||  this.created
         this.expire = expireDate || this.created + 604800000 // 1 tydzień
         this.type = type
         this.mandatory = mandatory

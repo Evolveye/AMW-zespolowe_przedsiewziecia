@@ -1,6 +1,8 @@
 import express from "express"
 import { Server } from "socket.io"
 import cors from 'cors'
+import bodyParser from 'body-parser'
+import multer from 'multer'
 
 import WSS from "./src/ws.js"
 import dbManager from "./src/dbManager.js"
@@ -22,7 +24,7 @@ import {
  */
 
 
-/** @type {Express} */
+/** @type {express.Express} */
 const app = express()
 
 const moduleLogger = modName => string => log(LOGGERS.module, modName, string)
@@ -81,11 +83,27 @@ app.use((req, _, next) => next( //logging middleware
 ))
 
 app.use("/", express.static(DEBUG ? "./public" : "./public"))
+
 app.use("/media", express.static("./media"))
 app.use("/uploads", express.static("./uploads"))
 
 app.use(cors())
 app.use(express.json())
+
+// let storage = multer.diskStorage({
+//   destination: function (req, file, cb) {
+//     cb(null, 'test/materials')
+//   },
+//   filename: function (req, file, cb) {
+//     cb(null, Date.now() + '-' + file.originalname)
+//   }
+// })
+
+// let upload = multer({ storage: storage }).single("myFile");
+
+// app.post( `/api2/materials`, upload, (req, res) => {
+//   console.log( req.file, req.files )
+// } )
 
 modulesInstances.forEach(mod => {
   log(LOGGERS.server, `[fgYellow]LOADING MODULE[] ${mod.toString()}`)

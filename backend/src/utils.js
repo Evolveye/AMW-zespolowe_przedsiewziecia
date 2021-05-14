@@ -172,10 +172,15 @@ export function validateDate(date, maxYearsAhead) {
   const years = maxYearsAhead * year
 
   if (date < now)
+  {
     return false
+  }
+
 
   if (date > now + years)
+  {
     return false
+  }
 
   return true
 }

@@ -46,20 +46,21 @@ export class PlatformUserPermission extends PlatformPermission {
 }
 
 
-export class PlatformPermissions{
+export class PlatformPermissions {
   constructor(name,color,importance,abilities,platformId)
   {
       this.id = `${Date.now()}t${Math.random().toString().slice(2)}r`
       this.name = name || "Anonymous"
-      this.color = color || 0xFFFFFF
+      this.color = color || 0x000000
       this.importance = importance || 0
       if(!abilities)
         this.abilities = new PlatformAbilities()
       else
         this.abilities = new PlatformAbilities(
-        abilities.canManageRole,abilities.canTeach,
-        abilities.canManageUsers,abilities.canDeletePlatform,
-        abilities.canEditDetails,abilities.canManageGroups)
+          abilities.canManageRoles, abilities.canTeach,
+          abilities.canManageUsers, abilities.canDeletePlatform,
+          abilities.canEditDetails, abilities.canManageGroups
+        )
 
       this.platformId = platformId || null
   }
@@ -77,9 +78,9 @@ export class PlatformPermissions{
 
 
 export class PlatformAbilities{
-  constructor(canManageRole,canTeach,canManageUsers,canDeletePlatform,canEditDetails,canManageGroups)
+  constructor(canManageRoles,canTeach,canManageUsers,canDeletePlatform,canEditDetails,canManageGroups)
   {
-      this.canManageRole = canManageRole || false
+      this.canManageRoles = canManageRoles || false
       this.canTeach = canTeach || false
       this.canEditDetails = canEditDetails || false
       this.canDeletePlatform = canDeletePlatform || false
@@ -90,7 +91,7 @@ export class PlatformAbilities{
       return new PlatformAbilities(true,true,true,true,true,true)
   }
   static getLecturerAbilities(){
-      return new PlatformAbilities()
+      return new PlatformAbilities(false,true,false,false,false,false)
   }
   static getStudentAbilities(){
       return new PlatformAbilities()

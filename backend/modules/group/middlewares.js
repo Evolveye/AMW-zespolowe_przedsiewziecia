@@ -5,21 +5,21 @@ import { ANSWERS, MAX_LEN_GROUP_NAME, MAX_LEN_NOTE_DESCRIPTION, MAX_LEN_TASK_DES
 import GroupPermission, { ConnectorGroupPermissionToUser, GroupAbilities, GroupPermissions, GroupUserPermission } from "./permissions.js";
 import multer from "multer"
 import { generateId,isDigit } from "../../src/utils.js";
-import filesystem from 'fs/promises'
+import fs from 'fs'
 
 import { APP_ROOT_DIR } from '../../consts.js'
 
 
 let storage = multer.diskStorage({
-  destination: function (req, file, cb) {
+  destination(req, file, cb) {
     cb(null, 'uploads/materials')
   },
-  filename: function (req, file, cb) {
+  filename(req, file, cb) {
     cb(null, Date.now() + '-' + file.originalname)
   }
 })
 
-let upload = multer({ storage: storage }).single("myFile");
+let upload = multer({ storage: storage }).single("document");
 
 export async function httpHandleMyPermission({ mod, req, res }) {
   const client = req.user;
@@ -102,17 +102,52 @@ export async function httpHandleNoteUpdate({ mod, req, res }) {
   return res.json(ANSWERS.NOTE_UPDATE_SUCCESS);
 }
 
-export async function httpHandleMyGroups({ req, res }) {
+export async function httpGetTargetGroup({mod,req,res,}){
+  const groupId =  req.body.groupId || req.params.groupId || req.query.groupId
+
+  if (!groupId) throw new Error("groupId not privided")
+
+  const targetGroup = await mod.getTargetGroup(groupId)
+
+  if(!targetGroup)
+  return res.status(400).json( ANSWERS.GET_TARGET_GROUP_MISS)
+
+  targetGroup.myRole = req.user.newGroupPerms.perms
+
+  return res.json({group:targetGroup})
+}
+
+
+export async function httpHandleMyGroups({ req, res, mod }) {
   // GET Lista grup usera - wszystkie do które należy.
   // /api/groups  // header { "authenthication": "string" }
-  const client = req.user;
 
-  const clientGroups = await this.dbManager.findManyObjects(
-    this.basecollectionName,
-    { membersIds: client.id }
+  //JUMP
+  const client = req.user;
+  const { platformId } = req.query
+
+  let platformPermissions = platformId
+  ? await mod.requiredModules.platformModule.getNewPermissionsByPlatfromIdAndUserId(platformId,client.id)
+  : null
+
+
+
+  //console.log({ROLE:JSON.stringify(platformPermissions,null,2)})
+
+  let groups = await mod.dbManager.findManyObjects(
+    mod.basecollectionName,
+    platformPermissions?.role.abilities.canManageGroups
+      ? { platformId: platformId }
+      : { membersIds: client.id }
   );
 
-  return res.json({ groups: clientGroups });
+ // console.log({groups})
+  if(platformId)
+    groups = groups.filter(group => group.platformId == platformId)
+
+  //console.log({clientID: client.id  , groupsARR:groups })
+
+  return res.json({ groups });
 }
 
 /** @param {MiddlewareParameters} param0 */
@@ -151,86 +186,69 @@ export async function httpHandleGroupPerms({ mod, req, res }) {
 }
 
 export async function httpHandleAllUsersInGroup({ mod, req, res }) {
-  // get all users of group
+  //JUMP
   // Pobieranie listy użytkowników z grupy /api/groups/:groupId/users
-  // GET // header { "authenthication": "string"}
-  // body { "users": [  "<User>", ] }
+
+  console.log("TUTAJ")
 
   const groupId = req.params.groupId;
   const client = req.user;
   const targetGroup = await mod.getGroupObject(groupId);
 
-  // if (!client.groupPerms)
-  //   return res.status(400).json({ code: 315, error: "You are not allowed to see all users of target group." })
+  console.log({groupId,client,targetGroup})
 
   if (!targetGroup)
     return res.status(400).json(ANSWERS.GET_ALL_GROUP_GROUP_NOT_EXISTS);
 
-  const isMember = mod.isUserAssigned(client.id, targetGroup);
+  const platformId = targetGroup.platformId
 
-  // // await this.requiredModules.platformModule.checkIsOwner(client.id, targetGroup.platformId)
   await mod.requiredModules.platformModule.includePermsIntoReq(
-    req,
-    res,
-    targetGroup.platformId
+    req, res, platformId
   );
-  const isAdmin = client.platformPerms.target.isMaster;
 
-  if (!isMember && !isAdmin)
+  const isMember = mod.isUserAssigned(client.id, targetGroup);
+  console.log({USER_LIST: JSON.stringify(client.newPlatformPerms,null,2)})
+
+  if (!client.newPlatformPerms.perms.abilities.canManageGroups && !isMember)
     return res.status(400).json(ANSWERS.GET_ALL_GROUP_NOT_ALLOWED);
 
-  let allUsers = await mod.dbManager.findManyObjects(`userModule`, {
-    id: { $in: targetGroup.membersIds },
-  });
-  allUsers.map(user => { delete user['password'] })
+  // do listy userów dodac role grupy.
+  const listOfUsers = await mod.getUsersOfGroupAssignedRoles(targetGroup)
 
-  const allPerms = await mod.dbManager.findManyObjects(
-    `groupModule.permissions.users`,
-    {
-      $and: [
-        { referenceId: { $eq: groupId } },
-        { userId: { $in: targetGroup.membersIds } },
-      ],
-    }
-  );
+  console.log(JSON.stringify(listOfUsers,null,2))
 
-  allUsers.forEach(user => user.perms = allPerms.find(perm => perm.userId === user.id))
-
-  return res.json({ users: allUsers });
+  return res.json({ users: listOfUsers });
 }
 
 export async function httpHandleDeleteUserFromGroup({ mod, req, res }) {
   // // kasowanie usera z grupy api/groups/:groupId/users/:userId
   // // delete auth
-
-  if (!req.user.groupPerms.canManageUsers)
-    return res.status(400).json(ANSWERS.DELETE_USER_NOT_ALLOWED);
-
-  let { groupId, userId } = req.params;
-  groupId = req.query.groupId;
-  const groupObj = await mod.getGroupObject(groupId);
   const client = req.user;
 
-  if (!groupObj)
+  mod.showRole(req)
+
+  if (!req.user.newGroupPerms.perms.abilities.canManageUsers)
+    return res.status(400).json(ANSWERS.DELETE_USER_NOT_ALLOWED);
+
+  const {groupId,userId}  = req.params;
+
+  const {value} = await mod.removeUserFromGroupMembers(userId,groupId)
+
+  if (!value)
     return res.status(400).json(ANSWERS.DELETE_USER_GROUP_NOT_EXISTS);
 
-  if (!mod.isUserAssigned(userId, groupObj))
-    return res.status(400).json(ANSWERS.DELETE_USER_GROUP_NOT_MEMBER);
+  await mod.deleteConnectorGroupRolesToUser(groupId,userId)
+  // if (!mod.isUserAssigned(userId, groupObj))
+  //   return res.status(400).json(ANSWERS.DELETE_USER_GROUP_NOT_MEMBER);
 
-  const platformId = groupObj.platformId;
-  const isAdmin = await mod.requiredModules.platformModule.checkUserOwner(
-    client.id,
-    platformId
-  );
+  // const platformId = groupObj.platformId;
+  // const isAdmin = await mod.requiredModules.platformModule.checkUserOwner(
+  //   client.id,
+  //   platformId
+  // );
 
   // if (groupObj.lecturer.id != client.id && !isAdmin)
   //   return res.status(400).json({ code: 309, error: "Only Lecturer or Admin can delete a member of group" })
-
-  await mod.dbManager.updateObject(
-    mod.basecollectionName,
-    { id: { $eq: groupId } },
-    { $pull: { membersIds: userId } }
-  );
 
   return res.json(ANSWERS.DELETE_USER_SUCCESS);
 }
@@ -238,6 +256,7 @@ export async function httpHandleDeleteUserFromGroup({ mod, req, res }) {
 export async function httpHandleDeleteNote({ mod, req, res }) {
   // Skasowanie oceny /api/groups/notes/:noteId
   // { "authenthication": "string" } // header
+  //console.log(1)
 
   const noteId = req.params.noteId;
   if (!noteId) return res.status(400).json(ANSWERS.DELETE_NOTE_NOTE_ID_MISS);
@@ -251,12 +270,11 @@ export async function httpHandleDeleteNote({ mod, req, res }) {
   const group = await mod.getGroupObject(targetNote.groupId);
 
   req.params.groupId = group.id;
-  // await this.httpAddPermissionsToRequest(req, res)
-  // admin nie ma wpisu w groupPermissions.
-  if (!req.user.groupPerms.canManageNotes && !req.user.platformPerms.isMaster)
+
+  if (!req.user.newGroupPerms.perms.abilities.canManageNotes)
     return res.status(400).json(ANSWERS.DELETE_NOTE_NOT_ALLOWED);
 
-  mod.dbManager.deleteObject(mod.subcollections.notes, { id: { $eq: noteId } });
+  await mod.dbManager.deleteObject(mod.subcollections.notes, { id: { $eq: noteId } });
 
   res.json(ANSWERS.DELETE_NOTE_SUCCESS);
 }
@@ -390,7 +408,7 @@ export async function httpCreateNote({ mod, req, res }) {
   // POST { "authenthication": "string" } // header
   // { "value": "string","description": "string" }
 
-  if (!req.user.groupPerms.canManageNotes && !req.user.platformPerms.isMaster)
+  if (!req.user.newGroupPerms.perms.abilities.canManageNotes)
     return res.status(400).json(ANSWERS.CREATE_NOTE_NOT_ALLOWED);
 
   const groupId = req.params.groupId;
@@ -399,18 +417,14 @@ export async function httpCreateNote({ mod, req, res }) {
   if (!value || !userId)
     return res.status(400).json(ANSWERS.CREATE_NOTE_DATA_NOT_PROVIDED)
 
-  if (description > MAX_LEN_NOTE_DESCRIPTION)
+
+  if (description && description > MAX_LEN_NOTE_DESCRIPTION)
     return res.status(400).json(ANSWERS.CREATE_NOTE_BAD_DESCRIPTION_LEN)
 
   if (isNaN(Number(value)))
     return res.status(400).json(ANSWERS.CREATE_NOTE_VALUE_NOT_NUMBER)
 
-
-
   const client = req.user;
-
-  delete client.groupPerms;
-  delete client.platformPerms;
 
   /**@type {Grade} */
   const note = new Grade(userId, client, value, groupId, { description });
@@ -420,8 +434,8 @@ export async function httpCreateNote({ mod, req, res }) {
   if (!targetGroup)
     return res.status(400).json(ANSWERS.CREATE_NOTE_GROUP_NOT_EXISTS);
 
-  if (!mod.isUserAssigned(userId, targetGroup))
-    return res.status(400).json(ANSWERS.CREATE_NOTE_NOT_MEMBER);
+  // if (!mod.isUserAssigned(userId, targetGroup))
+  //   return res.status(400).json(ANSWERS.CREATE_NOTE_NOT_MEMBER);
 
   // const isAdmin = await this.requiredModules.platformModule.checkUserOwner(lecturer.id, targetGroup.platformId)
 
@@ -432,24 +446,36 @@ export async function httpCreateNote({ mod, req, res }) {
     return res.status(400).json(ANSWERS.CREATE_NOTE_CANT_FOR_TEACHER);
 
   await mod.saveNote(note);
+
   note.user = await mod.requiredModules.userModule.getUserById(userId)
-  delete note['userId']
   delete note.user['password']
 
-  return res.json({ note });
+
+  return res.json({ note, ...ANSWERS.CREATE_NOTE_SUCCESS});
 }
 
+
 export async function httpGetAllMyNotes({ mod, req, res }) {
+  const groupId = req.params.groupId
+  const client = req.user;
+ // console.log("ogień w szopie")
+ // console.log({groupId,client})
+
+  const arrayOfNotes =  await mod.getAllNotesFromGroup(groupId)
+
+
+
+ // console.log(arrayOfNotes)
+  return res.json({notes:arrayOfNotes})
+}
+
+
+export async function httpGetAllMyNotesFull({ mod, req, res }) {
   // TODO this.canManageNotes?
   // GET Pobranie WSZYSTKICH ocen użytkownika
-  // { "authenthication": "string" } // header
-  // /api/groups/notes { "authenthication": "string" } // header
-
-  // nie ma roli -> oceny usera
-  // mam -> wszyskie user + te co wystawilem.
 
   const client = req.user;
-
+ // console.log({client})
   const groupsInPlatforms = {};
   const notesInGroups = {};
 
@@ -457,26 +483,23 @@ export async function httpGetAllMyNotes({ mod, req, res }) {
     client.id
   );
 
+  //console.log({userPlatforms})
   /** @type {Group[]} */
   const userGroups = await mod.getAllUserGroups(client.id);
 
+  // console.log({userGroups})
   let data = null;
 
-  //if (req.user.groupPerms.canManageNotes || req.user.platform.isMaster) {
-  // let masterNotes = client.groupPerms.canManageNotes ?
-  //  await mod.getAllNotesFromPlatform(group.id)
-
+  // FIX
   let userNotes = await mod.dbManager
     .find(
       // wszystkie oceny z lecturerId or userId.
       mod.subcollections.notes,
-      {
-        $or: [{ "lecturer.id": client.id }, { userId: client.id }],
-      }
-    )
-    .toArray();
+      { userId: client.id }
+    ).toArray();
 
-  //const userNotes = await this.getAllUserNotes(client.id).then(cur => cur.toArray())
+  // console.log({userNotes})
+  // const userNotes = await this.getAllUserNotes(client.id).then(cur => cur.toArray())
 
   userPlatforms.forEach(
     (platform) =>
@@ -506,14 +529,15 @@ export async function httpGetAllMyNotes({ mod, req, res }) {
   });
 
   data = Object.values(groupsInPlatforms);
-
+  console.log(JSON.stringify(data,null,2))
   return res.json({ data, userId: client.id });
 }
 
 export async function httpHandleAllGroupsInPlatform({ mod, req, res }) {
+
   const user = req.user;
-  const isMaster = user.platformPerms.isMaster;
   const targetPlatform = req.params.platformId;
+
   const platformObj = await mod.requiredModules.platformModule.getPlatform(
     targetPlatform
   );
@@ -525,7 +549,7 @@ export async function httpHandleAllGroupsInPlatform({ mod, req, res }) {
 
   const isMember = platformObj.membersIds.some((id) => id == user.id);
 
-  if (!isMaster && !isMember)
+  if (!isMember)
     return res.status(400).json(ANSWERS.GET_ALL_PLATFORM_GROUPS_NOT_ALLOWED);
 
   // console.log(`groups`, isMaster, targetPlatform, user);
@@ -535,9 +559,21 @@ export async function httpHandleAllGroupsInPlatform({ mod, req, res }) {
   //   isOwner ? await this.getAllGroupsFromPlatform(targetPlatform)
   //     : await this.getAllGroupsFromPlatformWithMemberId(user.id, targetPlatform)
 
-  groups = isMaster
+  // console.log({ role_PE : req.user.newPlatformPerms})
+
+  groups = req.user.newPlatformPerms.perms.abilities.canManageGroups
     ? await mod.getAllGroupsFromPlatform(targetPlatform)
     : await mod.getAllGroupsFromPlatformWithMemberId(user.id, targetPlatform);
+
+  // const rolesPrimises = groups.map( group => mod.getNewGroupPermission(req.user.id,group.id)  )
+  // const roles = await Promise.all( rolesPrimises )
+  // console.log({roles})
+  // groups = groups.map(group => {
+  //   const myRole = roles.find(r => r.groupId = group.id)
+  //   return group.myRole = myRole
+  // })
+
+  console.log(JSON.stringify(groups,null,2))
 
   return res.json({ groups });
 }
@@ -547,8 +583,8 @@ export async function httpDeleteGroup({ mod, req, res }) {
 
   // oceny, spotkania ,permisje template/users
 
-  if (!req.user.platformPerms.canManageGroups)
-    return res.status(200).json(ANSWERS.DELETE_GROUP_NOT_ALLOWED);
+  if (!req.user.newPlatformPerms.perms.abilities.canManageGroups)
+    return res.status(400).json(ANSWERS.DELETE_GROUP_NOT_ALLOWED);
 
   // /** @type {import("../user/index.js").default} */
   // const userMod = this.requiredModules.userModule
@@ -581,30 +617,34 @@ export async function httpDeleteGroup({ mod, req, res }) {
 
 export async function httpAddGroupMember({ mod, req, res }) {
   // TODO: Permisje name
-
-  /** @type {import("../user/index.js").default} */
-  const userMod = mod.requiredModules.userModule;
-  /** @type {import("../platform/index.js").default} */
-  const platformMod = mod.requiredModules.platformModule;
-
   const groupId = req.params.groupId || req.body.groupId || req.query.groupId;
 
-  // let usersIds = req.body.usersIds
-  let usersIds = req.body.usersIds ?? req.body.userId;
+  let newUserId = req.body.userId
+  let roleId = req.body.roleId
 
-  if (!Array.isArray(usersIds)) usersIds = [usersIds];
+  if(!newUserId || !roleId)
+  throw new Error("data not provided.")
 
-  if (!req.user.groupPerms.canManageUsers)
+  if (!req.user.newGroupPerms.perms.abilities.canManageUsers)
     return res.status(400).json(ANSWERS.ADD_GROUP_MEMBER_NOT_ALLOWED);
 
-  const groupObj = await mod.getGroupObject(groupId);
+  const groupObj = await mod.addUserToGroupMembers(newUserId,groupId)
 
   if (!groupObj)
     return res.status(400).json(ANSWERS.ADD_GROUP_MEMBER_GROUP_NOT_EXISTS);
 
-  const platformObj = await mod.requiredModules.platformModule.getPlatform(
-    groupObj.platformId
-  );
+  const connector = new ConnectorGroupPermissionToUser(groupId,newUserId,roleId)
+  await  mod.saveNewGroupPermissionConnector(connector)
+
+  let userObj = await mod.getUserWithRoleByUserIdAndGroupId(newUserId , groupId)
+
+
+  if(!userObj.user)
+    return res.status(400).json(ANSWERS.ADD_GROUP_MEMBER_USER_MISS)
+
+  // const platformObj = await mod.requiredModules.platformModule.getPlatform(
+  //   groupObj.platformId
+  // );
 
   // const platformOwner = platformMod.isPlatformOwner(req.user.id, platformObj);
   // const groupLecturer = groupObj.lecturer.id == req.user.id;
@@ -612,52 +652,27 @@ export async function httpAddGroupMember({ mod, req, res }) {
   // if (!platformOwner && !groupLecturer)
   //   return res.status(400).json(ANSWERS.ADD_GROUP_MEMBER_NOT_LECTURER_OWNER);
 
-  let positiveIds = usersIds.filter((id) =>
-    platformObj.membersIds.some((member) => member === id)
-  );
-  positiveIds = positiveIds.filter((id) =>
-    groupObj.membersIds.every((memberId) => memberId !== id)
-  ); // przefiltruj wszystkich którzy sa juz dopisani.
+  // let positiveIds = usersIds.filter((id) =>
+  //   platformObj.membersIds.some((member) => member === id)
+  // );
 
-  if (positiveIds.length <= 0)
-    return res.json(ANSWERS.ADD_GROUP_MEMBER_ALREADY_ADDED);
+  // positiveIds = positiveIds.filter((id) =>
+  //   groupObj.membersIds.every((memberId) => memberId !== id)
+  // ); // przefiltruj wszystkich którzy sa juz dopisani.
 
-  const updateTask = mod.dbManager.updateObject(
-    mod.basecollectionName,
-    { id: { $eq: groupId } },
-    { $push: { membersIds: { $each: positiveIds } } }
-  );
+  // if (groupObj.membersIds.some(id=> id == newUserId))
+  //   return res.json(ANSWERS.ADD_GROUP_MEMBER_ALREADY_ADDED);
 
-  const tasks = [];
-  tasks.push(updateTask);
-
-  positiveIds.forEach((id) => {
-    //BUG: 2 permisje zapisuje ?
-    const userPerm = GroupUserPermission.createStudentPerm(groupId, id);
-    tasks.push(mod.saveGroupPermissions(userPerm));
-  });
-
-  await Promise.all(tasks);
-  const asssignedUsers = await Promise.all(
-    positiveIds.map((id) => mod.requiredModules.userModule.getUserById(id))
-  );
+  let data = userObj.user
+  data.role = userObj.role
 
 
-  const connector = new ConnectorGroupPermissionToUser(groupId,req.body.userId,req.body.permissionId)
-  await mod.saveNewGroupPermissionConnector(connector)
-
-  const success = ANSWERS.ADD_GROUP_MEMBER_SUCCESS;
-  const returndata = { data: asssignedUsers, ...success };
-
-  if (positiveIds.length !== usersIds.length)
-    return res.json(ANSWERS.ADD_GROUP_MEMBER_PARTLY_SUCCESS);
-
-  return res.json(returndata);
+  return res.json({...ANSWERS.ADD_GROUP_MEMBER_SUCCESS, user: data});
 }
 
 export async function httpCreateGroup({ mod, req, res }) {
-  if (!req.user.platformPerms.canManageGroups)
-    return res.status(400).json(ANSWERS.CREATE_GROUP_NOT_ALLOWED);
+  if (!req.user.newPlatformPerms.perms.abilities.canManageGroups)
+    return res.status(400).json(ANSWERS.CREATE_GROUP_NOT_ALLOWED)
 
   /** @type {import("../user/index.js").default} */
   const userMod = mod.requiredModules.userModule;
@@ -665,7 +680,6 @@ export async function httpCreateGroup({ mod, req, res }) {
   const platformMod = mod.requiredModules.platformModule;
 
   const { name, lecturerId, platformId } = req.body;
-  const client = req.user;
 
   if (!name || !lecturerId || !platformId)
     return res.status(400).json(ANSWERS.CREATE_GROUP_DATA_MISS);
@@ -683,45 +697,49 @@ export async function httpCreateGroup({ mod, req, res }) {
 
   const { password, login, activated, avatar, createdDatetime, ...lecturerObj } = await userMod.getUserById(lecturerId);
 
+  // todo: query from connector get permissions
 
-  const oldPerms = await platformMod.getPermissions(platformId, lecturerId);
-  if (oldPerms.name === `student`) {
-    // tylko studentowi zmieniamy permissje.
-    await mod.requiredModules.platformModule.updatePlatformPermissions(
-      { referenceId: { $eq: platformId }, userId: { $eq: lecturerId } },
-      { $set: { name: "lecturer", isPersonel: true } }
-    );
-  }
+  const newPerms = await platformMod.getNewPermissionsByPlatfromIdAndUserId(platformId,lecturerId)
+  //const oldPerms = await platformMod.getPermissions(platformId, lecturerId);
+  // if (oldPerms.name === `student`) {
+  //   // tylko studentowi zmieniamy permissje.
+  //   await mod.requiredModules.platformModule.updatePlatformPermissions(
+  //     { referenceId: { $eq: platformId }, userId: { $eq: lecturerId } },
+  //     { $set: { name: "lecturer", isPersonel: true } }
+  //   );
+  // }
+
+ // console.log(JSON.stringify(newPerms,null,2)) //abilities:[object]
+
+  if (newPerms.role.abilities.canTeach == false)
+    return res.status(400).json(ANSWERS.CREATE_GROUP_CAN_TEACH_FALSE)
+
 
   let group = new Group(name, lecturerObj, platformId);
   group.membersIds.push(lecturerObj.id);
+  // PO ma byc
 
-  const ownerPerms = GroupUserPermission.createOwnerPerm(
-    group.id,
-    lecturerObj.id
-  );
+  // const ownerPerms = GroupUserPermission.createOwnerPerm(
+  //   group.id,
+  //   lecturerObj.id
+  // );
 
-  const studentTemplate = new GroupPermission(group.id, `student`);
-  const ownerTemplate = new GroupPermission(
-    group.id,
-    `lecturer`,
-    GroupPermission.getOwnerPerm()
-  );
-
-  await mod.dbManager.insertObject(
-    mod.subcollections.userPermissions,
-    ownerPerms
-  );
-  await mod.dbManager.insertObject(
-    mod.subcollections.templatePermissions,
-    studentTemplate
-  );
-  await mod.dbManager.insertObject(
-    mod.subcollections.templatePermissions,
-    ownerTemplate
-  );
+  // groupId,name,color,importance,abilities
+  // await mod.dbManager.insertObject( // stare perms
+  //   mod.subcollections.userPermissions,
+  //   ownerPerms
+  // );
+  // await mod.dbManager.insertObject(
+  //   mod.subcollections.templatePermissions,
+  //   studentTemplate
+  // );
+  // await mod.dbManager.insertObject(
+  //   mod.subcollections.templatePermissions,
+  //   ownerTemplate
+  // );
 
   const groupScale = new Scale(group.id,[1,2,3,4,5])
+
   await mod.dbManager.insertObject(mod.subcollections.scale,groupScale)
 
   await mod.saveGroup(group);
@@ -733,6 +751,8 @@ export async function httpCreateGroup({ mod, req, res }) {
 
   const newOwnerPerms = GroupPermissions.getOwnerPerm(group.id)
   const newStudentPerms = GroupPermissions.getStudentPerm(group.id)
+  console.log({newOwnerPerms,newStudentPerms})
+
   const connectorForOwner = new ConnectorGroupPermissionToUser(group.id,req.user.id,newOwnerPerms.id)
 
   await mod.saveNewGroupPermissionTemplate(newOwnerPerms)
@@ -746,7 +766,7 @@ export async function httpGetTemplatePermissions({ mod, req, res }) {
   const client = req.user;
   const groupId = req.params.groupId || req.body.groupId || req.query.groupId;
 
-  console.log({groupId})
+  //console.log({groupId})
 
   if (!groupId)
     return res
@@ -770,7 +790,7 @@ export async function httpGetTemplatePermissions({ mod, req, res }) {
 
   const permissionList = await mod.getAllTemplatePerms(groupId);
   const newperms = await mod.getAllPermissionsTemplateFromGroup(groupId);
-  console.log({ permissions: newperms, oldPerms:permissionList })
+ // console.log({ permissions: newperms, oldPerms:permissionList })
 
   // TODO: NOWE PERMISJE + STARE PERMISJE
   return res.json({ permissions: newperms, oldPerms:permissionList });
@@ -779,108 +799,92 @@ export async function httpGetTemplatePermissions({ mod, req, res }) {
 /** @param {MiddlewareParameters} param0 */
 export async function httpHandleDeleteFile({ mod, req, res }) {
   // where will be file name/ file path
-  const fileToDelete = req.params.materialId || req.body.materialId || req.query.materialId;
+  const groupId = req.params.groupId || req.body.groupId || req.query.groupId;
+  const documentId = req.params.materialId || req.body.materialId || req.query.materialId;
 
-  console.log({ fileToDelete })
-  // fileDoc = await mod.dbManager.findOne(`materials`,{id:{$eq:fileToDelete}});
-  const fileDoc = await mod.dbManager.findOneAndDelete(`materials`, { id: { $eq: fileToDelete } });
+  //console.log({documentId})
 
-  console.log({ path: fileDoc.value.path })
-  let fileExists = true;
+  const fileDoc = ( await mod.deleteDocumentFromGroup(documentId)).value
 
-  const fullFilePath = APP_ROOT_DIR + `/` + fileDoc.value.path
+  if(!fileDoc)
+    return res.status(400).json(ANSWERS.DELETE_DOCUMENT_FROM_GROUP_NOT_EXISTS)
 
-  console.log({ fullFilePath })
-  fileExists = await new Promise(async (resolve, reject) => {
-    try {
-      await filesystem.access(fullFilePath)
-      console.log(`access OK`)
-      resolve(true)
-    }
-    catch (exception) {
-      console.log(`access ERR`)
-      reject(exception)
-    }
-  })
-  console.log(`EXISTS`, { fileExists })
+  //console.log({ document: fileDoc })
+
+  const fullFilePath = APP_ROOT_DIR + `/` + fileDoc.path
+  const fileExists = await fs.promises.stat( fullFilePath ).catch( () => false )
+
+  // console.log({fileExists})
   if (!fileExists)
-    res.json({ code: 88888, error: `File ${fullFilePath} not found` })
+    return res.status(400).json(ANSWERS.DELETE_FILE_FROM_GROUP_NOT_EXISTS)
 
-  await filesystem.unlink(fullFilePath)
+  await fs.promises.unlink( fullFilePath )
 
-  console.log(`Succesfuly deleted file`);
-  return res.json({ code: 99999, success: `file ${fullFilePath} has been deleted` });
-
+  console.log(`FILE -> has been deleted`);
+  return res.json(ANSWERS.DELETE_FILE_SUCCESS);
 }
 
 /** @param {MiddlewareParameters} param0 */
 export async function httpHandleAllFilesInGroup({ mod, req, res }) {
   const groupId = req.params.groupId || req.body.groupId || req.query.groupId;
-  const colllectionOfFiles = await dbManager.findManyObjects(`materials`, { groupId: { $eq: groupId } })
-  // <button url src = colllectionOfFiles[0].path> kiliknij aby pobrac </buittpon>
 
-  // colllectionOfFiles.forEach( f => f.filePath = `/materials/${f.filePath}`)
-  // console.log({colllectionOfFiles})
+  const colllectionOfFiles = await mod.getAllMaterialsAssignedToGroup(groupId)
 
-  return res.json({ fileDataset: (colllectionOfFiles || []) });
+  return res.json({ materials: colllectionOfFiles || [] });
 }
 
 /** @param {MiddlewareParameters} param0 */
 export async function httpAddFile({ mod, req, res, next }) {
-  upload(req, res, function (err) {
+  const groupId = req.params.groupId || req.body.groupId || req.query.groupId;
+  const platformObj = await mod.requiredModules.platformModule.getPlatformByGroupId(groupId)
+
+  await mod.requiredModules.platformModule.includePermsIntoReq(req,res,platformObj.id)
+
+  if(!req.user.newGroupPerms.perms.abilities.canEditDetails &&
+     !req.user.newPlatformPerms.perms.abilities.canTeach )
+    return res.status(400).json(ANSWERS.POST_MATERIALS_NOT_ALLOWED)
+
+  upload(req, res, async function (err) {
     if (err instanceof multer.MulterError) console.log(`Please upload a file: ${err}`)
     else if (err) console.log(`Unknown error: ${err}`)
 
-    const groupId = req.params.groupId || req.body.groupId || req.query.groupId;
-    const file = req.file;
-    //console.log(req.file, req.files);
+    if(!req.file)
+      return res.status(400).json(ANSWERS.POST_MATERIALS_FILE_MISS)
 
-    console.log({file})
+    // console.log({UPLOADED_FILE:req.file});
 
     const { mimetype, filename, path } = req.file
 
     let finalFile = new File(mimetype, filename, path, req.body.description, groupId, req.user)
-    // finalFile = {
-    //   contentType: req.file.mimetype,
-    //   name: req.file.filename,
-    //   path: req.file.path,
-    //   dateUpload: Date.now(),
-    //   description: req.body.description,
-    //   groupId: groupId,
-    //   user: req.user,
-    //   id: generateId(),
-    // };
-    mod.dbManager.insertObject(mod.subcollections.materials, finalFile).then((res, rej) => {  // BUG:
-      //console.log(res);
 
-      if (rej) return console.log(rej);
+    await mod.dbManager.insertObject(mod.subcollections.materials, finalFile)
+    console.log("FILE -> saved to database");
 
-      console.log("saved to database"); //
-    })
-
-    res.json({ fileData: finalFile })
+    return res.json({ file: finalFile, ...ANSWERS.UPLOAD_FILE_SUCCESS})
   });
 }
 
 
 /** @param {MiddlewareParameters} param0 */
 export async function httpCreateTask({ mod, req, res, next }) {
+  const groupId = req.params.groupId || req.body.groupId || req.query.groupId;
 
   const toTimestamp = (strDate) => {
     var datum = Date.parse(strDate);
     return datum/1000;
  }
-  // 2 tabele ?
-  // 1 na zadania  idgryop/ idzad /
-  // 2 oddane prace id / idzad / osoba / data oddania /
 
-  // if(!req.user.platformPerms.canTeach)
-  // return res.json({code:420,error:"Create task require canTeach-platform-permission"})
+  let { title, description, dateExpire, dateStart} = req.body
 
-  const groupId = req.params.groupId || req.body.groupId || req.query.groupId;
+  // if(!dateExpire)
+  //   return res.status(400).json(ANSWERS.TASK_EXPIRE_DATE_MISS)
 
-  let { title, description, expire, type, mandatory, created } = req.body
-  console.log({body:req.body})
+  const platfromObj = await mod.requiredModules.platformModule.getPlatformByGroupId(groupId)
+
+  await mod.requiredModules.platformModule.includePermsIntoReq(req,res,platfromObj.id)
+
+  if(!req.user.newPlatformPerms.perms.abilities.canTeach)
+   return res.status(400).json(ANSWERS.TASK_CREATE_NOT_ALLOWED)
 
   if(description?.length>255)
     return res.status(400).json(ANSWERS.TASK_DESCRIPTION_OVER_LEN)
@@ -888,14 +892,14 @@ export async function httpCreateTask({ mod, req, res, next }) {
   if(!title)
    return res.status(400).json(ANSWERS.TASK_NO_TITLE)
 
-  if(typeof expire == `string`)
-      expire = toTimestamp(expire)
+  // if(typeof expire == `string`)
+  //     expire = toTimestamp(expire)
 
-  const t = new Task(title, description, groupId, expire, req.user, type, mandatory)
-
-  await mod.dbManager.insertObject(mod.subcollections.tasks, t)
-
-
+  // console.log({dateExpire})
+  const t = new Task(title, description, groupId, req.user, dateStart ,dateExpire)
+  // console.log({t})
+  await mod.saveTaskInDb(t)
+  console.log("TASK HAS BEEN CREATED")
   return res.json({ task: t, ...ANSWERS.TASK_CREATE_SUCCESS })
 }
 
@@ -964,19 +968,26 @@ export async function HttpHandleDeleteTask({ mod, req, res, next }) {
 
   await Promise.all(promises)
 
-  //const tasksArr = await mod.dbManager.findManyObjects(mod.subcollections.tasksDone,{taskId:{$eq:taskId}})
   return res.json(ANSWERS.TASK_DELETE_SUCCESS)
 }
 
 /** @param {MiddlewareParameters} param0 */
 export async function httpChangeScale({ mod, req, res, next }){
+
   const groupId = req.params.groupId || req.body.groupId || req.query.groupId;
   /** @type {string} */
   let newScale = req.body.gradingScale
+  if(!newScale)
+  {
+    return res.status(400).json(ANSWERS.GRADES_NEW_VALUES_MISS)
+  }
 
   /** @type {string[]} */
-  let grades = newScale.split(`,`)
-  if(!grades.every(item=> isDigit(item)))
+  let grades = newScale.split(` `)
+
+  //console.log({notInt:grades.filter(item=> !Number.isInteger(Number(item)))})
+
+  if(!grades.every(item=> Number.isInteger(Number(item))))
   return res.status(400).json(ANSWERS.GRADES_NOT_INT)
 
   grades = grades.map(item=> parseInt(item))
@@ -988,14 +999,18 @@ export async function httpChangeScale({ mod, req, res, next }){
 
 export async function httpGetGroupScale({ mod, req, res, next })
 {
-  if(!req.user.canTeach)
-  return res.status(400).json(ANSWERS.GET_GRADES_NOT_ALLOWED)
+  // if(!req.user.newGroupPerms.perms.canManageNotes)
+  // return res.status(400).json(ANSWERS.GET_GRADES_NOT_ALLOWED)
 
   const groupId = req.params.groupId || req.body.groupId || req.query.groupId;
+  //console.log({get_scale_from_group_id:groupId})
 
   const scale = await mod.dbManager.findObject(mod.subcollections.scale,{groupId:{$eq:groupId}})
 
-  return res.json({...ANSWERS.GET_GRADES_SUCCESS,scale:scale.grades})
+  //console.log({scale})
+  if(!scale) return res.status(400).json({code:9999,error:"Scale with provided ID is not exists"})
+
+  return res.json({...ANSWERS.GET_GRADES_SUCCESS,scale: scale.grades || []})
 }
 
 
@@ -1004,26 +1019,40 @@ export function httpGetGroupPermissionAbilities({ mod, req, res, next }) {
 }
 
 export async function httpCreateGroupPermissions({ mod, req, res, next }) {
-  const groupId = req.params.groupId || req.body.groupId || req.query.groupId;
+  const groupId = req.params.groupId
+
+  console.log({create_perm_body:req.body})
   const permissionObject = req.body
-  const newPerms = new GroupPermissions(groupId,permissionObject.name,permissionObject.color,
-    permissionObject.importance,permissionObject.abilities)
+  const permsAbilities = Object.assign(new GroupAbilities(),permissionObject.abilities)
 
-  await mod.saveNewGroupPermissionTemplate(newPerms)
+  console.log({abilities:permsAbilities})
 
-  return res.status(200).json({...ANSWERS.CREATE_GROUP_PERMISSION_SUCCESS,perms:newPerms})
+  if(!req.body.name)
+  return res.status(400).json(ANSWERS.CREATE_ROLE_NAME_MISS)
+
+  const newRole = new GroupPermissions(groupId,permissionObject.name,permissionObject.color,
+    permissionObject.importance, permsAbilities)
+
+  console.log(JSON.stringify(newRole,null,2))
+
+  await mod.saveNewGroupPermissionTemplate(newRole)
+
+  return res.status(200).json({...ANSWERS.CREATE_GROUP_PERMISSION_SUCCESS,role:newRole})
 }
 
 export async function httpGetNewTemplatePermissions({ mod, req, res, next }) {
   const groupId = req.params.groupId || req.body.groupId || req.query.groupId;
 
   const permissions =  await mod.getAllPermissionsTemplateFromGroup(groupId)
-
-  return res.status(200).json({perms:permissions})
+  //console.log({groupPermissionsAll:permissions})
+  return res.status(200).json({roles:permissions})
 }
 
 export async function httpAssignUserToPermission({ mod, req, res, next }) {
   const groupId = req.params.groupId || req.body.groupId || req.query.groupId;
+
+  console.log({httpAssignUserToPermission_body:req.body})
+
   const userId = req.body.userId
   const permissionId = req.body.permissionId
 
@@ -1035,30 +1064,66 @@ export async function httpAssignUserToPermission({ mod, req, res, next }) {
 }
 
 
-export async function httpUpdateGroupPermissions({ mod, req, res })
+export async function httpUpdateNewGroupPermissions({ mod, req, res })
 {
-  console.log("httpUpdateGroupPermissions --> ")
-  const groupId = req.params.groupId || req.body.groupId || req.query.groupId;
-  const arrayOfPermissions = req.body.array
 
-  const updateTasks = arrayOfPermissions.map(perms => {
-    const abilities = Object.entries( perms.abilities )
-      .map( ([ability, bool]) => ({ field:`abilities.${ability}`, value:bool }) )
-      .reduce( (obj, { field,value }) => ({ [field]:value, ...obj }), {} )
+  const groupId = req.params.groupId
+  const roleId = req.params.roleId
 
-    return mod.updateGroupPermissions(perms.name,groupId,abilities).then( ({ value }) => value )
-   } )
+  const role = await mod.getRoleById(roleId)
 
-  const newPerms = await Promise.all(updateTasks)
+  if(role.name == `Prowadzący`)
+    return res.status(400).json(ANSWERS.UPDATE_ROLE_OWNER)
 
-  return res.json({...ANSWERS.UPDATE_PERMISSIONS_SUCCESS,perms:newPerms})
+  if(req.body.color)
+  {
+    if(!Number.isInteger(req.body.color))
+      return res.status(400).json(ANSWERS.UPDATE_ROLE_COLOR_NOT_INT)
+
+    if(! (req.body.color>=0x000000  && req.body.color <= 0xFFFFFF))
+      return res.status(400).json(ANSWERS.UPDATE_ROLE_COLOR_NOT_IN_RANGE)
+  }
+
+  const updateToMake = req.body
+
+  const formatedAbilities =  Object.entries( updateToMake.abilities )
+  .map( ([ability, bool]) => ({ field: `abilities.${ability}` , value:bool }) )
+  .reduce( (obj, { field,value }) => ({ [field]:value, ...obj }), {} )
+
+  delete updateToMake.abilities
+
+  Object.assign(updateToMake,formatedAbilities)
+
+  //console.log(updateToMake)
+
+  const {value} = await mod.updateGroupPermission(roleId,updateToMake)
+
+  if(!value)
+    return res.status(400).json(ANSWERS.UPDATE_PERMISSIONS_TARGET_PERMS_MISS)
+
+  return res.json({...ANSWERS.UPDATE_PERMISSIONS_SUCCESS,role:value})
 }
 
-// export async function ({mod,req,res,next}){
-//   const groupId = req.params.groupId || req.body.groupId || req.query.groupId;
-//   const permsName = req.body.name
-//   const newAbs = req.body.abilities
 
-//   await mod.updateGroupPermissions(permsName,groupId,newAbs)
 
-// }
+/** @param {MiddlewareParameters} param0 */
+export async function httpDeleteGroupTemplatePermission({ mod, req, res, next })
+{
+  const groupId = req.params.groupId
+  const roleId = req.params.roleId
+
+  if(!req.user.newGroupPerms.perms.abilities.canManageRoles)
+    return res.status(400).json(ANSWERS.DELETE_ROLE_NOT_ALLOWED)
+
+  const role = await mod.getRoleById(roleId)
+
+  if(role.name == `Prowadzący`)
+    return res.status(400).json(ANSWERS.DELETE_ROLE_OWNER)
+
+  const removed = await mod.deleteGroupTemplatePermission(roleId)
+
+  if(!removed)
+    throw new Error("delete role, role -> not found")
+
+  return res.json(ANSWERS.DELETE_ROLE_SUCCESS)
+}

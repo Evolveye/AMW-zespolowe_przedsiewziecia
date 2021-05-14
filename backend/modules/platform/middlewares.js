@@ -6,6 +6,7 @@ import { PlatformUserPermission, PlatformPermissions, PlatformAbilities, Connect
 import filesystem from 'fs/promises'
 /** @typedef {import("./index.js").MiddlewareParameters} MiddlewareParameters */
 
+
 /** @param {MiddlewareParameters} param0 */
 export async function httpGetUserPlatforms({ req, res, mod }) {
   //  get(`/api/platforms`, this.httpGetAllPlatforms) // Lista wszystkich platform usera
@@ -20,11 +21,31 @@ export async function httpGetUserPlatforms({ req, res, mod }) {
   return res.status(200).json({ platforms: assignedPlatforms });
 }
 
+
+/** @param {MiddlewareParameters} param0 */
+export async function httpGetUserPlatform({ req, res, mod }) {
+  //  get(`/api/platform`, this.httpGetAllPlatform) // Lista wszystkich platform usera
+  const user = req.user;
+  const targetPlatformId = req.params.platformId;
+
+  const targetPlatform = await mod.getTargetPlatform(targetPlatformId)
+
+  if(!targetPlatform)
+    return res.status(400).json(ANSWERS.GET_TARGET_PLATFORM_MISS)
+
+  targetPlatform.myRole = user.newPlatformPerms.perms
+
+  return res.status(200).json({ platform:targetPlatform });
+}
+
+
+/** @param {MiddlewareParameters} param0 */
 export async function httpCreateNewUser({ mod, req, res }) {
 
-  console.log({RecivedDataAboutUser:req.body})
+  //console.log({RecivedDataAboutUser:req.body})
+
   const client = req.user;
-  let { name, surname, email, roleName } = req.body;
+  let { name, surname, email, roleId } = req.body;
 
   if(!isEveryChar(name) || !isEveryChar(surname))
   return res.status(400).json(ANSWERS.CREATE_USER_NAMES_NOT_CHARS_ONLY)
@@ -44,84 +65,89 @@ export async function httpCreateNewUser({ mod, req, res }) {
   if (!platform)
     return res.status(400).json(ANSWERS.CREATE_USER_PLATFORM_NOT_EXIST);
 
-  if (!client.platformPerms.canManageUsers && !client.platformPerms.isMaster)
+  // console.log(JSON.stringify(client,null,2))
+
+  if (!client.newPlatformPerms.perms.abilities.canManageUsers)
     return res.status(400).json(ANSWERS.NOT_ALLOWED_TO_CREATE_USER);
 
-  const alreadyExistUser = await mod.requiredModules.userModule.getUserByUserData(
-    name,
-    surname,
-    email
-  );
+  // const alreadyExistUser = await mod.requiredModules.userModule.getUserByUserData(
+  //   name,
+  //   surname,
+  //   email
+  // );
+
   const userByEmail = await mod.requiredModules.userModule.getUserByEmail(email)
 
-  if (alreadyExistUser && userByEmail) {
-    const userByEmail = await mod.requiredModules.userModule.getUserByEmail(email)
-    const userSame =
-      alreadyExistUser.name == userByEmail.name &&
-      alreadyExistUser.surname == userByEmail.surname &&
-      alreadyExistUser.email == userByEmail.email
-    if (!userSame)
-      return res.status(400).json(ANSWERS.CREATE_USER_EMAIL_IN_USE)
-  }
+  const user = userByEmail
+  ?? await mod.requiredModules.userModule.createUser(
+    { name, surname, email, activated: true },
+    CREATE_USER_EMAIL_CONTENT
+  )
 
-  if (alreadyExistUser) {
-    const alreadyAssigned = await mod.checkUserAssigned(alreadyExistUser.id, req.params.platformId)
+  if (`error` in user)  // jesli nie jest userem, to jest bladem.
+    return res.status(400).json(user);
+
+  // if (userByEmail)
+  //   return res.status(400).json(ANSWERS.CREATE_USER_EMAIL_IN_USE)
+
+  // if (alreadyExistUser && userByEmail) {
+  //   // const userByEmail = await mod.requiredModules.userModule.getUserByEmail(email)
+  //   const userSame =
+  //     alreadyExistUser.name == userByEmail.name &&
+  //     alreadyExistUser.surname == userByEmail.surname &&
+  //     alreadyExistUser.email == userByEmail.email
+
+  // }
+
+    const alreadyAssigned = await mod.checkUserAssigned(user.id, req.params.platformId)
     if (alreadyAssigned)
       return res.status(400).json(ANSWERS.CREATE_USER_ALREADY_ASSIGNED);
-  }
 
-  const user = // TODO: Zmienic to na fazy
-    alreadyExistUser
-    ?? await mod.requiredModules.userModule.createUser(
-      { name, surname, email, activated: true },
-      CREATE_USER_EMAIL_CONTENT
-    )
 
-  if (`error` in user)
-    // jesli nie jest userem, to jest bladem.
-    return res.status(400).json(user);
+  const newPermissions = await mod.getNewPermissionByPermId(
+    roleId,
+    targetPlatformId
+  )
+
+  if (!newPermissions)
+    return res.status(400).json(ANSWERS.CREATE_USER_NO_PERMS_IN_REQ);
 
   // req.user.permission.isowner.
   // if (!this.isPlatformOwner(client.id, platform))
   //   return res.status(400).json({ code: 209, error: "You dont have privilages to create new users on this platform." })
 
-  let baseRole = `student`;
-  const permission = await mod.getPermission(
-    roleName ?? baseRole,
-    targetPlatformId
-  );
-  roleName = roleName.charAt(0).toUpperCase() + roleName.slice(1)
-  const newPermissions = await mod.getNewPermission(
-    roleName,
-    targetPlatformId
-  )
+  // let baseRole = `student`;
+  // const permission = await mod.getPermission(
+  //   roleName ?? baseRole,
+  //   targetPlatformId
+  // );
+  // const permission = await mod.getPermissionByPermId(roleId,targetPlatformId)
 
-  if (!newPermissions)
-  return res.status(400).json(ANSWERS.CREATE_USER_NO_PERMS_IN_REQ);
 
-  if (!permission)
-    return res.status(400).json(ANSWERS.CREATE_USER_NO_PERMS_IN_REQ);
+  // if (!permission)
+  //   return res.status(400).json(ANSWERS.CREATE_USER_NO_PERMS_IN_REQ);
 
-  permission.userId = user.id;
+ // permission.userId = user.id;
 
   const connector = new ConnectorPlatformPermissionToUser(targetPlatformId,user.id,newPermissions.id)
   const task_connector_save =  mod.saveConnectorPermsToUser(connector)
 
-  const task_perm_save = mod.saveUserPermission(permission);
+ // const task_perm_save = mod.saveUserPermission(permission);
 
-  // dopistwanie do membersów.
-  console.log({mod})
+
   const task_platform_update = mod.updatePlatform(
     { id: targetPlatformId },
     { $push: { membersIds: user.id } }
   );
 
-  await Promise.all([task_perm_save, task_platform_update, task_connector_save]);
+  await Promise.all([ task_platform_update, task_connector_save]);
 
   delete user.password;
   return res.status(200).json({ user });
 }
 
+
+/** @param {MiddlewareParameters} param0 */
 export async function httpGetNewPlatformsPermissions({ mod, req, res }) {
   // "/api/platforms/:platformId/permissions": {
   // Pobieranie wszystkich permisji
@@ -135,6 +161,8 @@ export async function httpGetNewPlatformsPermissions({ mod, req, res }) {
   res.json({ permissions: permsTemplatesAll });
 }
 
+
+/** @param {MiddlewareParameters} param0 */
 export async function httpGetPlatformsPermissions({ mod, req, res }) {
   // "/api/platforms/:platformId/permissions": {
   // Pobieranie wszystkich permisji
@@ -143,11 +171,15 @@ export async function httpGetPlatformsPermissions({ mod, req, res }) {
   const member = await mod.checkUserAssigned(req.user.id, platformId);
   if (!member) return res.status(400).json(ANSWERS.GET_PERMS_NOT_MEMBER);
 
-  const permsTemplatesAll = await mod.getAllTemplatePerms(platformId);
+  const permsTemplatesAll = await mod.getNewAllTemplatePerms(platformId)
+  //console.log({newPermsTemplatesAll:permsTemplatesAll})
+  //const permsTemplatesAll = await mod.getAllTemplatePerms(platformId);
 
   res.json({ permissions: permsTemplatesAll });
 }
 
+
+/** @param {MiddlewareParameters} param0 */
 export async function httpHandleMyPermission({ mod, req, res }) {
   const platformId =
     req.params.platformId || req.body.platformId || req.query.platformId;
@@ -159,11 +191,13 @@ export async function httpHandleMyPermission({ mod, req, res }) {
   return res.json(value);
 }
 
+
+/** @param {MiddlewareParameters} param0 */
 export async function httpDeleteUserFromPlatform({ mod, req, res }) {
   // GET Kasowanie userów z platformy /api/platforms/id:number/users/id:number
   const { platformId, userId } = req.params;
 
-  if (!req.user.platformPerms.canManageUsers)
+  if (!req.user.newPlatformPerms.perms.abilities.canManageUsers)
     return res.status(405).json(ANSWERS.PLATFORM_DELETE_NOT_ADMIN);
 
   if (!(await mod.platformExist(platformId)))
@@ -172,10 +206,9 @@ export async function httpDeleteUserFromPlatform({ mod, req, res }) {
   const client = req.user;
   const targetPlatform = await mod.getPlatform(platformId);
 
-  if (!(await mod.isPlatformOwner(client.id, targetPlatform)))
-    return res.status(405).json(ANSWERS.PLATFORM_DELETE_NOT_ADMIN);
   if (sameWords(client.id, userId))
     return res.status(400).json(ANSWERS.USER_DELETE_DELETE_OWNER);
+
   if (!mod.isUserAssigned(userId, targetPlatform))
     return res.status(400).json(ANSWERS.PLATFORM_USER_NOT_MEMBER);
 
@@ -193,6 +226,8 @@ export async function httpDeleteUserFromPlatform({ mod, req, res }) {
   return res.status(200).send(ANSWERS.USER_DELETE_SUCCESS);
 }
 
+
+/** @param {MiddlewareParameters} param0 */
 export async function httpGetUsersOfPlatform({ mod, req, res }) {
   // GET Lista userów platformy /api/platforms/id:number/users
   const targetPlatformId = req.params.platformId;
@@ -260,27 +295,111 @@ export async function httpGetUsersOfPlatform({ mod, req, res }) {
   //   },
   // ).toArray()
 
-  const allUsersPerms = await mod.dbManager
-    .aggregate(`userModule`, {
-      pipeline: [
-        { $match: { id: { $in: platform.membersIds } } },
-        {
-          $lookup: {
-            from: "platformModule.permissions.users",
-            localField: "id",
-            foreignField: "userId",
-            as: "perms",
-          },
-        },
-        { $unwind: { path: "$perms", preserveNullAndEmptyArrays: true } },
-        { $unset: ["_id", "perms._id"] },
-      ],
-    })
-    .toArray();
+  //console.log({platform})
 
-  return res.status(200).json({ users: allUsersPerms });
+  const usersWithPermissions = await mod.dbManager.aggregate(`userModule`, { pipeline: [
+    {
+      $match: { id: { $in: platform.membersIds } }
+    }, {
+      $lookup: {
+        from: `platformModule.newPermissionsUsers`,
+        let: { userId:`$id` },
+        pipeline: [
+          {
+            $match: { $expr: {
+              $and: [
+                { $eq: [ `$platformId`, platform.id ] },
+                { $eq: [ '$userId', '$$userId' ] },
+              ]
+            } }
+          }
+        ],
+        as: `connector`,
+      }
+    }, {
+      $unwind: { path:`$connector` }
+    }, {
+      $lookup: {
+        from: `platformModule.newPermissionsTemplates`,
+        localField: `connector.permissionId`,
+        foreignField: `id`,
+        as: `role`
+      }
+    }, {
+      $unwind: { path:`$role` }
+    }, {
+      $project: { connector:0 }
+    }
+  ] } ).toArray()
+
+
+
+  //console.log(JSON.stringify(usersWithPermissions,null,2))
+
+//  const newUsersWithConnectorQuery = await mod.dbManager
+//   .aggregate(`userModule`, {
+//     pipeline: [{ $match: { id: { $in: platform.membersIds } } },
+//     {
+//       $lookup: {
+//         from: 'platformModule.newPermissionsUsers',
+//         let:{'userId':"$id" },
+//         pipeline:[
+//           {$match:{$and:[
+//             {platformId:{$eq:platform.id}},
+//             {userId: {$eq:'$$userId'}},
+//           ]}}
+//         ],
+//         as: 'connector',
+//       }
+//     }, {
+//       $unwind: {
+//         path: '$connector'
+//       }
+//     },
+//     {
+//       $lookup: {
+//         from: 'platformModule.newPermissionsTemplates',
+//         localField: 'connector.permissionId',
+//         foreignField: 'id',
+//         as: 'role'
+//       }
+//     }, {
+//       $unwind: {
+//         path: '$role'
+//       }
+//     }
+//   ]},).toArray()
+
+ // console.log({newUsersWithConnectorQuery})
+
+  // const allUsersPerms = await mod.dbManager
+  //   .aggregate(`userModule`, {
+  //     pipeline: [
+  //       { $match: { id: { $in: platform.membersIds } } },
+  //       {
+  //         $lookup:{},
+
+
+  //         $lookup: {
+  //           from: "platformModule.permissions.users",
+  //           localField: "id",
+  //           foreignField: "userId",
+  //           as: "perms",
+  //         },
+  //       },
+  //       { $unwind: { path: "$perms", preserveNullAndEmptyArrays: true } },
+  //       { $unset: ["_id", "perms._id"] },
+  //     ],
+  //   })
+  //   .toArray();
+
+  //console.log(JSON.stringify(newUsersWithConnectorQuery,null,2))
+
+  return res.status(200).json({ users: usersWithPermissions });
 }
 
+
+/** @param {MiddlewareParameters} param0 */
 export async function httpCreatePlatform({ mod, req, res }) {
   // POST Tworzenie platformy /api/platforms
 
@@ -299,22 +418,28 @@ export async function httpCreatePlatform({ mod, req, res }) {
     if (!(await mod.canCreatePlatform(req.user.id)))
       return res.status(400).json(ANSWERS.CREATE_PLATFORM_LIMIT);
 
-  const newPlatform = new Platform(req.user, name);
 
-  const ownerPermisions = new PlatformUserPermission(
-    req.user.id,
-    newPlatform.id,
-    `owner`,
-    {
-      isMaster: true,
-    }
-  );
+  // const ownerPermisions = new PlatformUserPermission(
+  //   req.user.id,
+  //   newPlatform.id,
+  //   `Właściciel`,
+  //   {
+  //     isMaster: true,
+  //   }
+  // );
+  const newPlatform = new Platform(req.user.id, name);
+
   const newPerms = mod.createNewBaseRoles(newPlatform.id)
-  const ownerNewPermissions = new ConnectorPlatformPermissionToUser(newPlatform.id,req.user.id,newPerms.find(perm=> perm.name==`Właściciel`).id)
+
+  const ownerNewPermissions = new ConnectorPlatformPermissionToUser(
+    newPlatform.id,
+    req.user.id,
+    newPerms.find(perm=> perm.name == `Właściciel`).id
+    )
 
   const tasksToDo = [newPerms.map(item=> mod.saveNewPermissions(item))];
-  tasksToDo.push(mod.createBaseRoles(newPlatform.id))
-  tasksToDo.push(mod.saveUserPermission(ownerPermisions));
+  //tasksToDo.push(mod.createBaseRoles(newPlatform.id))
+  // tasksToDo.push(mod.saveUserPermission(ownerPermisions));
   tasksToDo.push(mod.savePlatform(newPlatform));
   tasksToDo.push(mod.saveConnectorPermsToUser(ownerNewPermissions));
 
@@ -323,6 +448,8 @@ export async function httpCreatePlatform({ mod, req, res }) {
   return res.status(200).json({ platform: newPlatform });
 }
 
+
+/** @param {MiddlewareParameters} param0 */
 export async function httpDeletePlatform({ mod, req, res }) {
   // DELETE usuwanie platformy   /api/platforms/:id
   const targetPlatformId = req.params.platformId;
@@ -330,18 +457,24 @@ export async function httpDeletePlatform({ mod, req, res }) {
   const fullFilePath = (relpath) => APP_ROOT_DIR + `/` + relpath
 
 
-  const target = await mod.getPlatform(targetPlatformId);
+  const confirmPassw = req.body.password
+
+  const target = await mod.getPlatformWithOwnerObj(targetPlatformId)
 
   if (!target)
     return res.status(400).json(ANSWERS.DELETE_PLATFORM_PLATFORM_NOT_EXISTS);
 
-  if (!client.platformPerms.isMaster)
+  if (!client.newPlatformPerms.perms.abilities.canDeletePlatform)
     return res.status(400).json(ANSWERS.DELETE_PLATFORM_NOT_ALLOWED);
 
   if (!target) throw new Error("Drop Platform cascade has been refused.");
 
+  const platformOwner = await mod.requiredModules.userModule.getUserById(target.owner.id)
+
+  if(platformOwner.password != confirmPassw)
+    return res.status(400).json(ANSWERS.PLATFORM_DELETE_BAD_CONFIRM)
+
   let platformId = target.id;
-  console.log({ target })
 
   const query = { platformId: { $eq: platformId } };
 
@@ -396,59 +529,134 @@ export async function httpDeletePlatform({ mod, req, res }) {
   return res.status(200).json(ANSWERS.DELETE_PLATFORM_SUCCESS);
 }
 
+
+/** @param {MiddlewareParameters} param0 */
 export function httpGetBasePlatformPermisionTemplate({ mod, req, res }){
     return res.json(new PlatformAbilities())
 }
 
+
 /** @param {MiddlewareParameters} param0 */
-export function httpCreatePlatformsPermissions({ mod, req, res }) {
+export async function httpCreatePlatformsPermissions({ mod, req, res }) {
   const platformId =  req.params.platformId || req.body.platformId || req.query.platformId;
-  const permissionObject = req.body.perm
-  console.log(req.body)
-  if(!permissionObject)
-  return res.status(400).json({code:223,error:"Permission object not found"})
 
-  console.log({bodyOfRequest:req.body.perm})
+  if(!req.body.name)
+  return res.status(400).json(ANSWERS.CREATE_PERMISSIONS_NAME_MISS)
 
-  const template = new PlatformPermissions(
-    permissionObject.name,permissionObject.color,permissionObject.importance,
-    permissionObject.abilities,platformId )
+  const doesPermissionExists = await mod.getNewPermission(req.body.name,platformId)
 
-  console.log({recivedObj:permissionObject,createdObj:template})
+  if(doesPermissionExists)
+  return res.status(400).json(ANSWERS.CREATE_PERMISSIONS_DOUBLED)
 
-  mod.dbManager.insertObject(mod.subcollections.newTemplatePermissions,template)
-  return res.json({...ANSWERS.CREATE_PERMISSIONS_SUCCESS,perms:template})
+  const createdtemplatePermissions = new PlatformPermissions(
+    req.body.name,
+    req.body.color || null,
+    req.body.importance || null,
+    req.body.abilities || null,
+    platformId
+    )
+
+  // if(!createdtemplatePermissions)
+  // return res.status(400).json({code:223,error:"Permission object not found"})
+
+  // const template = new PlatformPermissions(
+  //   permissionObject.name,permissionObject.color,permissionObject.importance,
+  //   permissionObject.abilities,platformId )
+
+  // console.log({recivedObj:permissionObject,createdObj:template})
+
+  await mod.saveNewPermissions(createdtemplatePermissions)
+
+  return res.json({...ANSWERS.CREATE_PERMISSIONS_SUCCESS,role:createdtemplatePermissions})
 }
 
 
+/** @param {MiddlewareParameters} param0 */
 export async function httpUpdatePlatformsPermissions({ mod, req, res })
 {
-  console.log("httpUpdatePlatformsPermissions --> ")
-  const platformId =  req.params.platformId || req.body.platformId || req.query.platformId;
-  const arrayOfPermissions = req.body.array
+  const platformId =  req.params.platformId
+  const roleId =  req.params.roleId
 
-  const updateTasks = arrayOfPermissions.map(perms => {
-    const abilities = Object.entries( perms.abilities )
-      .map( ([ability, bool]) => ({ field:`abilities.${ability}`, value:bool }) )
-      .reduce( (obj, { field,value }) => ({ [field]:value, ...obj }), {} )
+  if(!roleId || !platformId)
+  throw new Error("edit role - roleId/platformId not provided")
 
-    return mod.updatePlatformPermission(platformId,perms.name,abilities).then( ({ value }) => value )
-   } )
+  const targetRole = await mod.getNewPermissionById(roleId)
 
-  const newPerms = await Promise.all(updateTasks)
+  if(targetRole.name == `Właściciel`)
+    return res.status(400).json(ANSWERS.UPDATE_ROLE_OWNER)
 
-  return res.json({...ANSWERS.UPDATE_PERMISSIONS_SUCCESS,perms:newPerms})
+  if(req.body.color)
+  {
+    if(!Number.isInteger(req.body.color))
+      return res.status(400).json(ANSWERS.UPDATE_ROLE_COLOR_NOT_INT)
+
+    if(! (req.body.color>=0x000000  && req.body.color <= 0xFFFFFF))
+      return res.status(400).json(ANSWERS.UPDATE_ROLE_COLOR_NOT_IN_RANGE)
+  }
+  const updateToMake = req.body
+
+  const formatedAbilities =  Object.entries( updateToMake.abilities )
+  .map( ([ability, bool]) => ({ field: `abilities.${ability}` , value:bool }) )
+  .reduce( (obj, { field,value }) => ({ [field]:value, ...obj }), {} )
+
+  delete updateToMake.abilities
+
+  Object.assign(updateToMake,formatedAbilities)
+
+  // const updateRolesValues = toUpdateRole.map(perms => {
+  //   const abilities = Object.entries( perms.abilities )
+  //     .map( ([ability, bool]) => ({ field:`abilities.${ability}`, value:bool }) )
+  //     .reduce( (obj, { field,value }) => ({ [field]:value, ...obj }), {} )
+  // })
+
+
+  const {value} = await mod.updatePlatformPermission(roleId,updateToMake)
+
+  if(!value)
+    return res.status(400).json(ANSWERS.UPDATE_ROLE_ROLE_NOT_FOUND)
+
+  //console.log({ updateToMake ,updatedRole:value})
+
+  return res.json({...ANSWERS.UPDATE_PERMISSIONS_SUCCESS,role:value})
 }
 
 
-// /** @param {MiddlewareParameters} param0 */
-// export function httpAssignPermsToUser({ mod, req, res }) {
-//   const platformId =  req.params.platformId || req.body.platformId || req.query.platformId;
-//   const userId = req.body.userId
-//   const permsId = req.body.permsId
+/** @param {MiddlewareParameters} param0 */
+export async function httpAssignPermsToUser({ mod, req, res }) {
 
-//   const connector = new ConnectorPlatformPermissionToUser(platformId,userId,permsId)
-//   console.log({ConnectorPermsToUser:connector})
+ // console.log({body:req.body})
 
-//   mod.dbManager.insertObject(mod.subcollections.newUserPermissions,connector)
-// }
+  const platformId =  req.params.platformId || req.body.platformId || req.query.platformId
+  const userId =  req.params.userId || req.body.userId
+  const roleId = req.body.roleId
+
+  await mod.deleteConnectorUserPermission(userId,platformId)
+
+  const connector = new ConnectorPlatformPermissionToUser(platformId,userId,roleId)
+  await mod.saveConnectorPermsToUser(connector)
+
+  // console.log({ConnectorPermsToUser:connector})
+
+  return res.json(ANSWERS.CHANGE_PERMISSIONS_FOR_USER)
+}
+
+
+/** @param {MiddlewareParameters} param0 */
+export async function httpDeletePlatformPermission({ mod, req, res }){
+  const permissionId = req.params.roleId
+
+  if(!permissionId)
+  throw new Error("Delete role - role id not provided.")
+
+  const targetRole = await mod.getNewPermissionById(permissionId)
+
+  if(targetRole.name == `Właściciel`)
+    return res.status(400).json(ANSWERS.DELETE_ROLE_OWNER)
+
+  const removedObj = await mod.deleteTemplateOfNewPermissions(permissionId)
+
+  if(!removedObj)
+  return res.status(400).json(ANSWERS.DELETE_ROLE_ROLE_NOT_FOUND)
+
+  return res.json(ANSWERS.DELETE_ROLE_SUCCESS)
+}

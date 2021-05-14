@@ -15,11 +15,11 @@ export const ANSWERS = {
 
     PLATFORM_USER_NOT_MEMBER: { code: 201, error: "Targeted user is not a platform member." },
     PLATFORM_DELETE_USER_SUCCESS: { code: 202, success: "User has been deleted sucessfully." },
-
+    PLATFORM_DELETE_BAD_CONFIRM:{code:223,error:"For deleting platform, you must provide correct password of owner account."},
 
     PLATFORM_PERMS_PE_ID_MISS: { code: 210, error: `Cannot assign your role in PE system, Because platformId is not provided.` },
     PLATFORM_PERMS_NOT_MEMBER: { code: 211, error: `You are not a member of target platform, Cannot create/assign permissions.` },
-
+    GET_TARGET_PLATFORM_MISS:{code: 221,error:`Platform with specified ID not found.`},
 
     USER_WITHOUT_PLATFORMS: { code: 220, error: `This user dont belong to any platform.` },
     NOT_ALLOWED_TO_CREATE_USER: { code: 231, error: `Your privilages dont allows you to create new platform account.` },
@@ -51,8 +51,22 @@ export const ANSWERS = {
     DELETE_PLATFORM_PLATFORM_NOT_EXISTS: { code: 208, error: "Cannot delete not existing platform." },
     DELETE_PLATFORM_NOT_ALLOWED: { code: 209, error: "You dont have privilages to create new users on mod platform." },
     DELETE_PLATFORM_SUCCESS: { code: 210, success: "Platform deleted successfuly." },
-    
+
+    CREATE_PERMISSIONS_NAME_MISS:{code:227,error:"create new platform permission - not provided name."},
     CREATE_PERMISSIONS_SUCCESS:{code:217,success:"Successfully created permissions."},
+    CREATE_PERMISSIONS_DOUBLED:{code:222,error:"permissions with provided name already exists in your platfom."},
     UPDATE_PERMISSIONS_SUCCESS: { code: 216, success: "Premissions has been updated" },
+    CHANGE_PERMISSIONS_FOR_USER:{code:225,success:"new permissions are assigned to user."},
+
+
+    DELETE_ROLE_OWNER:{code:235,error:"Cannot delete platform owner role."},
+    DELETE_ROLE_ROLE_NOT_FOUND:{code:226,error:"Delete role refused. Object to delete not found."},
+    DELETE_ROLE_SUCCESS:{code:224,success:"Delete role has ended sucessfull"},
+    UPDATE_ROLE_ROLE_NOT_FOUND:{code:234,error:"Edit role refused - can not find role with specified id."},
+    UPDATE_ROLE_COLOR_NOT_INT:{code:236,error:"color must be presented as an initger value"},
+    UPDATE_ROLE_COLOR_NOT_IN_RANGE:{code:237,error:"Invalid range of color. color must be in range of 0x000000 to 0xffffff"},
+    UPDATE_ROLE_OWNER:{code:238,error:"Cannot update platform owner role."},
+
+
 }
 
