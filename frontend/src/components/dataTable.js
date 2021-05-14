@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react"
 import PropTypes from "prop-types"
 
-import { fetchOrGet } from "../utils/functions.js"
-
 
 
 /**
@@ -56,7 +54,6 @@ const InputField = ({
   type,
   name,
   getData,
-  getDataAddress = getData?.address,
   processor,
   updateValue,
   validator = () => true,
@@ -74,8 +71,8 @@ const InputField = ({
   const standardProps = {
     defaultValue: defaultValue ? controlledProcessor( defaultValue )?.value : undefined,
     key: typeof data,
-    onChange: ({ target:{ checked, value } }) => validator( checkable ? checked : value ),
-    onInput: ({ target:{ name, checked, value } }) => updateValue( name, checkable ? checked : value ),
+    onChange: ({ target:{ checked, files, value } }) => validator( checkable ? checked : (files || value) ),
+    onInput: ({ target:{ name, checked, files, value } }) => updateValue( name, checkable ? checked : (files || value) ),
     className,
     name,
   }
@@ -89,10 +86,12 @@ const InputField = ({
     }
 
     runAfterDataLoad( () => {
-      if (getData instanceof Promise) getData.then( setNewData )
-      else if (getDataAddress) fetchOrGet( getDataAddress, getData?.headers || {}, data =>
-        setNewData( Array.isArray( data ) ? data : data[ getData?.responseField ] ),
-      )
+      let mounted = true
+
+      const data = typeof getData == `function` ? getData() : getData
+      if (data instanceof Promise) data.then( r => mounted && setNewData( r ) )
+
+      return () => mounted = false
     } )
   }, [] )
 
@@ -103,6 +102,7 @@ const InputField = ({
     case `number`: return <input type="number" {...standardProps} />
     case `checkbox`: return <input type="checkbox" {...standardProps} defaultChecked={standardProps.defaultValue} />
     case `datetime-local`: return <input type="datetime-local" {...standardProps} />
+    case `time`: return <input type="time" {...standardProps} />
     case `textarea`: return <textarea {...standardProps} />
 
     case `select`:
@@ -248,21 +248,14 @@ export default class DataTable extends React.Component {
 
 
   async componentDidMount() {
-    const {
-      data: initialData,
-      getData,
-      getDataAddress = getData?.address,
-    } = this.props
+    const initialData = this.props.getData
 
-    const data = initialData || await (
-      getData instanceof Promise ? getData : fetchOrGet( getDataAddress, getData?.headers || {} )
-    )
+    const data = await (typeof initialData == `function` ? initialData() : initialData)
 
-    if (!data) return
-
-    const dataArr = Array.isArray( data ) ? data : data[ getData.responseField ]
-
-    dataArr.forEach( this.addFieldToTable )
+    if (data) {
+      if (Array.isArray( data )) data.forEach( this.addFieldToTable )
+      else console.error( `DataTable need array to display data. Your data is`, data )
+    }
 
     this.runAfterDataLoad()
   }
@@ -276,13 +269,17 @@ export default class DataTable extends React.Component {
       noActions,
       onDelete = () => {},
       onEdit = () => {},
+      keyExtractor,
     } = this.props
 
     const abilities = actionPosibility( field )
+    const key = field.id || keyExtractor?.( field )
     let editable = false
 
+    if (!key) throw { error:`Cannot add to table field without id!`, field }
+
     const row = (
-      <tr key={field.id}>
+      <tr key={key}>
         {
           this.fields.map( ({ editable:editableField, name, dataFieldname = name, processEntireField, processor }) => {
             if (editableField && (abilities || abilities.edit)) editable = true
@@ -326,7 +323,7 @@ export default class DataTable extends React.Component {
       </tr>
     )
 
-    this.setState( s => ({ tableRows:[ ...s.tableRows, row ]  }) )
+    this.setState( s => ({ tableRows:[ ...s.tableRows, row ] }) )
   }
 
 
@@ -366,6 +363,7 @@ DataTable.propTypes = {
   create: PropTypes.shape({ label:PropTypes.string, className:PropTypes.string }),
   delete: PropTypes.shape({ label:PropTypes.string, className:PropTypes.string }),
   edit: PropTypes.shape({ label:PropTypes.string, className:PropTypes.string }),
+  keyExtractor: PropTypes.func,
   onCreate: PropTypes.func,
   onDelete: PropTypes.func,
   onEdit: PropTypes.func,

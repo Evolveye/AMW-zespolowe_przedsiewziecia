@@ -1,3 +1,4 @@
+import { navigate } from "gatsby-link"
 import { useEffect, useState } from "react"
 import { getAuthHeaders } from "./auth"
 import { fetchOrGet, getUrnQuery } from "./functions"
@@ -5,30 +6,28 @@ import URLS from "./urls"
 
 
 export default function getWebsiteContext() {
+  const getData = address => fetchOrGet( address, getAuthHeaders() )
   const { p, g, m } = getUrnQuery()
 
-  const reducer = arr => arr.reduce( (obj, { key, value }) => ({ ...obj, [ key ]:value }), {} )
-  const getData = address => fetchOrGet( address, getAuthHeaders() )
-  const [ ctx, setCtx ] = useState([
+  const getCtxData = () => [
     { key:`platform`, value:p ? getData( URLS.PLATFORM$ID_GET( p ) ) : null },
-    {
-      key: `group`,
-      value: p && g
-        ? getData( URLS.GROUP_GET() + `?platformId=${p}` ).then( ({ groups }) => ({ group:groups[ 0 ] }) )
-        : null,
-    },
-    { key:`meet`,     value:getData( `fake://meets/${m}` ) },
-  ])
+    { key:`group`, value:g ? getData( URLS.GROUP$ID_GET( g ) ) : null },
+    { key:`meet`, value:m ? getData( URLS.MEET$ID_GET( m ) ) : null },
+  ]
+
+  const [ ctx, setCtx ] = useState( getCtxData() )
 
   useEffect( () => {
-    if (ctx.some( ({ value }) => value instanceof Promise )) Promise.all(
-      ctx.map( ({ key, value }) => new Promise( r =>
+    const ctxData = getCtxData()
+
+    if (ctxData.some( ({ value }) => value instanceof Promise )) Promise.all(
+      ctxData.map( ({ key, value }) => new Promise( r =>
         value instanceof Promise
-          ? value.then( resolvedValue => r({ key, value:resolvedValue[ key ] }) )
+          ? value.then( res => res ? r({ key, value:res[ key ] }) : navigate( `/logout` ) )
           : r({ key, value }),
       ) ),
-    ).then( setCtx )
-  }, [] )
+    ).then( data => setCtx( data ) )
+  }, [ p, g, m ] )
 
-  return reducer( ctx )
+  return ctx.reduce( (obj, { key, value }) => ({ ...obj, [ key ]:value }), {} )
 }

@@ -23,6 +23,11 @@
 .flexList {
   display: flex;
 }
+.group-settings-switch {
+  position: absolute;
+  left: -55px;
+  top: -3px;
+}
 
 @media screen and (max-width:1000px) {
   .content {

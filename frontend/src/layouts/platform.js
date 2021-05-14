@@ -11,6 +11,7 @@ export default ({ children, title }) => (
     <Layout title={title}>
       <main className={classes.main}>
         <GroupsList className={classes.groups} />
+
         <div className={classes.content}>
           {children}
         </div>

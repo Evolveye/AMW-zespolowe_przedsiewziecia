@@ -4,8 +4,6 @@ import { Link } from "gatsby"
 
 import classes from "./calendar.module.css"
 
-const months = [ `Jan`, `Feb`, `Mar`, `Apr`, `May`, `Jun`, `Jul`, `Aug`, `Sep`, `Oct`, `Nov`, `Dec` ]
-
 const daysInMonth = (year, month) => 32 - new Date( year, month, 32 ).getDate()
 const firstDayInMonth = (year, month) => (new Date( year, month )).getDay()
 
@@ -38,10 +36,7 @@ export default function Calendar({ classNames, children }) {
     const tds = []
 
     for (let j = 0;  j < 7;  j++) {
-      const tdProps = {
-        className: `${classes.td} ${classNames?.day} `,
-        key: j,
-      }
+      const tdProps = { key:j, className:`${classes.td} ${classNames?.day} ` }
 
       if (i === 0 && j < firstDay) tds.push( <td {...tdProps} /> )
       else if (date > daysInMonth( month, year )) tds.push( <td {...tdProps} /> )
@@ -49,20 +44,16 @@ export default function Calendar({ classNames, children }) {
         const currentDayInfo = dayInfo.filter( info => date === info.day && info.month === month && info.year === year ) ?? {}
         const isToday = date === today.getDate() && year === today.getFullYear() && month === today.getMonth()
 
-        const events = currentDayInfo.map( ({ link, title, info }) => {
-          if (!title) return
-
-          return (
-            <div key={title} className={classes.event}>
-              {
-                link
-                  ? <Link className={`${classes.title} ${classNames?.activeEventTitle}`} to={link}>{title}</Link>
-                  : <span className={`${classes.title} ${classNames?.eventTitle}`}>{title}</span>
-              }
-              <p className={`${classes.eventDescription} ${classNames?.eventDescription}`}>{info}</p>
-            </div>
-          )
-        } )
+        const events = currentDayInfo.map( ({ link, title, info }) => !title ? null :  (
+          <div key={link} className={classes.event}>
+            {
+              link
+                ? <Link className={`${classes.title} ${classNames?.activeEventTitle}`} to={link}>{title}</Link>
+                : <span className={`${classes.title} ${classNames?.eventTitle}`}>{title}</span>
+            }
+            <p className={`${classes.eventDescription} ${classNames?.eventDescription}`}>{info}</p>
+          </div>
+        ) )
 
         if (isToday) tdProps.className += classNames?.today
 

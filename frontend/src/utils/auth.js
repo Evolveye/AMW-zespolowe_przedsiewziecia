@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { navigate } from "gatsby"
-import { fetcher, fetchOrGet, getUrnQuery, isBrowser } from "./functions.js"
+import { fetcher, getFromStorage, clearStorage, isBrowser, setInStorage } from "./functions.js"
 import URLS from "./urls.js"
 
 const fakeUser = {
@@ -11,12 +11,9 @@ const fakeUser = {
 }
 
 const changedUserSetters = []
-const storage = isBrowser() ? window.sessionStorage : null
-const getJsonFromStorage = key => JSON.parse( storage?.getItem( key ) )
-const setJsonInStorage = (key, value) => storage?.setItem( key, JSON.stringify( value ) )
-const setToken = token => setJsonInStorage( `token`, token )
+const setToken = token => setInStorage( `token`, token )
 const setUser = user => {
-  setJsonInStorage( `user`, user )
+  setInStorage( `user`, user )
 
   changedUserSetters.forEach( setter => setter( user ) )
 }
@@ -24,11 +21,11 @@ const setUser = user => {
 // export const AuthContext = React.createContext({ user:null, platform:null, group:null, meet:null })
 export const getAuthHeaders = () => ({ Authentication:`Bearer ${getToken()}` })
 export const Authorized = ({ children }) => isLogged() ? children : navigate( `/unauthorized` )
-export const getUser = () => getJsonFromStorage( `user` )
-export const getToken = () => getJsonFromStorage( `token` )
+export const getUser = () => getFromStorage( `user` )
+export const getToken = () => getFromStorage( `token` )
 export const fakeLogin = () => setUser( fakeUser )
 export const isLogged = () => !!getUser()
-export const logout = () => storage.clear()
+export const logout = () => clearStorage()
 
 
 // export const AuthContextProvider = ({ children }) => {
@@ -82,11 +79,11 @@ export const register = data => {
 
 
 export const login = async data => {
-  const { token } = await fetcher.post( URLS.LOGIN_POST(), data )
+  const tokenData = await fetcher.post( URLS.LOGIN_POST(), data )
 
-  if (!token) return
+  if (!tokenData?.token) return
 
-  setToken( token )
+  setToken( tokenData.token )
 
   const { user } = await fetcher.get( URLS.USER_ME_GET(), getAuthHeaders() )
 

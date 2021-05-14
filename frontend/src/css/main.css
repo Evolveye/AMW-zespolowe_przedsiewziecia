@@ -10,3 +10,15 @@
   background-color: white;
   border-radius: 10px;
 }
+
+.link {
+  color: #3fb8e7;
+  font-weight: bold;
+  border-bottom: 1px dashed;
+}
+    .link:hover {
+      border-bottom: 2px solid;
+    }
+    .link:active {
+      color: blueviolet;
+    }

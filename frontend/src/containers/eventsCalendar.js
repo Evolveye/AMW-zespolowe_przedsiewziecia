@@ -1,14 +1,22 @@
-import React from "react"
+import React, { useEffect, useState } from "react"
 
 import Calendar, { Info } from "../components/calendar.js"
-import { fetchOrGet, getDate, getUrnQuery } from "../utils/functions.js"
+import { authFetcher } from "../utils/auth.js"
+import { getDate, getUrnQuery } from "../utils/functions.js"
+import URLS from "../utils/urls.js"
 
 import classes from "./eventsCalendar.module.css"
 
 export default ({ className = `` }) => {
   const { p:platformId, g:groupId } = getUrnQuery()
   const queryParts = [ platformId ? `platformId=${platformId}` : ``, groupId ? `groupId=${groupId}` : `` ].filter( Boolean )
-  const events = fetchOrGet( `fake://meets?${queryParts.join( `&` )}` )
+  const [ events, setEvents ] = useState([])
+
+  useEffect( () => {
+    authFetcher.get( URLS.MEET_GET() + `?` + queryParts.join( `&` ) ).then( r => {
+      r && setEvents( r.meets )
+    } )
+  }, [ platformId, groupId ] )
 
   return (
     <Calendar
@@ -21,11 +29,11 @@ export default ({ className = `` }) => {
       }}
     >
       {
-        events.map( ({ id, platformId, groupId, startDate, description }) => {
-          const date = new Date( startDate )
+        events.map( ({ id, platformId, groupId, dateStart, description }) => {
+          const date = new Date( dateStart )
           return (
             <Info
-              key={startDate}
+              key={id}
               year={date.getFullYear()}
               month={date.getMonth()}
               day={date.getDate()}

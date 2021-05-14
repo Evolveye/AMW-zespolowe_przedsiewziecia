@@ -7,12 +7,13 @@ import ToggableBox from "../components/toggableBox.js"
 import SwitchBox, { Tab } from "../components/switchBox.js"
 import DataTable, { Adder, Field, Processor } from "../components/dataTable.js"
 import Form, { Text, Password, Submit } from "../components/form.js"
-import { fetcher, getUrnQuery } from "../utils/functions"
+import { fetcher, getUrnQuery, isDataLoading, setInStorage } from "../utils/functions"
 
 import boxesClasses from "../css/box.module.css"
 import classes from "./platformChooser.module.css"
 import { authFetcher, getAuthHeaders } from "../utils/auth.js"
 import URLS from "../utils/urls.js"
+import getWebsiteContext from "../utils/websiteContext.js"
 
 const buttonsClasname = `neumorphizm is-button`
 const dataTableButtonsClassName = `${buttonsClasname} ${classes.actionButton}`
@@ -53,10 +54,12 @@ export default ({ className = `` }) => {
   const queryData = useStaticQuery( query )
   const [ platforms, setPlatforms ] = useState( null )
   const { p } = getUrnQuery()
+  const { platform } = getWebsiteContext()
 
   useEffect( () => {
-    authFetcher.get( URLS.PLATFORM_GET() ).then( ({ platforms }) => setPlatforms( platforms ) )
-  }, [] )
+    authFetcher.get( URLS.PLATFORM_GET() )
+      .then( data => data ? setPlatforms( data.platforms ) : navigate( `/logout` ) )
+  }, [ p ] )
 
   return (
     <Select
@@ -66,20 +69,23 @@ export default ({ className = `` }) => {
       btnClassName={`${buttonsClasname} ${classes.navSwitch}`}
       btnIsActiveClassname="is-active"
       renderChoosedItem={
-        () => !p || !platforms ? <span className={`tag ${classes.linkTag}`}>Wybierz platformę...</span> : <>
+        () => !p || isDataLoading( platform ) ? <span className={`tag ${classes.linkTag}`}>Wybierz platformę...</span> : <>
           <Link className={classes.platform} to={`/platform?p=${p}`}>
-            {platforms.find( ({ id }) => id == p ).name}
+            {platform.name}
           </Link>
 
-          <ToggableBox
-            {...toggleBoxProps}
-            boxClassName={boxesClasses.wrapper}
-            btnClassName={`${buttonsClasname} ${boxesClasses.switch}`}
-            btnContent={<Image fluid={queryData.cog.childImageSharp.fluid} />}
-            fullScreened
-          >
-            <SettingsTabs platformId={p} />
-          </ToggableBox>
+          {
+            Object.values( platform.myRole.abilities ).filter( Boolean ).length == 0 ? null : (
+              <ToggableBox
+                {...toggleBoxProps}
+                boxClassName={boxesClasses.wrapper}
+                btnClassName={`${buttonsClasname} ${boxesClasses.switch}`}
+                btnContent={<Image fluid={queryData.cog.childImageSharp.fluid} />}
+                fullScreened
+                children={<SettingsTabs platformId={p} />}
+              />
+            )
+          }
         </>
       }
     >
@@ -128,7 +134,7 @@ const SettingsTabs = ({ platformId }) => {
   const deletePlatform = async data => {
     const response = await del( URLS.PLATFORM$ID_DELETE( platformId ), data )
 
-    if (response.success) navigate( `/` )
+    if (response?.success) navigate( `/` )
   }
   const createUser = async(data, addToTable) => {
     const response = await post( URLS.PLATFORM$ID_USERS_POST( platformId ), data )
@@ -147,7 +153,10 @@ const SettingsTabs = ({ platformId }) => {
   const createGroup = async(data, addToTable) => {
     const response = await post( URLS.GROUP_POST(), { platformId, ...data } )
 
-    if (response?.group) addToTable( response.group )
+    if (response?.group) {
+      addToTable( response.group )
+      setInStorage( `groups list token`, Math.random() )
+    }
   }
   const deleteGroup = async(data, removeFromTable) => {
     const response = await del( URLS.GROUP$ID_DELETE( data.id ), { platformId, ...data } )
@@ -212,7 +221,7 @@ const SettingsTabs = ({ platformId }) => {
       <Tab className={boxesClasses.tabSwitch} name="Użytkownicy">
         <DataTable
           {...dataTableProps}
-          getData={get( URLS.PLATFORM$ID_USERS_GET( platformId ), `users` )}
+          getData={() => get( URLS.PLATFORM$ID_USERS_GET( platformId ), `users` )}
           onCreate={createUser}
           onDelete={deleteUser}
           onEdit={editUser}
@@ -234,7 +243,7 @@ const SettingsTabs = ({ platformId }) => {
             <Adder
               className={classes.adder}
               type="select"
-              getData={get( URLS.PLATFORM$ID_PERMISSIONS_GET( platformId ), `permissions` )} // .then( console.log )
+              getData={() => get( URLS.PLATFORM$ID_PERMISSIONS_GET( platformId ), `permissions` )} // .then( console.log )
             />
           </Field>
         </DataTable>
@@ -243,7 +252,7 @@ const SettingsTabs = ({ platformId }) => {
       <Tab className={boxesClasses.tabSwitch} name="Grupy">
         <DataTable
           {...dataTableProps}
-          getData={get( URLS.GROUP_FROM_PLATFORM$ID_GET( platformId ), `groups` )}
+          getData={() => get( URLS.GROUP_FROM_PLATFORM$ID_GET( platformId ), `groups` )}
           onCreate={createGroup}
           onDelete={deleteGroup}
         >
@@ -256,7 +265,7 @@ const SettingsTabs = ({ platformId }) => {
             <Adder
               className={classes.adder}
               type="select"
-              getData={get( URLS.PLATFORM$ID_USERS_GET( platformId ), `users` )}
+              getData={() => get( URLS.PLATFORM$ID_USERS_GET( platformId ), `users` )}
             />
           </Field>
         </DataTable>
@@ -266,7 +275,7 @@ const SettingsTabs = ({ platformId }) => {
         <DataTable
           {...dataTableProps}
           className={`${classes.table} ${classes.isRotated}`}
-          getData={get( URLS.PLATFORM$ID_PERMISSIONS_GET( platformId ), `permissions` )}
+          getData={() => get( URLS.PLATFORM$ID_PERMISSIONS_GET( platformId ), `permissions` )}
           onCreate={createRole}
           onDelete={deleteRole}
           onEdit={editRole}

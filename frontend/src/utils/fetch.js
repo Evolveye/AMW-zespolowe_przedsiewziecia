@@ -34,6 +34,8 @@ export default class Fetcher {
     if (!init.headers) init.headers = {}
     Object.assign( init.headers, this.init.getHeaders?.( this.headers ) ?? this.headers )
 
+    if (input.includes( `undefined` )) throw `URL cannot contain "undefined" word (${input})`
+
     return fetch( input, init )
       .then( async res => {
         let data = await res.text()
@@ -68,8 +70,8 @@ export default class Fetcher {
   post( address, data, headers ) {
     return this._fetch( address, {
       method: `POST`,
-      headers: { "Content-Type":`application/json`, ...headers },
-      body: JSON.stringify( data ),
+      headers: data instanceof FormData ? headers : { "Content-Type":`application/json`, ...headers },
+      body: data instanceof FormData ? data : JSON.stringify( data ),
     } )
   }
 
@@ -91,8 +93,8 @@ export default class Fetcher {
   put( address, data, headers ) {
     return this._fetch( address, {
       method: `PUT`,
-      headers: { "Content-Type":`application/json`, ...headers },
-      body: JSON.stringify( data ),
+      headers: data instanceof FormData ? headers : { "Content-Type":`application/json`, ...headers },
+      body: data instanceof FormData ? data : JSON.stringify( data ),
     } )
   }
 

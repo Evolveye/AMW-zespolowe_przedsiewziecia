@@ -275,10 +275,13 @@ export function fetchOrGet( address, headersOrCb = {}, cb = (typeof headersOrCb 
     return data
   } )
 }
-
+export const isBrowser = () => window !== undefined
+const storage = isBrowser() ? window.sessionStorage : null
+export const getFromStorage = key => JSON.parse( storage?.getItem( key ) )
+export const setInStorage = (key, value) => storage?.setItem( key, JSON.stringify( value ) )
+export const clearStorage = () => storage?.clear()
 export const isData = data => !(data instanceof Promise)
 export const isDataLoading = data => !isData( data )
-export const isBrowser = () => window !== undefined
 export const getUrnQuery = () => isBrowser()
   ? Object.fromEntries( Array.from( new URLSearchParams( window.location.search ) ) )
   : {}

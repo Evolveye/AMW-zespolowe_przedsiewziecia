@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import PropTypes from "prop-types"
 
 import SwitchBox, { Tab as SwitchTab } from "./switchBox.js"
@@ -8,6 +8,8 @@ const formFieldProps = {
   className: PropTypes.string,
   name: PropTypes.string.isRequired,
   validator: PropTypes.func,
+  value: PropTypes.string,
+  children: PropTypes.any,
 }
 
 
@@ -92,6 +94,7 @@ function processFormChildren( element, updateValues, onSubmit ) {
     }
 
     const { props } = child
+    const [ value, setValue ] = useState( [ `number`, `string` ].includes( typeof props.value ) ? props.value : null )
     const inputProps = {
       key: props.name,
       name: props.name,
@@ -99,7 +102,12 @@ function processFormChildren( element, updateValues, onSubmit ) {
       className: props.className,
       placeholder: props.children,
       onInput: updateValues,
+      defaultValue: value,
     }
+
+    useEffect( () => {
+      if (props.value instanceof Promise) props.value.then( setValue )
+    }, [] )
 
     switch (child.type) {
       case Text.type:     return <input type="text" {...inputProps} />
