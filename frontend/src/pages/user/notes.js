@@ -13,7 +13,10 @@ export default () => {
   const [ data, setData ] = useState([])
 
   useEffect( () => {
-    authFetcher.get( URLS.GROUP_NOTES_GET() ).then( r => setData( r.data ) )
+    authFetcher.get( URLS.GROUP_NOTES_GET() ).then( r => {
+      console.log( r )
+      setData( r.data )
+    } )
   }, [] )
 
   return (

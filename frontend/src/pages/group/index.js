@@ -17,7 +17,7 @@ export default () => {
 
   return (
     <Layout title="Grupa" showMeets={true}>
-      <GroupSettings className={classes.groupSettingsSwitch} platformId={platform.id} groupId={group.id} />
+      <GroupSettings className={classes.groupSettingsSwitch} abilities={group.myRole?.abilities} platformId={platform.id} groupId={group.id} />
 
       <h1 className="h1">
         <span className="tag">Grupa</span>

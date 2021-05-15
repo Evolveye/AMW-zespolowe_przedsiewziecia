@@ -248,7 +248,7 @@ export default class DataTable extends React.Component {
 
 
   async componentDidMount() {
-    const initialData = this.props.getData
+    const initialData = this.props.getData ?? this.props.data
 
     const data = await (typeof initialData == `function` ? initialData() : initialData)
 

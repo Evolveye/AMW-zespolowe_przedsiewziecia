@@ -46,11 +46,12 @@ const dataTableProps = {
 }
 
 
-export default ({ className = ``, platformId, groupId }) => {
+export default ({ className = ``, abilities, platformId, groupId }) => {
   if (!platformId || !groupId) {
-    console.warn( `Missing data in GroupSettings component:`, { platformId, groupId } )
+    // console.warn( `Missing data in GroupSettings component:`, { platformId, groupId } )
     return null
   }
+  console.log( abilities )
 
   const queryData = useStaticQuery( query )
   const [ gradesScale, setGradesScale ] = useState( null )
@@ -143,11 +144,13 @@ export default ({ className = ``, platformId, groupId }) => {
     if (response?.success) removeFromTable()
   }
 
+
+
   useEffect( () => {
     get( URLS.GROUP$ID_GRADES_SCALE_GET( groupId ) ).then( r => r.scale.join( `, ` ) ).then( setGradesScale )
   }, [ getFromStorage( `groups list token` ) ] )
 
-  return (
+  return Object.values( abilities ).filter( Boolean ).length == 0 ? null : (
     <ToggableBox
       className={`${classes.actions} ${className}`}
       boxClassName={boxesClasses.wrapper}
@@ -167,242 +170,256 @@ export default ({ className = ``, platformId, groupId }) => {
           activeSwitch: `is-active`,
         }}
       >
-        <Tab className={`is-centered ${boxesClasses.tabSwitch}`} name="Ogólne">
-          <p>Skala ocen (wartości całkowite rozdzielone spacjami)</p>
+        {abilities.canEditDetails && (
+          <Tab className={`is-centered ${boxesClasses.tabSwitch}`} name="Ogólne">
+            <p>Skala ocen (wartości całkowite rozdzielone spacjami)</p>
 
-          <Form classNames={{ it:classes.centered }}>
-            <Text
-              className={classes.input}
-              name="gradingScale"
-              value={get( URLS.GROUP$ID_GRADES_SCALE_GET( groupId ) ).then( r => r.scale.join( ` ` ) )}
-              children="Skala ocen"
-            />
-            <Submit className={`neumorphizm is-button ${classes.button}`} handler={updateGradesScale}>Zaktualizuj</Submit>
-          </Form>
-        </Tab>
+            <Form classNames={{ it:classes.centered }}>
+              <Text
+                className={classes.input}
+                name="gradingScale"
+                value={get( URLS.GROUP$ID_GRADES_SCALE_GET( groupId ) ).then( r => r.scale.join( ` ` ) )}
+                children="Skala ocen"
+              />
+              <Submit className={`neumorphizm is-button ${classes.button}`} handler={updateGradesScale}>Zaktualizuj</Submit>
+            </Form>
+          </Tab>
+        )}
 
-        <Tab className={boxesClasses.tabSwitch} name="Oceny">
-          {gradesScale && (
-            <>
-              <p>
+        {abilities.canManageNotes && (
+          <Tab className={boxesClasses.tabSwitch} name="Oceny">
+            {gradesScale && (
+              <>
+                <p>
                 Oceny możliwe do wystawienia:
-                {` `}
-                {gradesScale}
-              </p>
-              <br />
-            </>
-          )}
+                  {` `}
+                  {gradesScale}
+                </p>
+                <br />
+              </>
+            )}
 
-          <DataTable
-            {...dataTableProps}
-            getData={() => get( URLS.GROUP$ID_GRADES_GET( groupId ), `notes` )}
-            onCreate={createGrade}
-            onDelete={deleteGrade}
-          >
-            <Field label="Wartość" name="value">
-              <Adder className={classes.adder} type="number" />
-            </Field>
-
-            <Field label="Opis" name="description">
-              <Adder className={classes.adder} type="textarea" />
-            </Field>
-
-            <Field label="Student" name="userId" dataFieldname="user">
-              <Processor render={({ id, name, surname }) => ({ label:`${name} ${surname}`, value:id })} />
-              <Adder
-                className={classes.adder}
-                type="select"
-                getData={() => get( URLS.GROUP$ID_USERS_GET( groupId ), `users` )}
-              />
-            </Field>
-          </DataTable>
-        </Tab>
-
-        <Tab className={boxesClasses.tabSwitch} name="Użytkownicy">
-          <DataTable
-            {...dataTableProps}
-            getData={() => get( URLS.GROUP$ID_USERS_GET( groupId ), `users` )}
-            onCreate={createUser}
-            onDelete={deleteUser}
-          >
-            <Field label="Użytkownik" name="userId" dataFieldname="user">
-              <Processor entire render={({ id, name, surname }) => ({ label:`${name} ${surname}`, value:id })} />
-              <Adder className={classes.adder} type="select" getData={() => get( URLS.PLATFORM$ID_USERS_GET( platformId ), `users` )} />
-            </Field>
-
-            <Field label="Rola" name="roleId" dataFieldname="role">
-              <Processor render={({ id, name }) => ({ label:name, value:id })} />
-              <Adder className={classes.adder} type="select" getData={() => get( URLS.GROUP$ID_PERMISSIONS_GET( groupId ), `roles` )} />
-            </Field>
-          </DataTable>
-        </Tab>
-
-        <Tab className={boxesClasses.tabSwitch} name="Role">
-          <DataTable
-            {...dataTableProps}
-            className={`${classes.table} ${classes.isRotated}`}
-            getData={() => get( URLS.GROUP$ID_PERMISSIONS_GET( groupId ), `roles` )} // .then( console.log )
-            onCreate={createRole}
-            onEdit={editRole}
-            onDelete={deleteRole}
-          >
-            <Field label="Nazwa" name="name">
-              <Adder className={classes.adder} type="text" />
-            </Field>
-
-            <Field label="Kolor" name="color" editable>
-              <Processor
-                process={color => `#` + color.toString( 16 ).padStart( 6, 0 )}
-                render={color => (
-                  <span className={classes.color} style={{ backgroundColor:`#` + color?.toString( 16 ).padStart( 6, 0 ) }} />
-                )}
-              />
-              <Adder className={classes.adder} type="color" />
-            </Field>
-
-            <Field
-              className={classes.ability}
-              label="Edycja szczegółów"
-              name="canEditDetails"
-              dataFieldname="abilities"
-              editable
+            <DataTable
+              {...dataTableProps}
+              getData={() => get( URLS.GROUP$ID_GRADES_GET( groupId ), `notes` )}
+              onCreate={createGrade}
+              onDelete={deleteGrade}
             >
-              <Processor render={({ canEditDetails }) => canEditDetails} />
-              <Adder className={classes.adder} type="checkbox" />
-            </Field>
+              <Field label="Wartość" name="value">
+                <Adder className={classes.adder} type="number" />
+              </Field>
 
-            <Field
-              className={classes.ability}
-              label="Zarządzanie użytkownikami"
-              name="canManageUsers"
-              dataFieldname="abilities"
-              editable
+              <Field label="Opis" name="description">
+                <Adder className={classes.adder} type="textarea" />
+              </Field>
+
+              <Field label="Student" name="userId" dataFieldname="user">
+                <Processor render={({ id, name, surname }) => ({ label:`${name} ${surname}`, value:id })} />
+                <Adder
+                  className={classes.adder}
+                  type="select"
+                  getData={() => get( URLS.GROUP$ID_USERS_GET( groupId ), `users` )}
+                />
+              </Field>
+            </DataTable>
+          </Tab>
+        )}
+
+        {abilities.canManageUsers && (
+          <Tab className={boxesClasses.tabSwitch} name="Użytkownicy">
+            <DataTable
+              {...dataTableProps}
+              getData={() => get( URLS.GROUP$ID_USERS_GET( groupId ), `users` )}
+              onCreate={createUser}
+              onDelete={deleteUser}
             >
-              <Processor render={({ canManageUsers }) => canManageUsers} />
-              <Adder className={classes.adder} type="checkbox" />
-            </Field>
+              <Field label="Użytkownik" name="userId" dataFieldname="user">
+                <Processor entire render={({ id, name, surname }) => ({ label:`${name} ${surname}`, value:id })} />
+                <Adder className={classes.adder} type="select" getData={() => get( URLS.PLATFORM$ID_USERS_GET( platformId ), `users` )} />
+              </Field>
 
-            <Field
-              className={classes.ability}
-              label="Zarządzanie ocenami"
-              name="canManageNotes"
-              dataFieldname="abilities"
-              editable
+              <Field label="Rola" name="roleId" dataFieldname="role">
+                <Processor render={({ id, name }) => ({ label:name, value:id })} />
+                <Adder className={classes.adder} type="select" getData={() => get( URLS.GROUP$ID_PERMISSIONS_GET( groupId ), `roles` )} />
+              </Field>
+            </DataTable>
+          </Tab>
+        )}
+
+        {abilities.canManageRoles && (
+          <Tab className={boxesClasses.tabSwitch} name="Role">
+            <DataTable
+              {...dataTableProps}
+              className={`${classes.table} ${classes.isRotated}`}
+              getData={() => get( URLS.GROUP$ID_PERMISSIONS_GET( groupId ), `roles` )} // .then( console.log )
+              onCreate={createRole}
+              onEdit={editRole}
+              onDelete={deleteRole}
             >
-              <Processor render={({ canManageNotes }) => canManageNotes} />
-              <Adder className={classes.adder} type="checkbox" />
-            </Field>
+              <Field label="Nazwa" name="name">
+                <Adder className={classes.adder} type="text" />
+              </Field>
 
-            <Field
-              className={classes.ability}
-              label="Zarządzanie spotkaniami"
-              name="canManageMeets"
-              dataFieldname="abilities"
-              editable
+              <Field label="Kolor" name="color" editable>
+                <Processor
+                  process={color => `#` + color.toString( 16 ).padStart( 6, 0 )}
+                  render={color => (
+                    <span className={classes.color} style={{ backgroundColor:`#` + color?.toString( 16 ).padStart( 6, 0 ) }} />
+                  )}
+                />
+                <Adder className={classes.adder} type="color" />
+              </Field>
+
+              <Field
+                className={classes.ability}
+                label="Edycja szczegółów"
+                name="canEditDetails"
+                dataFieldname="abilities"
+                editable
+              >
+                <Processor render={({ canEditDetails }) => canEditDetails} />
+                <Adder className={classes.adder} type="checkbox" />
+              </Field>
+
+              <Field
+                className={classes.ability}
+                label="Zarządzanie użytkownikami"
+                name="canManageUsers"
+                dataFieldname="abilities"
+                editable
+              >
+                <Processor render={({ canManageUsers }) => canManageUsers} />
+                <Adder className={classes.adder} type="checkbox" />
+              </Field>
+
+              <Field
+                className={classes.ability}
+                label="Zarządzanie ocenami"
+                name="canManageNotes"
+                dataFieldname="abilities"
+                editable
+              >
+                <Processor render={({ canManageNotes }) => canManageNotes} />
+                <Adder className={classes.adder} type="checkbox" />
+              </Field>
+
+              <Field
+                className={classes.ability}
+                label="Zarządzanie spotkaniami"
+                name="canManageMeets"
+                dataFieldname="abilities"
+                editable
+              >
+                <Processor render={({ canManageMeets }) => canManageMeets} />
+                <Adder className={classes.adder} type="checkbox" />
+              </Field>
+
+              <Field
+                className={classes.ability}
+                label="Zarządzanie rolami"
+                name="canManageRoles"
+                dataFieldname="abilities"
+                editable
+              >
+                <Processor render={({ canManageRoles }) => canManageRoles} />
+                <Adder className={classes.adder} type="checkbox" />
+              </Field>
+            </DataTable>
+          </Tab>
+        )}
+
+        {abilities.canEditDetails && (
+          <Tab className={boxesClasses.tabSwitch} name="Materiały">
+            <DataTable
+              {...dataTableProps}
+              getData={() => get( URLS.GROUPS$ID_MATERIALS_GET( groupId ), `materials` )}
+              onCreate={createMaterial}
+              onDelete={deleteMaterial}
             >
-              <Processor render={({ canManageMeets }) => canManageMeets} />
-              <Adder className={classes.adder} type="checkbox" />
-            </Field>
+              <Field label="Plik" name="file">
+                <Processor
+                  entire
+                  render={({ id, path, name }) => ({
+                    label: <a className="link" download href={path}>{name.match( /\d+-(.*)/ )[ 1 ]}</a>,
+                    value: id,
+                  })}
+                />
+                <Adder className={classes.adder} type="file" />
+              </Field>
 
-            <Field
-              className={classes.ability}
-              label="Zarządzanie rolami"
-              name="canManageRoles"
-              dataFieldname="abilities"
-              editable
+              <Field label="Opis" name="description">
+                <Adder className={classes.adder} type="textarea" />
+              </Field>
+
+              <Field label="Wstawiający" name="userId" dataFieldname="user">
+                <Processor render={({ id, name, surname }) => ({ label:`${name} ${surname}`, value:id })} />
+                <Adder
+                  className={classes.adder}
+                  type="select"
+                  getData={() => get( URLS.GROUP$ID_USERS_GET( groupId ), `users` )}
+                />
+              </Field>
+            </DataTable>
+          </Tab>
+        )}
+
+        {abilities.canEditDetails && (
+          <Tab className={boxesClasses.tabSwitch} name="Zadania">
+            <DataTable
+              {...dataTableProps}
+              getData={() => get( URLS.GROUPS$ID_TASKS_GET( groupId ), `tasks` )}
+              onCreate={createTask}
+              onDelete={deleteTask}
             >
-              <Processor render={({ canManageRoles }) => canManageRoles} />
-              <Adder className={classes.adder} type="checkbox" />
-            </Field>
-          </DataTable>
-        </Tab>
+              <Field label="Nazwa" name="title">
+                <Adder className={classes.adder} type="text" />
+              </Field>
 
-        <Tab className={boxesClasses.tabSwitch} name="Materiały">
-          <DataTable
-            {...dataTableProps}
-            getData={() => get( URLS.GROUPS$ID_MATERIALS_GET( groupId ), `materials` )}
-            onCreate={createMaterial}
-            onDelete={deleteMaterial}
-          >
-            <Field label="Plik" name="file">
-              <Processor
-                entire
-                render={({ id, path, name }) => ({
-                  label: <a className="link" download href={path}>{name.match( /\d+-(.*)/ )[ 1 ]}</a>,
-                  value: id,
-                })}
-              />
-              <Adder className={classes.adder} type="file" />
-            </Field>
+              {/* <Field label="Czas rozpoczęcia" name="startDate">
+                <Processor render={getDate} />
+                <Adder className={classes.adder} type="datetime-local" />
+              </Field> */}
 
-            <Field label="Opis" name="description">
-              <Adder className={classes.adder} type="textarea" />
-            </Field>
+              <Field label="Czas oddania" name="dateExpire" dataFieldname="expire">
+                <Processor render={getDate} />
+                <Adder className={classes.adder} type="datetime-local" />
+              </Field>
 
-            <Field label="Wstawiający" name="userId" dataFieldname="user">
-              <Processor render={({ id, name, surname }) => ({ label:`${name} ${surname}`, value:id })} />
-              <Adder
-                className={classes.adder}
-                type="select"
-                getData={() => get( URLS.GROUP$ID_USERS_GET( groupId ), `users` )}
-              />
-            </Field>
-          </DataTable>
-        </Tab>
+              <Field label="Opis" name="description">
+                <Adder className={classes.adder} type="textarea" />
+              </Field>
+            </DataTable>
+          </Tab>
+        )}
 
-        <Tab className={boxesClasses.tabSwitch} name="Zadania">
-          <DataTable
-            {...dataTableProps}
-            getData={() => get( URLS.GROUPS$ID_TASKS_GET( groupId ), `tasks` )}
-            onCreate={createTask}
-            onDelete={deleteTask}
-          >
-            <Field label="Nazwa" name="title">
-              <Adder className={classes.adder} type="text" />
-            </Field>
+        {abilities.canManageMeets && (
+          <Tab className={boxesClasses.tabSwitch} name="Spotkania">
+            <DataTable
+              {...dataTableProps}
+              getData={() => get( URLS.MEET_FROM_GROUP$ID_GET( groupId ), `meets` )}
+              onCreate={createMeet}
+              onDelete={deleteMeet}
+            >
+              <Field label="Czas rozpoczęcia" name="dateStart">
+                <Processor render={getDate} />
+                <Adder className={classes.adder} type="datetime-local" />
+              </Field>
 
-            {/* <Field label="Czas rozpoczęcia" name="startDate">
-            <Processor render={getDate} />
-            <Adder className={classes.adder} type="datetime-local" />
-          </Field> */}
+              <Field label="Czas trwania" name="dateEnd">
+                <Processor render={datetime => getDate( datetime, `hh:mm` )} />
+                <Adder className={classes.adder} type="time" />
+              </Field>
 
-            <Field label="Czas oddania" name="dateExpire" dataFieldname="expire">
-              <Processor render={getDate} />
-              <Adder className={classes.adder} type="datetime-local" />
-            </Field>
+              <Field label="Opis" name="description">
+                <Adder className={classes.adder} type="textarea" />
+              </Field>
 
-            <Field label="Opis" name="description">
-              <Adder className={classes.adder} type="textarea" />
-            </Field>
-          </DataTable>
-        </Tab>
-
-        <Tab className={boxesClasses.tabSwitch} name="Spotkania">
-          <DataTable
-            {...dataTableProps}
-            getData={() => get( URLS.MEET_FROM_GROUP$ID_GET( groupId ), `meets` )}
-            onCreate={createMeet}
-            onDelete={deleteMeet}
-          >
-            <Field label="Czas rozpoczęcia" name="dateStart">
-              <Processor render={getDate} />
-              <Adder className={classes.adder} type="datetime-local" />
-            </Field>
-
-            <Field label="Czas trwania" name="dateEnd">
-              <Processor render={datetime => getDate( datetime, `hh:mm` )} />
-              <Adder className={classes.adder} type="time" />
-            </Field>
-
-            <Field label="Opis" name="description">
-              <Adder className={classes.adder} type="textarea" />
-            </Field>
-
-            <Field label="Link" name="externalUrl">
-              <Adder className={classes.adder} type="text" />
-            </Field>
-          </DataTable>
-        </Tab>
+              <Field label="Link" name="externalUrl">
+                <Adder className={classes.adder} type="text" />
+              </Field>
+            </DataTable>
+          </Tab>
+        )}
       </SwitchBox>
     </ToggableBox>
   )
