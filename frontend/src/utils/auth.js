@@ -1,7 +1,9 @@
+import React from "react"
 import { useEffect, useState } from "react"
 import { navigate } from "gatsby"
-import { fetcher, getFromStorage, clearStorage, isBrowser, setInStorage } from "./functions.js"
+import { fetcher, getFromStorage, clearStorage, setInStorage } from "./functions.js"
 import URLS from "./urls.js"
+import ws from "./ws.js"
 
 const fakeUser = {
   login: `fakelogin`,
@@ -11,7 +13,10 @@ const fakeUser = {
 }
 
 const changedUserSetters = []
-const setToken = token => setInStorage( `token`, token )
+const setToken = token => {
+  ws.emit( `authenticate`, token )
+  setInStorage( `token`, token )
+}
 const setUser = user => {
   setInStorage( `user`, user )
 
@@ -20,30 +25,14 @@ const setUser = user => {
 
 // export const AuthContext = React.createContext({ user:null, platform:null, group:null, meet:null })
 export const getAuthHeaders = () => ({ Authentication:`Bearer ${getToken()}` })
-export const Authorized = ({ children }) => isLogged() ? children : navigate( `/unauthorized` )
+export const Authorized = ({ children }) => isLogged() ? children : <>{navigate( `/unauthorized` )}</>
 export const getUser = () => getFromStorage( `user` )
 export const getToken = () => getFromStorage( `token` )
 export const fakeLogin = () => setUser( fakeUser )
 export const isLogged = () => !!getUser()
 export const logout = () => clearStorage()
 
-
-// export const AuthContextProvider = ({ children }) => {
-//   const { p, g, m } = getUrnQuery()
-
-//   return (
-//     <AuthContext.Provider
-//       children={children}
-//       value={{
-//         user: getUser(),
-//         platform: p ? fetchOrGet( `fake://platforms/${p}` ) : null,
-//         group: g ? fetchOrGet( `fake://groups/${g}` ) : null,
-//         meet: m ? fetchOrGet( `fake://meets/${m}` ) : null,
-//       }}
-//     />
-//   )
-// }
-
+if (getToken()) ws.emit( `authenticate`, getToken() )
 
 export const authFetcher = new Proxy( fetcher, {
   get( fetcher, key ) {

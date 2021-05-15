@@ -168,6 +168,8 @@ export default ({ className = ``, platformId, groupId }) => {
         }}
       >
         <Tab className={`is-centered ${boxesClasses.tabSwitch}`} name="Ogólne">
+          <p>Skala ocen (wartości całkowite rozdzielone spacjami)</p>
+
           <Form classNames={{ it:classes.centered }}>
             <Text
               className={classes.input}

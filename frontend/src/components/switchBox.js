@@ -12,7 +12,7 @@ Tab.propTypes = {
 }
 
 
-export default function SwitchBox({ classNames, children }) {
+export default function SwitchBox({ classNames, children, activeTabName }) {
   const css = classNames || {}
   const tabs = React.Children
     .toArray( children )
@@ -21,7 +21,9 @@ export default function SwitchBox({ classNames, children }) {
   if (!tabs.length) return null
 
   const [ activeTab, setActiveTab ] = useState( null )
-  const tabToShow = activeTab ?? tabs[ 0 ]
+  const tabToShow = activeTabName
+    ? tabs.find( ({ props }) => props.name == activeTabName ) ?? activeTab ?? tabs[ 0 ]
+    : activeTab ?? tabs[ 0 ]
   const activeProps = tabToShow.props
 
   return (

@@ -52,3 +52,26 @@
       display: flex;
       justify-content: space-around;
     }
+
+
+/* CHAT */
+
+.chat {
+  display: flex;
+  flex-direction: column;
+}
+.chatMessage {
+  position: relative;
+  margin: 10px 0;
+}
+.chatMessageAuthor {
+  font-size: 13px;
+}
+.chatMessageContent {
+  margin-left: 10px;
+}
+.chatMenu {
+  position: absolute;
+  top: 0;
+  right: 0;
+}

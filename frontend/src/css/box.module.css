@@ -18,10 +18,9 @@
   border-radius: 10px;
   background-color: var( --background-color );
   border: 2px solid var( --green );
-  /* overflow: hidden; */
 }
 .wrapper {
-  min-width: min( 100vw, 850px );
+  min-width: min( calc( 100vw - 25px ), 850px );
   height: 90%;
 }
 .popup {
@@ -50,10 +49,12 @@
 
 .tabsSwitches {
   display: flex;
+  flex-wrap: wrap;
+  padding: 0 15px;
 }
 .tabSwitch {
   padding: 10px;
-  margin: 7px 25px;
+  margin: 7px 10px;
   flex-grow: 1;
 }
 .activeTabSwitch {

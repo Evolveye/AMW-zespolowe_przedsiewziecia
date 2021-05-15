@@ -1,9 +1,9 @@
 import { isBrowser } from "./functions.js"
 
 // export const HOST = isBrowser() ? window.location.origin : `http://localhost:3000`
-export const HOST = isBrowser() ? `http://localhost:3000` : `http://localhost:3000`
+export const HOST = `http://${isBrowser() ? window.location.hostname : `localhost`}:3000`
 
-export const WS_HOST = `ws://localhost:3000`
+export const WS_HOST = `ws://${isBrowser() ? window.location.hostname : `localhost`}:3000`
 export function getSocketEventFromHttp( method, httpUrl ) {
   const uri = httpUrl.match( /api\/(.*)/ )[ 1 ]
   const dottedUri = uri.replace( /\//g, `.` )

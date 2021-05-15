@@ -70,7 +70,7 @@ export default ({ className = `` }) => {
       btnIsActiveClassname="is-active"
       renderChoosedItem={
         () => !p || isDataLoading( platform ) ? <span className={`tag ${classes.linkTag}`}>Wybierz platformę...</span> : <>
-          <Link className={classes.platform} to={`/platform?p=${p}`}>
+          <Link className={`is-highlightable ${classes.platform}`} to={`/platform?p=${p}`}>
             {platform.name}
           </Link>
 
@@ -129,6 +129,7 @@ const AddNewPlatformItem = () => {
     </Item>
   )
 }
+
 
 const SettingsTabs = ({ platformId }) => {
   const deletePlatform = async data => {
