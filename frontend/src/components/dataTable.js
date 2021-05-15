@@ -22,6 +22,7 @@ Field.propTypes = {
   title: PropTypes.string.isRequired,
   dataFieldname: PropTypes.string,
   editable: PropTypes.bool,
+  disabled: PropTypes.bool,
 }
 
 
@@ -59,6 +60,8 @@ const InputField = ({
   validator = () => true,
   validateInitialData = it => it,
   runAfterDataLoad,
+  getTableData,
+  disabled = false,
 }) => {
   const controlledProcessor = data => {
     const processedData = processor.process?.( data ) ?? processor.render( data )
@@ -75,6 +78,7 @@ const InputField = ({
     onInput: ({ target:{ name, checked, files, value } }) => updateValue( name, checkable ? checked : (files || value) ),
     className,
     name,
+    disabled,
   }
 
   useEffect( () => {
@@ -88,7 +92,7 @@ const InputField = ({
     runAfterDataLoad( () => {
       let mounted = true
 
-      const data = typeof getData == `function` ? getData() : getData
+      const data = typeof getData == `function` ? getData( getTableData() ) : getData
       if (data instanceof Promise) data.then( r => mounted && setNewData( r ) )
 
       return () => mounted = false
@@ -152,7 +156,7 @@ export default class DataTable extends React.Component {
     const abilities = props.actionPosibility?.()
     let colspanCounter = 1
 
-    this.tableAdderFields = this.fields.reduce( (obj, { name, adder, processor }) => {
+    this.tableAdderFields = this.fields.reduce( (obj, { disabled, name, adder, processor }) => {
       if (!obj || !adder) return null
       if (colspanCounter !== 1) {
         colspanCounter--
@@ -168,7 +172,9 @@ export default class DataTable extends React.Component {
               name,
               defaultValue,
               processor,
+              disabled,
               ...adder.props,
+              getTableData: () => this.state.rawData,
               updateValue: (name, value) => this.setState( state => {
                 if (rowId) {
                   return { editableRows: {
@@ -192,6 +198,11 @@ export default class DataTable extends React.Component {
     colspanCounter = 1
 
     this.state = {
+      inputs: {},
+      rawData: [],
+      tableRows: [],
+      editableRows: {},
+      waitingForDataCbs: [],
       tableHeaders: (
         <tr>
           {this.fields.map( ({ label, className = `` }) => <th className={className} key={label}>{label}</th> )}
@@ -238,11 +249,6 @@ export default class DataTable extends React.Component {
           }
         </>
       ),
-
-      tableRows: [],
-      waitingForDataCbs: [],
-      editableRows: {},
-      inputs: {},
     }
   }
 
@@ -281,7 +287,7 @@ export default class DataTable extends React.Component {
     const row = (
       <tr key={key}>
         {
-          this.fields.map( ({ editable:editableField, name, dataFieldname = name, processEntireField, processor }) => {
+          this.fields?.map( ({ editable:editableField, name, dataFieldname = name, processEntireField, processor }) => {
             if (editableField && (abilities || abilities.edit)) editable = true
 
             const dataField = processEntireField ? field : field[ dataFieldname ]
@@ -323,7 +329,7 @@ export default class DataTable extends React.Component {
       </tr>
     )
 
-    this.setState( s => ({ tableRows:[ ...s.tableRows, row ] }) )
+    this.setState( s => ({ rawData:[ ...s.rawData, field ], tableRows:[ ...s.tableRows, row ] }) )
   }
 
 

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react"
 import { graphql, useStaticQuery } from "gatsby"
 import Image from "gatsby-image"
-import { authFetcher } from "../utils/auth"
+import { authFetcher, getUser } from "../utils/auth"
 import URLS from "../utils/urls"
 
 import { getDate, getFromStorage } from "../utils/functions.js"
@@ -235,7 +235,16 @@ export default ({ className = ``, abilities, platformId, groupId }) => {
             >
               <Field label="Użytkownik" name="userId" dataFieldname="user">
                 <Processor entire render={({ id, name, surname }) => ({ label:`${name} ${surname}`, value:id })} />
-                <Adder className={classes.adder} type="select" getData={() => get( URLS.PLATFORM$ID_USERS_GET( platformId ), `users` )} />
+                <Adder
+                  className={classes.adder}
+                  type="select"
+                  getData={fields => {
+                    const usersIds = fields.map( ({ id }) => id )
+
+                    return get( URLS.PLATFORM$ID_USERS_GET( platformId ), `users` )
+                      .then( users => users.filter( ({ id }) => !usersIds.includes( id ) ) )
+                  }}
+                />
               </Field>
 
               <Field label="Rola" name="roleId" dataFieldname="role">
@@ -351,12 +360,18 @@ export default ({ className = ``, abilities, platformId, groupId }) => {
                 <Adder className={classes.adder} type="textarea" />
               </Field>
 
-              <Field label="Wstawiający" name="userId" dataFieldname="user">
+              <Field disabled label="Wstawiający" name="userId" dataFieldname="user">
                 <Processor render={({ id, name, surname }) => ({ label:`${name} ${surname}`, value:id })} />
                 <Adder
                   className={classes.adder}
                   type="select"
                   getData={() => get( URLS.GROUP$ID_USERS_GET( groupId ), `users` )}
+                  getData={() => {
+                    const user = getUser()
+
+                    return get( URLS.GROUP$ID_USERS_GET( groupId ), `users` )
+                      .then( users => users.filter( ({ id }) => id == user.id ) )
+                  }}
                 />
               </Field>
             </DataTable>
