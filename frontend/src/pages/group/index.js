@@ -15,8 +15,6 @@ export default () => {
 
   const { platform, group } = ctx
 
-  console.log({ platform, group })
-
   return (
     <Layout title="Grupa" showMeets={true}>
       <GroupSettings className={classes.groupSettingsSwitch} platformId={platform.id} groupId={group.id} />

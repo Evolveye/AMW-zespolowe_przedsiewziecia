@@ -4,11 +4,21 @@ import { getAuthHeaders } from "./auth"
 import { fetchOrGet, getUrnQuery } from "./functions"
 import URLS from "./urls"
 
+const pendingRequests = new Map()
 
 export default function getWebsiteContext() {
-  const getData = address => fetchOrGet( address, getAuthHeaders() )
+  const getData = address => {
+    if (pendingRequests.has( address )) return pendingRequests.get( address )
+
+    const promise = fetchOrGet( address, getAuthHeaders() )
+
+    pendingRequests.set( address, fetchOrGet( address, getAuthHeaders() ) )
+
+    return promise
+  }
   const { p, g, m } = getUrnQuery()
 
+  // console.log({ p, g, m })
   const getCtxData = () => [
     { key:`platform`, value:p ? getData( URLS.PLATFORM$ID_GET( p ) ) : null },
     { key:`group`, value:g ? getData( URLS.GROUP$ID_GET( g ) ) : null },

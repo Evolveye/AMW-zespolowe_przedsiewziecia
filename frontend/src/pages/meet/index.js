@@ -1,21 +1,28 @@
 import React, { useEffect, useState } from "react"
 
 import Layout from "../../layouts/base.js"
-import { fetchOrGet } from "../../utils/functions.js"
+import { fetchOrGet, isDataLoading } from "../../utils/functions.js"
 
 import Paint from "../../containers/paint.js"
 import SwitchBox, { Tab } from "../../components/switchBox.js"
 
 import classes from "../../css/meet.module.css"
+import URLS from "../../utils/urls.js"
+import getWebsiteContext from "../../utils/websiteContext.js"
+import { authFetcher } from "../../utils/auth.js"
 
 export default () => {
+  const ctx = getWebsiteContext()
   const [ participants, setParticipants ] = useState([])
 
   useEffect( () => {
-    fetchOrGet( `fake://platformUsers`, setParticipants )
-  }, [] )
+    if (isDataLoading( ctx.meet )) return () => {}
 
-  return (
+    authFetcher.get( URLS.MEET$ID_USERS_GET( ctx.meet.id ) ).then( r => setParticipants( r.participants ) )
+  }, [ ctx.meet?.id ] )
+
+  if (isDataLoading( ctx.meet )) return <Layout className={classes.layout} title="Grupa" />
+  else return (
     <Layout className={classes.layout} title="Grupa">
       <SwitchBox
         classNames={{
@@ -66,7 +73,6 @@ export default () => {
 
         </Tab>
       </SwitchBox>
-
     </Layout>
   )
 }

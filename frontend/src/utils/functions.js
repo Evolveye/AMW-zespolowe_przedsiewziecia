@@ -271,6 +271,7 @@ export function fetchOrGet( address, headersOrCb = {}, cb = (typeof headersOrCb 
   }
 
   return fetcher.get( address, typeof headersOrCb == `object` ? headersOrCb : null ).then( data => {
+    if (data?.error) console.warn( data )
     cb?.( data )
     return data
   } )
