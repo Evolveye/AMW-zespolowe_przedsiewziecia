@@ -1,5 +1,6 @@
 import Fetcher from "./fetch"
 import { navigate } from "gatsby"
+import errors from "./errors"
 
 const fakeStartDate = () => new Date( Date.now() + Math.floor( Math.random() * 1000 * 60 * 60 * 24 * 7 ) )
 const fakeExpirationDate = () => Date.now() + 1000 * 60 * 60 * 1
@@ -241,9 +242,14 @@ const fakeDataset = {
 
 
 export const fetcher = new Fetcher({ processError: ({ data }) => {
-  if (data?.code === 110) return navigate( `/logout` )
+  // if (data?.code === 110) return navigate( `/logout` )
+  // console.error( data )
 
-  console.error( data )
+  const error = errors[ data.code ]
+
+  if (!error) console.error( data )
+
+  return { error }
 } })
 
 /** @param {string} address */
@@ -276,9 +282,9 @@ export function fetchOrGet( address, headersOrCb = {}, cb = (typeof headersOrCb 
     return data
   } )
 }
-export const isBrowser = () => window !== undefined
+export const isBrowser = () => typeof window !== `undefined`
 const storage = isBrowser() ? window.sessionStorage : null
-export const getFromStorage = key => JSON.parse( storage?.getItem( key ) )
+export const getFromStorage = key => JSON.parse( storage?.getItem( key ) ?? null )
 export const setInStorage = (key, value) => storage?.setItem( key, JSON.stringify( value ) )
 export const clearStorage = () => storage?.clear()
 export const isData = data => !(data instanceof Promise)

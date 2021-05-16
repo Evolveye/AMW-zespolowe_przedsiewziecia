@@ -1,7 +1,7 @@
 import React from "react"
 import { useEffect, useState } from "react"
 import { navigate } from "gatsby"
-import { fetcher, getFromStorage, clearStorage, setInStorage } from "./functions.js"
+import { fetcher, getFromStorage, clearStorage, setInStorage, isBrowser } from "./functions.js"
 import URLS from "./urls.js"
 import ws from "./ws.js"
 
@@ -25,7 +25,7 @@ const setUser = user => {
 
 // export const AuthContext = React.createContext({ user:null, platform:null, group:null, meet:null })
 export const getAuthHeaders = () => ({ Authentication:`Bearer ${getToken()}` })
-export const Authorized = ({ children }) => isLogged() ? children : <>{navigate( `/unauthorized` )}</>
+export const Authorized = ({ children }) => isLogged() ? children : <>{isBrowser() && navigate( `/unauthorized` )}</>
 export const getUser = () => getFromStorage( `user` )
 export const getToken = () => getFromStorage( `token` )
 export const fakeLogin = () => setUser( fakeUser )
@@ -63,14 +63,14 @@ export const useUser = () => {
 
 
 export const register = data => {
-  fetcher.post( URLS.REGISTER_POST(), data )
+  return fetcher.post( URLS.REGISTER_POST(), data )
 }
 
 
 export const login = async data => {
   const tokenData = await fetcher.post( URLS.LOGIN_POST(), data )
 
-  if (!tokenData?.token) return
+  if (!tokenData?.token) return tokenData
 
   setToken( tokenData.token )
 

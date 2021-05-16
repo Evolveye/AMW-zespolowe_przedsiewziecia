@@ -20,5 +20,5 @@ export default ({ className = ``, to, requiredParams, params, children }) => {
 
   const queryString = processedQueryParams.map( ({ name, value }) => `${name}=${value}` ).join( `&` )
 
-  return <Link className={className} to={`${to}?${queryString}`}>{children}</Link>
+  return <Link title={children} className={className} to={`${to}?${queryString}`}>{children}</Link>
 }

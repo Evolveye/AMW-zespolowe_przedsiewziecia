@@ -46,11 +46,13 @@ export default ({
           fullScreened ? (
             <div className={`${classes.box}`}>
               <div className={classes.fullscreen}>
-                <div className={boxClassName}>
+                <div style={{ position:`relative` }}>
                   <button className={`${classes.closeButton} ${closeBtnClassName}`} onClick={() => setBoxVisibility( false )}>
                     {closeLabel || `Close`}
                   </button>
-                  {children}
+                  <div className={boxClassName}>
+                    {children}
+                  </div>
                 </div>
               </div>
             </div>

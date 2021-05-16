@@ -5,7 +5,7 @@ import classes from "./subPagesNav.module.css"
 import getWebsiteContext from "../utils/websiteContext.js"
 
 
-const queryPaths = [ `/group?p&g`, `/meet?p&m` ]
+const queryPaths = [ `/group?p&g`, `/meet?p&g&m` ]
 
 
 export default ({ classNames }) => {

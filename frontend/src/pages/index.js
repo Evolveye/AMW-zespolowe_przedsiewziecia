@@ -28,6 +28,7 @@ export default () => {
                   switch: `neumorphizm is-button ${boxClasses.tabsSwitch}`,
                   switches: boxClasses.tabsSwitches,
                   activeSwitch: `is-active`,
+                  errorBox: boxClasses.floatingErrorBox,
                 }}
               >
                 <Tab className={boxClasses.tab} name="Logowanie">

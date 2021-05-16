@@ -21,7 +21,9 @@
 }
 .wrapper {
   min-width: min( calc( 100vw - 25px ), 850px );
-  height: 90%;
+  height: min( 90vh, 750px );
+  overflow-y: scroll;
+  overflow-x: hidden;
 }
 .popup {
   padding: 10px;
@@ -37,11 +39,39 @@
   color: white;
   font-weight: bold;
   transition: all 0.2s;
+  z-index: 1;
 }
   .closeButton:hover {
     box-shadow: 0 5px 10px #0007;
     background-color: #ff0000;
   }
+
+.floatingErrorBox,
+.successBox,
+.errorBox {
+  padding: 20px;
+  text-align: center;
+  color: white;
+  font-weight: bold;
+}
+.floatingErrorBox,
+.errorBox > * {
+  border-radius: 10px;
+  padding: 15px;
+  background-color: #ed5e44;
+}
+.floatingErrorBox {
+  position: absolute;
+  top: calc( 100% + 15px );
+  left: 50%;
+  transform: translateX( -50%);
+  width: 150%;
+}
+.successBox > * {
+  padding: 15px;
+  border-radius: 10px;
+  background-color: #53c653;
+}
 
 
 /* SKELETON */

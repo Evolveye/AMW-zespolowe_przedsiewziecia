@@ -29,12 +29,14 @@ export default class Fetcher {
    */
   _fetch( input, init = {} ) {
     /** @param {{ type:string status:number data:any }} err */
-    const erhandleError = err => this.init.processError?.( err )
+    const handleError = err => this.init.processError?.( err )
 
     if (!init.headers) init.headers = {}
     Object.assign( init.headers, this.init.getHeaders?.( this.headers ) ?? this.headers )
 
-    if (input.includes( `undefined` )) throw `URL cannot contain "undefined" word (${input})`
+    if (input.includes( `undefined` )) {
+      return new Promise( r => r( console.warn( `URL cannot contain "undefined" word (${input})` ) ) )
+    }
 
     return fetch( input, init )
       .then( async res => {
@@ -43,7 +45,7 @@ export default class Fetcher {
         try {
           data = JSON.parse( data )
         } catch {
-          throw new Error( { type:`noJson`, status:res.status, data } )
+          throw { type:`noJson`, status:res.status, data }
         }
 
         if (Math.floor( res.status / 100 ) == 4) {
@@ -58,7 +60,7 @@ export default class Fetcher {
 
         return data
       } )
-      .catch( erhandleError )
+      .catch( handleError )
   }
 
 

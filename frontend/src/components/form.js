@@ -39,8 +39,9 @@ Submit.propTypes = {
 }
 
 
-const Form = ({ tab }) => {
+const Form = ({ errorBoxClassName, tab }) => {
   const [ fieldsValues, setValues ] = useState({})
+  const [ error, setError ] = useState( null )
 
   const updateValues = ({ target }) => {
     setValues( currentValues => ({
@@ -49,14 +50,19 @@ const Form = ({ tab }) => {
     }) )
   }
 
-  const onSubmit = (e, { handler }) => {
+  const onSubmit = async(e, { handler }) => {
     e.preventDefault()
-    if (typeof handler === `function`) handler( fieldsValues )
+    if (typeof handler !== `function`) return
+
+    const response = await handler( fieldsValues )
+
+    if (response?.error) setError( response.error )
   }
 
   return (
     <form>
       {processFormChildren( tab, updateValues, onSubmit )}
+      {error && <div className={errorBoxClassName}>{error}</div>}
     </form>
   )
 }
@@ -78,7 +84,7 @@ export default function FormWrapper({ classNames, children }) {
             name={tab.props.name}
             className={tab.props.className}
           >
-            <Form tab={tab} />
+            <Form errorBoxClassName={classNames.errorBox} tab={tab} />
           </SwitchTab>
         ) )
       }

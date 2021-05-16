@@ -63,16 +63,20 @@ const InputField = ({
   getTableData,
   disabled = false,
 }) => {
+  const [ data, setData ] = useState()
+
   const controlledProcessor = data => {
     const processedData = processor.process?.( data ) ?? processor.render( data )
     return (typeof processedData === `object` && `value` in processedData && `label` in processedData)
       ? processedData
       : { label:processedData, value:processedData }
   }
+
   const checkable = [ `radio`, `checkbox` ].includes( type )
-  const [ data, setData ] = useState()
   const standardProps = {
-    defaultValue: defaultValue ? controlledProcessor( defaultValue )?.value : undefined,
+    defaultValue: defaultValue
+      ? controlledProcessor( defaultValue )?.value
+      : [ `number`, `string` ].includes( typeof data ) ? data : undefined,
     key: typeof data,
     onChange: ({ target:{ checked, files, value } }) => validator( checkable ? checked : (files || value) ),
     onInput: ({ target:{ name, checked, files, value } }) => updateValue( name, checkable ? checked : (files || value) ),
@@ -90,10 +94,11 @@ const InputField = ({
     }
 
     runAfterDataLoad( () => {
+      const data = typeof getData == `function` ? getData( getTableData(), setData ) : getData
       let mounted = true
 
-      const data = typeof getData == `function` ? getData( getTableData() ) : getData
       if (data instanceof Promise) data.then( r => mounted && setNewData( r ) )
+      else setNewData( data )
 
       return () => mounted = false
     } )
@@ -197,7 +202,21 @@ export default class DataTable extends React.Component {
 
     colspanCounter = 1
 
+    const onCreate = async() => {
+      const response = await props.onCreate?.( this.state.inputs, this.addFieldToTable )
+
+      if (!response || response.success) {
+        return this.setState({ error:null, success:response?.success ?? props.successMessage ?? `Success` })
+      }
+
+      if (`error` in response) {
+        return this.setState({ success:null, error:response.error ?? props.errorMessage ?? `Error` })
+      }
+    }
+
     this.state = {
+      error: null,
+      success: null,
       inputs: {},
       rawData: [],
       tableRows: [],
@@ -239,7 +258,7 @@ export default class DataTable extends React.Component {
                   (abilities || abilities?.create) && (
                     <button
                       className={props.create?.className || ``}
-                      onClick={() => props.onCreate?.( this.state.inputs, this.addFieldToTable )}
+                      onClick={onCreate}
                       children={props.create?.label || `Create`}
                     />
                   )
@@ -250,6 +269,91 @@ export default class DataTable extends React.Component {
         </>
       ),
     }
+  }
+
+
+  generateAdders =() => {
+    let colspanCounter = 1
+    // this.tableAdderFields = this.fields.reduce( (obj, { disabled, name, adder, processor }) => {
+    //   if (!obj || !adder) return null
+    //   if (colspanCounter !== 1) {
+    //     colspanCounter--
+    //     return obj
+    //   }
+
+    //   colspanCounter = adder.props.colspan || 1
+
+    //   return {
+    //     [ name ]: (defaultValue, rowId = null) => (
+    //       <InputField
+    //         {...{
+    //           name,
+    //           defaultValue,
+    //           processor,
+    //           disabled,
+    //           ...adder.props,
+    //           getTableData: () => this.state.rawData,
+    //           updateValue: (name, value) => this.setState( state => {
+    //             if (rowId) {
+    //               return { editableRows: {
+    //                 ...state.editableRows,
+    //                 [ rowId ]: {
+    //                   ...state.editableRows[ rowId ],
+    //                   [ name ]: value },
+    //               } }
+    //             } else {
+    //               return { inputs:{ ...state.inputs, [ name ]:value } }
+    //             }
+    //           } ),
+    //           runAfterDataLoad: this.runAfterDataLoad,
+    //         }}
+    //       />
+    //     ), // this.getInputCreator({ processor, ...adder.props }),
+    //     ...obj,
+    //   }
+    // }, {} )
+
+    const props = this.props
+    const abilities = props.actionPosibility?.()
+    this.setState({ tableAdder: (
+      <>
+        {
+          this.tableAdderFields && this.fields.map( ({ label, name, children }) => {
+            const adder = React.Children
+              .toArray( children )
+              .filter( ({ type }) => type === Adder.type )[ 0 ]
+
+            if (colspanCounter !== 1) {
+              colspanCounter--
+              return null
+            }
+
+            colspanCounter = adder.props.colspan || 1
+
+            return (
+              <td key={label} colSpan={colspanCounter}>
+                {this.tableAdderFields[ name ]()}
+              </td>
+            )
+          } )
+        }
+        {
+          !props.noActions && (
+            <td>
+              {
+                (abilities || abilities?.create) && (
+                  <button
+                    className={props.create?.className || ``}
+                    onClick={() => props.onCreate?.( this.state.inputs, this.addFieldToTable )}
+                    children={props.create?.label || `Create`}
+                  />
+                )
+              }
+            </td>
+          )
+        }
+      </>
+    ) })
   }
 
 
@@ -344,21 +448,22 @@ export default class DataTable extends React.Component {
   }
 
 
-  render = () => (
-    <table className={this.props.className || ``}>
-      <thead>
-        {this.state.tableHeaders}
-      </thead>
-      <tbody>
-        <tr>
-          {this.state.tableAdder}
-        </tr>
-      </tbody>
-      <tbody>
-        {this.state.tableRows}
-      </tbody>
-    </table>
-  )
+  render = () => {
+    const { tableHeaders, tableAdder, tableRows, error, success } = this.state
+    return (
+      <table className={this.props.className || ``}>
+        <thead>{tableHeaders}</thead>
+        <tbody>
+          <tr>{tableAdder}</tr>
+          <tr>
+            {error && <td className={this.props.errorBoxClassName} colSpan={this.fields.length + 1}>{error}</td>}
+            {success && <td className={this.props.successBoxClassName} colSpan={this.fields.length + 1}>{success}</td>}
+          </tr>
+        </tbody>
+        <tbody>{tableRows}</tbody>
+      </table>
+    )
+  }
 }
 DataTable.propTypes = {
   className: PropTypes.string,

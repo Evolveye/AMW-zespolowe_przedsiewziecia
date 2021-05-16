@@ -6,14 +6,14 @@ import getWebsiteContext from "../../utils/websiteContext.js"
 import { isDataLoading } from "../../utils/functions.js"
 
 export default () => {
-  const ctx = getWebsiteContext()
+  const { platform } = getWebsiteContext()
 
-  return isDataLoading( ctx ) ? null : (
+  return isDataLoading( platform ) || !platform ? null : (
     <Layout title="Grupa" showMeets={true}>
       <h1 className="h1">
         <span className="tag">Platforma</span>
         {` `}
-        {ctx.platform.name}
+        {platform.name}
       </h1>
 
       <EventsCalendar />

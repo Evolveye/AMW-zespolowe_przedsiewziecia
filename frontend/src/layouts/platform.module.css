@@ -10,6 +10,7 @@
 
 .groups {
   grid-area: groups;
+  overflow: hidden;
 }
 
 .content {
@@ -19,6 +20,6 @@
 
 @media screen and (max-width:1200px) {
   .main {
-    grid-template-columns: 10px 250px 10px 1fr 10px;
+    grid-template-columns: 10px 250px 40px 1fr 10px;
   }
 }

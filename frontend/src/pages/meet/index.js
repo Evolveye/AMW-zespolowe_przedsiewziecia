@@ -9,20 +9,42 @@ import SwitchBox, { Tab } from "../../components/switchBox.js"
 import classes from "../../css/meet.module.css"
 import URLS from "../../utils/urls.js"
 import getWebsiteContext from "../../utils/websiteContext.js"
-import { authFetcher } from "../../utils/auth.js"
+import { authFetcher, getUser } from "../../utils/auth.js"
 import ws from "../../utils/ws.js"
+
+let lastUpdate = Date.now()
+const updatePaintStorage = {}
 
 const highlightStyle = `color:#62a01b;font-weight:bold`
 const log = string => console.log( `  [WS] ${string}`, highlightStyle )
+const updatePaint = (data, roomId, setPaintData) => {
+  if (lastUpdate > Date.now() - 100) {
+    if (!(roomId in updatePaintStorage)) updatePaintStorage[ roomId ] = []
 
-const sendChatMessage = (form, roomId) => ws.emit( `chat message`, {
-  content: form[ `chat-message` ].value,
-  roomId,
-} )
+    updatePaintStorage[ roomId ].push( data )
+
+    return
+  }
+
+  lastUpdate = Date.now()
+
+  // setPaintData?.( data )
+
+  ws.emit( `paint data`, { roomId, data } )
+  updatePaintStorage[ roomId ] = []
+}
+
+const sendChatMessage = (form, roomId) => {
+  const content = form[ `chat-message` ].value
+
+  if (content) ws.emit( `chat message`, { content, roomId } )
+}
 
 
 const Message = ({ author, content, onDelete, onChange }) => {
   const [ isEditingMode, setEditingMode ] = useState( false )
+  const user = getUser()
+  console.log( user )
   const onEdit = e => {
     e.preventDefault()
     setEditingMode( false )
@@ -46,8 +68,8 @@ const Message = ({ author, content, onDelete, onChange }) => {
           <p className={classes.chatMessageContent}>{content}</p>
 
           <ol className={classes.chatMenu}>
-            <li><button onClick={onDelete} children="Usuń" /></li>
-            <li><button onClick={() => setEditingMode( true )} children="Edytuj" /></li>
+            {(user.id == author.id || author.livePermissions.canKickUser) && <li><button onClick={onDelete} children="Usuń" /></li>}
+            {user.id == author.id && <li><button onClick={() => setEditingMode( true )} children="Edytuj" /></li>}
           </ol>
         </>
       )}
@@ -61,6 +83,7 @@ export default () => {
   const ctx = getWebsiteContext()
   const [ participants, setParticipants ] = useState([])
   const [ messages, setMessages ] = useState([])
+  const [ paintData, setPaintData ] = useState([])
 
   const roomId = ctx.meet?.id
 
@@ -89,10 +112,24 @@ export default () => {
 
       return newMessages
     } ) )
+
+    ws.on( `paint data`, ({ emiterId, data }) => {
+      if (emiterId != ws.id) setPaintData( data )
+    } )
   }, [ ctx.meet?.id ] )
 
-  if (isDataLoading( ctx.meet )) return <Layout className={classes.layout} title="Grupa" />
-  else return (
+  if (isDataLoading( ctx.meet ) || !ctx.meet) return <Layout className={classes.layout} title="Grupa" />
+  else if (ctx.meet.externalUrl) {
+    return (
+      <Layout className={`is-centered ${classes.layout}`} title="Grupa">
+        <a className="link" href={ctx.meet.externalUrl}>
+          Link do spotkania:
+          {` `}
+          {ctx.meet.externalUrl.match( /https?:\/\/.*?\// )[ 0 ]}
+        </a>
+      </Layout>
+    )
+  } else return (
     <Layout className={classes.layout} title="Grupa">
       <SwitchBox
         classNames={{
@@ -108,6 +145,8 @@ export default () => {
               nav: classes.nav,
               tool: classes.tool,
             }}
+            onUpdate={data => updatePaint( data, roomId, setPaintData )}
+            operationsHistory={paintData}
           />
         </Tab>
 

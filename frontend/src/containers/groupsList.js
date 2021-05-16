@@ -23,14 +23,14 @@ export default ({ className = `` }) => {
       <TableList className={classes.list}>
         {
           groups?.map( ({ id }) => (
-            <Tr key={id} className={`is-highlightable ${classes.field}`}>
+            <Tr key={id} className={classes.field}>
               <Td>
                 {/* <GroupSettings platformId={p} groupId={id} /> */}
               </Td>
 
               <Td>
                 <QueryLink
-                  className={classes.link}
+                  className={`is-highlightable ${classes.link}`}
                   to="/group"
                   requiredParams={[ `p` ]}
                   params={[ { name:`g`, value:id } ]}

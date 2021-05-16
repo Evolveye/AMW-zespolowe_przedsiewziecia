@@ -19,6 +19,10 @@ const buttonsClasname = `neumorphizm is-button`
 const dataTableButtonsClassName = `${buttonsClasname} ${classes.actionButton}`
 const dataTableProps = {
   className: classes.table,
+  errorBoxClassName: boxesClasses.errorBox,
+  errorMessage: <p>Wystąpił nieoczekiwany błąd, skontaktuj się z administratorem</p>,
+  successBoxClassName: boxesClasses.successBox,
+  successMessage: <p>Operacja wykonana pomyślnie</p>,
   actionPosibility: () => true, // same as { create:true, delete:true, edit:true, }
   actionsLabel: `Akcje`,
   create: { label:`Dodaj`, className:`${dataTableButtonsClassName} ${classes.isSoftCreate}` },
@@ -69,11 +73,11 @@ export default ({ className = `` }) => {
       renderChoosedItem={
         () => !p || isDataLoading( platform ) ? <span className={`tag ${classes.linkTag}`}>Wybierz platformę...</span> : (
           <>
-            <Link className={`is-highlightable ${classes.platform}`} to={`/platform?p=${p}`}>
+            <Link className={`${classes.platform}`} to={`/platform?p=${p}`}>
               {platform.name}
             </Link>
 
-            <SettingsTabs abilities={platform.myRole.abilities} platformId={p} />
+            <SettingsTabs platform={platform} />
           </>
         )
       }
@@ -96,6 +100,7 @@ const AddNewPlatformItem = () => {
   const createNewPlatform = async data => {
     const response = await fetcher.post( URLS.PLATFORM_POST(), data, getAuthHeaders() )
 
+    if (`error` in response) return response
     if (response?.platform) navigate( `/platform?p=${response.platform.id}` )
   }
 
@@ -108,7 +113,7 @@ const AddNewPlatformItem = () => {
         btnContent="Stwórz nową platformę"
         fullScreened
       >
-        <Form classNames={{ it:classes.centered }}>
+        <Form classNames={{ it:classes.centered, errorBox:boxesClasses.floatingErrorBox }}>
           <Text className={classes.input} name="name">Nazwa paltformy</Text>
           <Submit className={`${dataTableButtonsClassName} ${classes.isSoftCreate}`} handler={createNewPlatform}>
             Stwórz
@@ -120,30 +125,38 @@ const AddNewPlatformItem = () => {
 }
 
 
-const SettingsTabs = ({ abilities, platformId }) => {
+const SettingsTabs = ({ platform }) => {
+  const abilities = platform.myRole.abilities
+  const platformId = platform.id
   const queryData = useStaticQuery( query )
+
   const deletePlatform = async data => {
     const response = await del( URLS.PLATFORM$ID_DELETE( platformId ), data )
 
+    if (`error` in response) return response
     if (response?.success) navigate( `/` )
   }
   const createUser = async(data, addToTable) => {
     const response = await post( URLS.PLATFORM$ID_USERS_POST( platformId ), data )
 
+    if (`error` in response) return response
     if (response?.user) addToTable( response.user )
   }
   const editUser = async(id, data) => {
-    await put( URLS.PLATFORM$ID_USERS$ID_PUT( platformId, id ), data )
-    // console.log( response )
+    const response = await put( URLS.PLATFORM$ID_USERS$ID_PUT( platformId, id ), data )
+
+    if (`error` in response) return response
   }
   const deleteUser = async(data, removeFromTable) => {
     const response = await del( URLS.PLATFORM$ID_USERS$ID_DELETE( platformId, data.id ) )
 
+    if (`error` in response) return response
     if (response?.success) removeFromTable()
   }
   const createGroup = async(data, addToTable) => {
     const response = await post( URLS.GROUP_POST(), { platformId, ...data } )
 
+    if (`error` in response) return response
     if (response?.group) {
       addToTable( response.group )
       setInStorage( `groups list token`, Math.random() )
@@ -152,6 +165,7 @@ const SettingsTabs = ({ abilities, platformId }) => {
   const deleteGroup = async(data, removeFromTable) => {
     const response = await del( URLS.GROUP$ID_DELETE( data.id ), { platformId, ...data } )
 
+    if (`error` in response) return response
     if (response?.success) removeFromTable()
   }
   const createRole = async(data, addToTable) => {
@@ -162,21 +176,24 @@ const SettingsTabs = ({ abilities, platformId }) => {
       abilities,
     } )
 
+    if (`error` in response) return response
     if (response?.role) addToTable( response.role )
   }
   const deleteRole = async(data, removeFromTable) => {
     const response = await del( URLS.PLATFORM$ID_PERMISSIONS$ID_DELETE( platformId, data.id ) )
 
+    if (`error` in response) return response
     if (response?.success) removeFromTable()
   }
   const editRole = async(id, data) => {
     const { name, color, ...abilities } = data
-    await put( URLS.PLATFORM$ID_PERMISSIONS$ID_PUT( platformId, id ), {
+    const response = await put( URLS.PLATFORM$ID_PERMISSIONS$ID_PUT( platformId, id ), {
       name,
       color: color ? parseInt( color.slice( 1 ), 16 ) : undefined,
       abilities,
     } )
-    // console.log( response, data )
+
+    if (`error` in response) return response
   }
 
   return Object.values( abilities ).filter( Boolean ).length == 0 ? null : (
@@ -208,10 +225,10 @@ const SettingsTabs = ({ abilities, platformId }) => {
               btnContent="Skasuj platformę"
               fullScreened
             >
-              <Form classNames={{ it:classes.centered }}>
+              <Form classNames={{ it:classes.centered, errorBox:boxesClasses.floatingErrorBox }}>
                 <Password className={classes.input} name="password">Podaj hasło</Password>
                 <Submit className={`${dataTableButtonsClassName} ${classes.isDelete}`} handler={deletePlatform}>
-                Skasuj
+                  Skasuj
                 </Submit>
               </Form>
             </ToggableBox>
@@ -222,7 +239,10 @@ const SettingsTabs = ({ abilities, platformId }) => {
           <Tab className={boxesClasses.tabSwitch} name="Użytkownicy">
             <DataTable
               {...dataTableProps}
-              getData={() => get( URLS.PLATFORM$ID_USERS_GET( platformId ), `users` )}
+              getData={() => {
+                return get( URLS.PLATFORM$ID_USERS_GET( platformId ), `users` )
+                  .then( users => users.filter( ({ id }) => id != platform.ownerId ) )
+              }}
               onCreate={createUser}
               onDelete={deleteUser}
               onEdit={editUser}
@@ -280,7 +300,10 @@ const SettingsTabs = ({ abilities, platformId }) => {
             <DataTable
               {...dataTableProps}
               className={`${classes.table} ${classes.isRotated}`}
-              getData={() => get( URLS.PLATFORM$ID_PERMISSIONS_GET( platformId ), `permissions` )}
+              getData={() => {
+                return get( URLS.PLATFORM$ID_PERMISSIONS_GET( platformId ), `permissions` )
+                  .then( perms => perms.filter( ({ name }) => name !== `Właściciel` ) )
+              }}
               onCreate={createRole}
               onDelete={deleteRole}
               onEdit={editRole}

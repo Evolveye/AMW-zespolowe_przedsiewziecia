@@ -37,6 +37,10 @@ const put   = (address, data, dataField)  => authFetch( `put`, dataField, addres
 const buttonsClasname = `neumorphizm is-button`
 const dataTableButtonsClassName = `${buttonsClasname} ${classes.actionButton}`
 const dataTableProps = {
+  errorBoxClassName: boxesClasses.errorBox,
+  errorMessage: <p>Wystąpił nieoczekiwany błąd, skontaktuj się z administratorem</p>,
+  successBoxClassName: boxesClasses.successBox,
+  successMessage: <p>Operacja wykonana pomyślnie</p>,
   className: classes.table,
   actionPosibility: () => true, // same as { create:true, delete:true, edit:true, }
   actionsLabel: `Akcje`,
@@ -46,39 +50,45 @@ const dataTableProps = {
 }
 
 
-export default ({ className = ``, abilities, platformId, groupId }) => {
-  if (!platformId || !groupId) {
+export default ({ className = ``, group, platformId }) => {
+  if (!platformId || !group?.id) {
     // console.warn( `Missing data in GroupSettings component:`, { platformId, groupId } )
     return null
   }
-  console.log( abilities )
 
+  const abilities = group.myRole?.abilities
+  const groupId = group.id
   const queryData = useStaticQuery( query )
   const [ gradesScale, setGradesScale ] = useState( null )
 
   const updateGradesScale = async data => {
     const response = await put( URLS.GROUP$ID_GRADES_SCALE_PUT( groupId ), data )
 
+    if (`error` in response) return response
     if (response?.success) setGradesScale( data.gradingScale.split( / +/ ).join( `, ` ) )
   }
   const createUser = async(data, addToTable) => {
     const response = await post( URLS.GROUP$ID_USERS_POST( groupId ), data )
 
+    if (`error` in response) return response
     if (response?.success) addToTable( response.user )
   }
   const deleteUser = async(data, removeFromTable) => {
     const response = await del( URLS.GROUP$ID_USERS$ID_DELETE( groupId, data.id ) )
 
+    if (`error` in response) return response
     if (response?.success) removeFromTable()
   }
   const createGrade = async(data, addToTable) => {
     const response = await post( URLS.GROUP$ID_GRADES_POST( groupId ), data )
 
+    if (`error` in response) return response
     if (response?.success) addToTable( response.note )
   }
   const deleteGrade = async(data, removeFromTable) => {
     const response = await del( URLS.GROUP$ID_GRADES$ID_DELETE( groupId, data.id ) )
 
+    if (`error` in response) return response
     if (response?.success) removeFromTable()
   }
   const createRole = async(data, addToTable) => {
@@ -89,19 +99,23 @@ export default ({ className = ``, abilities, platformId, groupId }) => {
       abilities,
     } )
 
+    if (`error` in response) return response
     if (response?.success) addToTable( response.role )
   }
   const editRole = async(id, data) => {
     const { name, color, ...abilities } = data
-    await put( URLS.GROUP$ID_PERMISSIONS$ID_PUT( groupId, id ), {
+    const response = await put( URLS.GROUP$ID_PERMISSIONS$ID_PUT( groupId, id ), {
       name,
       color: color ? parseInt( color.slice( 1 ), 16 ) : undefined,
       abilities,
     } )
+
+    if (`error` in response) return response
   }
   const deleteRole = async(data, removeFromTable) => {
     const response = await del( URLS.GROUP$ID_PERMISSIONS$ID_DELETE( groupId, data.id ) )
 
+    if (`error` in response) return response
     if (response?.success) removeFromTable()
   }
   const createMaterial = async(data, addToTable) => {
@@ -112,11 +126,13 @@ export default ({ className = ``, abilities, platformId, groupId }) => {
 
     const response = await post( URLS.GROUPS$ID_MATERIALS_POST( groupId ), formData )
 
+    if (`error` in response) return response
     if (response?.success) addToTable( response.file )
   }
   const deleteMaterial = async(data, removeFromTable) => {
     const response = await del( URLS.GROUPS$ID_MATERIALS_DELETE( groupId, data.id ) )
 
+    if (`error` in response) return response
     if (response?.success) removeFromTable()
   }
   const createTask = async(data, addToTable) => {
@@ -126,25 +142,27 @@ export default ({ className = ``, abilities, platformId, groupId }) => {
       dateStart: new Date(data.dateStart).getTime(),
     } )
 
+    if (`error` in response) return response
     if (response?.success) addToTable( response.task )
   }
   const deleteTask = async(data, removeFromTable) => {
     const response = await del( URLS.GROUPS$ID_TASKS$ID_DELETE( groupId, data.id ) )
 
+    if (`error` in response) return response
     if (response?.success) removeFromTable()
   }
   const createMeet = async(data, addToTable) => {
     const response = await post( URLS.MEET_POST(), { platformId, groupId, ...data } )
 
+    if (`error` in response) return response
     if (response?.success) addToTable( response.meet )
   }
   const deleteMeet = async(data, removeFromTable) => {
     const response = await del( URLS.MEET$ID_DELETE( data.id ) )
 
+    if (`error` in response) return response
     if (response?.success) removeFromTable()
   }
-
-
 
   useEffect( () => {
     get( URLS.GROUP$ID_GRADES_SCALE_GET( groupId ) ).then( r => r.scale.join( `, ` ) ).then( setGradesScale )
@@ -174,7 +192,7 @@ export default ({ className = ``, abilities, platformId, groupId }) => {
           <Tab className={`is-centered ${boxesClasses.tabSwitch}`} name="Ogólne">
             <p>Skala ocen (wartości całkowite rozdzielone spacjami)</p>
 
-            <Form classNames={{ it:classes.centered }}>
+            <Form classNames={{ it:`is-relative`, errorBox:boxesClasses.floatingErrorBox }}>
               <Text
                 className={classes.input}
                 name="gradingScale"
@@ -191,7 +209,7 @@ export default ({ className = ``, abilities, platformId, groupId }) => {
             {gradesScale && (
               <>
                 <p>
-                Oceny możliwe do wystawienia:
+                  Oceny możliwe do wystawienia:
                   {` `}
                   {gradesScale}
                 </p>
@@ -218,7 +236,10 @@ export default ({ className = ``, abilities, platformId, groupId }) => {
                 <Adder
                   className={classes.adder}
                   type="select"
-                  getData={() => get( URLS.GROUP$ID_USERS_GET( groupId ), `users` )}
+                  getData={() => {
+                    return get( URLS.GROUP$ID_USERS_GET( groupId ), `users` )
+                      .then( users => users.filter( ({ role }) => !role.abilities.canManageNotes ) )
+                  }}
                 />
               </Field>
             </DataTable>
@@ -229,7 +250,10 @@ export default ({ className = ``, abilities, platformId, groupId }) => {
           <Tab className={boxesClasses.tabSwitch} name="Użytkownicy">
             <DataTable
               {...dataTableProps}
-              getData={() => get( URLS.GROUP$ID_USERS_GET( groupId ), `users` )}
+              getData={() => {
+                return get( URLS.GROUP$ID_USERS_GET( groupId ), `users` )
+                  .then( users => users.filter( ({ id }) => id != group.lecturer.id ) )
+              }}
               onCreate={createUser}
               onDelete={deleteUser}
             >
@@ -242,7 +266,7 @@ export default ({ className = ``, abilities, platformId, groupId }) => {
                     const usersIds = fields.map( ({ id }) => id )
 
                     return get( URLS.PLATFORM$ID_USERS_GET( platformId ), `users` )
-                      .then( users => users.filter( ({ id }) => !usersIds.includes( id ) ) )
+                      .then( users => users.filter( ({ id }) => id != group.lecturer.id && !usersIds.includes( id ) ) )
                   }}
                 />
               </Field>
@@ -260,7 +284,10 @@ export default ({ className = ``, abilities, platformId, groupId }) => {
             <DataTable
               {...dataTableProps}
               className={`${classes.table} ${classes.isRotated}`}
-              getData={() => get( URLS.GROUP$ID_PERMISSIONS_GET( groupId ), `roles` )} // .then( console.log )
+              getData={() => {
+                return get( URLS.GROUP$ID_PERMISSIONS_GET( groupId ), `roles` ) // .then( console.log )
+                  .then( perms => perms.filter( ({ name }) => name !== `Prowadzący` ) )
+              }}
               onCreate={createRole}
               onEdit={editRole}
               onDelete={deleteRole}
@@ -365,7 +392,6 @@ export default ({ className = ``, abilities, platformId, groupId }) => {
                 <Adder
                   className={classes.adder}
                   type="select"
-                  getData={() => get( URLS.GROUP$ID_USERS_GET( groupId ), `users` )}
                   getData={() => {
                     const user = getUser()
 
@@ -395,7 +421,7 @@ export default ({ className = ``, abilities, platformId, groupId }) => {
                 <Adder className={classes.adder} type="datetime-local" />
               </Field> */}
 
-              <Field label="Czas oddania" name="dateExpire" dataFieldname="expire">
+              <Field label="Data oddania" name="dateExpire" dataFieldname="expire">
                 <Processor render={getDate} />
                 <Adder className={classes.adder} type="datetime-local" />
               </Field>
@@ -415,14 +441,14 @@ export default ({ className = ``, abilities, platformId, groupId }) => {
               onCreate={createMeet}
               onDelete={deleteMeet}
             >
-              <Field label="Czas rozpoczęcia" name="dateStart">
+              <Field label="Data rozpoczęcia" name="dateStart">
                 <Processor render={getDate} />
                 <Adder className={classes.adder} type="datetime-local" />
               </Field>
 
               <Field label="Czas trwania" name="dateEnd">
-                <Processor render={datetime => getDate( datetime, `hh:mm` )} />
-                <Adder className={classes.adder} type="time" />
+                <Processor render={date => getDate( date, `hh:mm` )} />
+                <Adder className={classes.adder} type="time" getData="01:00" />
               </Field>
 
               <Field label="Opis" name="description">

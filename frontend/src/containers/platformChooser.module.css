@@ -11,6 +11,10 @@
     .platform {
       flex-grow: 1;
       margin-right: 15px;
+      padding-top: 0;
+    }
+    .platform:hover {
+      background-color: white;
     }
 
     .table {

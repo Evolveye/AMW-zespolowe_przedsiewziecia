@@ -20,14 +20,51 @@ export default class extends React.Component {
     pipette: null,
   }
 
+  /** @type {CanvasRenderingContext2D} */
+  ctx = null
+
+
+  componentDidUpdate() {
+    const { operationsHistory } = this.props
+    const { ctx } = this
+
+    if (operationsHistory) {
+      this.operationsHistory.mergeHistory( operationsHistory )
+
+      operationsHistory.forEach( ({ tool, size, color, coords }) => {
+        this.setToolEffect( tool, { brushSize:size, color } )
+
+        ctx.beginPath()
+        ctx.moveTo( operationsHistory[ 0 ].coords.x, operationsHistory[ 0 ].coords.y )
+
+        coords.forEach( ({ x, y }) => ctx.lineTo( x, y ) )
+
+        ctx.stroke()
+      } )
+    }
+  }
+
 
   /** @param {HTMLCanvasElement} canvas */
   start = canvas => {
     if (!canvas) return console.log( `no canvas` )
 
     this.ctx = canvas.getContext( `2d` )
-
     this.onResize()
+
+    const { operationsHistory } = this.props
+    const { ctx } = this
+
+    operationsHistory.forEach( ({ tool, size, color, coords }) => {
+      this.setToolEffect( tool, { brushSize:size, color } )
+
+      ctx.beginPath()
+      ctx.moveTo( operationsHistory[ 0 ].coords.x, operationsHistory[ 0 ].coords.y )
+
+      coords.forEach( ({ x, y }) => ctx.lineTo( x, y ) )
+
+      ctx.stroke()
+    } )
   }
 
 
@@ -99,6 +136,31 @@ export default class extends React.Component {
   }
 
 
+  sendOperationsUpdate() {
+    this.props.onUpdate?.( this.operationsHistory.getOperations() )
+  }
+
+
+  setToolEffect( tool, { brushSize, color } = {} ) {
+    const { ctx } = this
+
+    switch (tool) {
+      case `brush`: {
+        ctx.globalCompositeOperation = `source-over`
+        ctx.strokeStyle = color ?? this.toolbar.color.value
+        ctx.lineWidth = brushSize ?? this.state.lineWidth
+        break
+      }
+
+      case `rubber`: {
+        ctx.globalCompositeOperation = `destination-out`
+        ctx.lineWidth = brushSize ?? this.state.lineWidth
+        break
+      }
+    }
+  }
+
+
   /* EVENTS */
 
 
@@ -106,25 +168,23 @@ export default class extends React.Component {
   onPointerDown = e => {
     const { layerX:x, layerY:y } = e.nativeEvent
     const { ctx } = this
+    const tool = this.state.currentTool
 
     console.log( `clickerd coords:`, { x, y } )
 
-    switch (this.state.currentTool) {
+    switch (tool) {
       case `brush`: {
         const color = this.toolbar.color.value
         const brushSize = this.state.lineWidth
 
-        ctx.globalCompositeOperation = `source-over`
-        ctx.strokeStyle = color
-        ctx.lineWidth = brushSize
-
-        this.operationsHistory.add( x, y, color, brushSize )
+        this.operationsHistory.add( x, y, color, brushSize, tool )
+        this.sendOperationsUpdate()
         break
       }
 
       case `pipette`: {
         const { data } = ctx.getImageData( x, y, 1, 1 )
-        const hexColor = (data[ 0 ] << 16 | data[ 1 ] << 8 | data[ 2 ]).toString( 16 )
+        const hexColor = (data[ 0 ] << 16 | data[ 1 ] << 8 | data[ 2 ]).toString( 16 ).padStart( 6, 0 )
 
         this.toolbar.color.value = `#${hexColor}`
         this.switchToolTo( `brush` )
@@ -132,16 +192,11 @@ export default class extends React.Component {
       }
 
       case `rubber`: {
-        const brushSize = this.state.lineWidth
-
-        ctx.globalCompositeOperation = `destination-out`
-        ctx.lineWidth = brushSize
-
-        this.operationsHistory.add( x, y, `transparent`, brushSize )
+        this.operationsHistory.add( x, y, `transparent`, this.state.lineWidth, tool )
+        this.sendOperationsUpdate()
         break
       }
     }
-
   }
 
 
@@ -158,11 +213,15 @@ export default class extends React.Component {
     if (!operation) return
 
     operation.addStep( x, y )
+    this.sendOperationsUpdate()
 
     const { from, to } = operation.getLastStep()
 
     if (!from || !to) return
 
+    this.setToolEffect( operation.tool )
+    // this.ctx.lineWidth = operation.size
+    // this.ctx.strokeStyle = operation.color
     this.ctx.beginPath()
     this.ctx.moveTo( from.x, from.y )
     this.ctx.lineTo( to.x, to.y )
@@ -184,6 +243,8 @@ export default class extends React.Component {
 
   onResize = () => {
     const { canvas } = this.ctx
+
+    console.log( `resize` )
 
     canvas.width = canvas.clientWidth
     canvas.height = canvas.clientHeight
@@ -258,10 +319,10 @@ class History {
   reversedHistory = []
 
 
-  add( x, y, color, size ) {
+  add( x, y, color, size, tool ) {
     if (this.reversedHistory.length) this.reversedHistory.splice( 0 )
 
-    this.data.push( new Operation( x, y, color, size ) )
+    this.data.push( new Operation( x, y, color, size, tool ) )
   }
 
 
@@ -293,6 +354,22 @@ class History {
   getOperations() {
     return this.data
   }
+
+
+  mergeHistory( operationsHistoryData ) {
+    const curentOperation = this.getCurrent()
+    const newOperations = operationsHistoryData.map( op => {
+      const operation = new Operation( op.x, op.y, op.color, op.size, op.tool )
+
+      operation.setDone()
+
+      return operation
+    } )
+
+    this.data = [ ...this.data, ...newOperations ]
+
+    if (curentOperation) this.data.push( curentOperation )
+  }
 }
 
 
@@ -303,7 +380,8 @@ class Operation {
   /** @type {{ x:number y:number }[]}*/
   coords = []
 
-  constructor( initialX, initialY, color, size ) {
+  constructor( initialX, initialY, color, size, tool ) {
+    this.tool = tool
     this.size = size
     this.color = color
     this.coords.push({ x:initialX, y:initialY })
