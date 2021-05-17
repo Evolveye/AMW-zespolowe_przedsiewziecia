@@ -245,7 +245,7 @@ export const fetcher = new Fetcher({ processError: ({ data }) => {
   // if (data?.code === 110) return navigate( `/logout` )
   // console.error( data )
 
-  const error = errors[ data.code ]
+  const error = errors[ data?.code ]
 
   if (!error) console.error( data )
 

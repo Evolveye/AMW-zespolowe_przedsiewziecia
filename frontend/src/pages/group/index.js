@@ -8,7 +8,7 @@ import GroupSettings from "../../containers/groupSettings.js"
 
 import classes from "../../css/page.module.css"
 import { authFetcher } from "../../utils/auth.js"
-import URLS, { HOST } from "../../utils/urls.js"
+import URLS, { ORIGIN } from "../../utils/urls.js"
 import TableList, { Td, Tr } from "../../components/tableList.js"
 
 export default () => {
@@ -43,7 +43,7 @@ export default () => {
             {materials?.map( ({ id, path, name }) => (
               <Tr key={id}>
                 <Td>
-                  <a className="is-highlightable" download href={`${HOST}/${path}`}>{name.match( /\d+-(.*)/ )[ 1 ]}</a>
+                  <a className="is-highlightable" download href={`${ORIGIN}/${path}`}>{name.match( /\d+-(.*)/ )[ 1 ]}</a>
                 </Td>
               </Tr>
             ) )}

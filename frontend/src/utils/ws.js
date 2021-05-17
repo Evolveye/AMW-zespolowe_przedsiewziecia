@@ -1,4 +1,4 @@
-import { WS_HOST } from "../utils/urls.js"
+import { WS_ORIGIN } from "../utils/urls.js"
 // import { getToken } from "./auth.js"
 import { isBrowser } from "./functions.js"
 
@@ -73,7 +73,7 @@ if (isBrowser()) {
 
   // const token = getToken()
 
-  ws = new WS(WS_HOST)
+  ws = new WS(WS_ORIGIN)
   ws.on( `not authenticated`, console.log )
 
   // console.log({ token })
