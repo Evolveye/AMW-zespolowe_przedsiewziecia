@@ -17,7 +17,7 @@ const Video = ({ peer }) => {
   }, [peer])
 
   return (
-    <video ref={ref} playsInline autoPlay data-peer-id={peer.id}> 
+    <video ref={ref} playsInline autoPlay data-peer-id={peer.id}>
       <track kind="captions" />
     </video>
   )
@@ -25,27 +25,44 @@ const Video = ({ peer }) => {
 
 let myVideoStream = ""
 let chatInputBox = ""
+let myVideo = null
 //let all_messages = ""
 //let main__chat__window = ""
+
+const setSharingScreenPlayButton = () => {
+  const html = `<i class="sharing fa fa-desktop"></i>
+  <span class="sharing">W trakcje udostępniania</span>`
+  const btn = document.getElementById("screenSharing")
+  btn.innerHTML = html
+  btn.className ="main__controls_button disable"
+}
+const setSharingScreenStopButton = () => {
+  const html = `<i class="fa fa-desktop"></i>
+  <span>Udostępnij ekran</span>`
+  const btn = document.getElementById("screenSharing")
+  btn.innerHTML = html
+  btn.className ="main__controls_button"
+}
+
 const setUnmuteButton = () => {
   const html = `<i class="unmute fa fa-microphone-slash"></i>
-    <span class="unmute">Unmute</span>`
+    <span class="unmute">Mikrofon</span>`
   document.getElementById("muteButton").innerHTML = html
 }
 const setMuteButton = () => {
   const html = `<i class="fa fa-microphone"></i>
-    <span>Mute</span>`
+    <span>Mikrofon</span>`
   document.getElementById("muteButton").innerHTML = html
 }
 const setPlayVideo = () => {
   const html = `<i class="unmute fa fa-pause-circle"></i>
-  <span class="unmute">Resume Video</span>`
+  <span class="unmute">Wideo</span>`
   document.getElementById("playPauseVideo").innerHTML = html
 }
 
 const setStopVideo = () => {
   const html = `<i class=" fa fa-video-camera"></i>
-  <span class="">Pause Video</span>`
+  <span class="">Wideo</span>`
   document.getElementById("playPauseVideo").innerHTML = html
 }
 
@@ -73,6 +90,10 @@ export default class extends React.Component {
     peers: [],
     /** @type {ReactElement[]} */
     messages: [],
+    /** @type {Peer} */
+    myPeer: null,
+    screenSharing: null,
+    idPeerToRemove: null,
   }
 
   videoConstraints = {
@@ -107,6 +128,7 @@ export default class extends React.Component {
 
   /** @return {BetterPeer} */
   addPeer(incomingSignal, callerID, stream) {
+    console.log("stream addpeer: ", stream)
     const peer = new Peer({
       initiator: false,
       trickle: false,
@@ -130,6 +152,7 @@ export default class extends React.Component {
     })
 
     this.videoStream = stream
+    myVideoStream = stream
 
     if (!this.initialized) {
       video.srcObject = stream
@@ -149,8 +172,16 @@ export default class extends React.Component {
       const peers = socketsIds.map(id =>
         this.createPeer(id, ws.id, this.videoStream)
       )
-
+      console.log({ peers })
       this.setState({ peers })
+    })
+
+
+    ws.on(`user screen sharing`, ({tekst, idToRemove}) => {
+      this.setState({idPeerToRemove: idToRemove})
+      console.log("idToRemove: ", idToRemove)
+      this.removeDisconnectedPeer(idToRemove)
+
     })
 
     ws.on("user joined", payload => {
@@ -197,8 +228,20 @@ export default class extends React.Component {
       }
     })
 
-    ws.on(`leave meeting`, (leave) =>{
+    ws.on(`leave meeting`, leave => {
       this.removeDisconnectedPeer(leave)
+    })
+    const stream = myVideoStream
+    ws.on(`my peer`, myPeer => {
+      const peer = new Peer({
+        initiator: true,
+        trickle: false,
+        stream,
+      })
+
+      peer.id = myPeer
+      this.setState({ myPeer: peer })
+      console.log("mypeer: ", this.state.myPeer)
     })
 
     ws.on("new message", this.addMessageToChat)
@@ -239,9 +282,10 @@ export default class extends React.Component {
     this.chatWindow.scrollTop = this.chatWindow.scrollHeight
   }
 
-  removeDisconnectedPeer = (id) => {
+  removeDisconnectedPeer = id => {
     const elem = document.querySelectorAll(`[data-peer-id="${id}"]`)[0]
-    return elem.parentNode.removeChild(elem);
+    console.log("elem: ", elem)
+    return elem.parentNode.removeChild(elem)
   }
 
   removeMessageFromChat = messageId => {
@@ -273,7 +317,7 @@ export default class extends React.Component {
   }
 
   removeMessageById = id => {
-    alert("kliknales usuń")
+    
 
     const msg = {
       messageId: id,
@@ -310,25 +354,88 @@ export default class extends React.Component {
     window.open("", "_self")
     window.close()
   }
+  isScreenSharing = false
+  shareScreen = async () => {
+    // this.isScreenSharing = !this.isScreenSharing
+    // myVideo = document.querySelectorAll(`[data-peer-id="${ws.id}"]`)[0]
+    // let videoGrid = document.querySelector('#video-grid')
+    // console.log(videoGrid)
+    // if (this.isScreenSharing) {
+    //   this.initialized = false
+    //   let newVideo = document.createElement('video')
+    //   newVideo.srcObject = mediaStream
+    //   newVideo.play()
+    //   //videoGrid.appendChild(newVideo)
+    //   this.oldVideoTrack = myVideo.srcObject
+    //   myVideo.srcObject = mediaStream
+    //   this.oldVideoTrack = this.videoStream
+    //   this.videoStream = mediaStream
+    //   this.setState({ screenSharing: mediaStream })
+    //   this.init()
+    //   setSharingScreenPlayButton()
+    // }else{
+    //   setSharingScreenStopButton()
+    //   myVideo.srcObject = this.oldVideoTrack
+    //   myVideoStream = this.oldVideoTrack
+    //   this.oldVideoTrack = null
+      
+    // }
+    this.isScreenSharing = !this.isScreenSharing
+    let videoGrid = document.querySelector('#video-grid')
+    let myScreenSharing = document.createElement('video')
+    if (this.isScreenSharing) {
+      ws.emit(`screen sharing`, ws.id)
+      
+      let mediaStream = await navigator.mediaDevices.getDisplayMedia({
+        video: true,
+      })
+      const mediaStreamVideo = mediaStream.getTracks()[0];
 
-  shareScreen = () => {
-    // navigator.mediaDevices.getDisplayMedia({ cursor: true }).then(stream => {
-    //   ws.emit("join room", this.roomId)
-    //   ws.on("user joined", payload => {
-    //     const peer = this.addPeer(payload.signal, payload.callerID, stream)
-    //     this.setState(({ peers }) => ({ peers: [...peers, peer] }))
-    //   })
-    //   ws.on("receiving returned signal", payload => {
-    //     const peer = this.state.peers.find(({ id }) => id === payload.id)
-    //     if (peer) peer.signal(payload.signal)
-    //     else console.error(`receiving returned signal, wrong payload ID`)
-    //   })
-    // })
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: true,
+      })
+      const streamAudio= stream.getTracks()[0];
+      console.log("streamAudio: ", streamAudio)
+
+      const newMediaStream = new MediaStream([mediaStreamVideo,streamAudio])
+
+
+      console.log("mediaStream.getTracks()[0]: ", mediaStream.getTracks()[0])
+      this.videoStream = newMediaStream
+      this.setState({ screenSharing: mediaStream })
+      this.init()
+      setSharingScreenPlayButton()
+      myScreenSharing.srcObject = newMediaStream
+      myScreenSharing.autoplay = true;
+      myScreenSharing.playsInline = true;
+      myScreenSharing.dataset.peerId = ws.id
+      //videoGrid.appendChild(myScreenSharing)
+      videoGrid.prepend(myScreenSharing)
+    }else{
+      ws.emit(`screen sharing`, ws.id)
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: this.videoConstraints,
+        audio: true,
+      })
+  
+      this.videoStream = stream
+      this.setState({ screenSharing: null })
+      this.init()
+      myScreenSharing.srcObject = stream
+      myScreenSharing.autoplay = true;
+      myScreenSharing.playsInline = true;
+      myScreenSharing.dataset.peerId = ws.id
+      videoGrid.prepend(myScreenSharing)
+      
+    }
+    
   }
 
   setActiveVideo = id => {
     this.setState({ activeVideo: id })
   }
+
+  
 
   render = () => {
     const videosObjects = []
@@ -361,6 +468,19 @@ export default class extends React.Component {
           {video}
         </button>
       ))
+
+    // myVideoStream.getVideoTracks()[0].onended = () => {
+    //   alert("wylaczyles udostepnianie")
+    // }
+    if (this.state.screenSharing != null)
+      this.state.screenSharing.getVideoTracks()[0].onended = () => {
+        setSharingScreenStopButton()
+        //this.isScreenSharing = false
+        this.shareScreen()
+
+      }
+
+    console.log("peers: ", this.state.peers)
 
     return (
       <div className="main">
@@ -409,6 +529,7 @@ export default class extends React.Component {
             <div className="main__controls_block">
               <div
                 role="button"
+                id="screenSharing"
                 className="main__controls_button"
                 tabIndex={-2}
                 onClick={this.shareScreen}

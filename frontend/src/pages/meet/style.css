@@ -15,8 +15,8 @@ body {
   gap: 5px;
   height: 100%;
   width: 100%;
-  flex-wrap: wrap;
-  overflow-y: auto;
+  flex-wrap: nowrap;
+  overflow-x: auto;
 }
 video {
   display: block;
@@ -46,13 +46,22 @@ video {
   background-color: #000;
   display: flex;
   flex-direction: row;
+  height: 88vh;
 }
 .main__video__left{
   /* background-color: aquamarine; */
   background-color: #1c1e20;
+  display: flex;
+  flex-direction: column;
   width: 17%;
   height: 100%;
   padding-top: 10px;
+  padding-left: 2px;
+  padding-right: 2px;
+  padding-bottom: 10px;
+}
+#video-grid::-webkit-scrollbar {
+  display: none;
 }
 .main__video__right{
   background-color:brown;
@@ -176,5 +185,11 @@ video {
   margin-left: auto;
 }
 
+.sharing{
+  color: #00ff00;
+}
+.disable{
+  pointer-events: none;
+}
 
 
