@@ -192,7 +192,13 @@ export default ({ className = ``, group, platformId }) => {
           <Tab className={`is-centered ${boxesClasses.tabSwitch}`} name="Ogólne">
             <p>Skala ocen (wartości całkowite rozdzielone spacjami)</p>
 
-            <Form classNames={{ it:`is-relative`, errorBox:boxesClasses.floatingErrorBox }}>
+            <Form
+              classNames={{
+                it: `is-relative`,
+                errorBox: boxesClasses.floatingErrorBox,
+                successBox: `${classes.successBox} ${classes.isLime}`,
+              }}
+            >
               <Text
                 className={classes.input}
                 name="gradingScale"

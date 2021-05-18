@@ -1,7 +1,7 @@
 import { isBrowser } from "./functions.js"
 
 export const location = isBrowser() ? window.location : null
-export const SERVER_SSL = true
+export const SERVER_SSL = false
 export const ORIGIN = `http${SERVER_SSL ? `s` : ``}://${location?.hostname ?? `localhost`}:3000`
 
 export const WS_ORIGIN = `ws${SERVER_SSL ? `s` : ``}://${location?.hostname ?? `localhost`}:3000`
@@ -18,7 +18,7 @@ const URLS = {
   LOGIN_POST: () => `${ORIGIN}/api/login`,
   LOGOUT_POST: () => `${ORIGIN}/api/logout`,
   REGISTER_POST: () => `${ORIGIN}/api/register`,
-  REGISTER_CONFIRM$CODE_POST: () => `${ORIGIN}/api/activate/:code`,
+  REGISTER_ACTIVATE_POST: () => `${ORIGIN}/api/activate/`,
   PASSWORD_REMIND_POST: () => `${ORIGIN}/api/password/remind`,
   PASSWORD_RESET_POST: () => `${ORIGIN}/api/password/reset`,
 
@@ -38,6 +38,7 @@ const URLS = {
   PLATFORM$ID_DELETE: platformId => `${ORIGIN}/api/platforms/${platformId}`,
   PLATFORM$ID_USERS_POST: platformId => `${ORIGIN}/api/platforms/${platformId}/users`,
   PLATFORM$ID_USERS_GET: platformId => `${ORIGIN}/api/platforms/${platformId}/users`,
+  PLATFORM_USERS_ACTIVATE_POST: () => `${ORIGIN}/api/platforms/users/activate`,
   PLATFORM$ID_USERS$ID_PUT: (platformId, userId) => `${ORIGIN}/api/platforms/${platformId}/users/${userId}`,
   PLATFORM$ID_USERS$ID_DELETE: (platformId, userId) => `${ORIGIN}/api/platforms/${platformId}/users/${userId}`,
   PLATFORM$ID_PERMISSIONS_POST: platformId => `${ORIGIN}/api/platforms/${platformId}/newpermissions`,

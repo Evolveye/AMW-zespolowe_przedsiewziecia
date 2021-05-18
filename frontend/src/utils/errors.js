@@ -47,6 +47,7 @@ const ERRORS = {
   326: <p>Nie można utworzyć grupy, nie podałeś wymaganych informacji.</p>,
   338: <p>Oceny powinny być wartościami całkowitymi!</p>,
   347: <p>Musisz podać nazwę zadania.</p>,
+  348: <p>Skala nie została zmieniona, ponieważ nie podałeś nowych wartości.</p>,
   350: <p>Nie można utworzyć roli bez podania jej nazwy.</p>,
   355: <p>Grupa o podanej nazwie już istnieje! Podaj inną nazwę.</p>,
   356: <p>Podana nazwa grupy jest zbyt długa.</p>,

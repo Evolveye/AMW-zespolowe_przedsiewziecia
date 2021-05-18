@@ -16,10 +16,12 @@
       position: absolute;
       left: 50%;
       transform: translateX( -50% );
+      display: flex;
       width: max-content;
       padding: 5px;
       border-radius: 10px;
       background-color: var( --background-color );
+      z-index: 10;
     }
         .mainNav {
           bottom: 50px;
@@ -74,4 +76,13 @@
   position: absolute;
   top: 0;
   right: 0;
+}
+.videos {
+  display: flex;
+  flex-direction: column;
+}
+.video {
+  background-color: #fff2;
+  margin: 5px;
+  width: 250px;
 }

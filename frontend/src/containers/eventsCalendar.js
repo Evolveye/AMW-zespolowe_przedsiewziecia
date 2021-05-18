@@ -18,7 +18,7 @@ export default ({ className = `` }) => {
     } )
   }, [ platformId, groupId ] )
 
-  return (
+  return !events ? null : (
     <Calendar
       classNames={{
         it: className,

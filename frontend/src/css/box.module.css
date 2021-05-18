@@ -67,6 +67,7 @@
   transform: translateX( -50%);
   width: 150%;
 }
+.successBox.is-lime,
 .successBox > * {
   padding: 15px;
   border-radius: 10px;
@@ -102,6 +103,12 @@
   min-height: 200px;
   align-items: center;
   justify-content: center;
+}
+.smallBox {
+  min-height: unset;
+}
+.is-flexColumn {
+  flex-direction: column;
 }
 .input {
   display: block;

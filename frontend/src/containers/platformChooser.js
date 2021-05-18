@@ -71,9 +71,9 @@ export default ({ className = `` }) => {
       btnClassName={`${buttonsClasname} ${classes.navSwitch}`}
       btnIsActiveClassname="is-active"
       renderChoosedItem={
-        () => !p || isDataLoading( platform ) ? <span className={`tag ${classes.linkTag}`}>Wybierz platformę...</span> : (
+        () => !platform || isDataLoading( platform ) ? <span className={`tag ${classes.linkTag}`}>Wybierz platformę...</span> : (
           <>
-            <Link className={`${classes.platform}`} to={`/platform?p=${p}`}>
+            <Link className={`${classes.platform}`} to={`/platform?p=${platform.id}`}>
               {platform.name}
             </Link>
 
