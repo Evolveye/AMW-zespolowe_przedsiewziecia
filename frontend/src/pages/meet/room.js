@@ -7,6 +7,10 @@ import { isBrowser } from "../../utils/functions"
 
 import "font-awesome/css/font-awesome.min.css"
 import "./style.css"
+
+import dane from "../../../cypress/integration/PlatformaEdukacyjna/Dane/dane.js"
+
+
 /** @typedef {Peer.Instance & { id:string }} BetterPeer */
 
 const Video = ({ peer }) => {
@@ -380,6 +384,7 @@ export default class extends React.Component {
     //   this.oldVideoTrack = null
       
     // }
+    console.log("dane: ", dane)
     this.isScreenSharing = !this.isScreenSharing
     let videoGrid = document.querySelector('#video-grid')
     let myScreenSharing = document.createElement('video')

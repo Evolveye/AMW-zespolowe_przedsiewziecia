@@ -30,6 +30,8 @@
     "styled-components": "^5.2.3"
   },
   "devDependencies": {
+    "cypress": "^7.3.0",
+    "cypress-localstorage-commands": "^1.4.4",
     "prettier": "2.1.2"
   },
   "keywords": [
