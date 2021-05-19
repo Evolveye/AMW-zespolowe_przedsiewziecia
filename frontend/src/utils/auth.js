@@ -31,8 +31,9 @@ export const getToken = () => getFromStorage( `token` )
 export const fakeLogin = () => setUser( fakeUser )
 export const isLogged = () => !!getUser()
 export const logout = () => clearStorage()
+export const authorizeWs = ws => ws.emit( `authenticate`, getToken() )
 
-if (getToken()) ws.emit( `authenticate`, getToken() )
+if (getToken()) authorizeWs( ws )
 
 export const authFetcher = new Proxy( fetcher, {
   get( fetcher, key ) {
@@ -62,6 +63,13 @@ export const useUser = () => {
 }
 
 
+export const fetchUser = async() => {
+  const { user } = await fetcher.get( URLS.USER_ME_GET(), getAuthHeaders() )
+
+  if (user) return setUser( user )
+}
+
+
 export const register = data => {
   return fetcher.post( URLS.REGISTER_POST(), data )
 }
@@ -73,8 +81,5 @@ export const login = async data => {
   if (!tokenData?.token) return tokenData
 
   setToken( tokenData.token )
-
-  const { user } = await fetcher.get( URLS.USER_ME_GET(), getAuthHeaders() )
-
-  if (user) return setUser( user )
+  fetchUser()
 }

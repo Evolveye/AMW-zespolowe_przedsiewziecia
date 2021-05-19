@@ -31,7 +31,8 @@ export default () => {
                 <Processor entire render={({ group }) => group.name} />
               </Field>
               <Field label="Prowadzący" name="lecturer">
-                <Processor entire render={({ group:{ lecturer } }) => `${lecturer.name} ${lecturer.surname}`} />
+                {/* <Processor entire render={({ group:{ lecturer } }) => `${lecturer.name} ${lecturer.surname}`} /> */}
+                <Processor entire render={({ notes:[ note ] }) => `${note.lecturer.name} ${note.lecturer.surname}`} />
               </Field>
               <Field label="Nabyte oceny" name="notes">
                 <Processor

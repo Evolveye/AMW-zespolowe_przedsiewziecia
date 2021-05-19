@@ -4,7 +4,7 @@ import { Link } from "gatsby"
 
 import classes from "./calendar.module.css"
 
-const daysInMonth = (year, month) => 32 - new Date( year, month, 32 ).getDate()
+const daysInMonth = (year, month) => 32 - new Date( year, month + 1, 32 ).getDate()
 const firstDayInMonth = (year, month) => (new Date( year, month )).getDay()
 
 const today = new Date()
@@ -12,7 +12,7 @@ const month = today.getMonth()
 const year = today.getFullYear()
 
 
-const firstDay = firstDayInMonth( 2021, 3 ) - 1
+const firstDay = firstDayInMonth( year, month ) - 1
 
 
 export const Info = () => null

@@ -1,7 +1,7 @@
 import { isBrowser } from "./functions.js"
 
 export const location = isBrowser() ? window.location : null
-export const SERVER_SSL = false
+export const SERVER_SSL = true
 export const ORIGIN = `http${SERVER_SSL ? `s` : ``}://${location?.hostname ?? `localhost`}:3000`
 
 export const WS_ORIGIN = `ws${SERVER_SSL ? `s` : ``}://${location?.hostname ?? `localhost`}:3000`
@@ -88,6 +88,7 @@ const URLS = {
   MEET$ID_DELETE: meetId => `${ORIGIN}/api/meets/${meetId}`,
   MEET$ID_USERS_POST: meetId => `${ORIGIN}/api/meets/${meetId}/users`,
   MEET$ID_USERS_GET: meetId => `${ORIGIN}/api/meets/${meetId}/users`,
+  MEET$ID_CHAT_GET: meetId => `${ORIGIN}/api/meets/${meetId}/chat`,
   MEET$ID_USERS$ID_DELETE: (meetId, userId) => `${ORIGIN}/api/meets/${meetId}/users/${userId}`,
   MEET$ID_PERMISSIONS_GET: meetId => `${ORIGIN}/api/meets/${meetId}/permissions`,
   MEET$ID_PERMISSIONS_MY_GET: meetId => `${ORIGIN}/api/meets/${meetId}/permissions/my`,

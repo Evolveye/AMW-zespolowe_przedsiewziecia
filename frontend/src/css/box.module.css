@@ -60,6 +60,7 @@
   padding: 15px;
   background-color: #ed5e44;
 }
+.floatingSuccessBox,
 .floatingErrorBox {
   position: absolute;
   top: calc( 100% + 15px );
@@ -72,6 +73,13 @@
   padding: 15px;
   border-radius: 10px;
   background-color: #53c653;
+}
+
+.settingsFormMessage {
+  position: absolute;
+  top: calc( 50% + 125px );
+  left: 50%;
+  transform: translateX( -50% );
 }
 
 

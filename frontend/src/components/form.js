@@ -39,6 +39,11 @@ Submit.propTypes = {
 }
 
 
+export const Button = () => null
+Button.type = (<Button name="" />).type
+Button.propTypes = { ...formFieldProps, onClick:PropTypes.func }
+
+
 const Form = ({ errorBoxClassName, successBoxClassName, tab }) => {
   const [ fieldsValues, setValues ] = useState({})
   const [ response, setResponse ] = useState({ error:null, success:null })
@@ -123,6 +128,7 @@ function processFormChildren( element, updateValues, onSubmit ) {
     switch (child.type) {
       case Text.type:     return <input type="text" {...inputProps} />
       case Password.type: return <input type="password" {...inputProps} />
+      case Button.type: return <button type="button" {...props} />
 
       case Submit.type: return (
         <button

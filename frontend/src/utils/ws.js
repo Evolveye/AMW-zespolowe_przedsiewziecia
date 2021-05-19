@@ -2,6 +2,7 @@ import { WS_ORIGIN } from "../utils/urls.js"
 // import { getToken } from "./auth.js"
 import { isBrowser } from "./functions.js"
 
+let _WS = null
 let ws = null
 
 if (isBrowser()) {
@@ -67,12 +68,11 @@ if (isBrowser()) {
 
       this.#defaultListener = listener
     }
-
-
   }
 
   // const token = getToken()
 
+  _WS = WS
   ws = new WS(WS_ORIGIN)
   ws.on( `not authenticated`, console.log )
 
@@ -82,4 +82,5 @@ if (isBrowser()) {
 
 
 const returnedWs = ws
+export const createWS = () => _WS ? new _WS(WS_ORIGIN) : {}
 export default returnedWs

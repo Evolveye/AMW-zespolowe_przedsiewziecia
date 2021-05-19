@@ -8,6 +8,8 @@ const ERRORS = {
   100: <p>Niepoprawne dane logowanie!. Nie znaleziono użytkownika o podanym loginie lub haśle.</p>,
   102: <p>Hasła nie są identyczne!</p>,
   106: <p>Hasło nie spełnia standardów bezpieczeństwa!</p>,
+  107: <p>Nieprawidłowy token</p>,
+  108: <p>Nie podałeś adresu email!</p>,
   110: <p>Sesja wygasła!</p>,
   113: <p>Uznaliśmy, że wprowadzony email jest niepoprawny. Zmień go!</p>,
   117: <p>To konto nie zostało jeszcze aktywowane!</p>,
@@ -18,6 +20,9 @@ const ERRORS = {
   122: <p>Musisz podać wszystkie dane przed zakończeniem rejestracji!</p>,
   124: <p>Konto z podanym mailem występuje już w systemie! Nie możesz zarejestrować ponownie tego samego adresu email.</p>,
   126: <p>Imię wraz z nazwiskiem nie moga zawierać spacji, liczb, i znaków specjalnych!</p>,
+  128: <p>Nie przekazałeś danych do zaktualizowania!</p>,
+  129: <p>Aktualne hasło jest niepoprawne!</p>,
+  130: <p>Ten login jest już w użyciu!</p>,
 
 
   203: <p>Musisz podać nazwę platformy!</p>,
@@ -67,5 +72,7 @@ export default new Proxy(ERRORS, {
     if (code in ERRORS) return ERRORS[ code ]
 
     console.info( `NIEOBSŁUGIWANY KOD BŁĘDU: ${code}` )
+
+    // return <p>Wystąpił nieoczekiwany problem</p>
   },
 })
