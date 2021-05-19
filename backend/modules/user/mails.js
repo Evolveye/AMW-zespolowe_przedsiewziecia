@@ -28,13 +28,13 @@ class EmailManager {
   })
 
   constructor() {
-    setInterval(() => { // Acctivation email's
-      this.#acctivateCollection = this.#acctivateCollection.filter(this.filterExpireActivationEmails)
-    }, REFRESHING_INTERVAL_TIME_IN_MINUTES)
+    setInterval( () => { // Acctivation email's
+      this.#acctivateCollection = this.#acctivateCollection.filter( this.filterExpireActivationEmails )
+    }, REFRESHING_INTERVAL_TIME_IN_MINUTES )
 
-    setInterval(() => {// Reset Passwd email's
-      this.#passwResetCollection = this.#passwResetCollection.filter(this.filterExpireResetEmails)
-    }, REFRESHING_INTERVAL_TIME_IN_MINUTES)
+    setInterval( () => { // Reset Passwd email's
+      this.#passwResetCollection = this.#passwResetCollection.filter( this.filterExpireResetEmails )
+    }, REFRESHING_INTERVAL_TIME_IN_MINUTES )
   }
 
 
@@ -42,7 +42,7 @@ class EmailManager {
    *
    * @param {Object} obj type of emailCollObj.
    */
-  filterExpireResetEmails = (obj) => (Date.now() - obj.SEND_DATE) < EMAIL.PASSWD_RESET_EXPIRE_TIME // nie minelo .
+  filterExpireResetEmails = obj => (Date.now() - obj.SEND_DATE) < EMAIL.PASSWD_RESET_EXPIRE_TIME // nie minelo .
 
   getAllAcctivationEmails = () => this.#acctivateCollection
   getAllResetEmails = () => this.#passwResetCollection
@@ -51,7 +51,7 @@ class EmailManager {
    *
    * @param {Object} obj type of emailCollObj.
    */
-  filterExpireActivationEmails = (obj) => (Date.now() - obj.SEND_DATE) < EMAIL.ACTIVATION_EXPIRE_TIME // nie minelo .
+  filterExpireActivationEmails = obj => (Date.now() - obj.SEND_DATE) < EMAIL.ACTIVATION_EXPIRE_TIME // nie minelo .
 
   /**
    * Checks that an account can be activated.
@@ -59,15 +59,15 @@ class EmailManager {
    * @param {number} login
    * @returns {boolean}
    */
-  isActiveActivationEmail(login) {
-    //TODO: refactor return user OBJ or false.
+  isActiveActivationEmail( login ) {
+    // TODO: refactor return user OBJ or false.
 
-    const collObj = this.#acctivateCollection.find((obj, idx) => obj.USER_ID == login)
+    const collObj = this.#acctivateCollection.find( (obj, idx) => obj.USER_ID == login )
     if (!collObj) return false
 
 
-    const idx = this.#acctivateCollection.indexOf(collObj)
-    this.#acctivateCollection.splice(idx, 1) // delete email obj in collection.
+    const idx = this.#acctivateCollection.indexOf( collObj )
+    this.#acctivateCollection.splice( idx, 1 ) // delete email obj in collection.
     return true
 
   }
@@ -79,29 +79,29 @@ class EmailManager {
     * @param {number} login
     * @returns {string|boolean}  restuns
     */
-  isActiveResetEmail(uniqueId) {
-    //TODO: refactor return user OBJ or false.
+  isActiveResetEmail( uniqueId ) {
+    // TODO: refactor return user OBJ or false.
 
     const collObj = this.#passwResetCollection.find(
-      (obj, idx) => obj.UNIQUE_ID == uniqueId
+      (obj, idx) => obj.UNIQUE_ID == uniqueId,
     )
 
     if (!collObj) return false
 
-    const idx = this.#passwResetCollection.indexOf(collObj)
-    this.#passwResetCollection.splice(idx, 1) // delete email obj in collection.
+    const idx = this.#passwResetCollection.indexOf( collObj )
+    this.#passwResetCollection.splice( idx, 1 ) // delete email obj in collection.
     return collObj.EMAIL
 
 
   }
 
-  findEmailById(passwResetUniqueCode) {
-    const resetemailobj = this.#passwResetCollection.find((obj) => obj.UNIQUE_ID == passwResetUniqueCode)
+  findEmailById( passwResetUniqueCode ) {
+    const resetemailobj = this.#passwResetCollection.find( obj => obj.UNIQUE_ID == passwResetUniqueCode )
     return resetemailobj.EMAIL
   }
 
-  removeResetEmail(passwResetUniqueCode) {
-    this.#passwResetCollection = this.#passwResetCollection.filter(obj => obj.UNIQUE_ID != passwResetUniqueCode)
+  removeResetEmail( passwResetUniqueCode ) {
+    this.#passwResetCollection = this.#passwResetCollection.filter( obj => obj.UNIQUE_ID != passwResetUniqueCode )
   }
 
   /**
@@ -120,21 +120,25 @@ class EmailManager {
       html: body,
     }
 
-    this.#transporter.sendMail(mailOptions, (err, info) => {
+    this.#transporter.sendMail( mailOptions, (err, info) => {
       if (err) {
         throw err
       } else {
-        console.log(`Email to ${ mailOptions.to } has been send.`)
+        console.log( `Email to ${ mailOptions.to } has been send.` )
       }
-    })
+    } )
   }
+
+
+
+
 
   /**
    *
    * @returns {number} uniqueId.
    */
-  sendResetPasswordEmail(email) {
-    var uniqueId = Math.random()
+  sendResetPasswordEmail( req, email, code ) {
+    var uniqueId = code
 
     const mailOptions = {
       from: EMAIL.GMAIL_USER_NAME,
@@ -142,8 +146,8 @@ class EmailManager {
       subject: EMAIL.PASSWORD_RESET_SUBJECT,
       html: `
       <h1>
-      <a href="${PASSW_RESET_FRONT_ADDR}?code=${uniqueId}"> Kliknij aby zrezetować hasło. </a>
-      </h1> 
+      <a href="${req?.headers.origin}/password/reset?code=${uniqueId}"> Kliknij aby zresetować hasło. </a>
+      </h1>
       `,
     }
     const emailCollObj = {
@@ -153,9 +157,9 @@ class EmailManager {
       EMAIL: email,
     }
 
-    this.#transporter.sendMail(mailOptions, (err, info) => {
+    this.#transporter.sendMail( mailOptions, (err, info) => {
       if (err) {
-        console.log("Cannot send e-mail", { err })
+        console.log( `Cannot send e-mail`, { err } )
       } else {
         // const emailCollObj = {
         //   EMAIL_OPTIONS: mailOptions,
@@ -163,47 +167,48 @@ class EmailManager {
         //   UNIQUE_ID: uniqueId,
         //   EMAIL: email,
         // }
-        console.log(`Reset Passw send --> `, { email: emailCollObj.EMAIL_OPTIONS.to })
-        this.#passwResetCollection.push(emailCollObj)
+        console.log( `Reset Passw send --> `, { email: emailCollObj.EMAIL_OPTIONS.to } )
+        this.#passwResetCollection.push( emailCollObj )
       }
-    })
+    } )
 
   }
 
   /**
-   *
-   * @param {string} name User name.
-   * @param {string} email User personal e-mail.
-   * @param {number} userID User login.
+   * @param {object} userObj User.
+   * @param {string} userObj.name User name.
+   * @param {string} userObj.email User personal e-mail.
+   * @param {number} userObj.id User login.
+   * @param {import('express').Request} req User login.
    */
-  sendAcctivationEmail(userObj) {
+  sendAcctivationEmail( userObj, req ) {
     const mailOptions = {
       from: EMAIL.GMAIL_USER_NAME,
       to: userObj.email,
-      subject: EMAIL.ACCTIVATE_ACCOUNT_SUBJECT,
+      subject: EMAIL.ACCTIVATE_ACCOUNT_SUBJECT, // JUMP
       html: `
-      <h2>Twój login do platformy: ${userObj.login}</h2>
-      <p>Na aktywację konta masz ${(EMAIL.ACTIVATION_EXPIRE_TIME)/ONE_MINUTE} minut
-      (do ${new Date(new Date().getTime() +EMAIL.ACTIVATION_EXPIRE_TIME ).toLocaleTimeString('pl-PL').slice(0,5)}).</p>
-      <p>Kilknij <a href="${ACTIVATE_FRONT_ADDR}?code=${userObj.id}">TUTAJ</a> aby aktywować konto. </p>
-      <br/><br/>
-      <small>Jeśli nie zakładałeś konta na portalu edukacyjnym, zignoruj tego e-mail.</small>
+        <!-- <h2>Twój login do platformy: ${userObj.login}</h2> -->
+        <h2> Witamy na platformie. </h2>
+        <p>Na aktywację konta masz ${(EMAIL.ACTIVATION_EXPIRE_TIME) / ONE_MINUTE} minut
+        (do ${new Date(new Date().getTime() + EMAIL.ACTIVATION_EXPIRE_TIME ).toLocaleTimeString( `pl-PL` ).slice( 0, 5 )}).</p>
+        <p>Kilknij <a href="${req?.headers.origin || ACTIVATE_FRONT_ADDR}/activate?code=${userObj.id}">TUTAJ</a> aby aktywować konto. </p>
+        <br/><br/>
+        <small>Jeśli nie zakładałeś konta na portalu edukacyjnym, zignoruj tego e-mail.</small>
       `,
     }
 
-    this.#transporter.sendMail(mailOptions, (err, info) => {
+    this.#transporter.sendMail( mailOptions, (err, info) => {
       if (err) {
-        console.log("Cannot send e-mail", { err })
+        console.log( `Cannot send e-mail`, { err } )
       } else {
         const emailCollObj = {
           EMAIL_OPTIONS: mailOptions,
           SEND_DATE: Date.now(),
           USER_ID: userObj.id,
         }
-        this.#acctivateCollection.push(emailCollObj)
-        console.log(`Email succesfully. USER LOGIN ${userObj.login} E-MAIL ${userObj.email}`)
+        console.log( `Email succesfully. USER LOGIN ${userObj.login} E-MAIL ${userObj.email}` )
       }
-    })
+    } )
   }
 }
 

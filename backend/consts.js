@@ -34,6 +34,6 @@ export const LOGGERS = {
     { align:`center`, color:`white`,   value:`: ` },
     { align:`right`,  color:`yellow`,  length:13 },
     { align:`center`, color:`white`,   value:`: ` },
-    { align:`left`,   color:`white`,   firstSplitLen:50, splitLen:80 },
+    { align:`left`,   color:`white` }, // firstSplitLen:50, splitLen:80
   ], { separated:false, separateBreakBlock:true } ),
 }

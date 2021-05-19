@@ -1,23 +1,23 @@
-import Module from "../module.js";
-import emailsManager from "./mails.js";
-import User from "./model.js";
+import Module from "../module.js"
+import emailsManager from "./mails.js"
+import User from "./model.js"
 import {
   REFRESHING_INTERVAL_TIME_IN_MINUTES,
   TOKEN_EXPIRE_TIME_IN_MINUTES,
   ANSWERS,
-} from "./consts.js";
+} from "./consts.js"
 
-import { DEBUG } from "./../../consts.js";
+import { DEBUG } from "./../../consts.js"
 
-import * as generalMiddlewares from "./middlewares/general.js";
-import * as loggedUserMiddlewares from "./middlewares/users.js";
-import * as passwordMiddlewares from "./middlewares/password.js";
+import * as generalMiddlewares from "./middlewares/general.js"
+import * as loggedUserMiddlewares from "./middlewares/users.js"
+import * as passwordMiddlewares from "./middlewares/password.js"
 
 const midds = {
   ...generalMiddlewares,
   ...loggedUserMiddlewares,
   ...passwordMiddlewares,
-};
+}
 
 /**
  * @typedef {object} RequestAddition
@@ -53,13 +53,15 @@ const midds = {
 export default class UserModule extends Module {
   subcollections = {
     sessions: `sessions`,
+    registration_confirm:`register.confirm`,
+    reset_confirm:`reset.confirm`,
   };
 
-  constructor(...params) {
-    super(...params);
+  constructor( ...params ) {
+    super( ...params )
 
-    setInterval(async () => {
-      this.logger("DELETE EXPIRED TOKEN MECHANISM.");
+    setInterval( async() => {
+      this.logger( `DELETE EXPIRED TOKEN MECHANISM.` )
 
       await this.dbManager.deleteObjectsInCollection(
         this.subcollections.sessions,
@@ -67,63 +69,70 @@ export default class UserModule extends Module {
           lastActivity: {
             $lt: Date.now() - TOKEN_EXPIRE_TIME_IN_MINUTES,
           },
-        }
-      );
-
-      await this.dbManager.deleteObjectsInCollection(this.basecollectionName, {
-        lastActivity: {
-          // wszystko co nie spelnia warunku zostaje usuniete
-          $lt: Date.now() - TOKEN_EXPIRE_TIME_IN_MINUTES /* to ms */,
         },
-      });
-    }, REFRESHING_INTERVAL_TIME_IN_MINUTES);
+      )
+      await this.dbManager.deleteObjectsInCollection(
+        this.subcollections.registration_confirm,
+        {
+          created: {
+            $lt: Date.now() - TOKEN_EXPIRE_TIME_IN_MINUTES,
+          },
+        },
+      )
+      await this.dbManager.deleteObjectsInCollection(
+        this.subcollections.reset_confirm,
+        {
+          created: {
+            $lt: Date.now() - TOKEN_EXPIRE_TIME_IN_MINUTES,
+          },
+        },
+      )
+    }, REFRESHING_INTERVAL_TIME_IN_MINUTES )
   }
 
   getApi = () => ({
     "register": {
-      post: this.runMid(midds.registerMiddleware),
+      post: this.runMid( midds.registerMiddleware ),
     },
 
     /* TODO: czynnościami są metody, nie adres. Adres tworzą rzeczowniki
      * To powinno zostać rpzeniesione do "users" */
     "create": {
       "user": {
-        post: this.runMid(midds.createUserMiddleware),
+        post: this.runMid( midds.createUserMiddleware ),
       },
     },
 
     "login": {
-      post: this.runMid(midds.loginMiddleware),
+      post: this.runMid( midds.loginMiddleware ),
     },
 
     "logout": {
-      post: this.auth(this.runMid(midds.logoutMiddleware)),
+      post: this.auth( this.runMid( midds.logoutMiddleware ) ),
     },
 
-    "activate": {
-      ":code": {
-        get: this.runMid(midds.acctivateAccountMiddleware),
-      }
+    "activate": { // JUMP
+      post: this.runMid( midds.httpSetLoginAfterReg ),
     },
 
     "users": {
-      get: this.auth(this.runMid(midds.getAllUser)),
+      get: this.auth( this.runMid( midds.getAllUser ) ),
 
       "me": {
-        get: this.auth(this.runMid(midds.httpAmIMiddleware)),
-        put: this.auth(this.runMid(midds.updateUserSettings)),
+        get: this.auth( this.runMid( midds.httpAmIMiddleware ) ),
+        put: this.auth( this.runMid( midds.updateUserSettings ) ),
       },
     },
 
     "password": {
       "remind": {
-        post: this.runMid(midds.passwordRemindMiddleware),
+        post: this.runMid( midds.passwordRemindMiddleware ),
       },
 
       "reset": {
-        post: this.runMid(midds.passwordResetMiddleware),
-      }
-    }
+        post: this.runMid( midds.passwordResetMiddleware ),
+      },
+    },
   })
   /*
     new Map([
@@ -197,153 +206,121 @@ export default class UserModule extends Module {
    * @param {(req:Request res:Response next:NextFunction) => void} cb
    * @return {(req:Request res:Response next:NextFunction) => void|Response }
    */
-  auth = (cb) => async (req, res, next) => {
-    const authenticationToken = this.getTokenFromRequest(req);
+  auth = cb => async(req, res, next) => {
+    const authenticationToken = this.getTokenFromRequest( req )
     // const var2= authenticationToken.search(`.`)
 
     if (!authenticationToken || authenticationToken == `null`)
-      return res.status(400).json(ANSWERS.TOKEN_NOT_PROVIDED);
+      return res.status( 400 ).json( ANSWERS.TOKEN_NOT_PROVIDED )
 
-    const tokenExists = await this.tokenExist(authenticationToken);
-    if (!tokenExists) return res.status(400).json(ANSWERS.TOKEN_NOT_EXIST);
+    const tokenExists = await this.tokenExist( authenticationToken )
+    if (!tokenExists) return res.status( 400 ).json( ANSWERS.TOKEN_NOT_EXIST )
 
-    req.token = authenticationToken;
-    const { login, password, ...user } = await this.getUserByToken(authenticationToken);
-    req.user = user
+    req.token = authenticationToken
+    const maybeUser = await this.getUserByToken( authenticationToken )
 
-    cb(req, res, next);
+
+
+    // const { login, password, ...user } = maybeUser
+    req.user = maybeUser
+
+    cb( req, res, next )
   };
-
-  /** @param {Express} app */
-  configure(app) {
-    // const utils = new MiddlewareUtils(this)
-    //TODO: Rename with prefix ws or http
-
-    app.get("/test", this.test);
-
-    app.post("/api/login", (req, res, next) =>
-      loginMiddleware({ req, res, next, ...this })
-    );
-    app.post("/api/register", (req, res, next) =>
-      registerMiddleware({ req, res, next, ...this })
-    );
-    app.post("/api/password/remind", (req, res, next) =>
-      passwordRemindMiddleware({ req, res, next, ...this })
-    );
-    app.post("/api/password/reset", (req, res, next) =>
-      passwordResetMiddleware({ req, res, next, ...this })
-    ); // update passw in db
-    app.get("/api/activate/:code", (req, res, next) =>
-      acctivateAccountMiddleware({ req, res, next, ...this })
-    );
-
-    app.use(this.authorizeMiddleware);
-    app.use(this.tokenRefreshMiddleware);
-
-    app.post("/api/logout", (req, res, next) =>
-      logoutMiddleware({ req, res, next, ...this })
-    );
-
-    //users.js
-    app.get("/api/users/me", (req, res, next) =>
-      httpAmIMiddleware({ req, res, next, ...this })
-    );
-    app.get("/api/users", (req, res, next) =>
-      getAllUsers({ req, res, next, ...this })
-    );
-    app.put("/api/users/me", (req, res, next) =>
-      updateUserSettings({ req, res, next, ...this })
-    );
-  }
 
   /**
    * @param {Request} req
    * @param {Response} res
    * @param {NextFunction} next
    */
-  authorizeMiddleware = async (req, res, next) => {
-    const authenticationToken = this.getTokenFromRequest(req);
-    //const var2= authenticationToken.search(`.`)
+  authorizeMiddleware = async(req, res, next) => {
+    const authenticationToken = this.getTokenFromRequest( req )
+    // const var2= authenticationToken.search(`.`)
 
     if (!authenticationToken || authenticationToken == `null`)
-      return res.status(400).json(ANSWERS.TOKEN_NOT_PROVIDED);
+      return res.status( 400 ).json( ANSWERS.TOKEN_NOT_PROVIDED )
 
-    const tokenExists = await this.tokenExist(authenticationToken);
-    if (!tokenExists) return res.status(400).json(ANSWERS.TOKEN_NOT_EXIST);
+    const tokenExists = await this.tokenExist( authenticationToken )
+    if (!tokenExists) return res.status( 400 ).json( ANSWERS.TOKEN_NOT_EXIST )
 
-    req.token = authenticationToken;
-    req.user = await this.getUserByToken(authenticationToken);
+    req.token = authenticationToken
+    req.user = await this.getUserByToken( authenticationToken )
 
-    next();
+    next()
   };
 
   /** @param {User} user new user to save. */
-  saveUserInDb = async (user) => {
-    await this.dbManager.insertObject(this.basecollectionName, user);
-    // await this.dbManager.insertObject(`users`, user)
+  saveUserInDb = async user => {
+    // console.log({ USERRRR:user })
+    this.dbManager.insertObject( this.basecollectionName, user )
   };
 
   /** @param {WS} socket */
-  socketConfigurator = (socket) => {
-    socket.userScope = { token: `` };
+  socketConfigurator = socket => {
+    socket.userScope = {
+      /** @type {string} */
+      token: ``,
+      /** @type {User} */
+      user: {},
+    }
 
-    socket.on("authenticate",async (token) => {
-      this.refreshToken(token);
-      // this.logger({ AuthToken: token })
-      const session = this.getSessionByToken(token);
+    socket.on( `authenticate`, async token => {
+      this.logWs( `Socket authorization... (token=${token})` )
+      this.refreshToken( token )
 
-      socket.userScope.token = token;
-      socket.userScope.user = await this.getUserByToken(token)
-    });
+      const user = await this.getUserByToken( token )
 
-    socket.on("api.get.users.me", (data) =>
-      this.authorizedSocket(socket, async (token) => {
-        const user = await this.getUserByToken(token);
-        delete user.password;
+      socket.userScope.token = token
+      Object.assign( socket.userScope.user, user )
+    } )
 
-        this.logWs(JSON.stringify({ name: user.name, surname: user.surname }));
-        socket.emit("api.get.users.me", user);
-      })
-    );
+    socket.on( `api.get.users.me`, data =>
+      this.authorizedSocket( socket, async token => {
+        const user = await this.getUserByToken( token )
+        delete user.password
+
+        this.logWs( JSON.stringify({ name:user.name, surname:user.surname }) )
+        socket.emit( `api.get.users.me`, user )
+      } ),
+    )
   };
 
   /**
    * @param {WS} socket
    * @param {(token:string) => void} cb
    */
-  async authorizedSocket(socket, cb) {
-    const { token } = socket.userScope;
+  async authorizedSocket( socket, cb ) {
+    const { token } = socket.userScope
 
-    const tokenExist = await this.tokenExist(token);
+    const tokenExist = await this.tokenExist( token )
 
-    if (DEBUG || tokenExist) cb(token);
+    if (DEBUG || tokenExist) cb( token )
     // TODO po co debug tutaj ?
-    else socket.emit(`not authenticated`);
+    else socket.emit( `not authenticated` )
   }
 
   /** @param {string} token */
-  deleteSessionByToken = (token) => {
-    return this.dbManager.deleteObject(this.subcollections.sessions, {
+  deleteSessionByToken = token => {
+    return this.dbManager.deleteObject( this.subcollections.sessions, {
       token: token,
-    });
-    //this.dbManager.deleteObject('usersSessions', { token: token })
+    } )
+    // this.dbManager.deleteObject('usersSessions', { token: token })
   };
 
   /** @param {string} token */
-  tokenExist = (token) => {
-    return this.dbManager.findObject(this.subcollections.sessions, {
+  tokenExist = token => {
+    return this.dbManager.findObject( this.subcollections.sessions, {
       token: token,
-    });
+    } )
     //  t= this.dbManager.findObject('usersSessions', { token: token })
   };
 
   /** @param {string} token */
-  refreshToken = (token) => {
+  refreshToken = token => {
     return this.dbManager.updateObject(
       this.subcollections.sessions,
-      { token: token },
-      { $set: { lastActivity: Date.now() } }
-    );
+      { token:token },
+      { $set:{ lastActivity:Date.now() } },
+    )
     // this.dbManager.updateObject('usersSessions', { token: token }, { $set: { lastActivity: Date.now() } })
   };
 
@@ -351,9 +328,9 @@ export default class UserModule extends Module {
    * @param {Request} request
    * @returns {string|null}
    */
-  getTokenFromRequest = (request) => {
-    const authentication = request.header("Authentication");
-    return authentication ? authentication.match(/Bearer (.*)/)[1] : null;
+  getTokenFromRequest = request => {
+    const authentication = request.header( `Authentication` )
+    return authentication ? authentication.match( /Bearer (.*)/ )[ 1 ] : null
   };
 
   /**
@@ -361,16 +338,16 @@ export default class UserModule extends Module {
    * @param {Response} res
    * @param {NextFunction} next
    */
-  test = async (req, res, next) => {
-    console.log(`TEST ROUTE`);
+  test = async(req, res, next) => {
+    console.log( `TEST ROUTE` )
 
-    return res.status(200).json({
+    return res.status( 200 ).json({
       ActiveSessions: await this.dbManager.getCollection(
-        this.subcollections.sessions
+        this.subcollections.sessions,
       ),
       AcctivationEmailsCollection: emailsManager.getAllAcctivationEmails(),
       ResetEmailCollection: emailsManager.getAllResetEmails(),
-    });
+    })
   };
 
   /**
@@ -378,51 +355,103 @@ export default class UserModule extends Module {
    * @param {Response} res
    * @param {NextFunction} next
    */
-  tokenRefreshMiddleware = async (req, res, next) => {
-    const authenticationToken = this.getTokenFromRequest(req);
+  tokenRefreshMiddleware = async(req, res, next) => {
+    const authenticationToken = this.getTokenFromRequest( req )
     if (authenticationToken)
-      if (await this.tokenExist(authenticationToken)) {
+      if (await this.tokenExist( authenticationToken )) {
         // found a authentication header.
-        await this.refreshToken(authenticationToken);
+        await this.refreshToken( authenticationToken )
       }
 
     // NOT found a authentication header.
-    next();
+    next()
   };
 
   /** @param {string} token */
-  handleWhoAmI = async (token) => {
-    const user = await this.getUserByToken(token); // get user associated token.
-    delete user.password;
-    return user;
+  handleWhoAmI = async token => {
+    const user = await this.getUserByToken( token ) // get user associated token.
+    delete user.password
+    return user
   };
 
-  userExist = (userId) => {
-    let exist = this.dbManager.objectExist(this.basecollectionName, {
-      id: { $eq: userId },
-    });
+  saveRegObject = regObj =>
+    this.dbManager.insertObject( this.subcollections.registration_confirm, regObj )
+
+  findRegObject = userId =>
+    this.dbManager.findOne( this.subcollections.registration_confirm, { "user.id":{ $eq:userId } } )
+
+  findAndDeleteRegObj = userId =>
+    this.dbManager.findOneAndDelete( this.subcollections.registration_confirm, { "user.id":{ $eq:userId } } )
+
+  findResetObject = code =>
+    this.dbManager.findOne( this.subcollections.reset_confirm, { code:{ $eq:code } } )
+
+  saveResetObject = object =>
+    this.dbManager.insertObject( this.subcollections.reset_confirm, object )
+
+  findAndDeleteResetObject = code =>
+    this.dbManager.findOneAndDelete( this.subcollections.reset_confirm, { code:{ $eq:code } } )
+
+
+    acctivateAndChangeUserLogin = (login, userId) =>
+      this.dbManager.findOneAndUpdate( this.basecollectionName,
+        { id:{ $eq:userId } },
+        { $set:{ login:login, activated:true } },
+        { new:true },
+      )
+
+  changeUserLoginAndPassw = (userId, login, password) =>
+    this.dbManager.findOneAndUpdate( this.basecollectionName,
+      { id:{ $eq:userId } },
+      { $set:{ login:login, password:password } },
+      { new:true },
+    )
+
+  changeUserLogin = (userId, login) =>
+    this.dbManager.findOneAndUpdate( this.basecollectionName,
+      { id:{ $eq:userId } },
+      { $set:{ login:login } },
+      { new:true },
+    )
+
+  doesEmailExistsInDb = async email => {
+    const user = await this.dbManager.findOne( this.basecollectionName,
+      { email:{ $eq:email } } )
+    return user ? true : false
+  }
+
+  userExist = userId => {
+    let exist = this.dbManager.objectExist( this.basecollectionName, {
+      id: { $eq:userId },
+    } )
     // exist = this.dbManager.objectExist(`users`, { id: { $eq: userId } })
-    return exist;
+    return exist
   };
 
   /** @param {string} token */
-  getSessionByToken = async (token) => {
+  getSessionByToken = async token => {
     let session = await this.dbManager.findObject(
       this.subcollections.sessions,
-      { token: token }
-    );
+      { token:token },
+    )
     // session = await this.dbManager.findObject('usersSessions', { token: token })
-    return session;
+    return session
   };
 
   getUserByUserData = (name, surname, email) =>
-    this.dbManager.findOne(this.basecollectionName, {
+    this.dbManager.findOne( this.basecollectionName, {
       $and: [
-        { name: { $eq: name } },
-        { surname: { $eq: surname } },
-        { email: { $eq: email } },
+        { name:{ $eq:name } },
+        { surname:{ $eq:surname } },
+        { email:{ $eq:email } },
       ],
-    });
+    } );
+
+  getUserByLogin = login =>
+    this.dbManager.findOne(
+      this.basecollectionName,
+      { login:{ $eq:login } },
+    )
   // this.dbManager.aggregate(this.basecollectionName, {
   //   pipeline: [
   //     {
@@ -436,25 +465,29 @@ export default class UserModule extends Module {
   //   ],
   // }).toArray();
 
-  getUserById = async (user_id) => {
-    let userObj = await this.dbManager.findObject(this.basecollectionName, {
+  getUserById = async user_id => {
+    let userObj = await this.dbManager.findObject( this.basecollectionName, {
       id: user_id,
-    });
+    } )
     //  userObj = await this.dbManager.findObject('users', { id: user_id })
-    return userObj;
+    return userObj
   };
 
   /** @param {string} token */
-  getUserByToken = async (token) => {
+  getUserByToken = async token => {
     // TODO: Refactor, first call to usersSesstions
     // next take user id. find user by id and return.
 
-    const sessionObj = await this.getSessionByToken(token);
-    if (!sessionObj) return false;
+    // console.log( token )
+    const sessionObj = await this.getSessionByToken( token )
+    if (!sessionObj) return false
 
-    const userObj = this.getUserById(sessionObj.userId);
-    return userObj;
+    const userObj = this.getUserById( sessionObj.userId )
+    return userObj
   };
+
+  getUserByEmail = email =>
+    this.dbManager.findObject( this.basecollectionName, { email:{ $eq: email } } )
 
   /**
    *
@@ -466,51 +499,43 @@ export default class UserModule extends Module {
    */
   async createUser(
     { name, surname, email, ...restOfUser },
-    mailContent = null
+    mailContent = null,
   ) {
     // name, surname, email, {  password = null, login = null, activated = false, avatar = null } = {}
     // BUG: wyslac login i hasło userowi
-    if (!(name && surname && email)) return false;
+    if (!(name && surname && email)) return false
 
-    const user = new User(name, surname, email, restOfUser);
-    let notValid = null;
+    const user = new User(name, surname, email, restOfUser)
+    let notValid = null
 
     if (!DEBUG) {
       // TODO: Start Point.
       if ((notValid = user.validEmail()) !== undefined)
         // jesli zwrocilo objekt Answer.error
-        return notValid;
+        return notValid
 
-      if ((notValid = user.validPasswords()) !== undefined) return notValid;
+      if ((notValid = user.validPasswords()) !== undefined) return notValid
 
-      if ((notValid = user.validNames()) !== undefined) return notValid;
+      if ((notValid = user.validNames()) !== undefined) return notValid
     }
-    await this.dbManager.insertObject(this.basecollectionName, user);
 
-    mailContent.bodyHtml += `
-    <ul>
-      <li>Login: <b>${user.login}</b></li>
-      <li>Hasło: <b>${user.password}</b></li>
-    </ul>`;
+    await this.dbManager.insertObject( this.basecollectionName, user )
 
     if (mailContent)
       emailsManager.sendEmail({
         title: mailContent.titleText,
         body: mailContent.bodyHtml,
         email: user.email,
-      });
+      })
 
-    return user;
+    return user
   }
 
 
-  getUserByEmail = (email) => this.dbManager.findOne(this.basecollectionName, {
-    email: { $eq: email }
-  })
 
-  /**@returns {string}  Name of class */
+  /** @returns {string}  Name of class */
   toString = () => this.constructor.toString();
 
-  /**@returns {string}  Name of class */
-  static toString = () => "UserModule";
+  /** @returns {string}  Name of class */
+  static toString = () => `UserModule`;
 }

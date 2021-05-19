@@ -47,13 +47,13 @@ export default class Meet {
         if (!validateDate(this.dateStart, MEETING_DATE_MAX_YEARS_AHEAD))
             return false
 
-        if (!validateDate(this.dateEnd, MEETING_DATE_MAX_YEARS_AHEAD))
-            return false
+        // if (!validateDate(this.dateEnd, MEETING_DATE_MAX_YEARS_AHEAD))
+        //     return false
 
-        if (this.dateStart > this.dateEnd)
-            return false
+        // if (this.dateStart > this.dateEnd)
+        //     return false
 
-        console.log("date OK")
+        // console.log("date OK")
         return true
     }
 }
@@ -76,11 +76,8 @@ export class BoardImgs{
         this.filesPath = filesPath
     }
 
-    validate()
-    {
+    validate() {
         const imgFileExtensions = [`.jpg`,`.jpeg`,`.bmp`,`.png`,`.gif`,`.tif`,`.tiff`]
-
-
 
         if(!this.filesName.every(
             name => imgFileExtensions.some( ext => name.endsWith(ext) )

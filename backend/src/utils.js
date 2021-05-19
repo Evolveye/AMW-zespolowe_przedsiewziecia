@@ -166,21 +166,13 @@ export function random(min = 0, max = 9) {
 export function generateId(){ return  `${Date.now()}t${Math.random().toString().slice(2)}r`}
 
 export function validateDate(date, maxYearsAhead) {
-  const now = Date.now()
+  const now = Date.now() - 1000 * 60 * 5
   const year = 1000 * 60 * 60 * 24 * 365
 
   const years = maxYearsAhead * year
 
-  if (date < now)
-  {
-    return false
-  }
-
-
-  if (date > now + years)
-  {
-    return false
-  }
+  if (date < now) return false
+  if (date > now + years) return false
 
   return true
 }
