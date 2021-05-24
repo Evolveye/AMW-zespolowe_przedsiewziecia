@@ -1,0 +1,144 @@
+[{
+  "_id": {
+    "$oid": "600586497778ec2cc42de727"
+  },
+  "id": "1610974793354t20544642826315007r",
+  "name": "Adam",
+  "surname": "Szreiber",
+  "email": "megaminxdayan@gmail.com",
+  "login": "adam",
+  "password": "adam",
+  "activated": true,
+  "avatar": "/media/image/avatarDefault.jpg",
+  "createdDatetime": 1610974793354
+},{
+  "_id": {
+    "$oid": "6005867f7778ec2cc42de728"
+  },
+  "id": "1610974847062t4781811777879781r",
+  "name": "Jarek",
+  "surname": "Kania",
+  "email": "megaminxdayan@gmail.com",
+  "login": "jarek",
+  "password": "jarek",
+  "activated": true,
+  "avatar": "/media/image/avatarDefault.jpg",
+  "createdDatetime": 1610974847062
+},{
+  "_id": {
+    "$oid": "6005881c7778ec2cc42de72f"
+  },
+  "id": "1610975260304t1786168421065535r",
+  "name": "Patryk",
+  "surname": "Waski",
+  "email": "jariva4876@sofiarae.com",
+  "login": "patryk",
+  "password": "patryk",
+  "activated": true,
+  "avatar": "/media/image/avatarDefault.jpg",
+  "createdDatetime": 1610975260304
+},{
+  "_id": {
+    "$oid": "600589c07778ec2cc42de731"
+  },
+  "id": "1610975680792t27279286269382186r",
+  "name": "olek",
+  "surname": "Maslak",
+  "email": "jariva4876@sofiarae.com",
+  "login": "ol182Ma",
+  "password": "icRf#",
+  "activated": true,
+  "avatar": "/media/image/avatarDefault.jpg",
+  "createdDatetime": 1610975680792
+},{
+  "_id": {
+    "$oid": "600589cc7778ec2cc42de732"
+  },
+  "id": "1610975692488t12594268606442616r",
+  "name": "Jagoda",
+  "surname": "Wilk",
+  "email": "jariva4876@sofiarae.com",
+  "login": "Ja308Wi",
+  "password": "K#yJ&",
+  "activated": true,
+  "avatar": "/media/image/avatarDefault.jpg",
+  "createdDatetime": 1610975692488
+},{
+  "_id": {
+    "$oid": "600589d57778ec2cc42de733"
+  },
+  "id": "1610975701432t7756999698308229r",
+  "name": "Waldek",
+  "surname": "Dalek",
+  "email": "jariva4876@sofiarae.com",
+  "login": "Wa222Da",
+  "password": "PX!#%",
+  "activated": true,
+  "avatar": "/media/image/avatarDefault.jpg",
+  "createdDatetime": 1610975701432
+},{
+  "_id": {
+    "$oid": "60058a2d7778ec2cc42de735"
+  },
+  "id": "1610975789753t49023839340064534r",
+  "name": "Magda",
+  "surname": "Śnieg",
+  "email": "jariva4876@sofiarae.com",
+  "login": "magda",
+  "password": "magda",
+  "activated": true,
+  "avatar": "/media/image/avatarDefault.jpg",
+  "createdDatetime": 1610975789753
+},{
+  "_id": {
+    "$oid": "60058a497778ec2cc42de737"
+  },
+  "id": "1610975817109t361016811954048r",
+  "name": "Filip",
+  "surname": "Szreiber",
+  "email": "jariva4876@sofiarae.com",
+  "login": "Fi752Sz",
+  "password": "W$TEH",
+  "activated": true,
+  "avatar": "/media/image/avatarDefault.jpg",
+  "createdDatetime": 1610975817109
+},{
+  "_id": {
+    "$oid": "60058a577778ec2cc42de738"
+  },
+  "id": "1610975831665t5971833184986888r",
+  "name": "Danuta",
+  "surname": "Szreiber",
+  "email": "jariva4876@sofiarae.com",
+  "login": "Da782Sz",
+  "password": "^(#IF",
+  "activated": true,
+  "avatar": "/media/image/avatarDefault.jpg",
+  "createdDatetime": 1610975831665
+},{
+  "_id": {
+    "$oid": "600599517778ec2cc42de74e"
+  },
+  "id": "1610979665594t7009572601819747r",
+  "name": "Andrzej",
+  "surname": "Szary",
+  "email": "jariva4876@sofiarae.com",
+  "login": "andrzej",
+  "password": "andrzej",
+  "activated": true,
+  "avatar": "/media/image/avatarDefault.jpg",
+  "createdDatetime": 1610979665594
+},{
+  "_id": {
+    "$oid": "600599db7778ec2cc42de750"
+  },
+  "id": "1610979803448t7533778515585501r",
+  "name": "Bartek",
+  "surname": "Sosna",
+  "email": "jariva4876@sofiarae.com",
+  "login": "Ba257So",
+  "password": "ug@UN",
+  "activated": true,
+  "avatar": "/media/image/avatarDefault.jpg",
+  "createdDatetime": 1610979803448
+}]

@@ -1,0 +1,68 @@
+@host= http://localhost:3000
+
+// Ctrl Alt R -> RUN COMMAND SHORTCUT
+// Request have Metod in firt line ,
+// next comming up headers,
+// one line of free spacee
+// then put a body for request.
+GET {{host}}/api/test2
+
+
+########################### TESTY ##################################
+ GET  {{host}}/test
+ //authentication: Bearer 0.28995713355807684
+########################### ALL USERS #################################
+GET  {{host}}/
+Authentication: Bearer 0.6439677917109055
+
+######################### REGISTER ################################
+
+POST {{host}}/api/register
+Content-Type: application/json
+
+{
+    "name":"Jarek",
+    "surname":"Kania",
+    "email":"megaminxdayan@gmail.com",
+    "password1":"Genio112%",
+    "password2":"Genio112%"
+}
+######################## LOGIN ##################################
+POST {{host}}/api/login
+Content-Type: application/json
+
+{
+    "login": "adam",
+    "password":"adam"
+}
+######################## LOGOUT ####################################
+POST {{host}}/api/logout
+Authentication: Bearer 0.5293150228908141
+
+######################      ME    #####################################
+GET {{host}}/api/users/me
+Authentication: Bearer 0.7041701808047629
+
+######################### REMIND ###################################
+POST  {{host}}/api/password/remind
+Content-Type: application/json
+
+{
+    "email":"rzekaoazon@gmail.com"
+}
+
+#################################################################
+@uniqueId = 0.9017842983595987
+POST  {{host}}/api/password/reset
+Content-Type: application/json
+
+{
+    "password1":"111234",
+    "password2":"111234",
+    "code":{{uniqueId}}
+
+}
+
+#################################################################
+GET {{host}}/activate?code=0.9017842983595987
+

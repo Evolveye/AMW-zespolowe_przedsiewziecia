@@ -1,0 +1,22 @@
+[req]
+distinguished_name = req_distinguished_name
+x509_extensions = v3_req
+prompt = no
+[req_distinguished_name]
+C = PL
+ST = Pomorskie
+L = Internet
+O = Cactu
+OU = Development
+CN = 91.231.24.247
+[v3_req]
+keyUsage = critical, digitalSignature, keyAgreement
+extendedKeyUsage = serverAuth
+subjectAltName = @alt_names
+[alt_names]
+DNS.1 = www.localhost.pl
+DNS.2 = localhost.pl
+DNS.3 = localhost
+DNS.4 = www.91.231.24.247.pl
+DNS.5 = 91.231.24.247.pl
+DNS.6 = 91.231.24.247
