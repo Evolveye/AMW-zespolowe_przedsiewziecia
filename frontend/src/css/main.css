@@ -1,0 +1,45 @@
+.tag {
+  color: #aaa;
+}
+
+.is-highlightable {
+  position: relative;
+  display: block;
+  padding: 15px;
+  padding-left: 25px;
+  transition: background-color 0.1s;
+}
+.is-highlightable:hover,
+.highlighted {
+  background-color: white;
+  border-radius: 10px;
+}
+.is-highlightable::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 10px;
+  transform: translateY( -50% );
+  height: 0;
+  transition: height 0.25s;
+}
+.is-highlightable:hover::before {
+  height: 80%;
+  border-left: 2px solid var( --green );
+}
+
+.link {
+  color: #3fb8e7;
+  font-weight: bold;
+  border-bottom: 1px dashed;
+}
+    .link:hover {
+      border-bottom: 2px solid;
+    }
+    .link:active {
+      color: blueviolet;
+    }
+
+.is-relative {
+  position: relative;
+}

@@ -1,0 +1,41 @@
+.content {
+  width: 100%;
+  padding: 100px;
+}
+.section {
+  width: 100%;
+  padding: 100px 0;
+}
+.content:not( .is-centered-and-splited ) {
+  flex-direction: column;
+}
+.is-centered-and-splited {
+  display: flex;
+}
+.is-centered-and-splited > * {
+  flex-grow: 1;
+  flex-basis: 0;
+}
+.reducedWidthContent {
+  margin: 0 auto;
+  min-width: 750px;
+}
+.flexList {
+  display: flex;
+}
+.group-settings-switch {
+  position: absolute;
+  left: -55px;
+  top: -3px;
+}
+
+@media screen and (max-width:1000px) {
+  .content {
+    padding: 50px;
+  }
+  .reducedWidthContent {
+    margin: 0 auto;
+    min-width: unset;
+    width: 100%;
+  }
+}

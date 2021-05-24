@@ -1,0 +1,25 @@
+.main {
+  display: grid;
+  grid-template:
+    ".    .      .     .        ." 50px
+    ".    groups .     .        ." 50px
+    ".    groups .     content  ." calc( 100vh - var( --top-height ) - 200px )
+    ".    groups .     .        ." 100px /
+     50px 300px  100px 1fr      100px;
+}
+
+.groups {
+  grid-area: groups;
+  overflow: hidden;
+}
+
+.content {
+  position: relative;
+  grid-area: content;
+}
+
+@media screen and (max-width:1200px) {
+  .main {
+    grid-template-columns: 10px 250px 40px 1fr 10px;
+  }
+}

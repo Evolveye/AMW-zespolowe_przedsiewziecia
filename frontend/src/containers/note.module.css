@@ -1,0 +1,29 @@
+.note {
+  position: relative;
+}
+.value {
+  display: block;
+  width: max-content;
+  padding: 5px;
+  margin: 5px;
+  background-color: #0001;
+  border-radius: 5px;
+  font-family: monospace;
+}
+.description {
+  display: none;
+  position: absolute;
+  left: calc( 100% + 10px );
+  top: 50%;
+  width: 150px;
+  padding: 10px;
+  transform: translateY( -50% );
+  background-color: black;
+  border-radius: 10px;
+  color: white;
+  z-index: 1;
+}
+
+.value:hover + .description {
+  display: block;
+}

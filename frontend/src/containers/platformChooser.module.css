@@ -1,0 +1,108 @@
+.nav {
+  min-width: 250px;
+}
+
+.selectedPlatform {
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+}
+
+    .platform {
+      flex-grow: 1;
+      margin-right: 15px;
+      padding-top: 0;
+    }
+    .platform:hover {
+      background-color: white;
+    }
+
+    .table {
+      width: 100%;
+    }
+      .table.is-rotated {
+        padding-top: 115px;
+      }
+      .actionButton {
+        padding: 5px;
+      }
+      .actionButton.is-edit,
+      .actionButton.is-create,
+      .actionButton.is-delete {
+        padding: 10px;
+      }
+      .actionButton.is-create,
+      .actionButton.is-soft-create:hover {
+        color: white;
+        background-color: #3ca53c;
+      }
+      .actionButton.is-delete,
+      .actionButton.is-soft-delete:hover {
+        color: white;
+        background-color: #e51e1e;
+      }
+      .actionButton.is-edit,
+      .actionButton.is-soft-edit:hover {
+        color: white;
+        background-color: #11aafb;
+      }
+      .adder {
+        width: 100%;
+        margin: 0;
+      }
+      .color[style] {
+        display: block;
+        margin: 0 auto;
+        width: 40px;
+        height: 10px;
+        outline: 1px solid #bbb;
+        outline-offset: 4px;
+      }
+      .checkbox {
+        display: block;
+        margin: 0 auto;
+      }
+      .ability {
+        transform: rotate( 325deg );
+        white-space: nowrap;
+        max-width: 60px;
+        padding-left: 20px;
+      }
+      .isCenteredButton {
+        display: block;
+        margin: 10px auto;
+      }
+
+.toggleBox {
+  background-color: var( --background-color );
+}
+
+    .navSwitch {
+      width: calc( 100% - 10px );
+    }
+
+        /* .navSwitch:hover {
+          background-color: var( --green );
+        }
+
+        .navSwitch:hover::after {
+          border-left-color: white;
+          border-bottom-color: white;
+        } */
+
+    .items {
+      overflow: hidden;
+    }
+
+    .item {
+      display: block;
+      padding: 10px;
+    }
+
+        .item:not( :last-child ) {
+          border-bottom: 1px solid #aaa;
+        }
+
+    .item:hover {
+      background-color: white;
+    }

@@ -1,0 +1,56 @@
+.root {
+  --top-height: 60px;
+  --logo-width: 75px;
+  --platform-nav-width: 250px;
+
+  display: flex;
+  flex-direction: column;
+}
+
+
+
+.header {
+  display: grid;
+  grid-template:
+    "path         .   search      user"       var( --top-height ) /
+     max-content  1fr max-content max-content;
+}
+    .navigationPath {
+      grid-area: path;
+      display: flex;
+      align-items: center;
+    }
+        .navigationPathItem {
+          display: flex;
+          align-items: center;
+        }
+        .navigationPathItem::before,
+        .separator {
+          transform: translateY( -3px );
+          height: max-content;
+          margin: 0 20px;
+          font-size: 30px;
+          font-weight: bold;
+          color: #aaa;
+        }
+        .navigationPathItem::before {
+          content: "::";
+        }
+        /* .navigationPath > :not( :last-child ) {
+          position: relative;
+          margin-right: 40px;
+        }
+        .navigationPath > :not( :last-child )::after {
+          content: ">";
+          position: absolute;
+          left: calc( 100% + 15px );
+          top: calc( 50% - 10px );
+          display: block;
+        } */
+
+    .search {
+      grid-area: search;
+    }
+    .userField {
+      grid-area: user;
+    }

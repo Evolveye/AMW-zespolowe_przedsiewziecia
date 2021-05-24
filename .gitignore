@@ -4,3 +4,7 @@ public/
 resources/
 .vs*/
 *.zip
+backend/*
+
+*-temp
+temp-*

@@ -1,0 +1,48 @@
+.userField {
+  position: relative;
+  display: flex;
+}
+
+.activator {
+  background-color: transparent;
+  padding: 0;
+}
+
+.avatar {
+  margin: 5px;
+  width: 40px;
+  border-radius: 50%;
+}
+
+.data {
+  position: absolute;
+  top: calc( 100% + 10px );
+  left: unset;
+  right: 10px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  min-width: unset;
+  height: unset;
+
+  padding: 10px;
+}
+
+.name,
+.surname {
+  display: block;
+}
+
+.link {
+  padding: 5px;
+  text-align: center;
+}
+
+.logout {
+  padding: 5px;
+  background-color: #f05;
+  font-weight: bold;
+  color: white;
+}

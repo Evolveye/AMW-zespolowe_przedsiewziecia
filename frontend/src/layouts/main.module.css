@@ -1,0 +1,13 @@
+.root {
+  display: flex;
+  flex-direction: column;
+}
+
+.main {
+  display: flex;
+  min-height: calc( 100vh - var( --top-height ) - 50px );
+}
+
+.footer {
+  height: 50px;
+}

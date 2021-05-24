@@ -1,0 +1,16 @@
+.nav {
+  display: flex;
+  align-items: center;
+}
+.link {
+  display: flex;
+  flex-direction: column;
+  padding: 7px 15px;
+  font-weight: bold;
+}
+    .link-tag {
+      font-size: 12px;
+    }
+    .link-text {
+      padding-left: 10px;
+    }

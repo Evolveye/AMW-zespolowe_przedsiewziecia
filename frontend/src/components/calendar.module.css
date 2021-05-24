@@ -1,0 +1,19 @@
+.td {
+  vertical-align: top;
+  height: 3em;
+}
+
+.event {
+  position: relative;
+}
+
+.eventDescription {
+  display: none;
+  position: absolute;
+  background-color: #fff;
+  z-index: 1;
+}
+
+.title:hover + .eventDescription {
+  display: block;
+}
